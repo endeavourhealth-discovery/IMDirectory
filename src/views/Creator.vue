@@ -69,8 +69,8 @@ import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/D
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { QueryService } from "@/services";
 import { defineComponent } from "vue";
-import { setupValidity } from "@/composables/setupValidity";
-import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { useValidity } from "@/composables/useValidity";
+import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
@@ -102,8 +102,8 @@ import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
-import { setupEditorShape } from "@/composables/setupEditorShape";
+import { useEditorEntity } from "@/composables/useEditorEntity";
+import { useEditorShape } from "@/composables/useEditorShape";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
@@ -141,11 +141,11 @@ function onShowSidebar() {
   editorStore.updateFindInEditorTreeIri("");
 }
 
-const { editorEntity, editorEntityOriginal, processEntity, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } = setupEditorEntity(
+const { editorEntity, editorEntityOriginal, processEntity, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } = useEditorEntity(
   EditorMode.CREATE,
   updateType
 );
-const { shape, getShape, getShapesCombined, groups, processShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape } = useEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -159,8 +159,8 @@ const {
   validationChecksCompleted,
   checkValidity,
   checkExists
-} = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
+} = useValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = useValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
@@ -361,16 +361,19 @@ async function submit(): Promise<void> {
               title: "Success",
               text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
-              showCancelButton: true,
+              showCloseButton: true,
               reverseButtons: true,
-              confirmButtonText: "Open in Viewer",
+              confirmButtonText: "Close creator",
               confirmButtonColor: "#2196F3",
               cancelButtonColor: "#607D8B"
             }).then(async (result: SweetAlertResult) => {
               if (result.isConfirmed) {
-                await directService.view(editorEntity.value[IM.ID]);
-              } else {
-                await directService.edit(editorEntity.value[IM.ID], true);
+                window.onbeforeunload = null;
+                // If added via addEventListener
+                window.removeEventListener("beforeunload", beforeWindowUnload);
+                setTimeout(() => {
+                  window.close();
+                }, 0);
               }
             });
           }

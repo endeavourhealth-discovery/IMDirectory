@@ -51,7 +51,7 @@ import Filters from "@/components/shared/Filters.vue";
 import { ref, watch, onMounted } from "vue";
 import { FilterOptions } from "@/interfaces";
 import { SearchResultSummary } from "@/interfaces/AutoGen";
-import setupSpeechToText from "@/composables/setupSpeechToText";
+import { useSpeechToText } from "@/composables/useSpeechToText";
 import { Ref } from "vue";
 import InputGroupAddon from "primevue/inputgroupaddon";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
@@ -83,7 +83,7 @@ const buttonActions = ref([
 ]);
 const searchPlaceholder: Ref<string> = ref("Search");
 const searchLoading: Ref<boolean> = ref(false);
-const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const { listening, toggleListen } = useSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);
 

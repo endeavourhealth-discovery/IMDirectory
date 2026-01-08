@@ -8,9 +8,7 @@
     }}</span>
     <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
     <span v-if="subPredicate" class="field">{{ subPredicate }}</span>
-    <span v-if="match.nodeRef">test:</span>
-    <span v-else-if="match.return && match.keepAs">from</span>
-
+    <span v-if="match.nodeRef">from {{ match.nodeRef }} test:</span>
     <span v-if="match.description">
       <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchExpanded = !matchExpanded"></Button>
       <span class="match-description">{{ match.description }}</span>
@@ -129,7 +127,7 @@ import { Ref, ref, computed, inject } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { QueryService } from "@/services";
-import { getBooleanLabel, hasBoolGroups } from "@/composables/buildQuery";
+import { getBooleanLabel, hasBoolGroups } from "@/helpers/buildQuery";
 import MatchDescription from "@/components/query/viewer/MatchDescription.vue";
 
 interface Props {

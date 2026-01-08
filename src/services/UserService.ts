@@ -7,61 +7,63 @@ import PrimeVueColors from "@/enums/PrimeVueColors";
 import { UserData } from "@/interfaces/UserData";
 import { Graph } from "@/interfaces/AutoGen";
 
+const API_URL = Env.API + "api/user";
+
 const UserService = {
-  async getUserData(): Promise<UserData> {
-    return await axios.get(Env.API + "api/user/data");
+  async getUserSettings(): Promise<UserData> {
+    return await axios.get(API_URL + "/settings");
   },
-  async getUserScale(): Promise<string> {
-    return await axios.get(Env.API + "api/user/scale");
+  async getUserFontSize(): Promise<string> {
+    return await axios.get(API_URL + "/");
   },
   async getUserMRU(): Promise<RecentActivityItem[]> {
-    return await axios.get(Env.API + "api/user/MRU");
+    return await axios.get(API_URL + "/MRU");
   },
   async getUserFavourites(): Promise<string[]> {
-    return await axios.get(Env.API + "api/user/favourites");
+    return await axios.get(API_URL + "/favourites");
   },
   async getUserOrganisations(): Promise<string[]> {
-    return await axios.get(Env.API + "api/user/organisations");
+    return await axios.get(API_URL + "/organisations");
   },
   async getUserPreset(): Promise<PrimeVuePresetThemes> {
-    return await axios.get(Env.API + "api/user/preset");
+    return await axios.get(API_URL + "/preset");
   },
   async getUserPrimaryColor(): Promise<PrimeVueColors> {
-    return await axios.get(Env.API + "api/user/primaryColor");
+    return await axios.get(API_URL + "/primaryColor");
   },
   async getUserSurfaceColor(): Promise<PrimeVueColors> {
-    return await axios.get(Env.API + "api/user/surfaceColor");
+    return await axios.get(API_URL + "/surfaceColor");
   },
   async getUserDarkMode(): Promise<boolean> {
-    return await axios.get(Env.API + "api/user/darkMode");
+    return await axios.get(API_URL + "/darkMode");
   },
   async updateUserPreset(preset: PrimeVuePresetThemes): Promise<void> {
-    return await axios.post(Env.API + "api/user/preset", preset, { headers: { "Content-Type": "text/plain" } });
+    return await axios.post(API_URL + "/preset", preset, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserPrimaryColor(color: PrimeVueColors): Promise<void> {
-    return await axios.post(Env.API + "api/user/primaryColor", color, { headers: { "Content-Type": "text/plain" } });
+    return await axios.post(API_URL + "/primaryColor", color, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserSurfaceColor(color: PrimeVueColors): Promise<void> {
-    return await axios.post(Env.API + "api/user/surfaceColor", color, { headers: { "Content-Type": "text/plain" } });
+    return await axios.post(API_URL + "/surfaceColor", color, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserDarkMode(bool: boolean): Promise<void> {
-    return await axios.post(Env.API + "api/user/darkMode", { bool: bool });
+    return await axios.post(API_URL + "/darkMode", { bool: bool });
   },
-  async updateUserScale(scale: string): Promise<string> {
-    return await axios.post(Env.API + "api/user/scale", scale, { headers: { "Content-Type": "text/plain" } });
+  async updateUserFontSize(fontSize: string): Promise<string> {
+    return await axios.post(API_URL + "/fontSize", fontSize, { headers: { "Content-Type": "text/plain" } });
   },
   async updateUserMRU(mru: RecentActivityItem[]): Promise<void> {
-    return await axios.post(Env.API + "api/user/MRU", mru);
+    return await axios.post(API_URL + "/MRU", mru);
   },
   async updateUserFavourites(favourites: string[]): Promise<void> {
-    return await axios.post(Env.API + "api/user/favourites", favourites);
+    return await axios.post(API_URL + "/favourites", favourites);
   },
   async updateUserOrganisations(organisations: string[]): Promise<string[]> {
-    return await axios.post(Env.API + "api/user/organisations", organisations);
+    return await axios.post(API_URL + "/organisations", organisations);
   },
 
   async canUserEdit(iri: string): Promise<boolean> {
-    return await axios.get(Env.API + "api/user/editAccess", {
+    return await axios.get(API_URL + "/editAccess", {
       params: {
         iri: iri
       },

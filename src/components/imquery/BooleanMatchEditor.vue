@@ -125,9 +125,9 @@ import {
   matchDefined,
   deleteMatchFromParent,
   setReturn
-} from "@/composables/buildQuery";
+} from "@/helpers/buildQuery";
 import Button from "primevue/button";
-import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
+import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
@@ -154,7 +154,7 @@ const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigat
 const expandSet: Ref<boolean> = ref(false);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const group: Ref<number[]> = ref([]);
-const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
+const { onDragEnd, onDragStart, onDrop, onDragOver } = useECLBuilderActions(wasDraggedAndDropped);
 const hoverEditClause = ref(false);
 const hoverDeleteClause = ref(false);
 const hoverAddClause = ref(false);

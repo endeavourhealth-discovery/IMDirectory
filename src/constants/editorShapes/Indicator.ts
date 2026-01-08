@@ -243,7 +243,7 @@ const IndicatorShape: FormGenerator = {
             },
             {
               label: "Property group - denominator in array builder",
-              name: "denominator for indicator",
+              name: "Denominator for indicator",
               showTitle: true,
               order: 6,
               minCount: 0,
@@ -290,7 +290,7 @@ const IndicatorShape: FormGenerator = {
             },
             {
               label: "Property group - Query selector in array builder",
-              name: "Enumerator of the indicator",
+              name: "Numerator of the indicator",
               showTitle: true,
               order: 6,
               minCount: 1,
@@ -334,35 +334,53 @@ const IndicatorShape: FormGenerator = {
                   }
                 }
               ]
-            }
-          ]
-        },
-        {
-          label: "Property group - query definition builder",
-          name: "Cohort definition builder",
-          showTitle: false,
-          order: 1,
-          maxCount: 1,
-          path: {
-            iri: RDF.TYPE
-          },
-          componentType: {
-            iri: COMPONENT.VERTICAL_LAYOUT
-          },
-          property: [
+            },
             {
-              order: 1,
-              minCount: 1,
+              label: "Property group - Query selector in array builder",
+              name: "Data set of the indicator",
+              showTitle: true,
+              order: 6,
+              minCount: 0,
+              maxCount: 1,
               componentType: {
-                iri: COMPONENT.QUERY_DEFINITION_BUILDER
+                iri: COMPONENT.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
-                iri: VALIDATION.IS_DEFINITION
+                iri: VALIDATION.HAS_PARENT
               },
-              validationErrorMessage: "Query definition is not valid",
+              validationErrorMessage: "Entity is missing  dataset.",
               path: {
-                iri: IM.DEFINITION
-              }
+                iri: IM.HAS_DATASET
+              },
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 0,
+                  builderChild: true,
+                  componentType: {
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                  },
+                  select: [
+                    {
+                      iri: QUERY.SEARCH_ALLOWABLE_SUBCLASS
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        iri: IM.QUERY
+                      },
+                      parameter: "value"
+                    }
+                  ],
+                  path: {
+                    iri: IM.HAS_DATASET
+                  }
+                }
+              ]
             }
           ]
         }

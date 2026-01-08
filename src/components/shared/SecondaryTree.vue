@@ -79,10 +79,10 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { ConceptAggregate, TreeParent } from "@/interfaces";
 import { RDF, RDFS } from "@/vocabulary";
 import { EntityService } from "@/services";
-import setupTree from "@/composables/setupTree";
+import { useTree } from "@/composables/useTree";
 import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import { TTIriRef } from "@/interfaces/AutoGen";
 import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
 
@@ -100,8 +100,8 @@ const emit = defineEmits<{
   rowSelected: [payload: TreeNode | undefined];
 }>();
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = setupTree(emit, 20);
-const { showOverlay, hideOverlay, OS } = setupOverlay();
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = useTree(emit, 20);
+const { showOverlay, hideOverlay, OS } = useOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);

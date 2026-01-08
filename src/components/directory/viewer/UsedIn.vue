@@ -41,7 +41,7 @@ import { RDF, RDFS } from "@/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import { DirectService } from "@/services";
 import { DataTableRowSelectEvent } from "primevue/datatable";
 
@@ -70,7 +70,7 @@ const currentPage = ref(0);
 const pageSize = ref(25);
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 onMounted(async () => {
   await init();

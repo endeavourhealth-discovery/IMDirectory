@@ -36,6 +36,9 @@
         </template>
       </Column>
       <Column data-testid="col-code" field="code" header="Code" style="flex: 0 0 35%; word-break: break-all" />
+      <Column v-if="hasAlternativeCode" data-testid="col-altCode" field="alternativeCode" header="AltCode" style="flex: 0 0 35%; word-break: break-all" />
+      <Column v-if="hasCodeId" data-testid="col-codeId" field="codeId" header="CodeId" style="flex: 0 0 35%; word-break: break-all" />
+
       <template #groupheader="{ data }: any">
         <span data-testid="col-scheme" style="font-weight: 700; color: rgba(51, 153, 255, 0.8)">
           {{ data.scheme }}
@@ -47,13 +50,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { SimpleMap } from "@/interfaces";
 
-defineProps<{
-  data: [];
-}>();
+interface Props {
+  data: SimpleMap[];
+}
 
+const props = defineProps<Props>();
 const emit = defineEmits<{
   toggleOverlay: [payload: { event: MouseEvent; data: SimpleMap }];
   navigateTo: [payload: string];
@@ -62,6 +66,8 @@ const emit = defineEmits<{
 const loading = ref(false);
 const scrollHeight = ref("500px");
 const rows = ref(25);
+const hasAlternativeCode = computed(() => props.data.some((i: SimpleMap) => !!i.alternativeCode));
+const hasCodeId = computed(() => props.data.some((i: SimpleMap) => !!i.codeId));
 
 onMounted(() => {
   window.addEventListener("resize", onResize);

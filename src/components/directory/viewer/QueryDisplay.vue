@@ -29,8 +29,8 @@
           </div>
         </div>
       </template>
-      <template v-if="query">
-        <div  class="query-display-content rec-query-display">
+      <template v-if="query && (selectedDisplayOption == DisplayOptions.RuleView || selectedDisplayOption == DisplayOptions.LogicalView)">
+        <div class="query-display-content rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
             <span class="field" v-html="query.typeOf.name"></span>
@@ -54,26 +54,20 @@
       <div v-else-if="selectedDisplayOption == DisplayOptions.IML" class="query-display-content flex flex-col gap-4">
         <IMLDisplay v-if="iml" :iml="iml" />
       </div>
-      <div v-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
-        <span>Output columns:</span>
-        <ColumnGroupDisplay
-          v-if="!query.columnGroup"
-          :match="query"
-          :key="`dataSetQuery-return`"
-          :matchExpanded="false"
-          :returnExpanded="true"
-          :parentQuery="query"
-          :index="0"
-        />
-        <ColumnGroupDisplay
-          v-for="(nestedQuery, index) in query?.columnGroup"
-          :match="nestedQuery"
-          :key="`nestedQuery-${index}`"
-          :matchExpanded="false"
-          :returnExpanded="true"
-          :index="index"
-          :parentQuery="query"
-        />
+      <div v-if="query && query.columnGroup">
+        <span>Output columns </span>
+        <Button text :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="showColumns = !showColumns"></Button>
+        <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
+          <ColumnGroupDisplay
+            v-for="(nestedQuery, index) in query?.columnGroup"
+            :match="nestedQuery"
+            :key="`nestedQuery-${index}`"
+            :matchExpanded="false"
+            :returnExpanded="true"
+            :index="index"
+            :parentQuery="query"
+          />
+        </div>
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
       <ConfirmDialog group="templating">
@@ -102,17 +96,17 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { QueryService } from "@/services";
-import { Argument, ArgumentReference, IMLLanguage, Bool, DisplayMode, Query, QueryRequest } from "@/interfaces/AutoGen";
+import { CasbinService, Env, QueryService } from "@/services";
+import { Action, Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, QueryRequest, Resource, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import IMLDisplay from "./IMLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
-import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
-import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
+import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
+import ArgumentDisplayDialog from "@/components/directory/viewer/queryDisplay/ArgumentDisplayDialog.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 enum DisplayOptions {
@@ -120,8 +114,7 @@ enum DisplayOptions {
   LogicalView = "Logical view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL",
-  IML = "IMQuery",
-  DatasetDefinition = "Data output definition"
+  IML = "IMLanguage"
 }
 
 interface Props {
@@ -130,7 +123,6 @@ interface Props {
   queryDefinition?: Query;
   entityType?: string;
   eclQuery?: boolean;
-  showDataset?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -142,6 +134,8 @@ const confirm = useConfirm();
 const router = useRouter();
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+const showColumns = ref(false);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
@@ -152,12 +146,13 @@ const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
-const selectedDisplayOption: Ref<DisplayOptions> = ref(query.value?.columnGroup ? DisplayOptions.DatasetDefinition : DisplayOptions.LogicalView);
+const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
 const showArgumentSelector = ref(false);
 const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
 const runOnConfirm = ref(false);
+const hasPermissionQueryExecute = ref(false);
 provide("queryIri", props.entityIri);
 provide("displayMode", displayMode);
 
@@ -174,6 +169,10 @@ watch(
     await init();
   }
 );
+
+watch(currentUser, async () => {
+  hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+});
 
 watch(selectedDisplayOption, async (newValue, oldValue) => {
   if (!newValue) selectedDisplayOption.value = oldValue;
@@ -211,23 +210,16 @@ async function init() {
   }
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();
-  if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
-  else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
+  if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
   else selectedDisplayOption.value = DisplayOptions.LogicalView;
+  // if (isLoggedIn.value) {
+  // hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+  //}
   loading.value = false;
 }
 
 function setDisplayOptions() {
-  if (props.showDataset)
-    displayOptions.value = [
-      DisplayOptions.RuleView,
-      DisplayOptions.LogicalView,
-      DisplayOptions.MySQL,
-      DisplayOptions.PostreSQL,
-      DisplayOptions.IML,
-      DisplayOptions.DatasetDefinition
-    ];
-  else displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
+  displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL, DisplayOptions.IML];
 }
 
 async function getQueryDisplay(displayMode: DisplayMode) {
@@ -272,7 +264,7 @@ async function runQuery() {
       },
       accept: async () => {
         await addQueryToRunnerQueue();
-        router.push({ name: "QueryRunner" });
+        window.open(`${Env.QUERY_RUNNER}`, "_blank");
       },
       reject: () => confirm.close()
     });

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-10 08:47:32.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-06 08:51:19.
 
 export interface ConceptContextMap {
     id?: string;
@@ -56,6 +56,37 @@ export interface Pageable<T> {
     currentPage?: number;
     pageSize?: number;
     result?: T[];
+}
+
+export interface PolicyRequest {
+    userRole?: UserRole;
+    resource?: Resource;
+    action?: Action;
+}
+
+export interface User {
+    id?: string;
+    username?: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    password?: string;
+    avatar?: string;
+    roles?: UserRole[];
+    groups?: string[];
+    test?: string;
+    roleNames?: string[];
+}
+
+export interface UserSettings {
+    darkMode?: boolean;
+    organisations?: string[];
+    favourites?: string[];
+    mru?: RecentActivityItemDto[];
+    preset?: string;
+    primaryColor?: string;
+    surfaceColor?: PrimeVueColors;
+    fontSize?: FontSize;
 }
 
 export interface CodeGenDto {
@@ -166,7 +197,7 @@ export interface IMLLanguage {
 export interface Indicator extends TTIriRef {
     isSubIndicatorOf?: TTIriRef[];
     numerator?: TTIriRef;
-    dataset?: Query;
+    dataset?: TTIriRef;
     actionIfFalse?: TTIriRef[];
     actionIfTrue?: TTIriRef[];
     denominator?: TTIriRef;
@@ -310,13 +341,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    description?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    description?: string;
     operator?: Operator;
-    valueLabel?: string;
     qualifier?: TTIriRef;
+    valueLabel?: string;
 }
 
 export interface Case {
@@ -366,9 +397,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    memberOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -384,6 +415,7 @@ export interface GroupBy extends IriLD {
 
 export interface HasPaths {
     path?: Path[];
+    iri?: string;
 }
 
 export interface Instance extends IriLD {
@@ -750,6 +782,7 @@ export interface ValidatedEntitiesRequest {
  * Structure containing search request parameters and filters
  */
 export interface WorkflowRequest {
+    casdoorService?: CasdoorService;
     page?: number;
     size?: number;
     userId?: string;
@@ -887,14 +920,14 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    description?: string;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
     status?: TTIriRef;
-    types?: TTIriRef[];
     code?: string;
+    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -979,6 +1012,16 @@ export interface TTArray extends Serializable {
     list?: boolean;
 }
 
+export interface RecentActivityItemDto {
+    iri?: string;
+    name?: string;
+    type?: string;
+    dateTime?: Date;
+    action?: string;
+    color?: string;
+    icon?: string[];
+}
+
 export interface TTContext extends Serializable {
     prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
@@ -1004,6 +1047,9 @@ export interface StackTraceElement extends Serializable {
 }
 
 export interface Exception extends Throwable {
+}
+
+export interface CasdoorService {
 }
 
 export interface Organisation {
@@ -1075,6 +1121,40 @@ export interface OrgRelationship {
 
 export interface OrgRelTarget {
     OrgId?: OrgId;
+}
+
+export const enum Action {
+    READ = "READ",
+    WRITE = "WRITE",
+    DELETE = "DELETE",
+    PUBLISH = "PUBLISH",
+    APPROVE = "APPROVE",
+    EXECUTE = "EXECUTE",
+}
+
+export const enum Resource {
+    ENTITY = "ENTITY",
+    QUERY = "QUERY",
+    USER = "USER",
+    CONFIG = "CONFIG",
+    TASK = "TASK",
+    CODE_GEN = "CODE_GEN",
+    FHIR = "FHIR",
+    GITHUB = "GITHUB",
+    POLICY = "POLICY",
+    CASDOOR_USER = "CASDOOR_USER",
+    DOCUMENT = "DOCUMENT",
+    FOLDER = "FOLDER",
+    DELTA = "DELTA",
+    SET = "SET",
+    BUG_REPORT = "BUG_REPORT",
+    ROLE_REQUEST = "ROLE_REQUEST",
+    GRAPH_REQUEST = "GRAPH_REQUEST",
+    ENTITY_APPROVAL = "ENTITY_APPROVAL",
+    QUERY_RESULTS = "QUERY_RESULTS",
+    PAGE_ADMIN = "PAGE_ADMIN",
+    PAGE_CREATOR = "PAGE_CREATOR",
+    PAGE_EDITOR = "PAGE_EDITOR",
 }
 
 export const enum IMLContext {
@@ -1267,6 +1347,7 @@ export const enum UserRole {
     TASK_MANAGER = "TASK_MANAGER",
     AUTHORISER = "AUTHORISER",
     APPROVER = "APPROVER",
+    EXECUTOR = "EXECUTOR",
 }
 
 export const enum TaskState {
@@ -1399,6 +1480,7 @@ export const enum IM {
     KEY_TERM = "http://endhealth.info/im#keyTerm",
     PREFERRED_NAME = "http://endhealth.info/im#preferredName",
     HAS_SCHEME = "http://endhealth.info/im#scheme",
+    DEFAULT_SCHEME = "http://endhealth.info/im#defaultScheme",
     BINDING = "http://endhealth.info/im#binding",
     HAS_STATUS = "http://endhealth.info/im#status",
     STATUS = "http://endhealth.info/im#Status",
@@ -1420,7 +1502,6 @@ export const enum IM {
     NAMESPACE = "http://endhealth.info/im#Namespace",
     FUNCTION = "http://endhealth.info/im#FunctionClause",
     QUERY = "http://endhealth.info/im#Query",
-    COHORT_QUERY = "http://endhealth.info/im#CohortQuery",
     DEFAULT_COHORTS = "http://endhealth.info/im#Q_DefaultCohorts",
     DATA_UPDATE = "http://endhealth.info/im#DataUpdate",
     PATH_QUERY = "http://endhealth.info/im#PathQuery",
@@ -1655,7 +1736,6 @@ export const enum IM {
     TYPE_FILTER_OPTIONS = "http://endhealth.info/im#TypeFilterOptions",
     SORT_FIELD_FILTER_OPTIONS = "http://endhealth.info/im#SortFieldFilterOptions",
     SORT_DIRECTION_FILTER_OPTIONS = "http://endhealth.info/im#SortDirectionFilterOptions",
-    SCHEME_FILTER_DEFAULTS = "http://endhealth.info/im#SchemeFilterDefaultOptions",
     STATUS_FILTER_DEFAULTS = "http://endhealth.info/im#StatusFilterDefaultOptions",
     TYPE_FILTER_DEFAULTS = "http://endhealth.info/im#TypeFilterDefaultOptions",
     SORT_FIELD_FILTER_DEFAULTS = "http://endhealth.info/im#SortFieldFilterDefaultOptions",
@@ -1948,15 +2028,15 @@ export const enum TransformFunction {
 export const enum USER {
     DOMAIN = "http://endhealth.info/",
     PREFIX = "usr",
-    USER_PRESET = "http://endhealth.info/UserPreset",
-    USER_PRIMARY_COLOR = "http://endhealth.info/UserPrimaryColor",
-    USER_SURFACE_COLOR = "http://endhealth.info/UserSurfaceColor",
-    USER_DARK_MODE = "http://endhealth.info/UserDarkMode",
-    USER_SCALE = "http://endhealth.info/UserScale",
-    USER_MRU = "http://endhealth.info/UserMRU",
-    USER_FAVOURITES = "http://endhealth.info/UserFavourites",
-    ORGANISATIONS = "http://endhealth.info/ORGANISATIONS",
-    GRAPHS = "http://endhealth.info/GRAPHS",
+    USER_PRESET = "http://endhealth.info/user#UserPreset",
+    USER_PRIMARY_COLOR = "http://endhealth.info/user#UserPrimaryColor",
+    USER_SURFACE_COLOR = "http://endhealth.info/user#UserSurfaceColor",
+    USER_DARK_MODE = "http://endhealth.info/user#UserDarkMode",
+    USER_FONT_SIZE = "http://endhealth.info/user#UserFontSize",
+    USER_MRU = "http://endhealth.info/user#UserMRU",
+    USER_FAVOURITES = "http://endhealth.info/user#UserFavourites",
+    ORGANISATIONS = "http://endhealth.info/user#Organisations",
+    GRAPHS = "http://endhealth.info/user#Graphs",
 }
 
 export const enum VALIDATION {
@@ -2017,4 +2097,36 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
+}
+
+export const enum PrimeVueColors {
+    EMERALD = "emerald",
+    GREEN = "green",
+    LIME = "lime",
+    RED = "red",
+    ORANGE = "orange",
+    AMBER = "amber",
+    YELLOW = "yellow",
+    TEAL = "teal",
+    CYAN = "cyan",
+    SKY = "sky",
+    BLUE = "blue",
+    INDIGO = "indigo",
+    VIOLET = "violet",
+    PURPLE = "purple",
+    FUCHSIA = "fuchsia",
+    PINK = "pink",
+    ROSE = "rose",
+    SLATE = "slate",
+    GRAY = "gray",
+    ZINC = "zinc",
+    NEUTRAL = "neutral",
+    STONE = "stone",
+}
+
+export const enum FontSize {
+    SMALL = "12px",
+    MEDIUM = "14px",
+    LARGE = "16px",
+    XL = "18px",
 }

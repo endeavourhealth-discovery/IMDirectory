@@ -24,9 +24,9 @@
       </div>
     </template>
     <BaseTypeEditor v-model:match="query" />
-    <span v-if="query.typeOf" v-for="operator in operators" :key="operator">
-      <span v-if="query[operator]">
-        <span v-for="(nestedMatch, index) in query[operator]" :key="index">
+    <template v-if="query.typeOf" v-for="operator in operators" :key="operator">
+      <template v-if="query[operator]">
+        <template v-for="(nestedMatch, index) in query[operator]" :key="index">
           <BooleanMatchEditor
             v-model:match="query[operator][index]"
             :rootBool="true"
@@ -39,9 +39,14 @@
             @activateInput="activeInputId = $event"
             @rationalise="rationaliseBooleans"
           />
-        </span>
-      </span>
-    </span>
+        </template>
+      </template>
+    </template>
+    <div>
+      <DataSetEditor :query="query" />
+    </div>
+
+
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
@@ -52,15 +57,16 @@
 <script setup lang="ts">
 import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
 import QueryService from "@/services/QueryService";
-import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { Bool, Match, Query } from "@/interfaces/AutoGen";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import { useQueryStore } from "@/stores/queryStore";
-import { useFilterStore } from "@/stores/filterStore";
-import CohortEditor from "@/components/imquery/CohortEditor.vue";
+import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
+import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
+import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
 interface Props {
   showDialog?: boolean;
 }
@@ -72,14 +78,13 @@ const emit = defineEmits<{
   closeDialog: [];
 }>();
 
-const dynamicDialog = useDialog();
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
 const operators = ["rule", "and", "or", "not"] as const;
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(queryString);
 const loading = ref(true);
 const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
@@ -87,6 +92,9 @@ const op = ref();
 const parentIndex = ref(0);
 const nodeRefMap = ref<{ [key: string]: any }>({});
 const queryStore = useQueryStore();
+const newColumnGroup: Ref<Match | undefined> = ref(undefined);
+const columnGroupIndex = ref(0);
+const showColumnGroupEditor = ref(false);
 provide("query", query);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
@@ -107,6 +115,7 @@ onMounted(async () => {
 function toggle(event: any) {
   op.value.toggle(event);
 }
+
 
 async function init() {
   queryStore.createReturnMap(query.value);
@@ -191,6 +200,10 @@ function stripValidation(build: any) {
   flex-direction: column;
   flex: 1 1 auto;
   overflow: auto;
+}
+.addColumnGroup-btn {
+  align-self: flex-start;
+  width: 220px;
 }
 
 .ecl-builder-dialog-header {

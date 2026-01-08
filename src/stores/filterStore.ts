@@ -1,56 +1,89 @@
 import { defineStore } from "pinia";
-import { FilterState } from "@/stores/types/filterState";
 import { FilterOptions, Namespace } from "@/interfaces";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { ref } from "vue";
 
-export const useFilterStore = defineStore("filter", {
-  state: (): FilterState => ({
-    filterOptions: {} as FilterOptions,
-    defaultFilterOptions: {} as FilterOptions,
-    selectedFilterOptions: {} as FilterOptions,
-    hierarchySelectedFilters: [] as Namespace[],
-    coreSchemes: [] as string[]
-  }),
-  actions: {
-    async fetchFilterSettings() {
-      const filterOptions = await EntityService.getFilterOptions();
-      const filterDefaults = await EntityService.getFilterDefaultOptions();
-      const coreSchemes = await EntityService.getCoreSchemes();
-      if (isObjectHasKeys(filterOptions, ["status", "schemes", "types"]) && isObjectHasKeys(filterDefaults, ["status", "schemes", "types"])) {
-        this.updateDefaultFilterOptions(filterDefaults);
-        this.updateFilterOptions(filterOptions);
-        const selectedStatus = this.filterOptions.status.filter(item => filterDefaults.status.map(defaultOption => defaultOption.iri).includes(item.iri));
-        const selectedSchemes = this.filterOptions.schemes.filter(item => filterDefaults.schemes.map(defaultOption => defaultOption.iri).includes(item.iri));
-        const selectedTypes = this.filterOptions.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption.iri).includes(item.iri));
+export const useFilterStore = defineStore("filter", () => {
+  const filterOptions = ref<FilterOptions>({} as FilterOptions);
+  const defaultFilterOptions = ref<FilterOptions>({} as FilterOptions);
+  const selectedFilterOptions = ref<FilterOptions>({} as FilterOptions);
+  const hierarchySelectedFilters = ref<Namespace[]>([]);
+  const coreSchemes = ref<string[]>([]);
 
-        this.updateSelectedFilterOptions({
-          status: selectedStatus,
-          schemes: selectedSchemes,
-          types: selectedTypes,
-          includeLegacy: false
-        } as FilterOptions);
-        this.updateHierarchySelectedFilters(selectedSchemes as unknown as Namespace[]);
-        this.updateCoreSchemes(coreSchemes);
-      }
-    },
-    updateFilterOptions(filters: FilterOptions) {
-      this.filterOptions = filters;
-    },
+  async function fetchFilterSettings() {
+    const apiFilterOptions = await EntityService.getFilterOptions();
+    const filterDefaults = await EntityService.getFilterDefaultOptions();
+    const coreSchemes = await EntityService.getCoreSchemes();
+    if (isObjectHasKeys(apiFilterOptions, ["status", "schemes", "types"]) && isObjectHasKeys(filterDefaults, ["status", "schemes", "types"])) {
+      updateDefaultFilterOptions(filterDefaults);
+      updateFilterOptions(apiFilterOptions);
+      const selectedStatus = filterOptions.value.status.filter(item => filterDefaults.status.map(defaultOption => defaultOption.iri).includes(item.iri));
+      const selectedSchemes = filterOptions.value.schemes.filter(item => filterDefaults.schemes.map(defaultOption => defaultOption.iri).includes(item.iri));
+      const selectedTypes = filterOptions.value.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption.iri).includes(item.iri));
 
-    updateDefaultFilterOptions(filters: FilterOptions) {
-      this.defaultFilterOptions = filters;
-    },
-
-    updateSelectedFilterOptions(filters: FilterOptions) {
-      this.selectedFilterOptions = filters;
-    },
-
-    updateHierarchySelectedFilters(filters: Namespace[]) {
-      this.hierarchySelectedFilters = filters;
-    },
-    updateCoreSchemes(schemes: string[]) {
-      this.coreSchemes = schemes;
+      updateSelectedFilterOptions({
+        status: selectedStatus,
+        schemes: selectedSchemes,
+        types: selectedTypes,
+        includeLegacy: false
+      } as FilterOptions);
+      updateHierarchySelectedFilters(selectedSchemes as unknown as Namespace[]);
+      updateCoreSchemes(coreSchemes);
     }
   }
+
+  function updateFilterOptions(filters: FilterOptions) {
+    filterOptions.value = filters;
+  }
+
+  function updateDefaultFilterOptions(filters: FilterOptions) {
+    defaultFilterOptions.value = filters;
+  }
+
+  function updateSelectedFilterOptions(filters: FilterOptions) {
+    selectedFilterOptions.value = filters;
+  }
+
+  function updateWithDefaultFilterOptions(oldFilters: FilterOptions, filters: FilterOptions) {
+    const oldTypes = new Set(oldFilters.types.map(t => t.iri));
+    const oldScheme = new Set(oldFilters.schemes.map(s => s.iri));
+    const typeSchemes = defaultFilterOptions.value.typeSchemes;
+    if (!typeSchemes) return;
+    for (const type of filters.types) {
+      if (!oldTypes.has(type.iri)) {
+        const schemes = typeSchemes[type.iri];
+        if (!schemes) continue;
+        for (const newScheme of schemes) {
+          if (!oldScheme.has(newScheme.iri)) {
+            filters.schemes.push(newScheme);
+          }
+        }
+      }
+    }
+    selectedFilterOptions.value = filters;
+  }
+
+  function updateHierarchySelectedFilters(filters: Namespace[]) {
+    hierarchySelectedFilters.value = filters;
+  }
+
+  function updateCoreSchemes(schemes: string[]) {
+    coreSchemes.value = schemes;
+  }
+
+  return {
+    filterOptions,
+    defaultFilterOptions,
+    selectedFilterOptions,
+    hierarchySelectedFilters,
+    coreSchemes,
+    updateCoreSchemes,
+    updateDefaultFilterOptions,
+    updateFilterOptions,
+    updateHierarchySelectedFilters,
+    updateSelectedFilterOptions,
+    fetchFilterSettings,
+    updateWithDefaultFilterOptions
+  };
 });

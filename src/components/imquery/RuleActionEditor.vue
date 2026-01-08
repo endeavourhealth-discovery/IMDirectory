@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { getRuleActionOptions, getRuleAction, setRuleAction, getRuleActionLabel } from "@/composables/buildQuery";
+import { getRuleActionOptions, getRuleAction, setRuleAction, getRuleActionLabel } from "@/helpers/buildQuery";
 import { Match } from "@/interfaces/AutoGen";
 import { onMounted, ref, Ref, watch } from "vue";
 

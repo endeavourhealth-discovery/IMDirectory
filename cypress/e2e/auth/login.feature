@@ -77,8 +77,9 @@ Feature: login
 
   Scenario: Login Snapshot
     When I navigate to the login page
-    Then the login-page matches the snapshot
+    Then routes to casdoor
     When I enter a valid username
     And I enter a valid password
     And I click on the login button
-    Then the login-page matches the snapshot
+    Then routes to IMDirectory
+    Then user is logged in

@@ -3,4 +3,6 @@ export interface SimpleMapIri {
   iri: string;
   scheme: string;
   code: string;
+  alternativeCode?: string;
+  codeId?: string;
 }

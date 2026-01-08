@@ -13,14 +13,14 @@ const SetService = {
   },
 
   async IMV1(conceptIri: string, raw?: boolean) {
-    return await axios.get(API_URL + "/public/export", {
+    return await axios.get(API_URL + "/private/export", {
       params: { iri: conceptIri },
       responseType: "blob",
       raw: raw
     });
   },
   async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<Pageable<Node>> {
-    return await axios.get(API_URL + "/public/members", {
+    return await axios.get(API_URL + "/private/members", {
       params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
@@ -28,11 +28,11 @@ const SetService = {
 
   async getMembersFromQuery(query: Query, pageIndex: number, pageSize: number): Promise<Pageable<Node>> {
     const request = { eclQuery: query, page: pageIndex, size: pageSize } as EclSearchRequest;
-    return await axios.post(API_URL + "/public/membersFromQuery", request);
+    return await axios.post(API_URL + "/private/membersFromQuery", request);
   },
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
-    return await axios.get(API_URL + "/public/subsets", {
+    return await axios.get(API_URL + "/private/subsets", {
       params: {
         iri: iri
       }
@@ -40,7 +40,7 @@ const SetService = {
   },
 
   async getSetComparison(iriA?: string, iriB?: string): Promise<SetDiffObject> {
-    return await axios.get(API_URL + "/public/setDiff", {
+    return await axios.get(API_URL + "/private/setDiff", {
       params: {
         setIriA: iriA,
         setIriB: iriB
@@ -49,7 +49,7 @@ const SetService = {
   },
 
   async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<Blob> {
-    return await axios.post(API_URL + "/public/setExport", setRequest, {
+    return await axios.post(API_URL + "/private/setExport", setRequest, {
       responseType: "blob",
       raw: raw
     });
