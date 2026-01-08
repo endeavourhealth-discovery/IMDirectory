@@ -72,6 +72,7 @@ import { defineComponent } from "vue";
 import { useValidity } from "@/composables/useValidity";
 import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useDialog } from "primevue/usedialog";
+import { useUserStore } from "@/stores/userStore";
 
 export default defineComponent({
   components: {
@@ -127,10 +128,12 @@ const router = useRouter();
 const dynamicDialog = useDialog();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
+const userStore = useUserStore();
 const filterStore = useFilterStore();
 const directService = new DirectService();
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
+const currentUser = computed(() => userStore.currentUser);
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -187,6 +190,9 @@ onUnmounted(() => {
 
 onMounted(async () => {
   loading.value = true;
+  if (currentUser.value && currentUser.value.organisations.length < 1) {
+    throw new Error("User must have an organisation to create entities");
+  }
   await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
   if (isObjectHasKeys(creatorSavedEntity.value, ["iri"])) {
