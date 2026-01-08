@@ -182,7 +182,7 @@ onUnmounted(() => {
 onMounted(async () => {
   loading.value = true;
   if (currentUser.value && currentUser.value.organisations.length < 1) {
-    throw new Error("User must have an organisation to edit entities");
+    await router.push({ name: "AccessDenied" });
   }
   document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();

@@ -191,7 +191,7 @@ onUnmounted(() => {
 onMounted(async () => {
   loading.value = true;
   if (currentUser.value && currentUser.value.organisations.length < 1) {
-    throw new Error("User must have an organisation to create entities");
+    await router.push({ name: "AccessDenied" });
   }
   await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
