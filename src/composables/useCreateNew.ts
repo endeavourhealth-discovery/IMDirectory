@@ -24,7 +24,7 @@ export function useCreateNew() {
         command: {}
       }
     ];
-    selectionWrapperCopy[1].command = () => directService.edit(node.data, true);
+    selectionWrapperCopy[1].command = () => directService.edit(node.data, false);
 
     const allowableTypes = await EntityService.getAllowableChildTypes(node.data);
     if (!isArrayHasLength(allowableTypes)) {

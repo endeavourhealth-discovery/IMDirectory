@@ -1,35 +1,39 @@
 <template>
-  <div :style="{ width: '80vw', height: '80vh', minWidth: '80vw', minHeight: '80vh' }" class="edit-match-dialog">
-    <template>
-      <div>
-        <strong>Column selector:</strong>
-      </div>
-    </template>
-    <div>Navigate the tree to the properties you want to add and select</div>
-    <div id="tree-container" @click.stop>
-      <span>{{ selectedKeys }}</span>
+  <div class="column-selector">
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
+    </div>
+    <div v-else class="tree-container">
       <Tree
         v-model:expandedKeys="expandedKeys"
         v-model:selectionKeys="selectedKeys"
         :loading="loading"
         :value="rootNodes"
-        :lazy="true"
-        icon="loading"
+        lazy
         selectionMode="checkbox"
         @node-expand="expandNode"
         @nodeSelect="nodeSelect"
         :propagateSelectionUp="true"
-      >
-      </Tree>
+      />
     </div>
-    <template>
-      <div class="button-footer">
-        <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
-        <Button label="Select" icon="fa-solid fa-check" class="p-button-primary" @click="" data-testid="ecl-ok-button" />
-      </div>
-    </template>
   </div>
 </template>
+
+<style scoped>
+.column-selector {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto; /* fill available space */
+  min-height: 0;
+  max-height: 70vh;
+}
+
+.tree-container {
+  flex: 1 1 auto; /* grow to fill column-selector */
+  min-height: 0;
+  overflow-y: auto; /* scroll only here */
+}
+</style>
 
 <script lang="ts" setup>
 import { nextTick, onMounted, Ref, ref, watch } from "vue";
@@ -45,11 +49,12 @@ const props = defineProps<{
   baseType: Node;
 }>();
 const match = defineModel<Match>("match", { default: {} });
+const refreshColumns = defineModel<boolean>("refreshColumns", { default: true });
 const expandedKeys = ref<Record<string, boolean>>({});
 const emit = defineEmits<{
   (event: "node-selected", node: any): void;
   (event: "navigateTo", iri: string): void;
-  (event: "cancelColumnGroup"): void;
+  (event: "loaded"): void;
 }>();
 const { expandNode, loading, initialiseSelected } = usePropertyTree();
 const selectedKeys = ref<TreeSelectionKeys>({});
@@ -59,7 +64,12 @@ const { getRootNodes, getDefiningProperty, createFeatureTree, getOrderables } = 
 
 onMounted(async () => {
   await init();
-  initialiseSelected(rootNodes.value, expandedKeys.value, selectedKeys.value, match.value);
+});
+
+watch(refreshColumns, async (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    await init();
+  }
 });
 
 async function init() {
@@ -68,7 +78,9 @@ async function init() {
   if (tree[0].children) {
     rootNodes.value = tree[0].children;
   }
+  await initialiseSelected(rootNodes.value, expandedKeys.value, selectedKeys.value, match.value);
   loading.value = false;
+  emit("loaded");
 }
 
 function nodeExpand() {}
@@ -78,25 +90,4 @@ function onNodeSelect(node: any) {
     emit("node-selected", node);
   }
 }
-function onCancel() {
-  emit("cancelColumnGroup");
-}
 </script>
-
-<style scoped>
-#tree-container {
-  width: 100%;
-  height: 70rem;
-  position: relative;
-  overflow: auto;
-}
-.tree-node-label {
-  padding-right: 1rem;
-}
-
-.progress-spinner {
-  width: 1.25em !important;
-  height: 1.25em !important;
-  flex: 0 0 auto;
-}
-</style>

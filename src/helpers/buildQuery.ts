@@ -260,7 +260,7 @@ function addPath(match: Match, flatPath: string): string | undefined {
   if (lastPart.includes("#")) lastPart = lastPart.split("#")[1];
   const nodeRef = lastPart + refNumber.toString();
   if (matchPath) {
-    matchPath.variable = nodeRef;
+    matchPath.node = nodeRef;
     return nodeRef;
   }
   return undefined;
@@ -270,8 +270,8 @@ function getPaths(match: Match): Record<string, string> | undefined {
   const paths = {} as Record<string, string>;
   const path = match.path[0];
   const flatPath = path.iri! + "\t" + path.typeOf!.iri;
-  if (path.variable != null) {
-    paths[flatPath] = path.variable;
+  if (path.node != null) {
+    paths[flatPath] = path.node;
   }
   if (path.path) {
     addSubPaths(flatPath, path, paths);
@@ -282,8 +282,8 @@ function getPaths(match: Match): Record<string, string> | undefined {
 function addSubPaths(flatPath: string, path: Path, paths: Record<string, string>): void {
   const childPath = path.path![0];
   const childFlatPath = childPath.iri! + "\t" + childPath.typeOf!.iri;
-  if (childPath.variable != null) {
-    paths[flatPath + "\t" + childFlatPath] = childPath.variable;
+  if (childPath.node != null) {
+    paths[flatPath + "\t" + childFlatPath] = childPath.node;
   }
   if (childPath.path) {
     addSubPaths(flatPath + "\t" + childFlatPath, childPath, paths);
