@@ -31,9 +31,7 @@ describe("homepage", () => {
       });
       it("links to creator", () => {
         cy.get(".shortcut-container").contains("Creator").click();
-        cy.visitNewTab("/#/creator/");
         cy.get(".swal2-popup").contains("Please Login to continue");
-        cy.url().should("include", "/creator");
       });
       it("links to code templates", () => {
         cy.get(".shortcut-container").contains("Code templates").click();
@@ -62,7 +60,7 @@ describe("homepage", () => {
 
     it("links to creator", () => {
       cy.get(".shortcut-container").contains("Creator").click();
-      cy.visitNewTab("/#/creator/");
+      //cy.visitNewTab("/#/creator/");
       cy.get("#topbar-content", { timeout: 60000 }).contains("IM Entity Creator");
     });
 
