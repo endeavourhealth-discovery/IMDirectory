@@ -2,7 +2,7 @@ import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Path, PropertyShape, Node, Where } from "@/interfaces/AutoGen";
+import { Match, Path, PropertyShape, Node, Return } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 import { Orderable } from "@/models/orderable";
@@ -11,6 +11,7 @@ import { TreeSelectionKeys } from "primevue/tree";
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const loading: Ref<boolean> = ref(false);
+  const codeable = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
 
   async function createPropertyTree(iri: string, parent: TreeNode) {
     const entity = await DataModelService.getDataModelProperties(iri, false);
@@ -71,7 +72,8 @@ export function usePropertyTree() {
         definingProperty: definingProperty,
         ascending: ascending,
         descending: descending,
-        parentNode: parent
+        parent: parent ? parent.key : null,
+        rangeType: rangeType
       },
       loading: false,
       children: [] as TreeNode[],
@@ -219,74 +221,74 @@ export function usePropertyTree() {
     return orderables;
   }
   async function initialiseSelected(nodes: TreeNode[], expandedKeys: Record<string, boolean>, selectedKeys: TreeSelectionKeys, match: Match) {
-    await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, match, match.path ? match.path[0] : undefined);
+    await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, match, match.path ? match.path : undefined);
   }
   async function initialiseSelectedPaths(
     nodes: TreeNode[],
     expandedKeys: Record<string, boolean>,
     selectedKeys: TreeSelectionKeys,
     match: Match,
-    path: Path | undefined
+    paths: Path[] | undefined
   ) {
     for (const node of nodes) {
       node.expanded = true;
       if (node.type === "folder") {
-        await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, path);
-      } else if (path) {
-        if (node.data.iri && node.data.iri === path.iri) {
-          expandedKeys[node.key] = true;
-          if (node.data.parentNode) expandedKeys[node.data.parentNode.key] = true;
-          await expandNode(node);
-          if (path.path) {
-            await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, path.path[0]);
+        await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, paths);
+      } else if (paths && paths.length > 0) {
+        for (const path of paths) {
+          if (node.data.iri && node.data.iri === path.iri) {
+            expandedKeys[node.key] = true;
+            if (codeable.includes(node.data.rangeType)) node.data.typeOf = IM.CODEABLE;
+            await expandNode(node);
+            if (node.data.parent) {
+              expandedKeys[node.data.parent] = true;
+            }
+            if (path.path) {
+              await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, path.path);
+            }
+            if (match.return) await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, match.return, path.node, path.iri);
           }
-          if (match.where) await initialiseSelectedWheres(node.children!, expandedKeys, selectedKeys, match.where, path.variable);
         }
-      } else if (match.where) await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, match.where, undefined);
+      } else if (match.return) await initialiseSelectedReturns(nodes, expandedKeys, selectedKeys, match.return, undefined);
     }
     if (match.or) {
       for (const or of match.or) {
-        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, or, or.path ? or.path[0] : undefined);
+        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, or, or.path);
       }
     }
     if (match.and) {
       for (const and of match.and) {
-        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, and, and.path ? and.path[0] : undefined);
+        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, and, and.path);
       }
     }
   }
-  async function initialiseSelectedWheres(
+  async function initialiseSelectedReturns(
     nodes: TreeNode[],
     expandedKeys: Record<string, boolean>,
     selectedKeys: TreeSelectionKeys,
-    where: Where,
-    nodeRef: string | undefined
+    ret: Return,
+    nodeRef: string | undefined,
+    pathIri?: string
   ) {
-    if (where.iri && where.nodeRef == nodeRef) {
-      for (const node of nodes) {
-        if (node.type === "folder") {
-          await initialiseSelectedWheres(node.children!, expandedKeys, selectedKeys, where, nodeRef);
+    if (ret.property) {
+      for (const property of ret.property) {
+        if (property.iri && property.nodeRef == nodeRef) {
+          for (const node of nodes) {
+            if (node.type === "folder") {
+              await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, ret, nodeRef);
+            }
+            if (pathIri && node.data.iri && node.data.iri === pathIri) {
+              await expandNode(node);
+            } else if (node.data.iri && node.data.iri === property.iri) {
+              selectedKeys[node.key] = { checked: true, partialChecked: false };
+              if (property.return) {
+                await expandNode(node);
+                await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, property.return, nodeRef);
+              }
+              if (node.data.parent) expandedKeys[node.data.parent] = true;
+            }
+          }
         }
-        if (node.data.iri && node.data.iri === where.iri) {
-          selectedKeys[node.key] = { checked: true, partialChecked: false };
-          await expandNode(node);
-          if (node.data.parentNode) expandedKeys[node.data.parentNode.key] = true;
-        }
-      }
-    }
-    if (where.or) {
-      for (const or of where.or) {
-        await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, or, nodeRef);
-      }
-    }
-    if (where.and) {
-      for (const and of where.and) {
-        await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, and, nodeRef);
-      }
-    }
-    if (where.and) {
-      for (const and of where.and) {
-        await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, and, nodeRef);
       }
     }
   }

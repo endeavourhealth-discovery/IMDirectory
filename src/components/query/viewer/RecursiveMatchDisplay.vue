@@ -108,8 +108,8 @@
         </div>
       </component>
     </template>
-    <span v-if="match.keepAs">
-      <span class="as"> (as {{ match.keepAs }})</span>
+    <span v-if="match.node">
+      <span class="as"> (as {{ match.node }})</span>
     </span>
 
     <div v-if="parentOperator === Bool.rule">

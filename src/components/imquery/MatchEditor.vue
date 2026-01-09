@@ -190,7 +190,7 @@ function updateOrderable(value: any) {
 
 function addThen() {
   const as = keepAs.value ? keepAs.value : "Match_" + props.depth + "_" + props.clauseIndex;
-  editMatch.value.keepAs = as;
+  editMatch.value.node = as;
   const fromMatch = editMatch.value;
   editMatch.value = { and: [fromMatch] };
   editMatch.value.and!.push({ nodeRef: as } as Match);
@@ -272,6 +272,7 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 
 .edit-match-dialog {
   background-color: var(--p-surface-section);
+  max-height: 90vh;
 }
 .test-selector {
   background-color: rgb(16, 185, 129);

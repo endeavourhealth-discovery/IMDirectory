@@ -1,129 +1,61 @@
 <template>
-  <div>
-    <Dialog
-      v-model:visible="showEditor"
-      modal
-      closable
-      :draggable="false"
-      :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
-      class="edit-match-dialog"
-      maximizable
-      @hide="onCancel"
-    >
-      <template #header>
-        <div class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
-          <span>Name of group</span>
-          <InputText v-model="match.name" class="name-display" placeholder="Name" type="text" />
-        </div>
-      </template>
-      <div v-if="match.where && !showFilterSelector">
-        <span>Filter</span>
-        <BooleanWhereEditor
-          :match="match"
-          :base-type="baseType"
-          v-model:property="match.where"
-          :clauseIndex="0"
-          @addProperty="showFilterSelector = true"
-          @updateProperty="onUpdate"
-        />
+  <Dialog v-model:visible="show" modal closable :draggable="false" class="edit-match-dialog" maximizable @hide="onCancel">
+    <div class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
+      <span>Name of group</span>
+      <InputText v-model="match.name" class="name-display" placeholder="Name" type="text" />
+    </div>
+    <div class="column-group-editor">
+      <Splitter class="h-full w-full" layout="horizontal">
+        <SplitterPanel class="column-selector">
+          <ColumnSelector :baseType="baseType" v-model:refreshColumns="refreshColumns" v-model:match="match" />
+        </SplitterPanel>
+        <SplitterPanel class="column-display">
+          <div v-if="match.return">
+            <span class="header">Add columns from left</span>
+            <RecursiveReturnDisplay :select="match.return" :parentQuery="match" />
+          </div>
+          <div v-else>
+            <span class="header">Select columns from the tree to add</span>
+          </div>
+        </SplitterPanel>
+      </Splitter>
+    </div>
+    <template #footer>
+      <div class="button-footer">
+        <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
+        <Button v-if="edited" autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
       </div>
-      <div v-else>
-        <Button
-          data-testid="add-column-button"
-          label="Add filter"
-          @click="showFilterSelector = true"
-          :severity="hoverAddFilter ? 'success' : 'secondary'"
-          :outlined="!hoverAddFilter"
-          :class="!hoverAddFilter && 'hover-button'"
-          @mouseover="hoverAddFilter = true"
-          @mouseout="hoverAddFilter = false"
-        />
-      </div>
-      <div v-if="showFilterSelector && match.return">
-        <MatchTypeSelector
-          :base-type="baseType"
-          v-model:match="match"
-          :rootNodes="rootNodes"
-          @node-selected="onMatchTypeSelected($event)"
-          @cancel="showFilterSelector = false"
-        />
-      </div>
-      <div v-else-if="showFilterSelector && !match.return">
-        <span>Select columns before filter</span>
-      </div>
-      <div v-if="orderables && orderables.length > 0">
-        <Select
-          class="test-selector"
-          :modelValue="orderable"
-          :options="orderables"
-          :placeholder="`Add Orderables`"
-          scroll-height="50rem"
-          option-label="label"
-          option-value="value"
-          data-testid="order-selector"
-          @update:modelValue="updateOrderable"
-        >
-          <template #value="slotProps">
-            <div class="test-selector">
-              <div>{{ orderable.label }}</div>
-            </div>
-          </template>
-          <template #dropdownicon="slotProps">
-            <div class="test-dropdown">
-              <i class="pi pi-chevron-down text-white-600 text-xl"></i>
-            </div>
-          </template>
-          <template #option="slotProps">
-            <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-              <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </Select>
-      </div>
-
-      <div v-if="match.return && !showColumnSelector" class="column-display" data-testid="return-columns">
-        <ReturnColumns :select="match.return" class="pl-8" :parentQuery="match" />
-        <Button
-          class="edit-ColumnButton"
-          data-testid="edit-column-button"
-          label="Edit columns"
-          @click="showColumnSelector = true"
-          :severity="hoverEditColumn ? 'success' : 'secondary'"
-          :outlined="!hoverEditColumn"
-          :class="!hoverEditColumn && 'hover-button'"
-          @mouseover="hoverEditColumn = true"
-          @mouseout="hoverEditColumn = false"
-        />
-      </div>
-      <div v-else-if="!match.return && !showColumnSelector">
-        <Button
-          class="add-ColumnButton"
-          data-testid="add-column-button"
-          label="Select columns"
-          @click="showColumnSelector = true"
-          :severity="hoverAddColumn ? 'success' : 'secondary'"
-          :outlined="!hoverAddColumn"
-          :class="!hoverAddColumn && 'hover-button'"
-          @mouseover="hoverAddColumn = true"
-          @mouseout="hoverAddColumn = false"
-        />
-      </div>
-      <div>
-        <ColumnSelector :baseType="baseType" v-model:match="match" @cancel-column-group="showColumnSelector = false" />
-      </div>
-      <template #footer>
-        <div class="button-footer">
-          <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
-          <Button v-if="edited" autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
-        </div>
-      </template>
-    </Dialog>
-  </div>
+    </template>
+  </Dialog>
 </template>
+
+<style scoped>
+:deep(.edit-match-dialog .p-dialog-content) {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+  max-height: 90vh !important;
+  min-height: 70vh !important;
+}
+
+.column-selector {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.column-group-editor {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  max-height: 85vh;
+}
+</style>
 
 <script lang="ts" setup>
 import { DisplayMode, Match, Node } from "@/interfaces/AutoGen";
-import { Ref, ref } from "vue";
+import { Ref, ref, computed } from "vue";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { QueryService } from "@/services";
 import { IM } from "@/vocabulary";
@@ -134,34 +66,37 @@ import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import { usePropertyTree } from "@/composables/usePropertyTree";
 import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 import ColumnSelector from "@/components/imquery/ColumnSelector.vue";
-import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 import Button from "primevue/button";
+import RecursiveReturnDisplay from "@/components/query/viewer/RecursiveReturnDisplay.vue";
 interface Props {
   baseType: Node;
   clauseIndex: number;
 }
 
+const show = defineModel<boolean>("show", { default: false });
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const showEditor = defineModel<boolean>("showEditor", { default: false });
-const showColumnSelector = ref(false);
 const emit = defineEmits<{
   (event: "saveChanges", match: Match): void;
   (event: "cancel"): void;
 }>();
 
-const { getRootNodes, getDefiningProperty, createPropertyTree, getOrderables} = usePropertyTree();
+const { getRootNodes, getDefiningProperty, createPropertyTree, getOrderables } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const showFilterSelector = ref(false);
+const showColumnSelector = ref(false);
 const propertyTree: Ref<TreeNode[]> = ref([]);
 const rootNodes: Ref<TreeNode[]> = ref([]);
 const orderables: Ref<any[] | undefined> = ref();
 const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
 const edited = ref(false);
-const hoverEditColumn = ref(false);
+const hoverEditColumns = ref(false);
+const hoverDeleteColumns = ref(false);
 const hoverAddFilter = ref(false);
-const hoverAddColumn = ref(false);
+const hoverAddColumns = ref(false);
+const refreshColumns = ref(false);
+
 function onUpdate() {
   edited.value = true;
 }
@@ -191,51 +126,24 @@ async function onMatchTypeSelected(node: TreeNode) {
     edited.value = true;
   }
 }
+function addColumns() {
+  showColumnSelector.value = true;
+}
 
 async function onSave() {
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   emit("saveChanges", match.value);
-  showEditor.value = false;
+  show.value = false;
+}
+
+function editColumns() {
+  refreshColumns.value = true;
+}
+function cancelColumns() {
+  delete match.value.return;
 }
 
 function onCancel() {
-  emit("cancel");
-  showEditor.value = false;
+  show.value = false;
 }
 </script>
-
-<style scoped>
-.name-display {
-  width: 100%;
-}
-.column-display {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1rem;
-}
-.edit-ColumnButton {
-  align-self: flex-start; /* keeps button pinned to top of the row */
-  height: auto;
-}
-.description-container {
-  display: flex;
-  flex-flow: column;
-}
-.where-container {
-  display: flex;
-  flex-flow: column;
-  gap: 1rem;
-}
-
-.edit-match-dialog {
-  background-color: var(--p-surface-section);
-}
-.test-selector {
-  background-color: rgb(16, 185, 129);
-  color: white;
-}
-.test-dropdown {
-  color: white;
-}
-</style>

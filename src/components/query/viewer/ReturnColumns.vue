@@ -16,6 +16,7 @@ import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 interface Props {
   select: Return;
   parentQuery: Query;
+  expand?: boolean;
 }
 const props = defineProps<Props>();
 const editSelect = ref({ ...props.select });
@@ -24,6 +25,8 @@ const columnNames: Ref<string[]> = ref([]);
 
 onMounted(() => {
   getColumnNamesFromReturn(editSelect.value);
+  if (props.expand)
+    propertyExpand.value= props.expand;
 });
 
 function toggle() {

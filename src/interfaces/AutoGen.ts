@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-06 08:51:19.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-09 12:16:13.
 
 export interface ConceptContextMap {
     id?: string;
@@ -85,7 +85,7 @@ export interface UserSettings {
     mru?: RecentActivityItemDto[];
     preset?: string;
     primaryColor?: string;
-    surfaceColor?: PrimeVueColors;
+    surfaceColor?: string;
     fontSize?: FontSize;
 }
 
@@ -149,6 +149,7 @@ export interface ConceptSet extends Entity {
     definition?: Query;
     hasMember?: TTIriRef[];
     usedIn?: TTIriRef[];
+    avoidReplacedBy?: boolean;
 }
 
 export interface Entity {
@@ -341,12 +342,12 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    qualifier?: TTIriRef;
     description?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
     operator?: Operator;
-    qualifier?: TTIriRef;
     valueLabel?: string;
 }
 
@@ -384,7 +385,7 @@ export interface ECLStatus {
 
 export interface Element extends IriLD, Entailment {
     parameter?: string;
-    variable?: string;
+    node?: string;
     ancestorsOrSelfOf?: boolean;
     childOrSelfOf?: boolean;
     childOf?: boolean;
@@ -398,8 +399,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -443,7 +444,6 @@ export interface Match extends IriLD, HasPaths {
     graph?: Element;
     optional?: boolean;
     aggregate?: FunctionClause;
-    variable?: string;
     parameter?: string;
     function?: FunctionClause;
     entailment?: Entail;
@@ -456,7 +456,7 @@ export interface Match extends IriLD, HasPaths {
     libraryItem?: string;
     invalid?: boolean;
     groupBy?: GroupBy[];
-    keepAs?: string;
+    node?: string;
     orderBy?: OrderLimit;
     asDescription?: string;
     returx?: Return;
@@ -565,8 +565,7 @@ export interface ReturnProperty {
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    match?: Match[];
-    boolMatch?: Bool;
+    match?: Match;
     case?: Case;
     return?: Return;
 }
@@ -921,13 +920,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
+    types?: TTIriRef[];
     description?: string;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
     code?: string;
-    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -1209,6 +1208,7 @@ export const enum DisplayMode {
     ORIGINAL = "ORIGINAL",
     RULES = "RULES",
     LOGICAL = "LOGICAL",
+    COLUMN_GROUP = "COLUMN_GROUP",
 }
 
 export const enum ECLType {
@@ -1399,6 +1399,7 @@ export const enum COMPONENT {
     IRI_BUILDER = "http://endhealth.info/im#Component_iriBuilder",
     AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "http://endhealth.info/im#Component_autocompleteSearchBarWrapper",
     SUBSET_BUILDER = "http://endhealth.info/im#Component_subsetBuilder",
+    CHECKBOX_DISPLAY = "http://endhealth.info/im#Component_checkboxDisplay",
 }
 
 export const enum CONFIG {
@@ -1493,6 +1494,7 @@ export const enum IM {
     UPDATE_PROCEDURE = "http://endhealth.info/im#updateProcedure",
     INVERSE_PATH = "http://endhealth.info/im#inversePath",
     CONCEPT = "http://endhealth.info/im#Concept",
+    CODEABLE = "http://endhealth.info/im#Codeable",
     CONCEPT_PROPERTY = "http://endhealth.info/im#concept",
     CONCEPT_SET = "http://endhealth.info/im#ConceptSet",
     FOLDER = "http://endhealth.info/im#Folder",
@@ -2097,31 +2099,6 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
-}
-
-export const enum PrimeVueColors {
-    EMERALD = "emerald",
-    GREEN = "green",
-    LIME = "lime",
-    RED = "red",
-    ORANGE = "orange",
-    AMBER = "amber",
-    YELLOW = "yellow",
-    TEAL = "teal",
-    CYAN = "cyan",
-    SKY = "sky",
-    BLUE = "blue",
-    INDIGO = "indigo",
-    VIOLET = "violet",
-    PURPLE = "purple",
-    FUCHSIA = "fuchsia",
-    PINK = "pink",
-    ROSE = "rose",
-    SLATE = "slate",
-    GRAY = "gray",
-    ZINC = "zinc",
-    NEUTRAL = "neutral",
-    STONE = "stone",
 }
 
 export const enum FontSize {
