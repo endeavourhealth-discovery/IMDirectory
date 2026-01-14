@@ -23,19 +23,15 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 export async function setReturn(match: Match, keepAs: string) {
   if (keepAs === "") {
     if (match.return) {
-      if (match.return.property) {
-        await Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "You have already added properties to the output. Cannot remove label",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#689F38"
-        });
-      } else delete match.return;
-    }
-  } else if (match.return) {
-    match.return.as = keepAs;
-  } else match.return = { as: keepAs };
+      await Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "You have already added properties to the output. Cannot remove label",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
+    } else delete match.node;
+  } else match.node = keepAs;
 }
 
 export function checkGroupChange(e: any, parentGroup: number[], index: number) {

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-09 12:16:13.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-14 12:18:58.
 
 export interface ConceptContextMap {
     id?: string;
@@ -86,7 +86,7 @@ export interface UserSettings {
     preset?: string;
     primaryColor?: string;
     surfaceColor?: string;
-    fontSize?: FontSize;
+    fontSize?: string;
 }
 
 export interface CodeGenDto {
@@ -342,13 +342,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    qualifier?: TTIriRef;
-    description?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    operator?: Operator;
+    description?: string;
     valueLabel?: string;
+    qualifier?: TTIriRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -399,8 +399,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -416,6 +416,7 @@ export interface GroupBy extends IriLD {
 
 export interface HasPaths {
     path?: Path[];
+    node?: string;
     iri?: string;
 }
 
@@ -440,7 +441,7 @@ export interface Match extends IriLD, HasPaths {
     or?: Match[];
     not?: Match[];
     where?: Where;
-    return?: Return;
+    return?: Return[];
     graph?: Element;
     optional?: boolean;
     aggregate?: FunctionClause;
@@ -456,10 +457,8 @@ export interface Match extends IriLD, HasPaths {
     libraryItem?: string;
     invalid?: boolean;
     groupBy?: GroupBy[];
-    node?: string;
     orderBy?: OrderLimit;
     asDescription?: string;
-    returx?: Return;
     isUnion?: boolean;
 }
 
@@ -510,7 +509,7 @@ export interface Prefix {
 export interface Query extends Match {
     prefixes?: Prefix[];
     columnGroup?: Match[];
-    imQuery?: boolean;
+    imQuery?: string;
     parentResult?: any;
     persistentIri?: TTIriRef;
     bindAs?: string;
@@ -544,15 +543,6 @@ export interface RequeueQueryRequest {
 }
 
 export interface Return {
-    nodeRef?: string;
-    function?: FunctionClause;
-    property?: ReturnProperty[];
-    as?: string;
-    valueRef?: string;
-    propertyRef?: string;
-}
-
-export interface ReturnProperty {
     iri?: string;
     name?: string;
     function?: FunctionClause;
@@ -560,14 +550,12 @@ export interface ReturnProperty {
     nodeRef?: string;
     propertyRef?: string;
     value?: string;
-    valueRef?: string;
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    match?: Match;
     case?: Case;
-    return?: Return;
+    return?: Return[];
 }
 
 /**
@@ -599,12 +587,12 @@ export interface Where extends Element, Assignable {
     not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
-    valueVariable?: string;
     inverse?: boolean;
     or?: Where[];
     and?: Where[];
     shortLabel?: string;
     propertyList?: Node[];
+    propertyVariable?: string;
 }
 
 export interface DBEntry {
@@ -920,13 +908,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    types?: TTIriRef[];
-    description?: string;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
     status?: TTIriRef;
+    description?: string;
     code?: string;
+    types?: TTIriRef[];
     prefixes?: TTPrefix[];
 }
 
@@ -1022,8 +1010,8 @@ export interface RecentActivityItemDto {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1208,7 +1196,6 @@ export const enum DisplayMode {
     ORIGINAL = "ORIGINAL",
     RULES = "RULES",
     LOGICAL = "LOGICAL",
-    COLUMN_GROUP = "COLUMN_GROUP",
 }
 
 export const enum ECLType {
@@ -1473,6 +1460,7 @@ export const enum IM {
     ENTAILMENT = "http://endhealth.info/im#entailment",
     EXCLUDE = "http://endhealth.info/im#exclude",
     IRI = "iri",
+    IM_IRI = "http://endhealth.info/im#iri",
     VALUE = "value",
     TYPE = "type",
     ID = "http://endhealth.info/im#id",
@@ -2099,11 +2087,4 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
-}
-
-export const enum FontSize {
-    SMALL = "12px",
-    MEDIUM = "14px",
-    LARGE = "16px",
-    XL = "18px",
 }

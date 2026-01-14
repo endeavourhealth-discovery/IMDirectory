@@ -19,6 +19,7 @@ export class IM {
   public static readonly ENTAILMENT = Namespace.IM + "entailment"
   public static readonly EXCLUDE = Namespace.IM + "exclude"
   public static readonly IRI = "iri"
+  public static readonly IM_IRI = Namespace.IM + "iri"
   public static readonly VALUE = "value"
   public static readonly TYPE = "type"
   public static readonly ID = Namespace.IM + "id"

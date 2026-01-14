@@ -72,6 +72,10 @@ const showEditor = ref(false);
 const groupToEdit: Ref<Match | undefined> = ref();
 const groupIndex = ref(0);
 
+onMounted(async () => {
+  await init();
+});
+
 function deleteGroup(index: number) {
   editorGroups.value.splice(index, 1);
   columnGroups.value.splice(index, 1);

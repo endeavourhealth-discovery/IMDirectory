@@ -2,9 +2,6 @@
   <div :style="{ paddingLeft: '1rem' }">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-if="dataSet.name">Name : {{ dataSet.name }}</div>
-    <div v-if="dataSet.return">
-      <span v-if="dataSet.return.as">Group : {{ dataSet.return.as }}</span>
-    </div>
     <div v-else>{{ parentQuery.typeOf?.name }} internal id</div>
 
     <div v-if="dataSet.return">
