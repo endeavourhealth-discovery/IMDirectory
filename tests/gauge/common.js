@@ -59,4 +59,4 @@ step("Click <text> button", async text => {
 
 step("Type <text> into <input>", async (text, input) => {
   await pw.page.getByPlaceholder(input).fill(text);
-})
+});
