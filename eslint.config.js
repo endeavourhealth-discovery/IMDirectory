@@ -10,9 +10,9 @@ import css from "@eslint/css";
 import vueParser from "vue-eslint-parser";
 
 export default defineConfig([
-  globalIgnores(["src/components/imquery/", "cypress/snapshots/"]),
+  globalIgnores(["src/components/imquery/"]),
   {
-    files: ["src/**/*.ts", "src/**/*.js", "cyress/**/*.ts", "cypress/**/*.js", "tests/**/*.ts", "tests/**/*.js"],
+    files: ["src/**/*.ts", "src/**/*.js", "tests/**/*.ts"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -27,7 +27,11 @@ export default defineConfig([
     },
     languageOptions: {
       globals: {
-        ...globals.browser
+        ...globals.browser,
+        ...globals.node,
+        step: "readonly",
+        beforeScenario: "readonly",
+        afterScenario: "readonly"
       },
       ecmaVersion: 2020,
       parser: vueParser,
