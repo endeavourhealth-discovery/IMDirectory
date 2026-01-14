@@ -5,7 +5,7 @@ const { pw } = require("../playwright");
 
 step("Concept title displays <text>", async (text) => {
   const title = pw.page.locator(".parent-header-container").filter({ hasText: text });
-  await title.waitFor({ state: "visible", timeout: 60000 });
+  await title.waitFor({ state: "visible"});
 });
 
 step("Click find in tree button", async () => {
@@ -14,7 +14,7 @@ step("Click find in tree button", async () => {
 
 step("Hierarchy tree contains <text>", async (text) => {
   const tree = pw.page.locator("#hierarchy-tree-bar-container").filter({ hasText: text });
-  await tree.waitFor({ state: "visible", timeout: 60000 });
+  await tree.waitFor({ state: "visible"});
 });
 
 step("Click download button", async () => {
@@ -30,12 +30,12 @@ step("Tree node <text> has children", async (text) => {
     .filter({ hasText: text })
     .first()
     .locator("button");
-  await node.waitFor({ state: "visible", timeout: 60000 });
+  await node.waitFor({ state: "visible"});
 });
 
 step("Breadcrumb contains <text>", async (text) => {
   const breadcrumb = pw.page.locator(".breadcrumb-container").filter({ hasText: text });
-  await breadcrumb.waitFor({ state: "visible", timeout: 60000 });
+  await breadcrumb.waitFor({ state: "visible"});
 });
 
 step("Click breadcrumb ellipsis", async () => {
@@ -54,7 +54,7 @@ step("Click breadcrumb term <text>", async (text) => {
 
 step("Click breadcrumb menu item <text>", async (text) => {
   const mi = pw.page.locator("#path_overlay_menu >> .p-menu-item").filter({ hasText: text });
-  await mi.waitFor({ state: "visible", timeout: 60000 });
+  await mi.waitFor({ state: "visible"});
   await mi.click();
 });
 
@@ -131,7 +131,7 @@ step("Used in table has rows", async () => {
 
 step("Current node is selected <text>", async (text) => {
   const node = pw.page.locator(".p-tree-node-selected").filter({ hasText: text });
-  await node.waitFor({ state: "visible", timeout: 60000 });
+  await node.waitFor({ state: "visible"});
 });
 
 step("Hierarchy tree has <num> nodes", async (num) => {
@@ -144,9 +144,9 @@ step("Hierarchy tree has <num> nodes", async (num) => {
 step("Click load more in hierarchy", async () => {
   await pw.page.waitForSelector("#secondary-tree-bar-container");
   const loadMore = pw.page.locator("#secondary-tree-bar-container .tree-row").filter({ hasText: "Load more..." }).first();
-  await loadMore.waitFor({ state: "visible", timeout: 60000 });
+  await loadMore.waitFor({ state: "visible"});
   await loadMore.click();
-  await loadMore.waitFor({ state: "hidden", timeout: 60000 });
+  await loadMore.waitFor({ state: "hidden"});
 });
 
 step("Hierarchy tree has more than <num> nodes", async (num) => {
@@ -183,12 +183,12 @@ step("Click subtype row <text>", async (text) => {
 
 step("Graph container contains <text>", async (text) => {
   const graph = pw.page.locator("#graph-container").filter({ hasText: text });
-  await graph.waitFor({ state: "visible", timeout: 60000 });
+  await graph.waitFor({ state: "visible"});
 });
 
 step("JSON container contains <text>", async (text) => {
   const json = pw.page.locator("#json-container").filter({ hasText: text });
-  await json.waitFor({ state: "visible", timeout: 60000 });
+  await json.waitFor({ state: "visible"});
 });
 
 step("Provenance table has rows", async () => {

@@ -5,7 +5,7 @@ const { pw } = require("../playwright");
 
 step("Set tab is active", async () => {
   const activeTab = pw.page.locator("#viewer-tabs").locator(".p-tab-active").filter({ hasText: "Set" });
-  await activeTab.waitFor({ state: "visible", timeout: 60000 });
+  await activeTab.waitFor({ state: "visible"});
 });
 
 step("Click set download button", async () => {

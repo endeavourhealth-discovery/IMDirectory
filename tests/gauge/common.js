@@ -41,7 +41,7 @@ step("Login", async () => {
   await pw.page.fill('input[placeholder="Password"]', password);
   await pw.page.click("button >> text=Sign In");
 
-  await pw.page.waitForSelector("#topbar", { timeout: 60000 });
+  await pw.page.waitForSelector("#topbar");
 });
 
 step("Goto route <route>", async route => {
@@ -50,11 +50,11 @@ step("Goto route <route>", async route => {
 
 step("Click logo to return to homepage", async () => {
   await pw.page.locator('[data-testid="im-logo"]').click();
-  await pw.page.waitForSelector("#shortcuts-container", { timeout: 60000 });
+  await pw.page.waitForSelector("#shortcuts-container");
 });
 
 step("Click shortcut <text> and switch tabs", async text => {
-  await pw.page.waitForSelector("#shortcuts-container", { timeout: 60000 });
+  await pw.page.waitForSelector("#shortcuts-container");
   const pagePromise = pw.context.waitForEvent("page");
   await pw.page.locator(".shortcut-container").filter({ hasText: text }).click();
   // Switch to new tab!
@@ -63,7 +63,7 @@ step("Click shortcut <text> and switch tabs", async text => {
 });
 
 step("Click shortcut <text>", async text => {
-  await pw.page.waitForSelector("#shortcuts-container", { timeout: 60000 });
+  await pw.page.waitForSelector("#shortcuts-container");
   await pw.page.locator(".shortcut-container").filter({ hasText: text }).click();
   await pw.page.waitForLoadState("networkidle");
 });
@@ -78,16 +78,16 @@ step("Type <text> into <input>", async (text, input) => {
 });
 
 step("Search for <text>", async text => {
-  await pw.page.waitForSelector('[data-testid="search-input"]', { timeout: 60000 });
-  await pw.page.focus('[data-testid="search-input"]' );
+  await pw.page.waitForSelector('[data-testid="search-input"]');
   await pw.page.fill('[data-testid="search-input"]', text);
   await pw.page.waitForLoadState("networkidle");
+  await pw.page.waitForSelector("#search-results-main-container >> tr");
 });
 
 step("Select <text> result", async (text) => {
   const node = pw.page.locator("#search-results-main-container >> tr").filter({ hasText: text }).first();
-  await node.waitFor({ state: "visible", timeout: 60000 });
+  await node.waitFor({ state: "visible"});
   await node.click();
-  await pw.page.waitForSelector(".back-to-search", { state: "visible", timeout: 60000 });
+  await pw.page.waitForSelector(".back-to-search", { state: "visible"});
   await pw.page.waitForLoadState("networkidle");
 });

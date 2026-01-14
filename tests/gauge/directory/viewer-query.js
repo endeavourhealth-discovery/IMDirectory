@@ -5,12 +5,12 @@ const { pw } = require("../playwright");
 
 step("Open filters", async () => {
   await pw.page.locator('[data-testid="filters-open-button"]').click();
-  await pw.page.locator('[data-testid="filters"]').waitFor({ state: "visible", timeout: 60000 });
+  await pw.page.locator('[data-testid="filters"]').waitFor({ state: "visible"});
 });
 
 step("Close filters", async () => {
   await pw.page.locator('[data-testid="filters-open-button"]').click();
-  await pw.page.locator('[data-testid="filters"]').waitFor({ state: "hidden", timeout: 60000 });
+  await pw.page.locator('[data-testid="filters"]').waitFor({ state: "hidden"});
 });
 
 step("Select concept type <text>", async (text) => {
@@ -21,10 +21,10 @@ step("Select concept type <text>", async (text) => {
 
 step("Query tab is active", async () => {
   const activeTab = pw.page.locator("#viewer-tabs").locator(".p-tab-active").filter({ hasText: "Query" });
-  await activeTab.waitFor({ state: "visible", timeout: 60000 });
+  await activeTab.waitFor({ state: "visible"});
 });
 
 step("Query container displays", async () => {
   const container = pw.page.locator("#query-container").locator(".rec-query-display");
-  await container.waitFor({ state: "visible", timeout: 60000 });
+  await container.waitFor({ state: "visible"});
 });

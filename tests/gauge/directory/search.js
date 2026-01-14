@@ -13,7 +13,7 @@ step("Click next page button", async () => {
   await pw.page.locator(".p-paginator-next").click();
   await pw.page.waitForTimeout(1000);
   const mask = pw.page.locator(".p-datatable-mask");
-  await mask.waitFor({ state: "hidden", timeout: 60000 });
+  await mask.waitFor({ state: "hidden"});
   await pw.page.waitForTimeout(1000);
 });
 
@@ -42,7 +42,7 @@ step("Filter <filterType> by <filterValue>", async (filterType, filterValue) => 
   await pw.page.locator(`[data-testid="${testId}"]`).locator(".p-multiselect-dropdown").click();
   await pw.page.waitForTimeout(1000);
   const mask = pw.page.locator(".p-datatable-mask");
-  await mask.waitFor({ state: "hidden", timeout: 60000 });
+  await mask.waitFor({ state: "hidden"});
   await pw.page.waitForTimeout(1000);
 });
 

@@ -6,7 +6,7 @@ const { pw } = require("../playwright");
 
 
 step("Verify Creator layout is displayed", async () => {
-  await pw.page.waitForSelector(".creator-layout-container", { timeout: 60000 });
+  await pw.page.waitForSelector(".creator-layout-container");
 });
 
 step("Entity combo box is empty", async () => {
@@ -15,7 +15,7 @@ step("Entity combo box is empty", async () => {
 });
 
 step("IRI builder dropdown is not empty", async () => {
-  await pw.page.waitForSelector('.iri-builder-container', { timeout: 60000 });
+  await pw.page.waitForSelector('.iri-builder-container');
   const element = await pw.page.locator('[data-testid="iri-builder-dropdown"]');
   await expect(element).not.toBeEmpty();
 });
@@ -78,7 +78,7 @@ step("IRI builder container contains <iri>", async (iri) => {
 });
 
 step("Select status <text>", async (text) => {
-  await pw.page.waitForSelector(".entity-single-dropdown-container", { timeout: 60000 });
+  await pw.page.waitForSelector(".entity-single-dropdown-container");
   await pw.page.click('[data-testid="entity-single-dropdown"]');
   await pw.page.click(".p-select-option >> text=" + text);
 });
