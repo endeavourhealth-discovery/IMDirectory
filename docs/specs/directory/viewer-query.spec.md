@@ -6,8 +6,9 @@ This specification describes the query viewer functionality in IMDirectory
 * Login
 * Open filters
 * Select concept type "Query"
+* Close filters
 * Search for "Patients 65-70"
-* Select first result
+* Select "Patients 65-70" result
 
 ## Query tab opens
 * Concept title displays "Patients 65-70"

@@ -79,6 +79,7 @@ step("Type <text> into <input>", async (text, input) => {
 
 step("Search for <text>", async text => {
   await pw.page.waitForSelector('[data-testid="search-input"]', { timeout: 60000 });
+  await pw.page.focus('[data-testid="search-input"]' );
   await pw.page.fill('[data-testid="search-input"]', text);
   await pw.page.waitForLoadState("networkidle");
 });
