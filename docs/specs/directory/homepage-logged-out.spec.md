@@ -31,7 +31,7 @@ This specification describes the homepage functionality of IMDirectory.
 
 ## Quicklinks - Creator
 * Open IMDirectory
-* Click shortcut "Creator"
+* Click shortcut "Creator" and switch tabs
 * Login required message appears
 * Close tab
 
@@ -42,6 +42,6 @@ This specification describes the homepage functionality of IMDirectory.
 
 ## Quicklinks - ASSIGN UPRN
 * Open IMDirectory
-* Click shortcut "ASSIGN UPRN"
+* Click shortcut "ASSIGN UPRN" and switch tabs
 * Login required message appears
 * Close tab

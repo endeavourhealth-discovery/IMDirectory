@@ -5,14 +5,14 @@ This specification describes the homepage functionality of IMDirectory
 ## Quicklinks - Creator
 * Open IMDirectory
 * Login
-* Click shortcut "Creator"
+* Click shortcut "Creator" and switch tabs
 * Creator page title is displayed
 * Close tab
 
 ## Quicklinks - ASSIGN UPRN
 * Open IMDirectory
 * Login
-* Click shortcut "ASSIGN UPRN"
+* Click shortcut "ASSIGN UPRN" and switch tabs
 * UPRN page title is displayed
 * Close tab
 
@@ -26,7 +26,7 @@ This specification describes the homepage functionality of IMDirectory
 * Open IMDirectory
 * Login
 * Search for "Scoliosis deformity of spine (disorder)"
-* Select first result
+* Select "Scoliosis deformity of spine (disorder)" result
 * Click logo to return to homepage
 * Suggested section contains "Scoliosis deformity of spine (disorder)"
 
@@ -34,7 +34,7 @@ This specification describes the homepage functionality of IMDirectory
 * Open IMDirectory
 * Login
 * Search for "Scoliosis deformity of spine (disorder)"
-* Select first result
+* Select "Scoliosis deformity of spine (disorder)" result
 * Click favourite button
 * Click logo to return to homepage
 * Favourites section contains "Scoliosis deformity of spine (disorder)"
@@ -43,10 +43,10 @@ This specification describes the homepage functionality of IMDirectory
 * Open IMDirectory
 * Login
 * Search for "Scoliosis deformity of spine (disorder)"
-* Select first result
+* Select "Scoliosis deformity of spine (disorder)" result
 * Click logo to return to homepage
 * Suggested section contains "Scoliosis deformity of spine (disorder)"
-* Click "Clear suggestions"
+* Click "Clear suggestions" button
 * Click dialog confirm
 * Suggested section contains "No recent activity"
 
@@ -54,10 +54,10 @@ This specification describes the homepage functionality of IMDirectory
 * Open IMDirectory
 * Login
 * Search for "Scoliosis deformity of spine (disorder)"
-* Select first result
+* Select "Scoliosis deformity of spine (disorder)" result
 * Click favourite button
 * Click logo to return to homepage
 * Favourites section contains "Scoliosis deformity of spine (disorder)"
-* Click "Clear favourites"
+* Click "Clear favourites" button
 * Click dialog confirm
 * Favourites section contains "No favourites"

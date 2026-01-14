@@ -44,12 +44,23 @@ step("Login", async () => {
   await pw.page.waitForSelector("#topbar", { timeout: 60000 });
 });
 
-step("Click shortcut <text>", async text => {
+step("Click logo to return to homepage", async () => {
+  await pw.page.locator('[data-testid="im-logo"]').click();
+  await pw.page.waitForSelector("#shortcuts-container", { timeout: 60000 });
+});
+
+step("Click shortcut <text> and switch tabs", async text => {
   await pw.page.waitForSelector("#shortcuts-container", { timeout: 60000 });
   const pagePromise = pw.context.waitForEvent("page");
-  await pw.page.click("#shortcuts-container >> .shortcut >> text=" + text);
+  await pw.page.locator(".shortcut-container").filter({ hasText: text }).click();
   // Switch to new tab!
   pw.page = await pagePromise;
+  await pw.page.waitForLoadState("networkidle");
+});
+
+step("Click shortcut <text>", async text => {
+  await pw.page.waitForSelector("#shortcuts-container", { timeout: 60000 });
+  await pw.page.locator(".shortcut-container").filter({ hasText: text }).click();
   await pw.page.waitForLoadState("networkidle");
 });
 
@@ -59,4 +70,19 @@ step("Click <text> button", async text => {
 
 step("Type <text> into <input>", async (text, input) => {
   await pw.page.getByPlaceholder(input).fill(text);
+});
+
+step("Search for <text>", async text => {
+  await pw.page.waitForSelector('[data-testid="search-input"]', { timeout: 60000 });
+  await pw.page.fill('[data-testid="search-input"]', text);
+  await pw.page.waitForLoadState("networkidle");
+});
+
+step("Select <text> result", async (text) => {
+  const rows = pw.page.locator("#search-results-main-container >> tr").filter({ hasText: text }).first();
+  await rows.waitFor({ state: "visible", timeout: 60000 });
+  await rows.click();
+  const iriLabel = pw.page.locator(".back-to-search")
+  await iriLabel.waitFor({ state: "visible", timeout: 60000 });
+  await pw.page.waitForLoadState("networkidle");
 });
