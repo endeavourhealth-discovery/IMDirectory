@@ -4,8 +4,8 @@ This specification describes the concept viewer functionality in IMDirectory
 
 * Open IMDirectory
 * Login
-* Search for "asthma disorder"
-* Select first result
+* Search for "atshma discorder"
+* Select "Asthma (disorder)" result
 
 ## Concept loads
 * Concept title displays "Asthma (disorder)"
@@ -75,9 +75,9 @@ This specification describes the concept viewer functionality in IMDirectory
 
 ## Load more in hierarchy
 * Click tab "Hierarchy Position"
-* Hierarchy tree has "21" nodes
+* Hierarchy tree has "22" nodes
 * Click load more in hierarchy
-* Hierarchy tree has more than 20 nodes
+* Hierarchy tree has more than "22" nodes
 
 ## Climb hierarchy
 * Click tab "Hierarchy Position"

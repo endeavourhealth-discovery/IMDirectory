@@ -44,6 +44,10 @@ step("Login", async () => {
   await pw.page.waitForSelector("#topbar", { timeout: 60000 });
 });
 
+step("Goto route <route>", async route => {
+  await pw.page.goto(`${process.env.BASE_URL || "http://localhost:8082"}${route}`);
+});
+
 step("Click logo to return to homepage", async () => {
   await pw.page.locator('[data-testid="im-logo"]').click();
   await pw.page.waitForSelector("#shortcuts-container", { timeout: 60000 });
@@ -66,6 +70,7 @@ step("Click shortcut <text>", async text => {
 
 step("Click <text> button", async text => {
   await pw.page.getByRole("button", { name: text }).click();
+  await pw.page.waitForLoadState("networkidle");
 });
 
 step("Type <text> into <input>", async (text, input) => {
@@ -79,10 +84,9 @@ step("Search for <text>", async text => {
 });
 
 step("Select <text> result", async (text) => {
-  const rows = pw.page.locator("#search-results-main-container >> tr").filter({ hasText: text }).first();
-  await rows.waitFor({ state: "visible", timeout: 60000 });
-  await rows.click();
-  const iriLabel = pw.page.locator(".back-to-search")
-  await iriLabel.waitFor({ state: "visible", timeout: 60000 });
+  const node = pw.page.locator("#search-results-main-container >> tr").filter({ hasText: text }).first();
+  await node.waitFor({ state: "visible", timeout: 60000 });
+  await node.click();
+  await pw.page.waitForSelector(".back-to-search", { state: "visible", timeout: 60000 });
   await pw.page.waitForLoadState("networkidle");
 });
