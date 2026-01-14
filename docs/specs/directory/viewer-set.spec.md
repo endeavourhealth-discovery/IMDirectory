@@ -6,8 +6,9 @@ This specification describes the set (value set) viewer functionality in IMDirec
 * Login
 * Open filters
 * Select concept type "Data model bound value set"
+* Close filters
 * Search for "Autism Spectrum Disorders (Data model value set)"
-* Select first result
+* Select "Autism Spectrum Disorders (Data model value set)" result
 
 ## Set tab opens
 * Concept title displays "Autism Spectrum Disorders (Data model value set)"
