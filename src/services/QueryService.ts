@@ -12,7 +12,8 @@ import {
   SearchResponse,
   ArgumentReference,
   IMLLanguage,
-  Indicator
+  Indicator,
+  Return
 } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
@@ -98,6 +99,10 @@ const QueryService = {
 
   async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
     return axios.post(API_URL + "/findRequestMissingArguments", request);
+  },
+
+  async getNestedReturns(match: Match): Promise<Return[]> {
+    return await axios.post(API_URL + "/private/nestedReturns", { match: match });
   }
 };
 

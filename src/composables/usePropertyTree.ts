@@ -246,7 +246,7 @@ export function usePropertyTree() {
             if (path.path) {
               await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, path.path);
             }
-            if (match.return) await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, match.return, path.node, path.iri);
+            if (match.return) await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, match.return, path.nodeRef);
           }
         }
       } else if (match.return) await initialiseSelectedReturns(nodes, expandedKeys, selectedKeys, match.return, undefined);
@@ -266,28 +266,38 @@ export function usePropertyTree() {
     nodes: TreeNode[],
     expandedKeys: Record<string, boolean>,
     selectedKeys: TreeSelectionKeys,
-    ret: Return,
-    nodeRef: string | undefined,
-    pathIri?: string
+    rets: Return[],
+    nodeRef: string | undefined
   ) {
-    if (ret.property) {
-      for (const property of ret.property) {
-        if (property.iri && property.nodeRef == nodeRef) {
-          for (const node of nodes) {
-            if (node.type === "folder") {
-              await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, ret, nodeRef);
-            }
-            if (pathIri && node.data.iri && node.data.iri === pathIri) {
-              await expandNode(node);
-            } else if (node.data.iri && node.data.iri === property.iri) {
-              selectedKeys[node.key] = { checked: true, partialChecked: false };
-              if (property.return) {
-                await expandNode(node);
-                await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, property.return, nodeRef);
-              }
-              if (node.data.parent) expandedKeys[node.data.parent] = true;
+    for (const property of rets) {
+      await initialiseSelectedProperty(nodes, expandedKeys, selectedKeys, property, nodeRef);
+    }
+  }
+
+  async function initialiseSelectedProperty(
+    nodes: TreeNode[],
+    expandedKeys: Record<string, boolean>,
+    selectedKeys: TreeSelectionKeys,
+    property: Return,
+    nodeRef: string | undefined
+  ) {
+    if (property.iri && property.nodeRef == nodeRef) {
+      const pathIri = property.iri;
+      for (const node of nodes) {
+        if (node.type === "folder") {
+          await initialiseSelectedProperty(node.children!, expandedKeys, selectedKeys, property, nodeRef);
+        }
+        if (pathIri && node.data.iri && node.data.iri === pathIri) {
+          await expandNode(node);
+        } else if (node.data.iri && node.data.iri === property.iri) {
+          selectedKeys[node.key] = { checked: true, partialChecked: false };
+          if (property.return) {
+            await expandNode(node);
+            for (const sub of property.return) {
+              await initialiseSelectedProperty(node.children!, expandedKeys, selectedKeys, sub, nodeRef);
             }
           }
+          if (node.data.parent) expandedKeys[node.data.parent] = true;
         }
       }
     }

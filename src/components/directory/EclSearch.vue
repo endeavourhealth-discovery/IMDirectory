@@ -60,6 +60,7 @@
         v-model:loading="searchLoading"
         :update-search="updateSearch"
         :ecl-query="eclQuery"
+        :page-size="12"
         @rowSelected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
         @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
@@ -74,6 +75,111 @@
     />
   </div>
 </template>
+
+<style scoped>
+#ecl-search-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#query-string-container {
+  width: 100%;
+  height: 10rem;
+  overflow: auto;
+  flex-grow: 100;
+}
+
+.info {
+  align-self: flex-start;
+  margin: 0 0 0.5rem 0;
+}
+
+.button-container {
+  display: flex;
+  flex-flow: row;
+  gap: 1rem;
+  margin: 1rem 0 1rem 0;
+}
+
+.results-container {
+  width: 100%;
+  min-height: 40rem;
+  flex: 0 1 auto;
+  overflow: auto;
+}
+
+.error-message {
+  color: var(--p-red-500);
+}
+:deep(.error-char) {
+  text-decoration: underline red wavy;
+}
+
+.filters-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.status-filter {
+  width: 20rem;
+  padding: 1.25rem 0.5rem 0.5rem 0.5rem;
+  justify-self: flex-start;
+}
+
+.text-copy-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.ecl-panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.ecl-container {
+  position: relative;
+  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+}
+
+.html-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  resize: none;
+  pointer-events: none;
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  color: transparent;
+  z-index: 1;
+}
+.copy-button {
+  display: flex;
+  flex-flow: row;
+}
+.transparent-textarea {
+  min-height: 15rem;
+}
+</style>
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
@@ -204,108 +310,3 @@ function setFilterDefaults() {
   //selectedStatus.value = statusOptions.value.filter(option => option.iri === IM.ACTIVE);
 }
 </script>
-
-<style scoped>
-#ecl-search-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-#query-string-container {
-  width: 100%;
-  height: 10rem;
-  overflow: auto;
-  flex-grow: 100;
-}
-
-.info {
-  align-self: flex-start;
-  margin: 0 0 0.5rem 0;
-}
-
-.button-container {
-  display: flex;
-  flex-flow: row;
-  gap: 1rem;
-  margin: 1rem 0 1rem 0;
-}
-
-.results-container {
-  width: 100%;
-  flex: 0 1 auto;
-  overflow: auto;
-}
-
-.error-message {
-  color: var(--p-red-500);
-}
-:deep(.error-char) {
-  text-decoration: underline red wavy;
-}
-
-.filters-container {
-  width: 100%;
-  display: flex;
-  flex-flow: row wrap;
-}
-
-.status-filter {
-  width: 20rem;
-  padding: 1.25rem 0.5rem 0.5rem 0.5rem;
-  justify-self: flex-start;
-}
-
-.text-copy-container {
-  width: 100%;
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-}
-
-.ecl-panel {
-  flex: 1 1 auto;
-  min-height: 30rem;
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 0.5rem;
-  font-size: 1rem;
-}
-
-.ecl-container {
-  position: relative;
-  height: 100%;
-  flex: 1 1 auto;
-  display: flex;
-}
-
-.html-preview {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow: hidden;
-  resize: none;
-  pointer-events: none;
-  font-family: inherit;
-  font-size: 1rem;
-  border: 1px solid transparent;
-  box-sizing: border-box;
-  padding: 0.5rem;
-  color: transparent;
-  z-index: 1;
-}
-.copy-button {
-  display: flex;
-  flex-flow: row;
-}
-.transparent-textarea {
-  min-height: 30rem;
-}
-</style>
