@@ -31,4 +31,5 @@ export class COMPONENT {
   public static readonly IRI_BUILDER = Namespace.IM_COMPONENT + "iriBuilder"
   public static readonly AUTOCOMPLETE_SEARCH_BAR_WRAPPER = Namespace.IM_COMPONENT + "autocompleteSearchBarWrapper"
   public static readonly SUBSET_BUILDER = Namespace.IM_COMPONENT + "subsetBuilder"
+  public static readonly CHECKBOX_DISPLAY = Namespace.IM_COMPONENT + "checkboxDisplay"
 }
