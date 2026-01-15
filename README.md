@@ -39,8 +39,6 @@ In project root add file
 
 File should contain:
 
-    CYPRESS_LOGIN_USERNAME="username for IMDirectory account cypress will use"
-    CYPRESS_LOGIN_PASSWORD="password for IMDirectory account cypress will use"
     VITE_HOSTING_MODE="public" || "private"
 
 ### Compiles and hot-reloads for development
@@ -83,7 +81,7 @@ Unit test using vitest
 pnpm test:unit
 ```
 
-E2E test using cypress
+E2E test
 
 ```console
 pnpm test:e2e

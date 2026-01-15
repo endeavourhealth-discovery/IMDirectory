@@ -3,7 +3,6 @@ import globals from "globals";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginVue from "eslint-plugin-vue";
-import pluginCypress from "eslint-plugin-cypress/flat";
 import pluginPrettier from "eslint-plugin-prettier/recommended";
 import eslintPluginVueScopedCSS from "eslint-plugin-vue-scoped-css";
 import css from "@eslint/css";
@@ -18,7 +17,6 @@ export default defineConfig([
       ...tseslint.configs.recommended,
       ...pluginVue.configs["flat/essential"],
       ...eslintPluginVueScopedCSS.configs["flat/base"],
-      pluginCypress.configs.recommended,
       css.configs.recommended,
       pluginPrettier
     ],
@@ -44,7 +42,6 @@ export default defineConfig([
     },
 
     rules: {
-      "cypress/no-unnecessary-waiting": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-floating-promises": "warn",
       "@typescript-eslint/no-unsafe-argument": "off",
