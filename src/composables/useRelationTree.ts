@@ -24,7 +24,7 @@ export function useRelationTree() {
           ?.property?.forEach(property => {
             node.children!.push(
               createNode(
-                match.return!.as! + property.path.iri,
+                property.path.iri,
                 node.label + " (" + property.path.name + ")",
                 null,
                 node.data.nodeRef,

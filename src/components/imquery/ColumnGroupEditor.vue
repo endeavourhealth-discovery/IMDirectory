@@ -10,9 +10,10 @@
           <ColumnSelector :baseType="baseType" v-model:refreshColumns="refreshColumns" v-model:match="match" />
         </SplitterPanel>
         <SplitterPanel class="column-display">
-          <div v-if="match.return">
+          <span>nested {{ nestedReturns }}</span>
+          <div v-if="nestedReturns">
             <span class="header">Add columns from left</span>
-            <RecursiveReturnDisplay :select="match.return" :parentQuery="match" />
+            <RecursiveReturnDisplay :select="nestedReturns" :parentQuery="match" />
           </div>
           <div v-else>
             <span class="header">Select columns from the tree to add</span>
@@ -54,8 +55,8 @@
 </style>
 
 <script lang="ts" setup>
-import { DisplayMode, Match, Node } from "@/interfaces/AutoGen";
-import { Ref, ref, computed } from "vue";
+import { DisplayMode, Match, Node, Return } from "@/interfaces/AutoGen";
+import { Ref, ref, computed, onMounted } from "vue";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { QueryService } from "@/services";
 import { IM } from "@/vocabulary";
@@ -79,6 +80,7 @@ const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
   (event: "saveChanges", match: Match): void;
   (event: "cancel"): void;
+  (event: "update:show", value: boolean): void;
 }>();
 
 const { getRootNodes, getDefiningProperty, createPropertyTree, getOrderables } = usePropertyTree();
@@ -91,12 +93,22 @@ const rootNodes: Ref<TreeNode[]> = ref([]);
 const orderables: Ref<any[] | undefined> = ref();
 const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
 const edited = ref(false);
+const nestedReturns: Ref<Return[]> = ref([]);
 const hoverEditColumns = ref(false);
 const hoverDeleteColumns = ref(false);
 const hoverAddFilter = ref(false);
 const hoverAddColumns = ref(false);
 const refreshColumns = ref(false);
 
+
+onMounted(async () => {
+  await init();
+});
+
+async function init() {
+  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+  nestedReturns.value = await QueryService.getNestedReturns(match.value);
+}
 function onUpdate() {
   edited.value = true;
 }
@@ -144,6 +156,6 @@ function cancelColumns() {
 }
 
 function onCancel() {
-  show.value = false;
+  emit('update:show', false);
 }
 </script>

@@ -12,7 +12,7 @@
     >
       <template #header>
         <div class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
-          <strong v-if="from">This is a test on the previous clause : ({{ from?.return?.as }})</strong>
+          <strong v-if="from">This is a test on the previous clause : ({{ from }})</strong>
           <span>Name</span>
           <InputText v-model="editMatch.name" class="name-display" placeholder="Name" type="text" />
           <span>Result label</span>

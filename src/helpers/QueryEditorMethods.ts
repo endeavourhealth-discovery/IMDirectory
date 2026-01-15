@@ -295,8 +295,8 @@ export function getTypeFromClause(match: Match): string | undefined {
       return getTypeFromClause(queryStore.returnMap.get(match.nodeRef)!);
     } else return undefined;
   }
-  if (match.return && match.return.property) {
-    for (const property of match.return.property) {
+  if (match.return) {
+    for (const property of match.return) {
       if (property.nodeRef) return getTypeFromMatchNodeRef(match, property.nodeRef);
     }
   }
