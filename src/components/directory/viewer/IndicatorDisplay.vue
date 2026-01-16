@@ -28,16 +28,13 @@
           @navigateTo="(iri: string) => emit('navigateTo', iri)"
         />
       </div>
-      <div v-if="indicator.dataset && indicator.dataset.columnGroup">
-        <span>Output the following columns :</span>
-        <ColumnGroupDisplay
-          v-for="(nestedColumnGroup, index) of indicator.dataset.columnGroup"
-          :match="nestedColumnGroup"
-          :key="`nestedQuery-${index}`"
-          :matchExpanded="false"
-          :returnExpanded="true"
-          :index="index"
-          :parentQuery="indicator.dataset"
+      <div v-if="indicator.dataset">
+        <span class="field"> Results dataset: </span>
+        <IMViewerLink
+          v-if="indicator.dataset.iri"
+          :iri="indicator.dataset.iri"
+          :label="indicator.dataset.name"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
         />
       </div>
     </div>

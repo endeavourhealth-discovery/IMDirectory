@@ -343,6 +343,23 @@ const ConceptSetShape: FormGenerator = {
               path: {
                 iri: IM.DEFINITION
               }
+            },
+            {
+              comment: "avoid replaced by",
+              order: 3,
+              datatype: {
+                iri: XSD.BOOLEAN
+              },
+              name: "Avoid replaced by",
+              showTitle: true,
+              maxCount: 1,
+              path: {
+                iri: IM.AVOID_REPLACED_BY
+              },
+              minCount: 0,
+              componentType: {
+                iri: COMPONENT.CHECKBOX_DISPLAY
+              }
             }
           ]
         }

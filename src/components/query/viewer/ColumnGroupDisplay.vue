@@ -2,14 +2,10 @@
   <div :style="{ paddingLeft: '1rem' }">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
     <div v-if="dataSet.name">Name : {{ dataSet.name }}</div>
-    <div v-if="dataSet.return">
-      <span v-if="dataSet.return.as">Group : {{ dataSet.return.as }}</span>
-    </div>
     <div v-else>{{ parentQuery.typeOf?.name }} internal id</div>
 
     <div v-if="dataSet.return">
       <div v-if="dataSet.and || dataSet.or || dataSet.where || dataSet.is">
-        <span>filter:</span>
         <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
         <RecursiveMatchDisplay
           v-if="matchExpand"

@@ -54,26 +54,20 @@
       <div v-else-if="selectedDisplayOption == DisplayOptions.IML" class="query-display-content flex flex-col gap-4">
         <IMLDisplay v-if="iml" :iml="iml" />
       </div>
-      <div v-if="[DisplayOptions.DatasetDefinition].includes(selectedDisplayOption) && query" class="query-display-content flex flex-col gap-4">
-        <span>Output columns:</span>
-        <ColumnGroupDisplay
-          v-if="!query.columnGroup"
-          :match="query"
-          :key="`dataSetQuery-return`"
-          :matchExpanded="false"
-          :returnExpanded="true"
-          :parentQuery="query"
-          :index="0"
-        />
-        <ColumnGroupDisplay
-          v-for="(nestedQuery, index) in query?.columnGroup"
-          :match="nestedQuery"
-          :key="`nestedQuery-${index}`"
-          :matchExpanded="false"
-          :returnExpanded="true"
-          :index="index"
-          :parentQuery="query"
-        />
+      <div v-if="query && query.columnGroup">
+        <span>Output columns </span>
+        <Button text :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="showColumns = !showColumns"></Button>
+        <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
+          <ColumnGroupDisplay
+            v-for="(nestedQuery, index) in query?.columnGroup"
+            :match="nestedQuery"
+            :key="`nestedQuery-${index}`"
+            :matchExpanded="false"
+            :returnExpanded="true"
+            :index="index"
+            :parentQuery="query"
+          />
+        </div>
       </div>
       <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
       <ConfirmDialog group="templating">
@@ -120,8 +114,7 @@ enum DisplayOptions {
   LogicalView = "Logical view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL",
-  IML = "IMQuery",
-  DatasetDefinition = "Data output definition"
+  IML = "IMLanguage"
 }
 
 interface Props {
@@ -130,7 +123,6 @@ interface Props {
   queryDefinition?: Query;
   entityType?: string;
   eclQuery?: boolean;
-  showDataset?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -143,6 +135,7 @@ const router = useRouter();
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
+const showColumns = ref(false);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
@@ -153,7 +146,7 @@ const showTestResults = ref(false);
 const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
-const selectedDisplayOption: Ref<DisplayOptions> = ref(query.value?.columnGroup ? DisplayOptions.DatasetDefinition : DisplayOptions.LogicalView);
+const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
 const showArgumentSelector = ref(false);
 const checkingArguments = ref(false);
 const missingArguments: Ref<ArgumentReference[]> = ref([]);
@@ -217,8 +210,7 @@ async function init() {
   }
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();
-  if (query.value?.columnGroup) selectedDisplayOption.value = DisplayOptions.DatasetDefinition;
-  else if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
+  if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
   else selectedDisplayOption.value = DisplayOptions.LogicalView;
   // if (isLoggedIn.value) {
   // hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
@@ -227,16 +219,7 @@ async function init() {
 }
 
 function setDisplayOptions() {
-  if (props.showDataset)
-    displayOptions.value = [
-      DisplayOptions.RuleView,
-      DisplayOptions.LogicalView,
-      DisplayOptions.MySQL,
-      DisplayOptions.PostreSQL,
-      DisplayOptions.IML,
-      DisplayOptions.DatasetDefinition
-    ];
-  else displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
+  displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL, DisplayOptions.IML];
 }
 
 async function getQueryDisplay(displayMode: DisplayMode) {

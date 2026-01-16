@@ -23,19 +23,15 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 export async function setReturn(match: Match, keepAs: string) {
   if (keepAs === "") {
     if (match.return) {
-      if (match.return.property) {
-        await Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "You have already added properties to the output. Cannot remove label",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#689F38"
-        });
-      } else delete match.return;
-    }
-  } else if (match.return) {
-    match.return.as = keepAs;
-  } else match.return = { as: keepAs };
+      await Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "You have already added properties to the output. Cannot remove label",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
+    } else delete match.node;
+  } else match.node = keepAs;
 }
 
 export function checkGroupChange(e: any, parentGroup: number[], index: number) {
@@ -227,6 +223,10 @@ export function deleteMatchFromParent(parentMatch: Match, index: number) {
   }
 }
 
+export function deleteGroupFromQuery(query: Query, index: number) {
+  query.columnGroup!.splice(index, 1);
+}
+
 export function deletePropertyFromParent(match: Match, parentWhere: Where, index: number) {
   if (parentWhere) {
     for (const key of ["and", "or"] as const) {
@@ -240,18 +240,14 @@ export function deletePropertyFromParent(match: Match, parentWhere: Where, index
 }
 
 function addPath(match: Match, flatPath: string): string | undefined {
-  if (!match.path) {
-    match.path = [];
-  }
   let matchPath: Path | undefined = undefined;
   const paths = flatPath.split("\t");
   for (let i = 0; i < paths.length - 1; i++) {
     if (!matchPath) {
-      match.path.push({ iri: paths[i], typeOf: { iri: paths[i + 1] } });
+      match.path = [{ iri: paths[i], typeOf: { iri: paths[i + 1] } }];
       matchPath = match.path[0];
     } else {
-      matchPath.path = [];
-      matchPath.path.push({ iri: paths[i], typeOf: { iri: paths[i + 1] } });
+      matchPath.path = [{ iri: paths[i], typeOf: { iri: paths[i + 1] } }];
       matchPath = matchPath.path[0];
     }
   }
@@ -260,7 +256,7 @@ function addPath(match: Match, flatPath: string): string | undefined {
   if (lastPart.includes("#")) lastPart = lastPart.split("#")[1];
   const nodeRef = lastPart + refNumber.toString();
   if (matchPath) {
-    matchPath.variable = nodeRef;
+    matchPath.node = nodeRef;
     return nodeRef;
   }
   return undefined;
@@ -268,27 +264,25 @@ function addPath(match: Match, flatPath: string): string | undefined {
 function getPaths(match: Match): Record<string, string> | undefined {
   if (!match.path) return undefined;
   const paths = {} as Record<string, string>;
-  for (const path of match.path) {
-    const flatPath = path.iri! + "\t" + path.typeOf!.iri;
-    if (path.variable != null) {
-      paths[flatPath] = path.variable;
-    }
-    if (path.path) {
-      addSubPaths(flatPath, path, paths);
-    }
+  const path = match.path[0];
+  const flatPath = path.iri! + "\t" + path.typeOf!.iri;
+  if (path.node != null) {
+    paths[flatPath] = path.node;
+  }
+  if (path.path) {
+    addSubPaths(flatPath, path, paths);
   }
   return paths;
 }
 
 function addSubPaths(flatPath: string, path: Path, paths: Record<string, string>): void {
-  for (const childPath of path.path!) {
-    const childFlatPath = childPath.iri! + "\t" + childPath.typeOf!.iri;
-    if (childPath.variable != null) {
-      paths[flatPath + "\t" + childFlatPath] = childPath.variable;
-    }
-    if (childPath.path) {
-      addSubPaths(flatPath + "\t" + childFlatPath, childPath, paths);
-    }
+  const childPath = path.path![0];
+  const childFlatPath = childPath.iri! + "\t" + childPath.typeOf!.iri;
+  if (childPath.node != null) {
+    paths[flatPath + "\t" + childFlatPath] = childPath.node;
+  }
+  if (childPath.path) {
+    addSubPaths(flatPath + "\t" + childFlatPath, childPath, paths);
   }
 }
 

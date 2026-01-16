@@ -2,14 +2,16 @@ import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Path, PropertyShape, Node } from "@/interfaces/AutoGen";
+import { Match, Path, PropertyShape, Node, Return } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 import { Orderable } from "@/models/orderable";
+import { TreeSelectionKeys } from "primevue/tree";
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const loading: Ref<boolean> = ref(false);
+  const codeable = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
 
   async function createPropertyTree(iri: string, parent: TreeNode) {
     const entity = await DataModelService.getDataModelProperties(iri, false);
@@ -22,14 +24,16 @@ export function usePropertyTree() {
     }
   }
 
-  async function createFeatureTree(queryBaseType: Node): Promise<TreeNode[]> {
+  async function createFeatureTree(queryBaseType: Node, propertiesOnly?: boolean): Promise<TreeNode[]> {
     baseType.value = queryBaseType;
     const data = ref([] as TreeNode[]);
     let key = "0";
     let keyIndex = 0;
-    data.value.push(createNode(key, "Add a cohort as feature", "cohort", "cohort", IM.QUERY, undefined, "", null));
-    key = "1";
-    keyIndex++;
+    if (!propertiesOnly) {
+      data.value.push(createNode(key, "Add a cohort as feature", "cohort", "cohort", IM.QUERY, undefined, "", null));
+      key = "1";
+      keyIndex++;
+    }
     data.value.push(createNode(key, "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, undefined, "", null));
     data.value[0].selectable = true;
     await createPropertyTree(queryBaseType.iri!, data.value[keyIndex]);
@@ -67,7 +71,9 @@ export function usePropertyTree() {
         typeOf: typeOf,
         definingProperty: definingProperty,
         ascending: ascending,
-        descending: descending
+        descending: descending,
+        parent: parent ? parent.key : null,
+        rangeType: rangeType
       },
       loading: false,
       children: [] as TreeNode[],
@@ -160,18 +166,16 @@ export function usePropertyTree() {
   }
 
   async function setRootNodesFromMatch(match: Match, nodes: TreeNode[], rootNodes: TreeNode[]) {
-    for (const path of match.path!) {
-      for (const node of nodes) {
-        if (node.type === "folder") {
-          await setRootNodesFromMatch(match, node.children!, rootNodes);
-        } else if (node.data.iri === path.iri) {
-          rootNodes.push(node);
-          if (node.children!.length === 0) await expandNode(node);
-          if (path.path && path.path.length > 0 && node.children && node.children.length > 0) {
-            for (const subPath of path.path) {
-              await addRootNodes(rootNodes, subPath, node);
-            }
-          }
+    const path = match.path![0]!;
+    for (const node of nodes) {
+      if (node.type === "folder") {
+        await setRootNodesFromMatch(match, node.children!, rootNodes);
+      } else if (node.data.iri === path.iri) {
+        rootNodes.push(node);
+        if (node.children!.length === 0) await expandNode(node);
+        if (path.path && node.children && node.children.length > 0) {
+          const subPath = path.path[0];
+          await addRootNodes(rootNodes, subPath, node);
         }
       }
     }
@@ -184,10 +188,9 @@ export function usePropertyTree() {
       } else if (child.data.iri === subPath.iri) {
         rootNodes.push(child);
         if (child.children!.length === 0) await expandNode(child);
-        if (subPath.path && subPath.path.length > 0 && child.children && child.children.length > 0) {
-          for (const subSubPath of subPath.path) {
-            await addRootNodes(rootNodes, subSubPath, child);
-          }
+        if (subPath.path && child.children && child.children.length > 0) {
+          const subSubPath = subPath.path[0];
+          await addRootNodes(rootNodes, subSubPath, child);
         }
       }
     }
@@ -217,12 +220,95 @@ export function usePropertyTree() {
     }
     return orderables;
   }
+  async function initialiseSelected(nodes: TreeNode[], expandedKeys: Record<string, boolean>, selectedKeys: TreeSelectionKeys, match: Match) {
+    await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, match, match.path ? match.path : undefined);
+  }
+  async function initialiseSelectedPaths(
+    nodes: TreeNode[],
+    expandedKeys: Record<string, boolean>,
+    selectedKeys: TreeSelectionKeys,
+    match: Match,
+    paths: Path[] | undefined
+  ) {
+    for (const node of nodes) {
+      node.expanded = true;
+      if (node.type === "folder") {
+        await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, paths);
+      } else if (paths && paths.length > 0) {
+        for (const path of paths) {
+          if (node.data.iri && node.data.iri === path.iri) {
+            expandedKeys[node.key] = true;
+            if (codeable.includes(node.data.rangeType)) node.data.typeOf = IM.CODEABLE;
+            await expandNode(node);
+            if (node.data.parent) {
+              expandedKeys[node.data.parent] = true;
+            }
+            if (path.path) {
+              await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, path.path);
+            }
+            if (match.return) await initialiseSelectedReturns(node.children!, expandedKeys, selectedKeys, match.return, path.nodeRef);
+          }
+        }
+      } else if (match.return) await initialiseSelectedReturns(nodes, expandedKeys, selectedKeys, match.return, undefined);
+    }
+    if (match.or) {
+      for (const or of match.or) {
+        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, or, or.path);
+      }
+    }
+    if (match.and) {
+      for (const and of match.and) {
+        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, and, and.path);
+      }
+    }
+  }
+  async function initialiseSelectedReturns(
+    nodes: TreeNode[],
+    expandedKeys: Record<string, boolean>,
+    selectedKeys: TreeSelectionKeys,
+    rets: Return[],
+    nodeRef: string | undefined
+  ) {
+    for (const property of rets) {
+      await initialiseSelectedProperty(nodes, expandedKeys, selectedKeys, property, nodeRef);
+    }
+  }
+
+  async function initialiseSelectedProperty(
+    nodes: TreeNode[],
+    expandedKeys: Record<string, boolean>,
+    selectedKeys: TreeSelectionKeys,
+    property: Return,
+    nodeRef: string | undefined
+  ) {
+    if (property.iri && property.nodeRef == nodeRef) {
+      const pathIri = property.iri;
+      for (const node of nodes) {
+        if (node.type === "folder") {
+          await initialiseSelectedProperty(node.children!, expandedKeys, selectedKeys, property, nodeRef);
+        }
+        if (pathIri && node.data.iri && node.data.iri === pathIri) {
+          await expandNode(node);
+        } else if (node.data.iri && node.data.iri === property.iri) {
+          selectedKeys[node.key] = { checked: true, partialChecked: false };
+          if (property.return) {
+            await expandNode(node);
+            for (const sub of property.return) {
+              await initialiseSelectedProperty(node.children!, expandedKeys, selectedKeys, sub, nodeRef);
+            }
+          }
+          if (node.data.parent) expandedKeys[node.data.parent] = true;
+        }
+      }
+    }
+  }
   return {
     getRootNodes,
     getOrderables,
     getDefiningProperty,
     createFeatureTree,
     expandNode,
+    initialiseSelected,
     createPropertyTree,
     loading
   };

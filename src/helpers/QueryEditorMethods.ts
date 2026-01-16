@@ -1,4 +1,4 @@
-import { Node, Order, RelativeTo, Where, Assignable, Match, Path, HasPaths } from "@/interfaces/AutoGen";
+import { Node, Order, RelativeTo, Where, Assignable, Match, Path } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { Orderable } from "@/models/orderable";
 import { useQueryStore } from "@/stores/queryStore";
@@ -271,22 +271,20 @@ export function getInclusivityOptions(fromOrTo: "from" | "to"): any[] {
 export function getPathName(nodeRef: string, match: Match): string {
   if (!match.path) return "";
   let flatPath = "";
-  for (const path of match.path) {
-    flatPath = flatPath + (path.name! === "" ? path.iri?.split("#")[1] : path.name);
-    if (path.variable === nodeRef) return flatPath;
-    flatPath = getPathNameFromPath(nodeRef, flatPath, path);
-  }
+  const path = match.path[0];
+  flatPath = flatPath + (path.name! === "" ? path.iri?.split("#")[1] : path.name);
+  if (path.node === nodeRef) return flatPath;
+  flatPath = getPathNameFromPath(nodeRef, flatPath, path);
   return flatPath;
 }
 
 function getPathNameFromPath(nodeRef: string, flatPath: string, path: Path): string {
   flatPath = flatPath.concat("/");
   if (path.path) {
-    for (const subPath of path.path) {
-      flatPath = flatPath.concat(subPath.name!);
-      if (path.variable === nodeRef) return flatPath;
-      flatPath = getPathNameFromPath(nodeRef, flatPath, path);
-    }
+    const subPath = path.path[0];
+    flatPath = flatPath.concat(subPath.name!);
+    if (path.node === nodeRef) return flatPath;
+    flatPath = getPathNameFromPath(nodeRef, flatPath, path);
   }
   return flatPath;
 }
@@ -297,29 +295,37 @@ export function getTypeFromClause(match: Match): string | undefined {
       return getTypeFromClause(queryStore.returnMap.get(match.nodeRef)!);
     } else return undefined;
   }
-  if (match.return && match.return.property) {
-    for (const property of match.return.property) {
-      if (property.nodeRef) return getTypeFromNodeRef(match, property.nodeRef);
+  if (match.return) {
+    for (const property of match.return) {
+      if (property.nodeRef) return getTypeFromMatchNodeRef(match, property.nodeRef);
     }
   }
   if (match.where) {
     const where = match.where;
-    if (where.nodeRef) return getTypeFromNodeRef(match, where.nodeRef);
+    if (where.nodeRef) return getTypeFromMatchNodeRef(match, where.nodeRef);
     for (const op of ["and", "or"] as const) {
       if (where[op] && where[op][0].nodeRef) {
-        return getTypeFromNodeRef(match, where[op][0].nodeRef);
+        return getTypeFromMatchNodeRef(match, where[op][0].nodeRef);
       }
     }
   }
   return undefined;
 }
 
-function getTypeFromNodeRef(aPath: HasPaths, nodeRef: string): string | undefined {
+function getTypeFromPathNodeRef(aPath: Path, nodeRef: string): string | undefined {
   if (aPath.path) {
-    for (const subPath of aPath.path) {
-      if (subPath.variable === nodeRef) return subPath.typeOf!.iri!;
-      if (subPath.path) return getTypeFromNodeRef(subPath, nodeRef);
-    }
+    const subPath = aPath.path[0];
+    if (subPath.node === nodeRef) return subPath.typeOf!.iri!;
+    if (subPath.path) return getTypeFromPathNodeRef(subPath, nodeRef);
+  }
+  return undefined;
+}
+
+function getTypeFromMatchNodeRef(match: Match, nodeRef: string): string | undefined {
+  if (match.path) {
+    const subPath = match.path[0];
+    if (subPath.node === nodeRef) return subPath.typeOf!.iri!;
+    if (subPath.path) return getTypeFromPathNodeRef(subPath, nodeRef);
   }
   return undefined;
 }

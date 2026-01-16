@@ -27,9 +27,9 @@
   <span v-if="match.where">
     <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
   </span>
-  <span v-if="match.return">
+  <span v-if="match.node">
     <span class="field">(as</span>
-    <span class="as">{{ match.return?.as }})</span>
+    <span class="as">{{ match.node }})</span>
   </span>
 </template>
 

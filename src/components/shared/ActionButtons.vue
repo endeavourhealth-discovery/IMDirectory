@@ -179,7 +179,7 @@ async function viewEntity(event: MouseEvent, iri: string) {
 
 async function toEdit(event: MouseEvent, iri: string) {
   event.stopPropagation();
-  await directService.edit(iri, true);
+  await directService.edit(iri, false);
 }
 
 function confirmDownload() {

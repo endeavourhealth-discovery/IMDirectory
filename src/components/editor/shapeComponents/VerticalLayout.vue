@@ -29,6 +29,7 @@ import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
 import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
 import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
 import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
+import CheckboxDisplay from "@/components/editor/shapeComponents/CheckboxDisplay.vue";
 
 export default defineComponent({
   components: {
@@ -48,7 +49,8 @@ export default defineComponent({
     TextDropdown,
     EntityDisplay,
     IriBuilder,
-    SubsetBuilder
+    SubsetBuilder,
+    CheckboxDisplay
   }
 });
 </script>

@@ -1,13 +1,14 @@
 <template>
-  <div v-if="select.function">
-    {{ select.function.name }}
+
+  <span v-if="isArrayHasLength(select)" class="pl-8">
+    <div v-for="(item, index) in select" :key="index" class="pl-12">
+      <div v-if="item.function">
+    {{ item.function.name }}
   </div>
-  <span v-if="isArrayHasLength(select.property)" class="pl-8">
-    <div v-for="(item, index) in select.property" :key="index" class="pl-12">
       <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       <span v-if="item.return">
         <span>{</span>
-        <RecursiveReturnDisplay :select="item.return" />
+        <RecursiveReturnDisplay :select="item.return"  />
         <span>}</span>
       </span>
       <span v-if="item.case">
@@ -40,7 +41,7 @@ import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDispl
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 defineProps<{
-  select: Return;
+  select: Return[];
 }>();
 
 const emit = defineEmits<{

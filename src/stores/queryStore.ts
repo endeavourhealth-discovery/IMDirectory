@@ -51,7 +51,11 @@ export const useQueryStore = defineStore("query", () => {
   }
 
   function createReturnMap(match: Match) {
-    if (match.return && match.return.as) returnMap.value.set(match.return.as, match);
+    if (match.return) {
+      for (const ret of match.return) {
+        if (ret.as) returnMap.value.set(ret.as, match);
+      }
+    }
     for (const key of ["rule", "and", "or", "not"] as const) {
       if (match[key]) {
         for (const subMatch of match[key]) {
