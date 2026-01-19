@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { UserService } from "@/services";
+import { CasdoorService, UserService } from "@/services";
 import { HistoryItem, RecentActivityItem, User } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
@@ -60,20 +60,19 @@ export const useUserStore = defineStore("user", () => {
     localStorageWithExpiry.setItem("cookiesOptionalAccepted", bool);
   }
 
-  async function getAllFromUserDatabase(): Promise<void> {
+  function getAllFromUserDatabase(): void {
     if (!isLoggedIn.value) {
       getAllFromLocalStorage();
       return;
     }
     clearAllFromLocalStorage();
-    const data = await UserService.getUserSettings();
-    if (data?.preset) currentPreset.value = data.preset;
-    if (data?.primaryColor) currentPrimaryColor.value = data.primaryColor;
-    if (data?.darkMode) darkMode.value = data.darkMode;
-    if (data?.fontSize) currentFontSize.value = data.fontSize;
-    if (data?.organisations) organisations.value = data.organisations;
-    if (data?.favourites) favourites.value = data.favourites;
-    if (data?.mru) recentLocalActivity.value = data.mru;
+    if (currentUser.value?.theme) currentPreset.value = currentUser.value.theme;
+    if (currentUser.value?.primaryColor) currentPrimaryColor.value = currentUser.value?.primaryColor;
+    if (currentUser.value?.darkMode) darkMode.value = currentUser.value?.darkMode;
+    if (currentUser.value?.fontSize) currentFontSize.value = currentUser.value?.fontSize;
+    if (currentUser.value?.organisations) organisations.value = currentUser.value?.organisations;
+    if (currentUser.value?.favourites) favourites.value = currentUser.value?.favourites;
+    if (currentUser.value?.recentActivity) recentLocalActivity.value = currentUser.value?.recentActivity;
   }
 
   function getAllFromLocalStorage(): void {
@@ -101,7 +100,7 @@ export const useUserStore = defineStore("user", () => {
   async function updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
     let activity: RecentActivityItem[] = [];
 
-    if (isLoggedIn.value) activity = await UserService.getUserMRU();
+    if (isLoggedIn.value && currentUser.value) activity = currentUser.value?.recentActivity;
     else activity = recentLocalActivity.value ? recentLocalActivity.value : [];
 
     activity.forEach(activityItem => {
@@ -125,12 +124,18 @@ export const useUserStore = defineStore("user", () => {
         activity.push(recentActivityItem);
       }
     }
-    if (isLoggedIn.value) await UserService.updateUserMRU(activity);
-    recentLocalActivity.value = activity;
+    if (isLoggedIn.value) {
+      await UserService.updateUserRecentActivity(activity);
+      await getUserFromToken();
+      getAllFromUserDatabase();
+    }
   }
 
   async function clearRecentLocalActivity() {
-    if (isLoggedIn.value) await UserService.updateUserMRU([]);
+    if (isLoggedIn.value) {
+      await UserService.updateUserRecentActivity([]);
+      await getUserFromToken();
+    }
     recentLocalActivity.value = [];
   }
 
@@ -141,47 +146,69 @@ export const useUserStore = defineStore("user", () => {
       } else {
         favourites.value.splice(favourites.value.indexOf(favourite), 1);
       }
-      if (isLoggedIn.value) await UserService.updateUserFavourites(favourites.value);
+      if (isLoggedIn.value) {
+        await UserService.updateUserFavourites(favourites.value);
+        await getUserFromToken();
+      }
     }
   }
 
   async function clearFavourites() {
-    if (isLoggedIn.value) await UserService.updateUserFavourites([]);
+    if (isLoggedIn.value) {
+      await UserService.updateUserFavourites([]);
+      await getUserFromToken();
+    }
     favourites.value = [];
   }
 
   async function updatePreset(preset: PrimeVuePresetThemes) {
     currentPreset.value = preset;
-    if (isLoggedIn.value) await UserService.updateUserPreset(preset);
-    else localStorageWithExpiry.setItem("preset", preset);
+    if (isLoggedIn.value) {
+      await UserService.updateUserPreset(preset);
+      await getUserFromToken();
+    } else localStorageWithExpiry.setItem("preset", preset);
   }
 
   async function updatePrimaryColor(color: PrimeVueColors) {
     currentPrimaryColor.value = color;
-    if (isLoggedIn.value) await UserService.updateUserPrimaryColor(color);
-    else localStorageWithExpiry.setItem("primaryColor", color);
+    if (isLoggedIn.value) {
+      await UserService.updateUserPrimaryColor(color);
+      await getUserFromToken();
+    } else localStorageWithExpiry.setItem("primaryColor", color);
   }
 
   async function updateSurfaceColor(color: PrimeVueColors) {
     currentSurfaceColor.value = color;
-    if (isLoggedIn.value) await UserService.updateUserSurfaceColor(color);
-    else localStorageWithExpiry.setItem("surfaceColor", color);
+    if (isLoggedIn.value) {
+      await UserService.updateUserSurfaceColor(color);
+      await getUserFromToken();
+    } else localStorageWithExpiry.setItem("surfaceColor", color);
   }
 
   async function updateDarkMode(bool: boolean) {
     darkMode.value = bool;
-    if (isLoggedIn.value) await UserService.updateUserDarkMode(bool);
-    else localStorageWithExpiry.setItem("darkMode", bool);
+    if (isLoggedIn.value) {
+      await UserService.updateUserDarkMode(bool);
+      await getUserFromToken();
+    } else localStorageWithExpiry.setItem("darkMode", bool);
   }
 
   async function updateCurrentFontSize(fontSize: FontSize) {
     currentFontSize.value = fontSize;
-    if (isLoggedIn.value) await UserService.updateUserFontSize(fontSize);
-    else localStorageWithExpiry.setItem("fontSize", fontSize);
+    if (isLoggedIn.value) {
+      await UserService.updateUserFontSize(fontSize);
+      await getUserFromToken();
+    } else localStorageWithExpiry.setItem("fontSize", fontSize);
   }
 
   function updateCurrentUser(user: User | undefined) {
     currentUser.value = user;
+    getAllFromUserDatabase();
+  }
+
+  async function getUserFromToken() {
+    const user = await CasdoorService.getUser();
+    if (user) updateCurrentUser(user);
   }
 
   function updateSnomedLicenseAccepted(bool: boolean) {
@@ -195,7 +222,10 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function updateOrganisations(orgs: string[]) {
-    if (isLoggedIn.value) await UserService.updateUserOrganisations(orgs);
+    if (isLoggedIn.value) {
+      await UserService.updateUserOrganisations(orgs);
+      await getUserFromToken();
+    }
     organisations.value = orgs;
   }
 

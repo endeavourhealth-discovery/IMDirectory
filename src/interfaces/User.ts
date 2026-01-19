@@ -1,4 +1,6 @@
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes } from "@/enums";
 import { UserRole } from "./AutoGen";
+import { RecentActivityItem } from "./RecentActivityItem";
 
 export interface User {
   id: string;
@@ -9,5 +11,12 @@ export interface User {
   password: string;
   avatar: string;
   roles: UserRole[];
-  mfaStatus: string[];
+  theme: PrimeVuePresetThemes;
+  primaryColor: PrimeVueColors;
+  surfaceColor: PrimeVueColors;
+  darkMode: boolean;
+  fontSize: FontSize;
+  favourites: string[];
+  recentActivity: RecentActivityItem[];
+  organisations: string[];
 }

@@ -65,7 +65,7 @@ Cypress.Commands.add("requestWithAuth", (method: "POST" | "GET", url: string, bo
 });
 
 Cypress.Commands.add("clearFavouritesAndSuggested", () => {
-  cy.requestWithAuth("POST", "http://localhost:8082/imapi/api/user/MRU", []);
+  cy.requestWithAuth("POST", "http://localhost:8082/imapi/api/user/recentActivity", []);
   cy.requestWithAuth("POST", "http://localhost:8082/imapi/api/user/favourites", []);
 });
 

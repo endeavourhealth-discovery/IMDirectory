@@ -66,6 +66,7 @@ import { useValidity } from "@/composables/useValidity";
 import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
+import { useUserStore } from "@/stores/userStore";
 
 export default defineComponent({
   components: {
@@ -113,6 +114,7 @@ const router = useRouter();
 const route = useRoute();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
+const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
 const directService = new DirectService();
@@ -135,6 +137,7 @@ const {
 const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = useValueVariableMap();
 const { handleFocusChange } = useAutocompleteRegistry();
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
+const currentUser = computed(() => userStore.currentUser);
 
 const loading = ref(true);
 const showSidebar = ref(false);
@@ -178,6 +181,9 @@ onUnmounted(() => {
 
 onMounted(async () => {
   loading.value = true;
+  if (currentUser.value && currentUser.value.organisations.length < 1) {
+    await router.push({ name: "AccessDenied" });
+  }
   document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();
   await fetchEntity();

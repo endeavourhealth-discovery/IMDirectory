@@ -111,7 +111,7 @@ onMounted(async () => {
   loadingStore.updateViewsLoading(true);
 
   if (isPublicMode.value || isLoggedIn.value) {
-    await userStore.getAllFromUserDatabase();
+    userStore.getAllFromUserDatabase();
     await setThemeOptions();
     if (currentFontSize.value) await changeFontSize(currentFontSize.value);
     await filterStore.fetchFilterSettings();
