@@ -38,10 +38,6 @@ This specification describes the homepage functionality of IMDirectory
 * Click favourite button
 * Click logo to return to homepage
 * Favourites section contains "Scoliosis deformity of spine (disorder)"
-
-## Can Unfavourite
-* Open IMDirectory
-* Login
 * Search for "Scoliosis deformity of spine (disorder)"
 * Select "Scoliosis deformity of spine (disorder)" result
 * Click unfavourite button

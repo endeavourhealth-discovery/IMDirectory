@@ -42,6 +42,14 @@ step("Login", async () => {
   await pw.page.click("button >> text=Sign In");
 
   await pw.page.waitForSelector("#topbar");
+  const favourites = pw.page.locator(".favourites-container").filter({ hasText: "No favourites" });
+  try {
+    await favourites.waitFor({ state: "visible", timeout: 1000 });
+  } catch (e) {
+    // Favourites leftover from previous test so clear them
+    await pw.page.click("button >> text=Clear favourites");
+    await pw.page.locator(".p-confirmdialog").locator(".p-confirmdialog-accept-button").click();
+  }
 });
 
 step("Goto route <route>", async route => {
@@ -79,7 +87,12 @@ step("Type <text> into <input>", async (text, input) => {
 
 step("Search for <text>", async text => {
   await pw.page.waitForSelector('[data-testid="search-input"]');
-  await pw.page.fill('[data-testid="search-input"]', text);
+  const txt = await pw.page.inputValue('[data-testid="search-input"]');
+  if (txt === text) {
+    pw.page.click('button >> text="Search"');
+  } else {
+    await pw.page.fill('[data-testid="search-input"]', text);
+  }
   await pw.page.waitForLoadState("networkidle");
   await pw.page.waitForSelector("#search-results-main-container >> tr");
 });
@@ -91,3 +104,9 @@ step("Select <text> result", async (text) => {
   await pw.page.waitForSelector(".back-to-search", { state: "visible"});
   await pw.page.waitForLoadState("networkidle");
 });
+
+
+step("Click dialog confirm", async () => {
+  await pw.page.locator(".p-confirmdialog").locator(".p-confirmdialog-accept-button").click();
+});
+

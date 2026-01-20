@@ -81,7 +81,3 @@ step("Click <text>", async (text) => {
   const button = pw.page.locator(`[data-testid="${text.toLowerCase().replace(/ /g, "-")}-button"]`);
   await button.click();
 });
-
-step("Click dialog confirm", async () => {
-  await pw.page.locator(".p-confirmdialog").locator(".p-confirmdialog-accept-button").click();
-});
