@@ -2,10 +2,23 @@
 
 const { chromium } = require("@playwright/test");
 const { pw } = require("./playwright");
+const path = require("path");
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:8082";
+let currentSpec, currentScenario;
 
-beforeScenario(async () => {
+gauge.customScreenshotWriter = async function () {
+  const screenshotFilePath = path.join(process.env['gauge_screenshots_dir'],`${currentSpec.name}-${currentScenario.name}.png`);
+  await pw.page.screenshot({ path: screenshotFilePath });
+  return screenshotFilePath;
+};
+
+beforeSpec(async (context) => {
+  currentSpec = context.currentSpec;
+});
+
+beforeScenario(async (context) => {
+  currentScenario = context.currentScenario
   pw.browser = await chromium.launch({
     headless: process.env.headless_chrome === "true" || false
   });
