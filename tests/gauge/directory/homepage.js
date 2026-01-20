@@ -63,7 +63,13 @@ step("Suggested section contains <text>", async (text) => {
 });
 
 step("Click favourite button", async () => {
+  await pw.page.waitForSelector('[data-testid="favourite-button"]');
   await pw.page.locator('[data-testid="favourite-button"]').click();
+});
+
+step("Click unfavourite button", async () => {
+  await pw.page.waitForSelector('[data-testid="unfavourite-button"]');
+  await pw.page.locator('[data-testid="unfavourite-button"]').click();
 });
 
 step("Favourites section contains <text>", async (text) => {
