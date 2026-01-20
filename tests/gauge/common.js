@@ -24,8 +24,6 @@ beforeScenario(async (context) => {
   });
   pw.context = await pw.browser.newContext();
   pw.page = await pw.context.newPage();
-  pw.page.setDefaultTimeout(5000);
-  pw.page.setDefaultNavigationTimeout(5000);
 });
 
 afterScenario(async () => {
