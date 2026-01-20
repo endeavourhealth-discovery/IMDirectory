@@ -3,22 +3,20 @@ import globals from "globals";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginVue from "eslint-plugin-vue";
-import pluginCypress from "eslint-plugin-cypress/flat";
 import pluginPrettier from "eslint-plugin-prettier/recommended";
 import eslintPluginVueScopedCSS from "eslint-plugin-vue-scoped-css";
 import css from "@eslint/css";
 import vueParser from "vue-eslint-parser";
 
 export default defineConfig([
-  globalIgnores(["src/components/imquery/", "cypress/snapshots/"]),
+  globalIgnores(["src/components/imquery/"]),
   {
-    files: ["src/**/*.ts", "src/**/*.js", "cyress/**/*.ts", "cypress/**/*.js", "tests/**/*.ts", "tests/**/*.js"],
+    files: ["src/**/*.ts", "src/**/*.js", "tests/**/*.ts"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
       ...pluginVue.configs["flat/essential"],
       ...eslintPluginVueScopedCSS.configs["flat/base"],
-      pluginCypress.configs.recommended,
       css.configs.recommended,
       pluginPrettier
     ],
@@ -27,7 +25,11 @@ export default defineConfig([
     },
     languageOptions: {
       globals: {
-        ...globals.browser
+        ...globals.browser,
+        ...globals.node,
+        step: "readonly",
+        beforeScenario: "readonly",
+        afterScenario: "readonly"
       },
       ecmaVersion: 2020,
       parser: vueParser,
@@ -40,7 +42,6 @@ export default defineConfig([
     },
 
     rules: {
-      "cypress/no-unnecessary-waiting": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-floating-promises": "warn",
       "@typescript-eslint/no-unsafe-argument": "off",

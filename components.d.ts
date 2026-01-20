@@ -141,7 +141,6 @@ declare module 'vue' {
     ImqueryQueryEditor: typeof import('./src/components/imquery/QueryEditor.vue')['default']
     ImqueryRangeEditor: typeof import('./src/components/imquery/RangeEditor.vue')['default']
     ImqueryRelativeToSelect: typeof import('./src/components/imquery/RelativeToSelect.vue')['default']
-    ImqueryReturnEditor: typeof import('./src/components/imquery/ReturnEditor.vue')['default']
     ImqueryRuleActionEditor: typeof import('./src/components/imquery/RuleActionEditor.vue')['default']
     ImquerySaveCustomSetDialog: typeof import('./src/components/imquery/SaveCustomSetDialog.vue')['default']
     ImquerySelectedSet: typeof import('./src/components/imquery/SelectedSet.vue')['default']
