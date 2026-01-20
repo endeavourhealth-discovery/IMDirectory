@@ -74,8 +74,7 @@ target
 *.classpath
 coverage
 
-# Ignore Gradle build output directory
-build
+.output
 .env
 
 # Playwright

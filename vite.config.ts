@@ -19,7 +19,11 @@ export default defineConfig({
       plugins: [esbuildCommonjs(["google-palette"])]
     }
   },
-  build: { target: "esnext" },
+  build: {
+    target: "esnext",
+    outDir: '.output',
+    emptyOutDir: true
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
