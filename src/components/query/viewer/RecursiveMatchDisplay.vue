@@ -70,9 +70,9 @@
         <template v-for="operator in operators" :key="operator">
           <template v-if="match[operator]">
             <template v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
-              <span>
+              <div v-if="parentOperator">
                 {{ getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union, parentOperator) }}
-              </span>
+              </div>
             </template>
             <div :class="match[operator].length > 1 ? 'tree-node-wrapper' : ''">
               <template v-for="(nestedQuery, index) in match[operator]" :key="`nestedQueryDisplay-${index}`">
