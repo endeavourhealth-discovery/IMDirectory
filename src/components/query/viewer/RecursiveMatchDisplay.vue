@@ -150,7 +150,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 const expandSet: Ref<boolean> = ref(false);
-const operators = ["rule", "and", "or", "not"] as const;
+const operators = ["rule", "and", "or", "not", "union"] as const;
 const cohorts: Ref<Map<number, Match>> = ref(new Map<number, Match>());
 const matchExpanded: Ref<boolean> = ref(!match.value.description);
 const queryIri: Ref<string | undefined> = ref(inject("queryIri"));

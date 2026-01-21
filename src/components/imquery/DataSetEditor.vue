@@ -16,7 +16,8 @@
       :baseType="query.typeOf!"
       :clauseIndex="index"
       v-model:match="columnGroups[index]"
-      v-model:show="editorGroups[index]"
+      :show="true"
+      @cancel="onCancelEdit(index)"
     />
     <template v-else>
       <ColumnGroupDisplay :match="item" :key="`columnGroupQuery-${index}`" :matchExpanded="false" :returnExpanded="true" :index="index" :parentQuery="query" />
@@ -52,15 +53,13 @@
 </template>
 
 <script setup lang="ts">
-import { Query, Bool, Node, SearchResultSummary, Where, Match, DisplayMode } from "@/interfaces/AutoGen";
-import { inject, Ref, ref, computed, onMounted, watch } from "vue";
+import { DisplayMode, Match, Query } from "@/interfaces/AutoGen";
+import { onMounted, ref, Ref } from "vue";
 import Button from "primevue/button";
-import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { deleteGroupFromQuery } from "@/helpers/buildQuery";
 import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
 import { QueryService } from "@/services";
-import editor from "@/views/Editor.vue";
 
 const query = defineModel<Query>("query", { default: {} });
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo"]);
@@ -94,6 +93,7 @@ function init() {
   }
 }
 async function editGroup(index: number) {
+  columnGroups.value[index] = await QueryService.getQueryDisplayFromQuery(columnGroups.value[index], DisplayMode.ORIGINAL);
   editorGroups.value[index] = true;
 }
 function addColumnGroup() {
@@ -102,6 +102,10 @@ function addColumnGroup() {
   query.value.columnGroup.push(groupToEdit.value);
   groupIndex.value = query.value.columnGroup.length - 1;
   showEditor.value = true;
+}
+function onCancelEdit(index: number) {
+  editorGroups.value[index] = false;
+  hoverEditClause.value[index] = false;
 }
 function mouseover(event: any) {}
 </script>

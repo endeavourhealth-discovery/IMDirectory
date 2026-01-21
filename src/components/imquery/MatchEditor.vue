@@ -272,7 +272,8 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 
 .edit-match-dialog {
   background-color: var(--p-surface-section);
-  max-height: 90vh;
+  min-height: 90vh;
+  min-width: 90vh;
 }
 .test-selector {
   background-color: rgb(16, 185, 129);

@@ -10,9 +10,9 @@
         :loading="loading"
         :value="rootNodes"
         lazy
-        selectionMode="checkbox"
-        @node-expand="expandNode"
-        @nodeSelect="nodeSelect"
+        selectionMode="single"
+        @node-expand="onNodeExpand"
+        @nodeSelect="onNodeSelect"
         :propagateSelectionUp="true"
       />
     </div>
@@ -24,8 +24,7 @@
   display: flex;
   flex-direction: column;
   flex: 1 1 auto; /* fill available space */
-  min-height: 0;
-  max-height: 70vh;
+  height: 100%;
 }
 
 .tree-container {
@@ -41,7 +40,7 @@ import type { TreeNode } from "primevue/treenode";
 import { Node, Match, Path } from "@/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TreeSelectionKeys } from "primevue/tree";
-import { usePropertyTree } from "@/composables/usePropertyTree";
+import { useReturnTrees } from "@/composables/useReturnTrees";
 import { getOrderable, getOrderOptions } from "@/helpers/QueryEditorMethods";
 
 const visible = defineModel<boolean>("visible");
@@ -49,6 +48,7 @@ const props = defineProps<{
   baseType: Node;
 }>();
 const match = defineModel<Match>("match", { default: {} });
+const columns = defineModel<TreeNode[]>("columns", { default: [] });
 const refreshColumns = defineModel<boolean>("refreshColumns", { default: true });
 const expandedKeys = ref<Record<string, boolean>>({});
 const emit = defineEmits<{
@@ -56,16 +56,18 @@ const emit = defineEmits<{
   (event: "navigateTo", iri: string): void;
   (event: "loaded"): void;
 }>();
-const { expandNode, loading, initialiseSelected } = usePropertyTree();
+const { expandNode, loading, createReturnTree } = useReturnTrees();
 const selectedKeys = ref<TreeSelectionKeys>({});
 
 const rootNodes: Ref<TreeNode[]> = ref([]);
-const { getRootNodes, getDefiningProperty, createFeatureTree, getOrderables } = usePropertyTree();
 
 onMounted(async () => {
   await init();
 });
 
+async function onNodeExpand(node: TreeNode) {
+  columns.value = await expandNode(props.baseType, node);
+}
 watch(refreshColumns, async (newVal, oldVal) => {
   if (newVal !== oldVal) {
     await init();
@@ -74,20 +76,16 @@ watch(refreshColumns, async (newVal, oldVal) => {
 
 async function init() {
   loading.value = true;
-  const tree = await createFeatureTree(props.baseType, true);
+  const tree = await createReturnTree(props.baseType);
   if (tree[0].children) {
     rootNodes.value = tree[0].children;
   }
-  await initialiseSelected(rootNodes.value, expandedKeys.value, selectedKeys.value, match.value);
   loading.value = false;
   emit("loaded");
 }
 
 function nodeExpand() {}
-function nodeSelect() {}
-function onNodeSelect(node: any) {
-  if (node.selectable) {
-    emit("node-selected", node);
-  }
-}
+const onNodeSelect = (node: any) => {
+  console.log(node);
+};
 </script>
