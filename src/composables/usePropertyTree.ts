@@ -2,11 +2,10 @@ import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Path, PropertyShape, Node, Where } from "@/interfaces/AutoGen";
+import { Match, Path, PropertyShape, Node } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 import { Orderable } from "@/models/orderable";
-import { TreeSelectionKeys } from "primevue/tree";
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
@@ -71,7 +70,8 @@ export function usePropertyTree() {
         definingProperty: definingProperty,
         ascending: ascending,
         descending: descending,
-        parentNode: parent
+        parent: parent ? parent.key : null,
+        rangeType: rangeType
       },
       loading: false,
       children: [] as TreeNode[],
@@ -218,85 +218,13 @@ export function usePropertyTree() {
     }
     return orderables;
   }
-  async function initialiseSelected(nodes: TreeNode[], expandedKeys: Record<string, boolean>, selectedKeys: TreeSelectionKeys, match: Match) {
-    await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, match, match.path ? match.path[0] : undefined);
-  }
-  async function initialiseSelectedPaths(
-    nodes: TreeNode[],
-    expandedKeys: Record<string, boolean>,
-    selectedKeys: TreeSelectionKeys,
-    match: Match,
-    path: Path | undefined
-  ) {
-    for (const node of nodes) {
-      node.expanded = true;
-      if (node.type === "folder") {
-        await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, path);
-      } else if (path) {
-        if (node.data.iri && node.data.iri === path.iri) {
-          expandedKeys[node.key] = true;
-          if (node.data.parentNode) expandedKeys[node.data.parentNode.key] = true;
-          await expandNode(node);
-          if (path.path) {
-            await initialiseSelectedPaths(node.children!, expandedKeys, selectedKeys, match, path.path[0]);
-          }
-          if (match.where) await initialiseSelectedWheres(node.children!, expandedKeys, selectedKeys, match.where, path.variable);
-        }
-      } else if (match.where) await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, match.where, undefined);
-    }
-    if (match.or) {
-      for (const or of match.or) {
-        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, or, or.path ? or.path[0] : undefined);
-      }
-    }
-    if (match.and) {
-      for (const and of match.and) {
-        await initialiseSelectedPaths(nodes, expandedKeys, selectedKeys, and, and.path ? and.path[0] : undefined);
-      }
-    }
-  }
-  async function initialiseSelectedWheres(
-    nodes: TreeNode[],
-    expandedKeys: Record<string, boolean>,
-    selectedKeys: TreeSelectionKeys,
-    where: Where,
-    nodeRef: string | undefined
-  ) {
-    if (where.iri && where.nodeRef == nodeRef) {
-      for (const node of nodes) {
-        if (node.type === "folder") {
-          await initialiseSelectedWheres(node.children!, expandedKeys, selectedKeys, where, nodeRef);
-        }
-        if (node.data.iri && node.data.iri === where.iri) {
-          selectedKeys[node.key] = { checked: true, partialChecked: false };
-          await expandNode(node);
-          if (node.data.parentNode) expandedKeys[node.data.parentNode.key] = true;
-        }
-      }
-    }
-    if (where.or) {
-      for (const or of where.or) {
-        await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, or, nodeRef);
-      }
-    }
-    if (where.and) {
-      for (const and of where.and) {
-        await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, and, nodeRef);
-      }
-    }
-    if (where.and) {
-      for (const and of where.and) {
-        await initialiseSelectedWheres(nodes, expandedKeys, selectedKeys, and, nodeRef);
-      }
-    }
-  }
+
   return {
     getRootNodes,
     getOrderables,
     getDefiningProperty,
     createFeatureTree,
     expandNode,
-    initialiseSelected,
     createPropertyTree,
     loading
   };

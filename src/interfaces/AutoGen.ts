@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-06 08:51:19.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-19 15:47:50.
 
 export interface ConceptContextMap {
     id?: string;
@@ -64,6 +64,15 @@ export interface PolicyRequest {
     action?: Action;
 }
 
+export interface OAuthTokens {
+    access_token?: string;
+    id_token?: string;
+    refresh_token?: string;
+    token_type?: string;
+    scope?: string;
+    expires_in?: string;
+}
+
 export interface User {
     id?: string;
     username?: string;
@@ -85,8 +94,8 @@ export interface UserSettings {
     mru?: RecentActivityItemDto[];
     preset?: string;
     primaryColor?: string;
-    surfaceColor?: PrimeVueColors;
-    fontSize?: FontSize;
+    surfaceColor?: string;
+    fontSize?: string;
 }
 
 export interface CodeGenDto {
@@ -149,6 +158,7 @@ export interface ConceptSet extends Entity {
     definition?: Query;
     hasMember?: TTIriRef[];
     usedIn?: TTIriRef[];
+    avoidReplacedBy?: boolean;
 }
 
 export interface Entity {
@@ -341,13 +351,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    description?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    operator?: Operator;
+    description?: string;
     qualifier?: TTIriRef;
     valueLabel?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -384,7 +394,7 @@ export interface ECLStatus {
 
 export interface Element extends IriLD, Entailment {
     parameter?: string;
-    variable?: string;
+    node?: string;
     ancestorsOrSelfOf?: boolean;
     childOrSelfOf?: boolean;
     childOf?: boolean;
@@ -397,10 +407,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -415,6 +425,7 @@ export interface GroupBy extends IriLD {
 
 export interface HasPaths {
     path?: Path[];
+    node?: string;
     iri?: string;
 }
 
@@ -439,16 +450,14 @@ export interface Match extends IriLD, HasPaths {
     or?: Match[];
     not?: Match[];
     where?: Where;
-    return?: Return;
+    return?: Return[];
     graph?: Element;
     optional?: boolean;
     aggregate?: FunctionClause;
-    variable?: string;
     parameter?: string;
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
-    union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
     activeOnly?: boolean;
@@ -456,11 +465,9 @@ export interface Match extends IriLD, HasPaths {
     libraryItem?: string;
     invalid?: boolean;
     groupBy?: GroupBy[];
-    keepAs?: string;
     orderBy?: OrderLimit;
     asDescription?: string;
-    returx?: Return;
-    isUnion?: boolean;
+    union?: Match[];
 }
 
 export interface Node extends Element {
@@ -510,7 +517,7 @@ export interface Prefix {
 export interface Query extends Match {
     prefixes?: Prefix[];
     columnGroup?: Match[];
-    imQuery?: boolean;
+    imQuery?: string;
     parentResult?: any;
     persistentIri?: TTIriRef;
     bindAs?: string;
@@ -544,31 +551,19 @@ export interface RequeueQueryRequest {
 }
 
 export interface Return {
-    nodeRef?: string;
-    function?: FunctionClause;
-    property?: ReturnProperty[];
-    as?: string;
-    valueRef?: string;
-    propertyRef?: string;
-}
-
-export interface ReturnProperty {
     iri?: string;
     name?: string;
     function?: FunctionClause;
     as?: string;
     nodeRef?: string;
     propertyRef?: string;
-    value?: string;
-    valueRef?: string;
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
-    match?: Match[];
-    boolMatch?: Bool;
     case?: Case;
-    return?: Return;
+    return?: Return[];
+    value?: string;
 }
 
 /**
@@ -596,16 +591,17 @@ export interface Where extends Element, Assignable {
     is?: Node[];
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
+    inverse?: boolean;
     typeOf?: Node;
     not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
-    valueVariable?: string;
-    inverse?: boolean;
     or?: Where[];
     and?: Where[];
     shortLabel?: string;
     propertyList?: Node[];
+    propertyVariable?: string;
+    notNull?: boolean;
 }
 
 export interface DBEntry {
@@ -920,15 +916,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
-    description?: string;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    description?: string;
     status?: TTIriRef;
+    prefixes?: TTPrefix[];
     code?: string;
     types?: TTIriRef[];
-    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1189,6 +1185,7 @@ export const enum Bool {
     or = "or",
     not = "not",
     rule = "rule",
+    union = "union",
 }
 
 export const enum Comparison {
@@ -1399,6 +1396,7 @@ export const enum COMPONENT {
     IRI_BUILDER = "http://endhealth.info/im#Component_iriBuilder",
     AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "http://endhealth.info/im#Component_autocompleteSearchBarWrapper",
     SUBSET_BUILDER = "http://endhealth.info/im#Component_subsetBuilder",
+    CHECKBOX_DISPLAY = "http://endhealth.info/im#Component_checkboxDisplay",
 }
 
 export const enum CONFIG {
@@ -1472,6 +1470,7 @@ export const enum IM {
     ENTAILMENT = "http://endhealth.info/im#entailment",
     EXCLUDE = "http://endhealth.info/im#exclude",
     IRI = "iri",
+    IM_IRI = "http://endhealth.info/im#iri",
     VALUE = "value",
     TYPE = "type",
     ID = "http://endhealth.info/im#id",
@@ -1493,6 +1492,7 @@ export const enum IM {
     UPDATE_PROCEDURE = "http://endhealth.info/im#updateProcedure",
     INVERSE_PATH = "http://endhealth.info/im#inversePath",
     CONCEPT = "http://endhealth.info/im#Concept",
+    CODEABLE = "http://endhealth.info/im#Codeable",
     CONCEPT_PROPERTY = "http://endhealth.info/im#concept",
     CONCEPT_SET = "http://endhealth.info/im#ConceptSet",
     FOLDER = "http://endhealth.info/im#Folder",
@@ -2097,36 +2097,4 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
-}
-
-export const enum PrimeVueColors {
-    EMERALD = "emerald",
-    GREEN = "green",
-    LIME = "lime",
-    RED = "red",
-    ORANGE = "orange",
-    AMBER = "amber",
-    YELLOW = "yellow",
-    TEAL = "teal",
-    CYAN = "cyan",
-    SKY = "sky",
-    BLUE = "blue",
-    INDIGO = "indigo",
-    VIOLET = "violet",
-    PURPLE = "purple",
-    FUCHSIA = "fuchsia",
-    PINK = "pink",
-    ROSE = "rose",
-    SLATE = "slate",
-    GRAY = "gray",
-    ZINC = "zinc",
-    NEUTRAL = "neutral",
-    STONE = "stone",
-}
-
-export const enum FontSize {
-    SMALL = "12px",
-    MEDIUM = "14px",
-    LARGE = "16px",
-    XL = "18px",
 }

@@ -42,10 +42,9 @@
         </template>
       </template>
     </template>
-    <div>
+    <div v-if="query.typeOf">
       <DataSetEditor :query="query" />
     </div>
-
 
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
@@ -115,7 +114,6 @@ onMounted(async () => {
 function toggle(event: any) {
   op.value.toggle(event);
 }
-
 
 async function init() {
   queryStore.createReturnMap(query.value);

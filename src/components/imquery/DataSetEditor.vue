@@ -1,7 +1,4 @@
 <template>
-  <template v-if="showEditor && query.typeOf">
-    <ColumnGroupEditor :baseType="query.typeOf" :clauseIndex="groupIndex" v-model:match="groupToEdit" v-model:showEditor="showEditor" />
-  </template>
   <div>
     <Button
       label="Add Output columns"
@@ -13,42 +10,52 @@
     />
   </div>
   <div class="column-group-display" v-for="(item, index) in query?.columnGroup">
-    <ColumnGroupDisplay :match="item" :key="`columnGroupQuery-${index}`" :matchExpanded="false" :returnExpanded="true" :index="index" :parentQuery="query" />
-    <div class="flex-1"></div>
-    <div class="edit-button">
-      <Button
-        type="button"
-        icon="fa-solid fa-pen-to-square"
-        label="Edit group"
-        data-testid="edit-clause-button"
-        :severity="hoverEditClause[index] ? 'success' : 'secondary'"
-        :outlined="!hoverEditClause[index]"
-        :class="!hoverEditClause[index] && 'hover-button'"
-        @click="editGroup(index)"
-        @mouseover="hoverEditClause[index] = true"
-        @mouseout="hoverEditClause[index] = false"
-      />
-    </div>
-    <div class="delete-button">
-      <Button
-        @click.stop="deleteGroup(index)"
-        class="builder-button"
-        :severity="hoverDeleteClause[index] ? 'danger' : 'secondary'"
-        :outlined="!hoverDeleteClause[index]"
-        :class="!hoverDeleteClause[index] && 'hover-button'"
-        icon="fa-solid fa-trash"
-        @mouseover="hoverDeleteClause[index] = true"
-        @mouseout="hoverDeleteClause[index] = false"
-      />
-    </div>
+    <ColumnGroupEditor
+      v-if="editorGroups[index]"
+      :key="index"
+      :baseType="query.typeOf!"
+      :clauseIndex="index"
+      v-model:match="columnGroups[index]"
+      :show="true"
+      @cancel="onCancelEdit(index)"
+    />
+    <template v-else>
+      <ColumnGroupDisplay :match="item" :key="`columnGroupQuery-${index}`" :matchExpanded="false" :returnExpanded="true" :index="index" :parentQuery="query" />
+      <div class="flex-1"></div>
+      <div class="edit-button">
+        <Button
+          type="button"
+          icon="fa-solid fa-pen-to-square"
+          label="Edit group"
+          data-testid="edit-clause-button"
+          :severity="hoverEditClause[index] ? 'success' : 'secondary'"
+          :outlined="!hoverEditClause[index]"
+          :class="!hoverEditClause[index] && 'hover-button'"
+          @click="editGroup(index)"
+          @mouseover="hoverEditClause[index] = true"
+          @mouseout="hoverEditClause[index] = false"
+        />
+      </div>
+      <div class="delete-button">
+        <Button
+          @click.stop="deleteGroup(index)"
+          class="builder-button"
+          :severity="hoverDeleteClause[index] ? 'danger' : 'secondary'"
+          :outlined="!hoverDeleteClause[index]"
+          :class="!hoverDeleteClause[index] && 'hover-button'"
+          icon="fa-solid fa-trash"
+          @mouseover="hoverDeleteClause[index] = true"
+          @mouseout="hoverDeleteClause[index] = false"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Query, Bool, Node, SearchResultSummary, Where, Match, DisplayMode } from "@/interfaces/AutoGen";
-import { inject, Ref, ref, computed, onMounted, watch } from "vue";
+import { DisplayMode, Match, Query } from "@/interfaces/AutoGen";
+import { onMounted, ref, Ref } from "vue";
 import Button from "primevue/button";
-import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { deleteGroupFromQuery } from "@/helpers/buildQuery";
 import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
@@ -56,27 +63,38 @@ import { QueryService } from "@/services";
 
 const query = defineModel<Query>("query", { default: {} });
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo"]);
-const hoverEditClause = ref<boolean[]>(Array(query.value.columnGroup?.length).fill(false));
-const hoverDeleteClause = ref<boolean[]>(Array(query.value.columnGroup?.length).fill(false));
+const hoverEditClause = ref<boolean[]>([]);
+const hoverDeleteClause = ref<boolean[]>([]);
+const columnGroups = ref<Match[]>([]);
+const editorGroups = ref<boolean[]>([]);
 const showEditor = ref(false);
 const groupToEdit: Ref<Match | undefined> = ref();
 const groupIndex = ref(0);
 
-watch(
-  () => query.value.columnGroup?.length,
-  (len = 0) => {
-    hoverEditClause.value = Array(len).fill(false);
-  },
-  { immediate: true }
-);
+onMounted(async () => {
+  await init();
+});
+
 function deleteGroup(index: number) {
+  editorGroups.value.splice(index, 1);
+  columnGroups.value.splice(index, 1);
+  hoverEditClause.value.splice(index, 1);
+  hoverDeleteClause.value.splice(index, 1);
   deleteGroupFromQuery(query.value, index);
 }
+function init() {
+  if (query.value.columnGroup) {
+    for (const group of query.value.columnGroup) {
+      columnGroups.value.push(group);
+      editorGroups.value.push(false);
+      hoverEditClause.value.push(false);
+      hoverDeleteClause.value.push(false);
+    }
+  }
+}
 async function editGroup(index: number) {
-  groupToEdit.value = query.value.columnGroup![index];
-  groupIndex.value = index;
-  groupToEdit.value = await QueryService.getQueryDisplayFromQuery(groupToEdit.value, DisplayMode.ORIGINAL);
-  showEditor.value = true;
+  columnGroups.value[index] = await QueryService.getQueryDisplayFromQuery(columnGroups.value[index], DisplayMode.ORIGINAL);
+  editorGroups.value[index] = true;
 }
 function addColumnGroup() {
   if (!query.value.columnGroup) query.value.columnGroup = [];
@@ -84,6 +102,10 @@ function addColumnGroup() {
   query.value.columnGroup.push(groupToEdit.value);
   groupIndex.value = query.value.columnGroup.length - 1;
   showEditor.value = true;
+}
+function onCancelEdit(index: number) {
+  editorGroups.value[index] = false;
+  hoverEditClause.value[index] = false;
 }
 function mouseover(event: any) {}
 </script>

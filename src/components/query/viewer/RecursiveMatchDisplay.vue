@@ -70,9 +70,9 @@
         <template v-for="operator in operators" :key="operator">
           <template v-if="match[operator]">
             <template v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
-              <span>
+              <div v-if="parentOperator">
                 {{ getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union, parentOperator) }}
-              </span>
+              </div>
             </template>
             <div :class="match[operator].length > 1 ? 'tree-node-wrapper' : ''">
               <template v-for="(nestedQuery, index) in match[operator]" :key="`nestedQueryDisplay-${index}`">
@@ -108,8 +108,8 @@
         </div>
       </component>
     </template>
-    <span v-if="match.keepAs">
-      <span class="as"> (as {{ match.keepAs }})</span>
+    <span v-if="match.node">
+      <span class="as"> (as {{ match.node }})</span>
     </span>
 
     <div v-if="parentOperator === Bool.rule">
@@ -150,7 +150,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 const expandSet: Ref<boolean> = ref(false);
-const operators = ["rule", "and", "or", "not"] as const;
+const operators = ["rule", "and", "or", "not", "union"] as const;
 const cohorts: Ref<Map<number, Match>> = ref(new Map<number, Match>());
 const matchExpanded: Ref<boolean> = ref(!match.value.description);
 const queryIri: Ref<string | undefined> = ref(inject("queryIri"));

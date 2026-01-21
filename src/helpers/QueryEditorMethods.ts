@@ -273,7 +273,7 @@ export function getPathName(nodeRef: string, match: Match): string {
   let flatPath = "";
   const path = match.path[0];
   flatPath = flatPath + (path.name! === "" ? path.iri?.split("#")[1] : path.name);
-  if (path.variable === nodeRef) return flatPath;
+  if (path.node === nodeRef) return flatPath;
   flatPath = getPathNameFromPath(nodeRef, flatPath, path);
   return flatPath;
 }
@@ -283,7 +283,7 @@ function getPathNameFromPath(nodeRef: string, flatPath: string, path: Path): str
   if (path.path) {
     const subPath = path.path[0];
     flatPath = flatPath.concat(subPath.name!);
-    if (path.variable === nodeRef) return flatPath;
+    if (path.node === nodeRef) return flatPath;
     flatPath = getPathNameFromPath(nodeRef, flatPath, path);
   }
   return flatPath;
@@ -295,8 +295,8 @@ export function getTypeFromClause(match: Match): string | undefined {
       return getTypeFromClause(queryStore.returnMap.get(match.nodeRef)!);
     } else return undefined;
   }
-  if (match.return && match.return.property) {
-    for (const property of match.return.property) {
+  if (match.return) {
+    for (const property of match.return) {
       if (property.nodeRef) return getTypeFromMatchNodeRef(match, property.nodeRef);
     }
   }
@@ -315,7 +315,7 @@ export function getTypeFromClause(match: Match): string | undefined {
 function getTypeFromPathNodeRef(aPath: Path, nodeRef: string): string | undefined {
   if (aPath.path) {
     const subPath = aPath.path[0];
-    if (subPath.variable === nodeRef) return subPath.typeOf!.iri!;
+    if (subPath.node === nodeRef) return subPath.typeOf!.iri!;
     if (subPath.path) return getTypeFromPathNodeRef(subPath, nodeRef);
   }
   return undefined;
@@ -324,7 +324,7 @@ function getTypeFromPathNodeRef(aPath: Path, nodeRef: string): string | undefine
 function getTypeFromMatchNodeRef(match: Match, nodeRef: string): string | undefined {
   if (match.path) {
     const subPath = match.path[0];
-    if (subPath.variable === nodeRef) return subPath.typeOf!.iri!;
+    if (subPath.node === nodeRef) return subPath.typeOf!.iri!;
     if (subPath.path) return getTypeFromPathNodeRef(subPath, nodeRef);
   }
   return undefined;

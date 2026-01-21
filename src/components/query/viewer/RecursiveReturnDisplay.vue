@@ -1,10 +1,9 @@
 <template>
-  <div v-if="select.function">
-    {{ select.function.name }}
-  </div>
-  <span v-if="isArrayHasLength(select.property)" class="pl-8">
-    <div v-for="(item, index) in select.property" :key="index" class="pl-12">
-      <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+  <span v-if="isArrayHasLength(select)" class="pl-8">
+    <div v-for="(item, index) in select" :key="index" class="pl-12">
+      <FunctionClauseDisplay v-if="item.function" :functionClause="item.function" />
+      <IMViewerLink v-else-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+      <span v-if="item.as">(displayed as {{ item.as }})</span>
       <span v-if="item.return">
         <span>{</span>
         <RecursiveReturnDisplay :select="item.return" />
@@ -38,9 +37,10 @@ import { Bool, Return } from "@/interfaces/AutoGen";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 
 defineProps<{
-  select: Return;
+  select: Return[];
 }>();
 
 const emit = defineEmits<{

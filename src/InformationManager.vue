@@ -99,12 +99,6 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  if (!cookie.get("access_token")) {
-    const silentUser = await axios.get(import.meta.env.VITE_CASDOOR_URL + "/api/get-account", { raw: true });
-    if (silentUser?.data?.accessToken) {
-      await CasdoorService.loginWithBearerToken(silentUser.data.accessToken);
-    }
-  }
   try {
     const user = await CasdoorService.getUser(true);
     if (user) userStore.updateCurrentUser(user);
@@ -117,7 +111,7 @@ onMounted(async () => {
   loadingStore.updateViewsLoading(true);
 
   if (isPublicMode.value || isLoggedIn.value) {
-    await userStore.getAllFromUserDatabase();
+    userStore.getAllFromUserDatabase();
     await setThemeOptions();
     if (currentFontSize.value) await changeFontSize(currentFontSize.value);
     await filterStore.fetchFilterSettings();

@@ -23,19 +23,15 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 export async function setReturn(match: Match, keepAs: string) {
   if (keepAs === "") {
     if (match.return) {
-      if (match.return.property) {
-        await Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "You have already added properties to the output. Cannot remove label",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#689F38"
-        });
-      } else delete match.return;
-    }
-  } else if (match.return) {
-    match.return.as = keepAs;
-  } else match.return = { as: keepAs };
+      await Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "You have already added properties to the output. Cannot remove label",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
+    } else delete match.node;
+  } else match.node = keepAs;
 }
 
 export function checkGroupChange(e: any, parentGroup: number[], index: number) {
@@ -174,7 +170,7 @@ export function getBooleanLabel(
   index: number,
   standardQuery?: boolean,
   hasSubgroups?: boolean,
-  union?: boolean,
+  union?: Match[],
   parentOperator?: Bool
 ): string {
   const isFirst = index === 0;
@@ -183,8 +179,8 @@ export function getBooleanLabel(
     if (hasSubgroups) return isFirst ? "all of the following" : (parentOperator && parentOperator === Bool.or ? "or " : "and ") + "all of the following";
     else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
   }
+  if (union) return "merge results from the following";
   if (operator === Bool.or) {
-    if (union) return "merge results from the following";
     if (hasSubgroups)
       return isFirst ? "at least one of the following" : (parentOperator && parentOperator === Bool.and ? "and " : "or ") + "at least one of the following";
     else return isFirst ? (isMatch ? "Either" : "Either") : "Or";
@@ -260,7 +256,7 @@ function addPath(match: Match, flatPath: string): string | undefined {
   if (lastPart.includes("#")) lastPart = lastPart.split("#")[1];
   const nodeRef = lastPart + refNumber.toString();
   if (matchPath) {
-    matchPath.variable = nodeRef;
+    matchPath.node = nodeRef;
     return nodeRef;
   }
   return undefined;
@@ -270,8 +266,8 @@ function getPaths(match: Match): Record<string, string> | undefined {
   const paths = {} as Record<string, string>;
   const path = match.path[0];
   const flatPath = path.iri! + "\t" + path.typeOf!.iri;
-  if (path.variable != null) {
-    paths[flatPath] = path.variable;
+  if (path.node != null) {
+    paths[flatPath] = path.node;
   }
   if (path.path) {
     addSubPaths(flatPath, path, paths);
@@ -282,8 +278,8 @@ function getPaths(match: Match): Record<string, string> | undefined {
 function addSubPaths(flatPath: string, path: Path, paths: Record<string, string>): void {
   const childPath = path.path![0];
   const childFlatPath = childPath.iri! + "\t" + childPath.typeOf!.iri;
-  if (childPath.variable != null) {
-    paths[flatPath + "\t" + childFlatPath] = childPath.variable;
+  if (childPath.node != null) {
+    paths[flatPath + "\t" + childFlatPath] = childPath.node;
   }
   if (childPath.path) {
     addSubPaths(flatPath + "\t" + childFlatPath, childPath, paths);
@@ -419,7 +415,7 @@ export function getBooleanOptions(
   hasSubgroups?: boolean,
   grandParentOperator?: Bool
 ): any[] {
-  const union = ("union" in parent) as boolean;
+  const union = "union" in parent ? parent.union : undefined;
   const match = clauseType === "Match" ? parent : undefined;
   let notLabel = undefined;
   if (clauseType === "Match") {

@@ -35,7 +35,6 @@
       @click="(event: MouseEvent) => toEdit(event, iri)"
       v-tooltip.top="'Edit'"
       data-testid="edit-button"
-      :disabled="!editAllowed"
     />
     <Button
       v-if="show('download')"
