@@ -4,11 +4,6 @@
       <FunctionClauseDisplay v-if="item.function" :functionClause="item.function" />
       <IMViewerLink v-else-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       <span v-if="item.as">(displayed as {{ item.as }})</span>
-      <span v-if="item.return">
-        <span>{</span>
-        <RecursiveReturnDisplay :select="item.return" />
-        <span>}</span>
-      </span>
       <span v-if="item.case">
         <span v-for="(when, whenIndex) in item.case.when" :key="whenIndex">
           <span>if</span>

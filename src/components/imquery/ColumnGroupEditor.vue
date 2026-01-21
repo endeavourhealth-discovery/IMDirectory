@@ -1,56 +1,71 @@
 <template>
-  <Dialog v-model:visible="show" modal closable :draggable="false" class="edit-match-dialog" maximizable @hide="onCancel">
-    <div class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
-      <span>Name of group</span>
-      <InputText v-model="match.name" class="name-display" placeholder="Name" type="text" />
-    </div>
-    <div class="column-group-editor">
-      <Splitter class="h-full w-full" layout="horizontal">
-        <SplitterPanel class="column-selector">
-          <ColumnSelector :baseType="baseType" v-model:refreshColumns="refreshColumns" v-model:match="match" />
-        </SplitterPanel>
-        <SplitterPanel class="column-display">
-          <span>nested {{ nestedReturns }}</span>
-          <div v-if="nestedReturns">
-            <span class="header">Add columns from left</span>
-            <RecursiveReturnDisplay :select="nestedReturns" :parentQuery="match" />
-          </div>
-          <div v-else>
-            <span class="header">Select columns from the tree to add</span>
-          </div>
-        </SplitterPanel>
-      </Splitter>
-    </div>
-    <template #footer>
+  <Dialog :visible="show" modal closable :draggable="false" class="dialog-content" maximizable @hide="onCancel">
+    <div class="dialog-content flex h-full flex-col gap-2">
+      <!-- Top input section -->
+      <div class="top-section flex-none">
+        <span>Name of group</span>
+        <InputText v-model="match.name" class="name-display" placeholder="Name" type="text" />
+      </div>
+
+      <div class="column-group-editor">
+        <Splitter class="h-full w-full" layout="horizontal">
+          <SplitterPanel class="column-selector">
+            <TypeSelector :baseType="baseType" v-model:refreshColumns="refreshColumns" v-model:match="match" v-model:columns="columns" />
+          </SplitterPanel>
+          <SplitterPanel class="column-selector">
+            <FieldSelector :columns="columns" />
+          </SplitterPanel>
+          <SplitterPanel class="column-selector">
+            <div v-if="match.return">
+              <span class="header">Check or uncheck columns on left</span>
+              <RecursiveReturnDisplay :select="match.return" :parentQuery="match" />
+            </div>
+            <div v-else>
+              <span class="header">Select columns from the tree to add</span>
+            </div>
+          </SplitterPanel>
+        </Splitter>
+      </div>
+
       <div class="button-footer">
         <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
         <Button v-if="edited" autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
       </div>
-    </template>
+    </div>
   </Dialog>
 </template>
 
 <style scoped>
-:deep(.edit-match-dialog .p-dialog-content) {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  flex: 1 1 auto !important;
-  max-height: 90vh !important;
-  min-height: 70vh !important;
+.top-section {
+  flex: 0 0 auto; /* natural height */
 }
-
-.column-selector {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
+.dialog-content {
+  width: 90vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .column-group-editor {
   display: flex;
-  flex-direction: row;
   overflow: hidden;
-  max-height: 85vh;
+  min-height: 70vh;
+  max-height: 70vh;
+}
+
+.column-selector {
+  flex: 1 1 auto;
+  overflow: hidden;
+  max-height: 70vh;
+}
+
+.button-footer {
+  flex: 0 0 auto; /* footer at bottom */
+  display: flex;
+
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 </style>
 
@@ -66,21 +81,21 @@ import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import { usePropertyTree } from "@/composables/usePropertyTree";
 import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
-import ColumnSelector from "@/components/imquery/ColumnSelector.vue";
+import TypeSelector from "@/components/imquery/TypeSelector.vue";
 import Button from "primevue/button";
 import RecursiveReturnDisplay from "@/components/query/viewer/RecursiveReturnDisplay.vue";
+import FieldSelector from "@/components/imquery/FieldSelector.vue";
 interface Props {
   baseType: Node;
   clauseIndex: number;
+  show: boolean;
 }
 
-const show = defineModel<boolean>("show", { default: false });
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
   (event: "saveChanges", match: Match): void;
   (event: "cancel"): void;
-  (event: "update:show", value: boolean): void;
 }>();
 
 const { getRootNodes, getDefiningProperty, createPropertyTree, getOrderables } = usePropertyTree();
@@ -90,6 +105,7 @@ const showFilterSelector = ref(false);
 const showColumnSelector = ref(false);
 const propertyTree: Ref<TreeNode[]> = ref([]);
 const rootNodes: Ref<TreeNode[]> = ref([]);
+const columns: Ref<TreeNode[]> = ref([]);
 const orderables: Ref<any[] | undefined> = ref();
 const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
 const edited = ref(false);
@@ -99,16 +115,8 @@ const hoverDeleteColumns = ref(false);
 const hoverAddFilter = ref(false);
 const hoverAddColumns = ref(false);
 const refreshColumns = ref(false);
+const nestedMatch: Ref<Match> = ref(match.value);
 
-
-onMounted(async () => {
-  await init();
-});
-
-async function init() {
-  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
-  nestedReturns.value = await QueryService.getNestedReturns(match.value);
-}
 function onUpdate() {
   edited.value = true;
 }
@@ -145,7 +153,6 @@ function addColumns() {
 async function onSave() {
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   emit("saveChanges", match.value);
-  show.value = false;
 }
 
 function editColumns() {
@@ -156,6 +163,6 @@ function cancelColumns() {
 }
 
 function onCancel() {
-  emit('update:show', false);
+  emit("cancel");
 }
 </script>

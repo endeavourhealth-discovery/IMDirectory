@@ -170,7 +170,7 @@ export function getBooleanLabel(
   index: number,
   standardQuery?: boolean,
   hasSubgroups?: boolean,
-  union?: boolean,
+  union?: Match[],
   parentOperator?: Bool
 ): string {
   const isFirst = index === 0;
@@ -179,8 +179,8 @@ export function getBooleanLabel(
     if (hasSubgroups) return isFirst ? "all of the following" : (parentOperator && parentOperator === Bool.or ? "or " : "and ") + "all of the following";
     else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
   }
+  if (union) return "merge results from the following";
   if (operator === Bool.or) {
-    if (union) return "merge results from the following";
     if (hasSubgroups)
       return isFirst ? "at least one of the following" : (parentOperator && parentOperator === Bool.and ? "and " : "or ") + "at least one of the following";
     else return isFirst ? (isMatch ? "Either" : "Either") : "Or";
@@ -415,7 +415,7 @@ export function getBooleanOptions(
   hasSubgroups?: boolean,
   grandParentOperator?: Bool
 ): any[] {
-  const union = ("union" in parent) as boolean;
+  const union = "union" in parent ? parent.union : undefined;
   const match = clauseType === "Match" ? parent : undefined;
   let notLabel = undefined;
   if (clauseType === "Match") {

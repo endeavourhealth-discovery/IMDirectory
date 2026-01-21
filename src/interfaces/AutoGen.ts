@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-14 12:18:58.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-19 15:47:50.
 
 export interface ConceptContextMap {
     id?: string;
@@ -62,6 +62,15 @@ export interface PolicyRequest {
     userRole?: UserRole;
     resource?: Resource;
     action?: Action;
+}
+
+export interface OAuthTokens {
+    access_token?: string;
+    id_token?: string;
+    refresh_token?: string;
+    token_type?: string;
+    scope?: string;
+    expires_in?: string;
 }
 
 export interface User {
@@ -346,8 +355,8 @@ export interface Assignable {
     function?: FunctionClause;
     units?: TTIriRef;
     description?: string;
-    valueLabel?: string;
     qualifier?: TTIriRef;
+    valueLabel?: string;
     operator?: Operator;
 }
 
@@ -398,10 +407,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -449,7 +458,6 @@ export interface Match extends IriLD, HasPaths {
     function?: FunctionClause;
     entailment?: Entail;
     baseRule?: boolean;
-    union?: boolean;
     ruleNumber?: number;
     inverse?: boolean;
     activeOnly?: boolean;
@@ -459,7 +467,7 @@ export interface Match extends IriLD, HasPaths {
     groupBy?: GroupBy[];
     orderBy?: OrderLimit;
     asDescription?: string;
-    isUnion?: boolean;
+    union?: Match[];
 }
 
 export interface Node extends Element {
@@ -549,13 +557,13 @@ export interface Return {
     as?: string;
     nodeRef?: string;
     propertyRef?: string;
-    value?: string;
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
     description?: string;
     case?: Case;
     return?: Return[];
+    value?: string;
 }
 
 /**
@@ -583,16 +591,17 @@ export interface Where extends Element, Assignable {
     is?: Node[];
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
+    inverse?: boolean;
     typeOf?: Node;
     not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
-    inverse?: boolean;
     or?: Where[];
     and?: Where[];
     shortLabel?: string;
     propertyList?: Node[];
     propertyVariable?: string;
+    notNull?: boolean;
 }
 
 export interface DBEntry {
@@ -907,15 +916,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    status?: TTIriRef;
     description?: string;
+    status?: TTIriRef;
+    prefixes?: TTPrefix[];
     code?: string;
     types?: TTIriRef[];
-    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1010,8 +1019,8 @@ export interface RecentActivityItemDto {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1176,6 +1185,7 @@ export const enum Bool {
     or = "or",
     not = "not",
     rule = "rule",
+    union = "union",
 }
 
 export const enum Comparison {
