@@ -101,7 +101,7 @@ const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const operators = ["and", "or", "not"] as const;
+const operators = ["and", "or"] as const;
 const { onDragEnd, onDragStart, onDrop, onDragOver } = useECLBuilderActions(wasDraggedAndDropped);
 const hoverAddConcept = ref(false);
 const hoverAddRefinement = ref(false);
@@ -123,7 +123,6 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string, inde
     emit("rationalise");
   }
 }
-
 
 function mouseover(event: any) {
   event.stopPropagation();

@@ -263,7 +263,7 @@ export class IM {
   public static readonly NUMERIC_VALUE = Namespace.IM + "NumericValue"
   public static readonly HEALTH_RECORDS = Namespace.IM + "HealthRecords"
   public static readonly HAS_INCREMENTAL_FROM = Namespace.IM + "hasIncrementalFrom"
-  public static readonly CORE_SCHEMES = Namespace.IM + "coreSchemes"
+  public static readonly ECL_BUILDER_SCHEMES = Namespace.IM + "ECLBuilderSchemes"
   public static readonly INFERRED_PREDICATES = Namespace.IM + "inferredPredicates"
   public static readonly INFERRED_EXCLUDE_PREDICATES = Namespace.IM + "inferredExcludePredicates"
   public static readonly GRAPH_EXCLUDE_PREDICATES = Namespace.IM + "graphExcludePredicates"

@@ -142,7 +142,12 @@ function toggle(event: any) {
 async function init() {
   loading.value = true;
   if (props.eclString) {
-    if (props.query) await createBuildFromQuery(props.query);
+    if (props.query) {
+      await createBuildFromQuery(props.query);
+    } else {
+      const eclRequest = await EclService.getQueryFromECL(props.eclString, false);
+      if (eclRequest.query) build.value = eclRequest.query;
+    }
   } else createDefaultBuild();
   loading.value = false;
 }

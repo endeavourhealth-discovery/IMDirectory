@@ -27,7 +27,7 @@
                 <Select
                   :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
                   :modelValue="parentOperator"
-                  :options="getBooleanOptions('Where', where, parent!, parentOperator as Bool, index)"
+                  :options="getBooleanOptions('Where', index, false, hasSubgroups, parentOperator as Bool)"
                   option-label="label"
                   option-value="value"
                   @update:modelValue="val => updateOperator(val as string)"
@@ -81,7 +81,7 @@
               :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
               :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
               :modelValue="parentOperator"
-              :options="getBooleanOptions('Where', where, parent!, parentOperator as Bool, index)"
+              :options="getBooleanOptions('Where', index, false, false, parentOperator as Bool)"
               option-label="label"
               option-value="value"
               @update:modelValue="val => updateOperator(val as string)"
@@ -220,6 +220,9 @@ const propertyConstraintOperator: Ref<string | undefined> = ref<"<<">();
 const inNotIn = computed(() => {
   if (where.value.not) return "!=";
   else return "=";
+});
+const hasSubgroups = computed(() => {
+  return !!(where.value.and || where.value.or);
 });
 const imQueryForValueSearch: Ref<QueryRequest | undefined> = ref(undefined);
 const hasFocus = computed(() => {

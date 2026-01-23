@@ -14,7 +14,7 @@
       <Select
         :disabled="parentGroup.length > 0 && (!parentGroup.includes(clauseIndex) || parentGroup.length === 1)"
         :modelValue="parentOperator"
-        :options="getBooleanOptions(clauseType, clause, parentClause!, parentOperator as Bool, clauseIndex, true, hasSubgroups, grandParentOperator)"
+        :options="getBooleanOptions(clauseType, clauseIndex, true, hasSubgroups, grandParentOperator)"
         option-label="label"
         option-value="value"
         data-testid="operator-selector"

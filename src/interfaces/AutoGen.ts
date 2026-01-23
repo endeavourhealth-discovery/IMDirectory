@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-19 15:47:50.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-22 15:30:58.
 
 export interface ConceptContextMap {
     id?: string;
@@ -70,7 +70,29 @@ export interface OAuthTokens {
     refresh_token?: string;
     token_type?: string;
     scope?: string;
-    expires_in?: string;
+    expires_in?: number;
+}
+
+export interface Session extends OAuthTokens {
+    id?: string;
+    createdAt?: Date;
+    ipAddress?: string;
+    expired?: boolean;
+}
+
+export interface TokenStatus {
+    active?: boolean;
+    scope?: string;
+    client_id?: string;
+    username?: string;
+    token_type?: string;
+    exp?: number;
+    iat?: number;
+    nbf?: number;
+    sub?: string;
+    aud?: string[];
+    iss?: string;
+    jti?: string;
 }
 
 export interface User {
@@ -83,19 +105,15 @@ export interface User {
     avatar?: string;
     roles?: UserRole[];
     groups?: string[];
-    test?: string;
-    roleNames?: string[];
-}
-
-export interface UserSettings {
+    theme?: PrimeVuePresetThemes;
+    primaryColor?: PrimeVueColors;
+    secondaryColor?: PrimeVueColors;
     darkMode?: boolean;
-    organisations?: string[];
+    fontSize?: FontSize;
     favourites?: string[];
-    mru?: RecentActivityItemDto[];
-    preset?: string;
-    primaryColor?: string;
-    surfaceColor?: string;
-    fontSize?: string;
+    recentActivity?: RecentActivityItemDto[];
+    organisations?: string[];
+    roleNames?: string[];
 }
 
 export interface CodeGenDto {
@@ -356,8 +374,8 @@ export interface Assignable {
     units?: TTIriRef;
     description?: string;
     qualifier?: TTIriRef;
-    valueLabel?: string;
     operator?: Operator;
+    valueLabel?: string;
 }
 
 export interface Case {
@@ -407,10 +425,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -426,7 +444,6 @@ export interface GroupBy extends IriLD {
 export interface HasPaths {
     path?: Path[];
     node?: string;
-    iri?: string;
 }
 
 export interface Instance extends IriLD {
@@ -448,7 +465,6 @@ export interface Match extends IriLD, HasPaths {
     is?: Node[];
     and?: Match[];
     or?: Match[];
-    not?: Match[];
     where?: Where;
     return?: Return[];
     graph?: Element;
@@ -462,12 +478,14 @@ export interface Match extends IriLD, HasPaths {
     inverse?: boolean;
     activeOnly?: boolean;
     rule?: Match[];
+    step?: Match[];
     libraryItem?: string;
     invalid?: boolean;
     groupBy?: GroupBy[];
     orderBy?: OrderLimit;
     asDescription?: string;
     union?: Match[];
+    notExists?: boolean;
 }
 
 export interface Node extends Element {
@@ -916,9 +934,9 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
     scheme?: TTIriRef;
+    name?: string;
     version?: number;
     description?: string;
     status?: TTIriRef;
@@ -1186,6 +1204,7 @@ export const enum Bool {
     not = "not",
     rule = "rule",
     union = "union",
+    step = "step",
 }
 
 export const enum Comparison {
@@ -1714,7 +1733,7 @@ export const enum IM {
     NUMERIC_VALUE = "http://endhealth.info/im#NumericValue",
     HEALTH_RECORDS = "http://endhealth.info/im#HealthRecords",
     HAS_INCREMENTAL_FROM = "http://endhealth.info/im#hasIncrementalFrom",
-    CORE_SCHEMES = "http://endhealth.info/im#coreSchemes",
+    ECL_BUILDER_SCHEMES = "http://endhealth.info/im#ECLBuilderSchemes",
     INFERRED_PREDICATES = "http://endhealth.info/im#inferredPredicates",
     INFERRED_EXCLUDE_PREDICATES = "http://endhealth.info/im#inferredExcludePredicates",
     GRAPH_EXCLUDE_PREDICATES = "http://endhealth.info/im#graphExcludePredicates",
@@ -2097,4 +2116,43 @@ export const enum XSD {
     DATE_TIME = "http://www.w3.org/2001/XMLSchema#dateTime",
     NUMBER = "http://www.w3.org/2001/XMLSchema#number",
     DECIMAL = "http://www.w3.org/2001/XMLSchema#decimal",
+}
+
+export const enum PrimeVuePresetThemes {
+    AURA = "Aura",
+    LARA = "Lara",
+    NORA = "Nora",
+    MATERIAL = "Material",
+}
+
+export const enum PrimeVueColors {
+    EMERALD = "emerald",
+    GREEN = "green",
+    LIME = "lime",
+    RED = "red",
+    ORANGE = "orange",
+    AMBER = "amber",
+    YELLOW = "yellow",
+    TEAL = "teal",
+    CYAN = "cyan",
+    SKY = "sky",
+    BLUE = "blue",
+    INDIGO = "indigo",
+    VIOLET = "violet",
+    PURPLE = "purple",
+    FUCHSIA = "fuchsia",
+    PINK = "pink",
+    ROSE = "rose",
+    SLATE = "slate",
+    GRAY = "gray",
+    ZINC = "zinc",
+    NEUTRAL = "neutral",
+    STONE = "stone",
+}
+
+export const enum FontSize {
+    SMALL = "12px",
+    MEDIUM = "14px",
+    LARGE = "16px",
+    XL = "18px",
 }
