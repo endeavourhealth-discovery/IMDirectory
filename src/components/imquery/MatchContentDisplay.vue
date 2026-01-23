@@ -4,7 +4,7 @@
       <span class="field">and if the above</span>
       <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
     </span>
-    <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
+    <span v-if="match.notExists" class="not">Exclude if </span>
     <span v-if="match.is">
       <span class="field">in</span>
       <ul>

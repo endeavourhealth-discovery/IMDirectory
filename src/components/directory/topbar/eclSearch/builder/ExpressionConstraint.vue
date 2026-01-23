@@ -17,7 +17,7 @@
           v-model:match="match.is[0].match"
           v-model:parent="match"
           v-model:parentGroup="parentGroup"
-          :index="0"
+          :index="index"
           :includeSubtypes="true"
           @includeSubtypesChanged="onChangeIncludeSubtypes"
           @rationalise="onRationalise"
@@ -37,9 +37,9 @@
           <span v-if="!rootBool">
             <Select
               :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
-              :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
-              :modelValue="parentOperator"
-              :options="getBooleanOptions('Match', match, parent!, parentOperator as Bool, index)"
+              :class="'operator-selector'"
+              :modelValue="match.notExists ? Bool.not : parentOperator"
+              :options="getBooleanOptions('Match', index, false, false, parentOperator as Bool)"
               option-label="label"
               option-value="value"
               data-testid="operator-selector"
@@ -146,11 +146,12 @@
           @dragstart="onDragStart($event, match, parent)"
           @dragend="onDragEnd(match, parent)"
         />
+
         <Select
           :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
-          :class="parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'"
-          :modelValue="parentOperator"
-          :options="getBooleanOptions('Match', match, parent!, parentOperator as Bool, index)"
+          :class="'operator-selector'"
+          :modelValue="match.notExists ? Bool.not : parentOperator"
+          :options="getBooleanOptions('Match', index, false, false, parentOperator as Bool)"
           option-label="label"
           option-value="value"
           data-testid="operator-selector"
@@ -220,8 +221,15 @@ function addConcept() {
   addConceptToGroup(match.value);
 }
 function updateOperator(val: string) {
-  updateFocusConcepts(match.value);
-  emit("updateBool", props.parentOperator, val, props.index);
+  if (val === Bool.not) {
+    match.value.notExists = true;
+  } else if (match.value.notExists) {
+    match.value.notExists = false;
+  }
+  if (val != Bool.not) {
+    updateFocusConcepts(match.value);
+    emit("updateBool", props.parentOperator, val, props.index);
+  }
 }
 
 function updateMatch() {

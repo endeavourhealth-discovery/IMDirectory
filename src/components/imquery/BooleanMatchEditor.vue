@@ -17,7 +17,7 @@
         <div v-if="match[operator]">
           <div class="match-clause">
             <BooleanEditor
-              v-if="showBoolean && operator !== 'not'"
+              v-if="showBoolean"
               v-model:clause="match"
               v-model:parentClause="parentMatch"
               :depth="depth"
@@ -159,7 +159,7 @@ const hoverEditClause = ref(false);
 const hoverDeleteClause = ref(false);
 const hoverAddClause = ref(false);
 const showEditor = ref(false);
-const operators = ["and", "or", "not"] as const;
+const operators = ["and", "or"] as const;
 const refreshCounter = ref(0);
 const showBoolean = computed(() => {
   if (props.from) return false;
