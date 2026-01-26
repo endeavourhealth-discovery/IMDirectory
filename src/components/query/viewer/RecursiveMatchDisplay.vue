@@ -1,14 +1,18 @@
 <template>
-  <div id="recursive-match-display" :class="'tree-node-line'">
+  <div id="recursive-match-display" :class="'tree-node-line'" :style="indentStyle">
     <span v-if="parentOperator === Bool.rule">
       <span class="rule">Rule {{ clauseIndex + 1 }}</span>
     </span>
-    <span v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.not" :class="parentOperator">{{
-      parentOperator
-    }}</span>
-    <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
+    <span
+      v-else-if="!hasBoolGroups(match) && parentOperator && clauseIndex > 0 && parentOperator != Bool.union && parentOperator != Bool.step"
+      :class="parentOperator"
+      >{{ parentOperator }}</span
+    >
+    <span v-if="parentOperator == Bool.step && clauseIndex > 0" class="field">then </span>
+    <span v-if="match.notExists" class="not">Exclude if </span>
     <span v-if="subPredicate" class="field">{{ subPredicate }}</span>
-    <span v-if="match.nodeRef">from {{ match.nodeRef }} test:</span>
+    <span v-if="match.nodeRef">from {{ match.nodeRef }}</span>
+    <span v-else-if="parentOperator == Bool.step && clauseIndex > 0" class="field">with results of above:</span>
     <span v-if="match.description">
       <Button text :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchExpanded = !matchExpanded"></Button>
       <span class="match-description">{{ match.description }}</span>
@@ -64,14 +68,14 @@
           <span v-if="parentMatch?.or && parentMatch.or.length > 1" class="or">{{ clauseIndex > 0 ? "or" : "Either" }}</span>
         </template>
         <div v-if="match.orderBy" class="field">
-          {{ match.orderBy.description }}>
+          <span class="field">{{ match.orderBy.description }}</span>
           <span class="field">{{ getFormattedPath(match) }}</span>
         </div>
         <template v-for="operator in operators" :key="operator">
           <template v-if="match[operator]">
-            <template v-if="match[operator]!.length > 1 && operator != 'not'" :class="operator">
-              <div v-if="parentOperator">
-                {{ getBooleanLabel("match", operator as Bool, parentOperator === Bool.rule ? 0 : clauseIndex, !eclQuery, true, match.union, parentOperator) }}
+            <template v-if="match[operator]!.length > 1" :class="operator">
+              <div v-if="parentOperator && operator !== 'step'">
+                {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true, parentOperator) }}
               </div>
             </template>
             <div :class="match[operator].length > 1 ? 'tree-node-wrapper' : ''">
@@ -150,11 +154,23 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 const expandSet: Ref<boolean> = ref(false);
-const operators = ["rule", "and", "or", "not", "union"] as const;
+const operators = ["rule", "and", "or", "union", "step"] as const;
 const cohorts: Ref<Map<number, Match>> = ref(new Map<number, Match>());
 const matchExpanded: Ref<boolean> = ref(!match.value.description);
 const queryIri: Ref<string | undefined> = ref(inject("queryIri"));
 const displayMode = inject<Ref<DisplayMode>>("displayMode");
+const indentStyle = computed(() => {
+  if (props.parentOperator === Bool.step && props.clauseIndex > 0) {
+    return {
+      paddingLeft: "5rem"
+    };
+  }
+
+  return {
+    paddingLeft: "2.5rem"
+  };
+});
+
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -250,8 +266,8 @@ async function expandCohort(index: number) {
 }
 .tree-node-line {
   position: relative;
-  padding-left: 2.5rem;
   text-indent: -1rem;
+  padding-right: 10rem;
 }
 
 .tree-node-line::before {
