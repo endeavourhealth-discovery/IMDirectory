@@ -185,6 +185,7 @@ declare module 'vue' {
     SharedDialogsJSONEditor: typeof import('./src/components/shared/dialogs/JSONEditor.vue')['default']
     SharedDialogsJSONViewerDialog: typeof import('./src/components/shared/dialogs/JSONViewerDialog.vue')['default']
     SharedDynamicDialogsFooter: typeof import('./src/components/shared/dynamicDialogs/Footer.vue')['default']
+    SharedDynamicDialogsGenericDialog: typeof import('./src/components/shared/dynamicDialogs/GenericDialog.vue')['default']
     SharedDynamicDialogsLoadingDialog: typeof import('./src/components/shared/dynamicDialogs/LoadingDialog.vue')['default']
     SharedDynamicDialogsMFAHelp: typeof import('./src/components/shared/dynamicDialogs/MFAHelp.vue')['default']
     SharedFilters: typeof import('./src/components/shared/Filters.vue')['default']
