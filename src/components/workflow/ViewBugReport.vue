@@ -131,6 +131,9 @@ import TaskViewer from "./TaskViewer.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { CasdoorService } from "@/services";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   id: string;
@@ -140,6 +143,7 @@ const props = defineProps<Props>();
 
 const userStore = useUserStore();
 const confirm = useConfirm();
+const dynamicDialog = useDialog();
 
 const currentUser = computed(() => userStore.currentUser);
 const canEdit = computed(() => currentUser.value?.username === bugReport.value?.createdBy);
@@ -291,10 +295,13 @@ function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateBugReport(updatedBugReport).then(async () => {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Bug report successfully updated."
+          dynamicDialog.open(GenericDialog, {
+            props: { modal: true, style: { width: "30vw" } },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Bug report successfully updated."
+            }
           });
         });
 

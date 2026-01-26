@@ -65,7 +65,14 @@
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
       <Button :label="!previewECL ? 'PreviewECL' : 'Show editor'" severity="info" @click="preview" data-testid="ecl-preview-button" />
       <Button label="Validate model" severity="help" @click="validateBuild" data-testid="ecl-validate-button" />
-      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
+      <Button
+        :disabled="Object.keys(build).length === 0"
+        label="OK"
+        icon="fa-solid fa-check"
+        class="p-button-primary"
+        @click="submit"
+        data-testid="ecl-ok-button"
+      />
     </template>
   </Dialog>
 </template>
@@ -82,6 +89,7 @@ import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { Match, ECLQueryRequest, Query } from "@/interfaces/AutoGen";
 import { useEclValidator } from "@/composables/useEclValidator";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -206,31 +214,46 @@ async function generateQueryString() {
 }
 
 async function validateBuild() {
-  const verificationDialog = showVerificationDialog(dynamicDialog);
-  const eclQuery = await EclService.validateModelFromQuery(build.value);
-  build.value = eclQuery.query!;
-  verificationDialog.close();
-  await displayValidationMessage(!eclQuery.status!.valid);
+  console.log(Object.keys(build.value).length);
+  if (Object.keys(build.value).length) {
+    const verificationDialog = showVerificationDialog(dynamicDialog);
+    const eclQuery = await EclService.validateModelFromQuery(build.value);
+    build.value = eclQuery.query!;
+    verificationDialog.close();
+    await displayValidationMessage(!eclQuery.status!.valid);
+  } else {
+    dynamicDialog.open(GenericDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Validation failed",
+        text: "ECL cannot be empty.",
+        confirmButtonText: "Close"
+      }
+    });
+  }
 }
 
 async function displayValidationMessage(invalid: boolean | undefined) {
   if (!invalid) {
-    await Swal.fire({
-      icon: "success",
-      title: "Success",
-      backdrop: true,
-      showClass: { popup: "swal-popup" },
-      text: "All entities are valid.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    dynamicDialog.open(GenericDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-check",
+        title: "Success",
+        text: "All entities are valid.",
+        confirmButtonText: "Close"
+      }
     });
   } else {
-    await Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    dynamicDialog.open(GenericDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: "Invalid values found. Please review your entries.",
+        confirmButtonText: "Close"
+      }
     });
   }
 }

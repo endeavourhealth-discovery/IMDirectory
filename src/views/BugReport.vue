@@ -122,10 +122,14 @@ import WorkflowService from "@/services/WorkflowService";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import GithubService from "@/services/GithubService";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { CasdoorService } from "@/services";
+import { useDialog } from "primevue/usedialog";
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const router = useRouter();
+const dynamicDialog = useDialog();
 
 const error = computed(() => sharedStore.error);
 const user = computed(() => userStore.currentUser);
@@ -233,15 +237,18 @@ async function onSubmit() {
     bugReport.state = TaskState.TODO;
     bugReport.hostUrl = window.location.origin;
     await WorkflowService.createBugReport(bugReport).then(async () => {
-      await Swal.fire({
-        title: "Success",
-        text: "Bug report successfully submitted",
-        icon: "success",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#2196F3"
-      }).then(async () => {
-        loading.value = false;
-        await router.push({ path: "/" });
+      dynamicDialog.open(GenericDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          title: "Success",
+          text: "Bug report successfully submitted",
+          icon: "fa-regular fa-circle-check",
+          confirmButtonText: "Close"
+        },
+        onClose: async () => {
+          loading.value = false;
+          await router.push({ path: "/" });
+        }
       });
     });
     loading.value = false;

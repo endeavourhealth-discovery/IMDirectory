@@ -130,7 +130,7 @@
         </template>
       </TieredMenu>
     </div>
-    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
+    <dynamicDialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-col gap-2">
         <label for="template">Template</label>
         <Select id="template" v-model="template" :options="templates" />
@@ -143,7 +143,7 @@
         <Button label="Cancel" icon="fa-regular fa-xmark" @click="showCodeDownload = false" class="p-button-text" />
         <Button label="Download" icon="fa-duotone fa-display-code" :disabled="!template" @click="generateAndDownload" />
       </template>
-    </Dialog>
+    </dynamicDialog>
   </div>
 </template>
 
@@ -167,7 +167,12 @@ import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
 import { Action, Resource } from "@/interfaces/AutoGen";
 import Swal from "sweetalert2";
+import { useDialog } from "primevue/usedialog";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { DialogProps } from "primevue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
+const dynamicDialog = useDialog();
 const router = useRouter();
 const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
 const userStore = useUserStore();
@@ -352,16 +357,20 @@ function setUserMenuItems(): void {
 }
 
 async function logout() {
-  await Swal.fire({
-    icon: "question",
-    title: "Confirm logout?",
-    text: "Are you sure you want to logout?",
-    confirmButtonText: "Logout",
-    showCancelButton: true
-  }).then(async result => {
-    if (result.isConfirmed) {
-      await CasdoorService.logout();
-      location.reload();
+  dynamicDialog.open(GenericDialog, {
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      title: "Confirm logout?",
+      text: "Are you sure you want to logout?",
+      icon: "fa-regular fa-circle-question",
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel"
+    },
+    onClose: async result => {
+      if (result?.data.confirm) {
+        await CasdoorService.logout();
+        location.reload();
+      }
     }
   });
 }
