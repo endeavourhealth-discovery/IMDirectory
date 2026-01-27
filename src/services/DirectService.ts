@@ -1,4 +1,3 @@
-import { ComponentPublicInstance } from "vue";
 import { Router, useRouter } from "vue-router";
 import { RecentActivityItem } from "@/interfaces";
 import Env from "./Env";
@@ -58,10 +57,10 @@ export default class DirectService {
 
   public async create(typeIri?: string, propertyIri?: string, valueIri?: string) {
     if (!typeIri && !propertyIri && !valueIri) {
-      await this.directTo({ appRoute: "creator", newTab: true });
+      await this.directTo({ appRoute: "creator", newTab: false });
     } else {
       const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
-      await this.directTo({ appRoute: routeData.href.replace("#/", ""), newTab: true });
+      await this.directTo({ appRoute: routeData.href.replace("#/", ""), newTab: false });
     }
   }
 
