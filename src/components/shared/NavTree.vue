@@ -52,7 +52,7 @@ import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { byKey } from "@/helpers/Sorters";
-import { CasbinService, EntityService, FilerService } from "@/services";
+import { EntityService, FilerService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { useTree } from "@/composables/useTree";
@@ -202,7 +202,7 @@ async function addRootEntitiesToTree() {
 async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
-  const hasPermission = await CasbinService.hasPermission(Resource.ENTITY, Action.WRITE);
+  const hasPermission = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
 
   if (!currentUser.value || !hasPermission) return;
 

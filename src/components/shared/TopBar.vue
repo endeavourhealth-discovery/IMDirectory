@@ -151,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService, CasdoorService, CasbinService } from "@/services";
+import { DirectService, FilerService, CodeGenService, CasdoorService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -246,7 +246,7 @@ watch(includeUserGraph, async newValue => {
 
 watch(currentUser, async newValue => {
   if (newValue) {
-    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
   } else hasPermissionDocumentWrite.value = false;
 });
 
@@ -260,7 +260,7 @@ onMounted(async () => {
   setAppMenuItems();
   setUploadDownloadMenuItems();
   if (isLoggedIn.value) {
-    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
   }
 });
 

@@ -6,8 +6,8 @@ import { User } from "@/interfaces";
 const API_URL = Env.API + "api/casdoor";
 
 const CasdoorService = {
-  async login(code: string, state: string) {
-    await axios.get(API_URL + "/public/login", { params: { code: code, state: state } });
+  async login(code: string, state: string, redirectUrl?: string) {
+    await axios.get(API_URL + "/public/login", { params: { code: code, state: state, redirectUrl: redirectUrl ? redirectUrl : Env.DIRECTORY_URL } });
   },
 
   async logout() {
