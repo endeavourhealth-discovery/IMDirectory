@@ -6,6 +6,16 @@ import { User } from "@/interfaces";
 const API_URL = Env.API + "api/casdoor";
 
 const CasdoorService = {
+  async getLoginUrl(redirectUrl?: string): Promise<string> {
+    if (!redirectUrl) redirectUrl = Env.DIRECTORY_URL + "callback";
+    return await axios.get(API_URL + "/public/loginUrl", { params: { redirectUrl: redirectUrl } });
+  },
+
+  async getRegisterUrl(redirectUrl?: string): Promise<string> {
+    if (!redirectUrl) redirectUrl = Env.DIRECTORY_URL + "callback";
+    return await axios.get(API_URL + "/public/registerUrl", { params: { redirectUrl: redirectUrl } });
+  },
+
   async login(code: string, state: string, redirectUrl?: string) {
     await axios.get(API_URL + "/public/login", { params: { code: code, state: state, redirectUrl: redirectUrl ? redirectUrl : Env.DIRECTORY_URL } });
   },

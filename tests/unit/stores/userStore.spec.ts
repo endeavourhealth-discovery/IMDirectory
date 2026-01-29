@@ -29,8 +29,7 @@ describe("getters", () => {
     const userStore = useUserStore();
     const testUser: User = {
       username: "testUser",
-      firstName: "John",
-      lastName: "Doe",
+      displayName: "John Doe",
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/003-man.png",
@@ -74,8 +73,7 @@ describe("mutations", () => {
 
     const testUser: User = {
       username: "testUser",
-      firstName: "John",
-      lastName: "Doe",
+      displayName: "John Doe",
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/003-man.png",

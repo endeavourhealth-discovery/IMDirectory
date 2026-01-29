@@ -169,7 +169,6 @@ import { Action, Resource } from "@/interfaces/AutoGen";
 import Swal from "sweetalert2";
 
 const router = useRouter();
-const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const cookies = useCookies();
@@ -289,12 +288,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: () => (window.location.href = getSigninUrl())
+      command: async() => (window.location.href = await CasdoorService.getLoginUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: () => (window.location.href = getSignupUrl())
+      command: async() => (window.location.href =await CasdoorService.getRegisterUrl())
     },
     {
       separator: true
