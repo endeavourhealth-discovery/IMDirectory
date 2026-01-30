@@ -1,11 +1,11 @@
 import { fetchAuthSession } from "aws-amplify/auth";
 import Env from "./Env";
 import axios from "axios";
-import { RecentActivityItem, User } from "@/interfaces";
+import { User } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import { UserData } from "@/interfaces/UserData";
-import { Graph } from "@/interfaces/AutoGen";
+import { Graph,RecentActivityItemDto } from "@/interfaces/AutoGen";
 
 const API_URL = Env.API + "api/user";
 
@@ -25,7 +25,7 @@ const UserService = {
   async updateUserFontSize(fontSize: string): Promise<User> {
     return await axios.post(API_URL + "/fontSize", fontSize, { headers: { "Content-Type": "text/plain" } });
   },
-  async updateUserRecentActivity(recentActivity: RecentActivityItem[]): Promise<User> {
+  async updateUserRecentActivity(recentActivity: RecentActivityItemDto[]): Promise<User> {
     return await axios.post(API_URL + "/recentActivity", recentActivity);
   },
   async updateUserFavourites(favourites: string[]): Promise<User> {

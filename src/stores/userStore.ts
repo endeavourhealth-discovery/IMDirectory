@@ -8,6 +8,7 @@ import FontSize from "@/enums/FontSize";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
 import { UserRole } from "@/enums";
 import { computed, ref } from "vue";
+import { RecentActivityItemDto } from "@/interfaces/AutoGen";
 
 export const useUserStore = defineStore("user", () => {
   const cookiesEssentialAccepted = ref<boolean>(localStorageWithExpiry.getItem("cookiesEssentialAccepted") === true ? true : false);
@@ -97,22 +98,22 @@ export const useUserStore = defineStore("user", () => {
     localStorage.removeItem("fontSize");
   }
 
-  async function updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-    let activity: RecentActivityItem[] = [];
+  async function updateRecentLocalActivity(recentActivityItem: RecentActivityItemDto) {
+    let activity: RecentActivityItemDto[] = [];
 
     if (isLoggedIn.value && currentUser.value) activity = currentUser.value?.recentActivity;
     else activity = recentLocalActivity.value ? recentLocalActivity.value : [];
 
     activity.forEach(activityItem => {
-      activityItem.dateTime = new Date(activityItem.dateTime);
+      if (activityItem.dateTime)activityItem.dateTime = new Date(activityItem.dateTime);
     });
     const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.action === recentActivityItem.action);
     if (foundIndex !== -1) {
       activity[foundIndex].dateTime = recentActivityItem.dateTime;
       activity.sort((a, b) => {
-        if (a.dateTime.getTime() > b.dateTime.getTime()) {
+        if (a.dateTime && b.dateTime && a.dateTime.getTime() > b.dateTime.getTime()) {
           return 1;
-        } else if (b.dateTime.getTime() > a.dateTime.getTime()) {
+        } else if (a.dateTime && b.dateTime && b.dateTime.getTime() > a.dateTime.getTime()) {
           return -1;
         } else {
           return 0;
