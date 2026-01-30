@@ -116,6 +116,7 @@ import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@/helpers/EditorMethods";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 
 interface Props {
   type?: TTIriRef;
@@ -385,40 +386,45 @@ async function submit(): Promise<void> {
           }
         });
       } else {
-        await Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "Invalid values found. Please review your entries.",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#689F38"
+        await dialogStore.open(GenericDialog, {
+          props: { modal: true, style: { width: "30vw" }, closable: false },
+          data: {
+            icon: "fa-regular fa-circle-exclamation",
+            title: "Warning",
+            text: "Invalid values found. Please review your entries.",
+            confirmButtonText: "Close"
+          }
         });
       }
     })
     .catch(async () => {
-      await Swal.fire({
-        icon: "error",
-        title: "Timeout",
-        text: "Validation timed out. Please contact an admin for support",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(GenericDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Timeout",
+          text: "Validation timed out. Please contact an admin for support",
+          confirmButtonText: "Close"
+        }
       });
     });
 }
 
 async function closeCreator() {
-  await Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
-    showCancelButton: true,
-    confirmButtonText: "Close",
-    reverseButtons: true,
-    confirmButtonColor: "#D32F2F",
-    cancelButtonColor: "#607D8B",
-    customClass: { confirmButton: "swal-reset-button" }
-  }).then(async (result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      await router.push({ name: "LandingPage" });
+  await dialogStore.open(GenericDialog, {
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-exclamation",
+      title: "Warning",
+      text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+      showCancelButton: true,
+      confirmButtonText: "Close",
+      reverseButtons: true
+    },
+    onClose: async (result: any) => {
+      if (result?.data.confirm) {
+        await router.push({ name: "LandingPage" });
+      }
     }
   });
 }

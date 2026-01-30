@@ -6,7 +6,7 @@
           <div
             v-if="match.and || match.or"
             class="conjunction"
-            @drop="onDrop($event, match, parent, index)"
+            @drop="onDrop($event, match, parent, dynamicDialog, index)"
             @dragover="
               onDragOver($event);
               mouseover($event);
@@ -87,6 +87,7 @@ import { v4 } from "uuid";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
 import { IM } from "@/vocabulary";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   index: number;
@@ -95,6 +96,9 @@ interface Props {
   activeInputId?: string;
 }
 const props = defineProps<Props>();
+
+const dynamicDialog = useDialog();
+
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));

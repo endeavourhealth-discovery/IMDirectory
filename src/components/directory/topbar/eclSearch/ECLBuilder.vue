@@ -90,6 +90,7 @@ import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { Match, ECLQueryRequest, Query } from "@/interfaces/AutoGen";
 import { useEclValidator } from "@/composables/useEclValidator";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 interface Props {
   showDialog?: boolean;
   eclString?: string;
@@ -103,7 +104,8 @@ const emit = defineEmits<{
   closeDialog: [];
 }>();
 
-const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
+
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
@@ -227,7 +229,7 @@ async function validateBuild() {
     verificationDialog.close();
     await displayValidationMessage(!eclQuery.status!.valid);
   } else {
-    dynamicDialog.open(GenericDialog, {
+    await dialogStore.open(GenericDialog, {
       props: { modal: true, style: { width: "30vw" }, closable: false },
       data: {
         icon: "fa-regular fa-circle-exclamation",
@@ -241,7 +243,7 @@ async function validateBuild() {
 
 async function displayValidationMessage(invalid: boolean | undefined) {
   if (!invalid) {
-    dynamicDialog.open(GenericDialog, {
+    await dialogStore.open(GenericDialog, {
       props: { modal: true, style: { width: "30vw" }, closable: false },
       data: {
         icon: "fa-regular fa-circle-check",
@@ -251,7 +253,7 @@ async function displayValidationMessage(invalid: boolean | undefined) {
       }
     });
   } else {
-    dynamicDialog.open(GenericDialog, {
+    await dialogStore.open(GenericDialog, {
       props: { modal: true, style: { width: "30vw" }, closable: false },
       data: {
         icon: "fa-regular fa-circle-exclamation",

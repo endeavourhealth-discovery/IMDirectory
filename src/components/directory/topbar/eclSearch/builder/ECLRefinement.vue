@@ -7,7 +7,7 @@
             <div @mouseover="mouseover" @mouseout="mouseout">
               <div
                 class="conjunction"
-                @drop="onDrop($event, where, parent, index)"
+                @drop="onDrop($event, where, parent, dynamicDialog, index)"
                 @dragover="
                   onDragOver($event);
                   mouseover($event);
@@ -64,7 +64,7 @@
         </span>
       </div>
     </span>
-    <div v-else class="refinement-content-container" @drop="onDrop($event, where, parent)" @dragover="onDragOver($event)">
+    <div v-else class="refinement-content-container" @drop="onDrop($event, where, parent, dynamicDialog)" @dragover="onDragOver($event)">
       <div class="property-column">
         <div class="property-container">
           <Button
@@ -182,6 +182,7 @@ import Button from "primevue/button";
 import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
 import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
 import { Namespace } from "@/vocabulary/Namespace";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   focusConcepts: string[];
@@ -193,6 +194,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const dynamicDialog = useDialog();
+
 const where = defineModel<Where>("where", { default: {} });
 const parent = defineModel<Where | Match>("parent");
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });

@@ -103,6 +103,8 @@ interface Props {
   value?: string;
 }
 
+const dynamicDialog = useDialog();
+
 const props = defineProps<Props>();
 const validationDialog = useDialog();
 const eclQuery: Ref<ECLQueryRequest> = ref({ status: { valid: true } } as ECLQueryRequest);
@@ -212,8 +214,8 @@ async function validateModel(showOnlyInvalid?: boolean) {
   if (lastValidEcl) {
     const eclQuery = await EclService.validateModelFromECL(lastValidEcl.value, showNames.value);
     if (showOnlyInvalid && eclQuery.status && !eclQuery.status.valid) {
-      await showValidationMessage(true);
-    } else await showValidationMessage(!eclQuery.status?.valid);
+      await showValidationMessage(true, dynamicDialog);
+    } else await showValidationMessage(!eclQuery.status?.valid, dynamicDialog);
   }
 }
 async function showOrHideNames() {

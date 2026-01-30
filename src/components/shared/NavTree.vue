@@ -63,6 +63,7 @@ import { Action, Resource, TTIriRef, UserRole } from "@/interfaces/AutoGen";
 import { useOverlay } from "@/composables/useOverlay";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -91,6 +92,7 @@ const emit = defineEmits<{
 const toast = useToast();
 const confirmDlg = useConfirm();
 const userStore = useUserStore();
+const dynamicDialog = useDialog();
 
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);

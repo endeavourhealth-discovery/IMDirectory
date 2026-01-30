@@ -6,10 +6,24 @@
     <div v-if="html" v-html="html"></div>
     <div v-if="!reverseButtons" class="m-6 flex flex-row flex-nowrap items-center gap-4">
       <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" />
-      <Button v-if="cancelButtonText" @click="buttonClick" severity="secondary" class="flex" :label="cancelButtonText" />
+      <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex" :label="denyButtonText" />
+      <Button
+        v-if="cancelButtonText || showCancelButton"
+        @click="buttonClick"
+        severity="secondary"
+        class="flex"
+        :label="cancelButtonText ? cancelButtonText : 'Cancel'"
+      />
     </div>
     <div v-else class="m-6 flex flex-row flex-nowrap items-center gap-4">
-      <Button v-if="cancelButtonText" @click="buttonClick" severity="secondary" class="flex" :label="cancelButtonText" />
+      <Button
+        v-if="cancelButtonText || showCancelButton"
+        @click="buttonClick"
+        severity="secondary"
+        class="flex"
+        :label="cancelButtonText ? cancelButtonText : 'Cancel'"
+      />
+      <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex" :label="denyButtonText" />
       <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" />
     </div>
   </div>
@@ -18,18 +32,23 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 
 const dialogRef: any = inject("dialogRef");
+
+const dialogStore = useDialogStore();
 
 const title = ref("");
 const text = ref("");
 const html = ref("");
 const icon = ref("");
 const confirmButtonText = ref("");
+const denyButtonText = ref("");
 const cancelButtonText = ref("");
 const reverseButtons = ref(false);
+const showCancelButton = ref(false);
 
-const emit = defineEmits(["cancel", "confirm"]);
+const emit = defineEmits(["cancel", "confirm", "deny"]);
 
 onMounted(() => {
   if (dialogRef.value) {
@@ -39,21 +58,22 @@ onMounted(() => {
     if (params.html) html.value = params.html;
     if (params.icon) icon.value = params.icon;
     if (params.confirmButtonText) confirmButtonText.value = params.confirmButtonText;
+    if (params.denyButtonText) denyButtonText.value = params.denyButtonText;
     if (params.cancelButtonText) cancelButtonText.value = params.cancelButtonText;
     if (params.reverseButtons) reverseButtons.value = params.reverseButtons;
+    if (params.showCancelButton) showCancelButton.value = params.showCancelButton;
   }
 });
 
 function buttonClick() {
-  dialogRef.value.close({
-    confirm: false
-  });
+  dialogStore.resolve(false, { confirm: false });
 }
 
 function confirmButtonClick() {
-  dialogRef.value.close({
-    confirm: true
-  });
+  dialogStore.resolve(true, { confirm: true });
+}
+function denyButtonClick() {
+  dialogStore.resolve(false, { deny: true });
 }
 </script>
 
@@ -66,3 +86,4 @@ function confirmButtonClick() {
   align-items: center;
 }
 </style>
+}

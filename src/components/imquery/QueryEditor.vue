@@ -140,7 +140,7 @@ function closeBuilderDialog(): void {
 
 async function displayValidationMessage(invalid: boolean | undefined) {
   if (!invalid) {
-    dynamicDialog.open(GenericDialog, {
+    await dialogStore.open(GenericDialog, {
       props: { modal: true, style: { width: "30vw" }, closable: false },
       data: {
         icon: "fa-regular fa-circle-check",
@@ -150,7 +150,7 @@ async function displayValidationMessage(invalid: boolean | undefined) {
       }
     });
   } else {
-    dynamicDialog.open(GenericDialog, {
+    await dialogStore.open(GenericDialog, {
       props: { modal: true, style: { width: "30vw" }, closable: false },
       data: {
         icon: "fa-regular fa-circle-exclamation",

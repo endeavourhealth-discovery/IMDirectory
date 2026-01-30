@@ -9,16 +9,16 @@ import { CasdoorService, GithubService } from "@/services";
 import Swal from "sweetalert2";
 import { ref } from "vue";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
-import { useDialog } from "primevue/usedialog";
+import { useDialogStore } from "@/stores/dialogStore";
 
-const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
 const loading = ref(false);
 
 async function updateGithubConfig() {
   loading.value = true;
   await GithubService.updateGithubConfig()
     .then(async () => {
-      dynamicDialog.open(GenericDialog, {
+      await dialogStore.open(GenericDialog, {
         props: { modal: true, style: { width: "30vw" }, closable: false },
         data: {
           icon: "fa-regular fa-circle-check",
@@ -30,7 +30,7 @@ async function updateGithubConfig() {
     })
     .catch(async err => {
       console.error(err);
-      dynamicDialog.open(GenericDialog, {
+      await dialogStore.open(GenericDialog, {
         props: { modal: true, style: { width: "30vw" } },
         data: {
           icon: "error",

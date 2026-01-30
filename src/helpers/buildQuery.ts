@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
 import { isFolder, isFunction, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
 import { v4 } from "uuid";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -21,14 +23,17 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 }
 
 export async function setReturn(match: Match, keepAs: string) {
+  const dialogStore = useDialogStore();
   if (keepAs === "") {
     if (match.return) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "You have already added properties to the output. Cannot remove label",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(GenericDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Warning",
+          text: "You have already added properties to the output. Cannot remove label",
+          confirmButtonText: "Close"
+        }
       });
     } else delete match.node;
   } else match.node = keepAs;

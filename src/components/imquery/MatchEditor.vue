@@ -109,6 +109,7 @@ import { cloneDeep, isEqual } from "lodash-es";
 import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
+import { useDialog } from "primevue/usedialog";
 interface Props {
   baseType: Node;
   from?: Match;
@@ -137,6 +138,9 @@ const rootNodes: Ref<TreeNode[]> = ref([]);
 const orderables: Ref<any[] | undefined> = ref();
 const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
 const edited = ref(false);
+
+const dynamicDialog = useDialog();
+
 watch(
   () => keepAs,
   () => setReturn(editMatch.value, keepAs.value)

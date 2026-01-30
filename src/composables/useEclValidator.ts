@@ -1,5 +1,6 @@
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import Swal from "sweetalert2";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 
 export function useEclValidator() {
   function showVerificationDialog(dynamicDialog: any): any {
@@ -9,24 +10,26 @@ export function useEclValidator() {
     });
   }
 
-  async function showValidationMessage(invalid: boolean | undefined) {
+  async function showValidationMessage(invalid: boolean | undefined, dynamicDialog: any) {
     if (!invalid) {
-      await Swal.fire({
-        icon: "success",
-        title: "Success",
-        backdrop: true,
-        showClass: { popup: "swal-popup" },
-        text: "All entities are valid.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(GenericDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-check",
+          title: "Success",
+          text: "All entities are valid.",
+          confirmButtonText: "Close"
+        }
       });
     } else {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Invalid values found. Please review your entries.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(GenericDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Warning",
+          text: "Invalid values found. Please review your entries.",
+          confirmButtonText: "Close"
+        }
       });
     }
   }

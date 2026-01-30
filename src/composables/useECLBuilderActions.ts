@@ -3,6 +3,8 @@ import { Ref, toRaw } from "vue";
 import Swal from "sweetalert2";
 import { useToast } from "primevue/usetoast";
 import { cloneDeep } from "lodash-es";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { CasdoorService } from "@/services";
 
 export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   const toast = useToast();
@@ -12,7 +14,7 @@ export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     event.dataTransfer.effectAllowed = "move";
   }
 
-  async function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
+  async function onDrop(event: any, dropzoneItem: any, parent: any, dynamicDialog: any, index?: number) {
     event.preventDefault();
     const draggedItemDataString = event.dataTransfer.getData("draggedItem");
     const { draggedItem, draggedItemParent } = JSON.parse(draggedItemDataString);
@@ -52,23 +54,25 @@ export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     ) {
       insert(draggedItem, rawDropzoneItem);
     } else if (draggedItem.type === "BoolGroup" && rawDropzoneItem.type === "BoolGroup") {
-      await Swal.fire({
-        title: "Do you want to insert or merge?",
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: "Insert",
-        denyButtonText: "Merge",
-        denyButtonColor: "Green"
-      }).then(result => {
-        if (result.isConfirmed) insert(draggedItem, rawDropzoneItem);
-        else if (result.isDenied) merge(draggedItem, dropzoneItem, parent);
-        if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
-          parent.items = parent.items.filter(
-            (parentItem: any) =>
-              draggedItem.conjunction !== toRaw(parentItem.conjunction) ||
-              JSON.stringify(draggedItem.conceptSingle) !== JSON.stringify(parentItem.conceptSingle) ||
-              draggedItem.constraintOperator !== toRaw(parentItem.constraintOperator)
-          );
+      await dialogStore.open(GenericDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          title: "Do you want to insert or merge?",
+          confirmButtonText: "Insert",
+          denyButtonText: "Merge",
+          cancelButtonText: "Cancel"
+        },
+        onClose: async (result: any) => {
+          if (result?.data.confirm) insert(draggedItem, rawDropzoneItem);
+          else if (result?.data.deny) merge(draggedItem, dropzoneItem, parent);
+          if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
+            parent.items = parent.items.filter(
+              (parentItem: any) =>
+                draggedItem.conjunction !== toRaw(parentItem.conjunction) ||
+                JSON.stringify(draggedItem.conceptSingle) !== JSON.stringify(parentItem.conceptSingle) ||
+                draggedItem.constraintOperator !== toRaw(parentItem.constraintOperator)
+            );
+        }
       });
     } else {
       toast.add({

@@ -171,12 +171,14 @@ import { useDialog } from "primevue/usedialog";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { DialogProps } from "primevue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 
 const dynamicDialog = useDialog();
 const router = useRouter();
 const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const dialogStore = useDialogStore();
 const cookies = useCookies();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -357,7 +359,7 @@ function setUserMenuItems(): void {
 }
 
 async function logout() {
-  dynamicDialog.open(GenericDialog, {
+  await dialogStore.open(GenericDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {
       title: "Confirm logout?",

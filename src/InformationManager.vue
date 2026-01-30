@@ -44,10 +44,13 @@ import { useChangeThemeOptions } from "./composables/useChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
 import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
+import { useDialog } from "primevue/usedialog";
+import { useDialogStore } from "@/stores/dialogStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
+const dialog = useDialog();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
@@ -56,6 +59,7 @@ const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
+const dialogStore = useDialogStore();
 const { getSigninUrl, getSignupUrl, isSilentSigninRequested, silentSignin } = useCasdoor();
 sharedStore.updateSigninUrl(getSigninUrl());
 sharedStore.updateSignupUrl(getSignupUrl());
@@ -79,7 +83,6 @@ const viewsLoading = computed(() => loadingStore.viewsLoading);
 
 userStore.getAllFromLocalStorage();
 await setThemeOptions();
-
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 
 watch(currentPreset, async (newValue, oldValue) => {
@@ -119,6 +122,8 @@ onMounted(async () => {
   } else {
     window.location.href = getSigninUrl();
   }
+
+  dialogStore.register(dialog);
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
 });

@@ -237,7 +237,7 @@ async function onSubmit() {
     bugReport.state = TaskState.TODO;
     bugReport.hostUrl = window.location.origin;
     await WorkflowService.createBugReport(bugReport).then(async () => {
-      dynamicDialog.open(GenericDialog, {
+      await dialogStore.open(GenericDialog, {
         props: { modal: true, style: { width: "30vw" }, closable: false },
         data: {
           title: "Success",

@@ -9,6 +9,7 @@ import { TTIriRef } from "@/interfaces/AutoGen";
 import Swal from "sweetalert2";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import { getDialog } from "@/services/DialogService";
 
 export function useCreateNew() {
   const directService = new DirectService();
@@ -57,8 +58,9 @@ export function useCreateNew() {
   }
 
   async function checkExists(iri: string): Promise<boolean> {
+    const dynamicDialog = getDialog();
     if (await EntityService.checkExists(iri)) {
-      dynamicDialog.open(GenericDialog, {
+      await dialogStore.open(GenericDialog, {
         props: { modal: true, style: { width: "30vw" }, closable: false },
         data: {
           icon: "fa-regular fa-circle-exclamation",

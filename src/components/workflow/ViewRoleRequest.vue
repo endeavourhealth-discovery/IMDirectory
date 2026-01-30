@@ -40,6 +40,8 @@ import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   id: string;
@@ -47,6 +49,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dynamicDialog = useDialog();
 const userStore = useUserStore();
 const confirm = useConfirm();
 
@@ -115,13 +118,15 @@ async function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateRoleRequest(updatedRoleRequest).then(async () => {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Role request successfully updated."
+          await dialogStore.open(GenericDialog, {
+            props: { modal: true, style: { width: "30vw" } },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Role request successfully updated."
+            }
           });
         });
-
         editMode.value = false;
       }
     });

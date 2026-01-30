@@ -295,7 +295,7 @@ function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateBugReport(updatedBugReport).then(async () => {
-          dynamicDialog.open(GenericDialog, {
+          await dialogStore.open(GenericDialog, {
             props: { modal: true, style: { width: "30vw" } },
             data: {
               icon: "fa-regular fa-circle-check",
@@ -304,7 +304,6 @@ function updateTask(task: Task) {
             }
           });
         });
-
         editMode.value = false;
       }
     });
