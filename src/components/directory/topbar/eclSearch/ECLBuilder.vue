@@ -105,6 +105,7 @@ const emit = defineEmits<{
 }>();
 
 const dialogStore = useDialogStore();
+const dynamicDialog = useDialogStore();
 
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});
