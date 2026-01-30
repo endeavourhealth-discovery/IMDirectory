@@ -22,8 +22,6 @@ const CasdoorService = {
 
   async logout() {
     await axios.get(API_URL + "/public/logout");
-    await axios.post(Env.CASDOOR_URL + "/api/sso-logout");
-    await axios.post(Env.CASDOOR_URL + "/api/delete-session");
   },
 
   async getUser(raw?: boolean): Promise<User> {
