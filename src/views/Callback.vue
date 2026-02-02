@@ -8,13 +8,11 @@ import { Env } from "@/services";
 import CasdoorService from "@/services/CasdoorService";
 import { useUserStore } from "@/stores/userStore";
 import axios from "axios";
-import { useCasdoor } from "casdoor-vue-sdk";
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
-const { signin } = useCasdoor();
 const userStore = useUserStore();
 
 interface Props {
@@ -25,10 +23,10 @@ interface Props {
 const props = defineProps<Props>();
 
 onMounted(async () => {
-  await CasdoorService.login(props.code, props.state);
-  const user: User = await CasdoorService.getUser();
+  const {user,state} = await CasdoorService.login(props.code, props.state);
   if (user) userStore.updateCurrentUser(user);
-  await router.push({ name: "Directory" });
+  if (state) window.location.href = state
+  else await router.push({ name: "Directory" });
 });
 </script>
 

@@ -16,8 +16,8 @@ const CasdoorService = {
     return await axios.get(API_URL + "/public/registerUrl", { params: { redirectUrl: redirectUrl } });
   },
 
-  async login(code: string, state: string, redirectUrl?: string) {
-    await axios.get(API_URL + "/public/login", { params: { code: code, state: state, redirectUrl: redirectUrl ? redirectUrl : Env.DIRECTORY_URL } });
+  async login(code: string, state: string):Promise<{user:User,state:string|undefined}> {
+    return await axios.get(API_URL + "/public/login", { params: { code: code, state: state } });
   },
 
   async logout() {
