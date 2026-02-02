@@ -151,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService, CasdoorService, CasbinService } from "@/services";
+import { DirectService, FilerService, CodeGenService, CasdoorService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -169,7 +169,6 @@ import { Action, Resource } from "@/interfaces/AutoGen";
 import Swal from "sweetalert2";
 
 const router = useRouter();
-const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const cookies = useCookies();
@@ -246,7 +245,7 @@ watch(includeUserGraph, async newValue => {
 
 watch(currentUser, async newValue => {
   if (newValue) {
-    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
   } else hasPermissionDocumentWrite.value = false;
 });
 
@@ -260,7 +259,7 @@ onMounted(async () => {
   setAppMenuItems();
   setUploadDownloadMenuItems();
   if (isLoggedIn.value) {
-    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
   }
 });
 
@@ -289,12 +288,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: () => (window.location.href = getSigninUrl())
+      command: async() => (window.location.href = await CasdoorService.getLoginUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: () => (window.location.href = getSignupUrl())
+      command: async() => (window.location.href =await CasdoorService.getRegisterUrl())
     },
     {
       separator: true
