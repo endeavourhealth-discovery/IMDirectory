@@ -96,7 +96,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { CasbinService, Env, QueryService } from "@/services";
+import { Env, QueryService } from "@/services";
 import { Action, Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, QueryRequest, Resource, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
@@ -171,7 +171,7 @@ watch(
 );
 
 watch(currentUser, async () => {
-  hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
+  hasPermissionQueryExecute.value = currentUser.value?.roles.includes(UserRole.EXECUTOR)!!;
 });
 
 watch(selectedDisplayOption, async (newValue, oldValue) => {

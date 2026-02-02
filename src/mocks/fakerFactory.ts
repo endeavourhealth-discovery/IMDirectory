@@ -120,8 +120,7 @@ const fakerFactory = factory({
   },
   user: {
     id: primaryKey(faker.string.uuid),
-    firstName: faker.person.firstName,
-    lastName: faker.person.lastName,
+    displayName: faker.person.fullName,
     email: faker.internet.email,
     password: faker.internet.password,
     avatar: faker.system.directoryPath,
