@@ -42,7 +42,6 @@ import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useChangeThemeOptions } from "./composables/useChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
-import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
 
 setupAxiosInterceptors(axios);
@@ -56,9 +55,6 @@ const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
-const { getSigninUrl, getSignupUrl, isSilentSigninRequested, silentSignin } = useCasdoor();
-sharedStore.updateSigninUrl(getSigninUrl());
-sharedStore.updateSignupUrl(getSignupUrl());
 const finishedOnMounted = ref(false);
 
 const { changeFontSize } = useChangeFontSize();
@@ -117,7 +113,7 @@ onMounted(async () => {
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
   } else {
-    window.location.href = getSigninUrl();
+    window.location.href = await CasdoorService.getLoginUrl();
   }
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
@@ -154,7 +150,7 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.set("Graph", userStore.includeUserGraph);
     } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
-      window.location.href = getSigninUrl();
+      window.location.href = await CasdoorService.getLoginUrl();
     }
     return request;
   });
@@ -207,7 +203,7 @@ async function handle401(error: AxiosError) {
 async function handle403(error: any) {
   if (!isPublicMode.value && error.response?.data === "Access forbidden") {
     if (route.path !== "/user/login") {
-      window.location.href = getSigninUrl();
+      window.location.href = await CasdoorService.getLoginUrl();
     } else console.error(error);
   } else if (error.response?.data) {
     toast.add({
