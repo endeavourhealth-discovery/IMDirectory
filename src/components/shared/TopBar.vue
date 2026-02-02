@@ -163,9 +163,7 @@ import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
 import { FontSize, UserRole } from "@/enums";
-import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
-import { Action, Resource } from "@/interfaces/AutoGen";
 import Swal from "sweetalert2";
 
 const router = useRouter();
