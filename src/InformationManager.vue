@@ -149,11 +149,7 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.set("Graph", userStore.includeUserGraph);
-    } else if (
-      !isLoggedIn.value &&
-      isPublicMode.value === false &&
-      !(request.url?.startsWith(Env.API))
-    ) {
+    } else if (!isLoggedIn.value && isPublicMode.value === false && !request.url?.startsWith(Env.API)) {
       window.location.href = await SecurityService.getLoginUrl();
     }
     return request;
@@ -205,27 +201,40 @@ async function handle401(error: AxiosError) {
 }
 
 async function handle403(error: any) {
-  if (!isPublicMode.value && error.response?.data === "Access forbidden") {
-    if (route.path !== "/user/login") {
-      window.location.href = await SecurityService.getLoginUrl();
-    } else console.error(error);
-  } else if (error.response?.data) {
+  if (userStore.isLoggedIn) {
     toast.add({
       severity: "error",
       summary: "Access denied",
-      detail: error.response.data.debugMessage
+      detail:
+        "Insufficient clearance to access " +
+        error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
+        ". Please contact an admin to change your account security clearance if you require access to this resource."
     });
-  } else if (error?.config?.url) {
-    toast.add({
-      severity: "error",
-      summary: "Access denied",
-      detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-    });
+    await router.push({ name: "AccessDenied" }).then();
   } else {
-    toast.add({
-      severity: "error",
-      summary: "Access denied"
-    });
+    if (error.response?.data) {
+      toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail: error.response.data.debugMessage
+      });
+    } else if (error?.config?.url) {
+      toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+      });
+    } else {
+      toast.add({
+        severity: "error",
+        summary: "Access denied"
+      });
+    }
+    if (route.path === "/user/login") {
+      console.error(error);
+    } else {
+      window.location.href = await SecurityService.getLoginUrl();
+    }
   }
 }
 

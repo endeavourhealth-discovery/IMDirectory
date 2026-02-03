@@ -1,10 +1,10 @@
 <template>
   <Suspense>
-    <InformationManager />
+    <router-view />
   </Suspense>
 </template>
 
 <script lang="ts" setup>
-import InformationManager from "./InformationManager.vue";
+
 </script>
 
