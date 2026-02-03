@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { enumToArray } from "@/helpers/Converters";
 import { RoleRequest, Task, UserRole } from "@/interfaces/AutoGen";
-import CasdoorService from "@/services/CasdoorService";
+import SecurityService from "@/services/SecurityService";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
@@ -79,7 +79,7 @@ watch(selectedRole, newValue => {
 });
 
 async function setOptions() {
-  roleOptions.value = (await CasdoorService.adminGetGroups()) as UserRole[];
+  roleOptions.value = (await SecurityService.adminGetGroups()) as UserRole[];
 }
 
 function setValuesFromRoleRequest(roleRequest: RoleRequest) {

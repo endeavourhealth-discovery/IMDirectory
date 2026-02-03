@@ -1,4 +1,4 @@
-import { CasdoorService, EntityService } from "@/services";
+import { SecurityService, EntityService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";
@@ -73,7 +73,7 @@ export async function pageNotFoundFromEditor(to: RouteLocationNormalized, router
 export async function viewerIriExistsGuard(to: RouteLocationNormalized, router: Router) {
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
     const iri = to.params.selectedIri as string;
-    await CasdoorService.getUser();
+    await SecurityService.getUser();
     try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {
