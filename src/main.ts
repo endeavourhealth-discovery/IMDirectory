@@ -38,15 +38,6 @@ import { VueShowdownPlugin } from "vue-showdown";
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
 
-import Casdoor from "casdoor-vue-sdk";
-const config = {
-  serverUrl: import.meta.env.VITE_CASDOOR_URL,
-  clientId: import.meta.env.VITE_CASDOOR_CLIENT_ID,
-  organizationName: import.meta.env.VITE_CASDOOR_ORGANISATION_NAME,
-  appName: import.meta.env.VITE_CASDOOR_APP_NAME,
-  redirectPath: "/#/callback"
-};
-
 // msw initialising
 if (import.meta.env.MODE === "mock") {
   await worker.start();
@@ -55,7 +46,6 @@ if (import.meta.env.MODE === "mock") {
 const pinia = createPinia();
 
 const app = createApp(App)
-  .use(Casdoor, config)
   .use(pinia)
   .use(router)
   .use(PrimeVue, {

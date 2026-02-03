@@ -1,5 +1,5 @@
 import { Router, useRouter } from "vue-router";
-import { RecentActivityItem } from "@/interfaces";
+import { RecentActivityItemDto } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
@@ -22,7 +22,7 @@ export default class DirectService {
     pathUrl += options.appRoute + "/";
     if (options.iri) pathUrl += encodeURIComponent(options.iri);
     if (options.action && options.iri) {
-      await this.userStore.updateRecentLocalActivity({ iri: options.iri, dateTime: new Date(), action: options.action } as RecentActivityItem);
+      await this.userStore.updateRecentLocalActivity({ iri: options.iri, dateTime: new Date(), action: options.action } as RecentActivityItemDto);
     }
     if (!options.newTab) {
       if (options.iri) this.directoryStore.updateConceptIri(options.iri);

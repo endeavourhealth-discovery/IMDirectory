@@ -8,6 +8,7 @@ import FontSize from "@/enums/FontSize";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
 import { UserRole } from "@/enums";
 import { computed, ref } from "vue";
+import { RecentActivityItemDto } from "@/interfaces/AutoGen";
 
 export const useUserStore = defineStore("user", () => {
   const cookiesEssentialAccepted = ref<boolean>(localStorageWithExpiry.getItem("cookiesEssentialAccepted") === true ? true : false);
@@ -97,22 +98,22 @@ export const useUserStore = defineStore("user", () => {
     localStorage.removeItem("fontSize");
   }
 
-  async function updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-    let activity: RecentActivityItem[] = [];
+  async function updateRecentLocalActivity(recentActivityItem: RecentActivityItemDto) {
+    let activity: RecentActivityItemDto[] = [];
 
     if (isLoggedIn.value && currentUser.value) activity = currentUser.value?.recentActivity;
     else activity = recentLocalActivity.value ? recentLocalActivity.value : [];
 
     activity.forEach(activityItem => {
-      activityItem.dateTime = new Date(activityItem.dateTime);
+      if (activityItem.dateTime)activityItem.dateTime = new Date(activityItem.dateTime);
     });
     const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.action === recentActivityItem.action);
     if (foundIndex !== -1) {
       activity[foundIndex].dateTime = recentActivityItem.dateTime;
       activity.sort((a, b) => {
-        if (a.dateTime.getTime() > b.dateTime.getTime()) {
+        if (a.dateTime && b.dateTime && a.dateTime.getTime() > b.dateTime.getTime()) {
           return 1;
-        } else if (b.dateTime.getTime() > a.dateTime.getTime()) {
+        } else if (a.dateTime && b.dateTime && b.dateTime.getTime() > a.dateTime.getTime()) {
           return -1;
         } else {
           return 0;
@@ -125,16 +126,17 @@ export const useUserStore = defineStore("user", () => {
       }
     }
     if (isLoggedIn.value) {
-      await UserService.updateUserRecentActivity(activity);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserRecentActivity(activity);
+      currentUser.value = updatedUser;
       getAllFromUserDatabase();
     }
   }
 
   async function clearRecentLocalActivity() {
     if (isLoggedIn.value) {
-      await UserService.updateUserRecentActivity([]);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserRecentActivity([]);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
     }
     recentLocalActivity.value = [];
   }
@@ -147,16 +149,18 @@ export const useUserStore = defineStore("user", () => {
         favourites.value.splice(favourites.value.indexOf(favourite), 1);
       }
       if (isLoggedIn.value) {
-        await UserService.updateUserFavourites(favourites.value);
-        await getUserFromToken();
+        const updatedUser = await UserService.updateUserFavourites(favourites.value);
+        currentUser.value = updatedUser;
+        getAllFromUserDatabase();
       }
     }
   }
 
   async function clearFavourites() {
     if (isLoggedIn.value) {
-      await UserService.updateUserFavourites([]);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserFavourites([]);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
     }
     favourites.value = [];
   }
@@ -164,51 +168,51 @@ export const useUserStore = defineStore("user", () => {
   async function updatePreset(preset: PrimeVuePresetThemes) {
     currentPreset.value = preset;
     if (isLoggedIn.value) {
-      await UserService.updateUserPreset(preset);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserPreset(preset);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
     } else localStorageWithExpiry.setItem("preset", preset);
   }
 
   async function updatePrimaryColor(color: PrimeVueColors) {
     currentPrimaryColor.value = color;
     if (isLoggedIn.value) {
-      await UserService.updateUserPrimaryColor(color);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserPrimaryColor(color);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
     } else localStorageWithExpiry.setItem("primaryColor", color);
   }
 
   async function updateSurfaceColor(color: PrimeVueColors) {
     currentSurfaceColor.value = color;
     if (isLoggedIn.value) {
-      await UserService.updateUserSurfaceColor(color);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserSurfaceColor(color);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
     } else localStorageWithExpiry.setItem("surfaceColor", color);
   }
 
   async function updateDarkMode(bool: boolean) {
     darkMode.value = bool;
     if (isLoggedIn.value) {
-      await UserService.updateUserDarkMode(bool);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserDarkMode(bool);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
     } else localStorageWithExpiry.setItem("darkMode", bool);
   }
 
   async function updateCurrentFontSize(fontSize: FontSize) {
     currentFontSize.value = fontSize;
     if (isLoggedIn.value) {
-      await UserService.updateUserFontSize(fontSize);
-      await getUserFromToken();
+      const updatedUser = await UserService.updateUserFontSize(fontSize);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
     } else localStorageWithExpiry.setItem("fontSize", fontSize);
   }
 
   function updateCurrentUser(user: User | undefined) {
     currentUser.value = user;
     getAllFromUserDatabase();
-  }
-
-  async function getUserFromToken() {
-    const user = await CasdoorService.getUser();
-    if (user) updateCurrentUser(user);
   }
 
   function updateSnomedLicenseAccepted(bool: boolean) {
@@ -223,10 +227,10 @@ export const useUserStore = defineStore("user", () => {
 
   async function updateOrganisations(orgs: string[]) {
     if (isLoggedIn.value) {
-      await UserService.updateUserOrganisations(orgs);
-      await getUserFromToken();
-    }
-    organisations.value = orgs;
+      const updatedUser = await UserService.updateUserOrganisations(orgs);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
+    } else organisations.value = orgs;
   }
 
   function updateIncludeUserGraph(bool: boolean) {

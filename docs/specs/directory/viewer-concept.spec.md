@@ -44,6 +44,7 @@ This specification describes the concept viewer functionality in IMDirectory
 * Details container has tree nodes
 
 ## Expand all details nodes
+* Details container has tree nodes
 * Click expand details button
 * Details container has expanded nodes
 

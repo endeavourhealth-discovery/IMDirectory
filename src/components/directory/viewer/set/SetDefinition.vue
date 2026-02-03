@@ -97,7 +97,7 @@ import SubsetDisplay from "./SubsetDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import { computed, ComputedRef, markRaw, onMounted, Ref, ref, watch } from "vue";
-import { CasbinService, EntityService, SetService } from "@/services";
+import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -147,7 +147,7 @@ const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entit
 
 watch(currentUser, async () => {
   if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = await CasbinService.hasPermission(Resource.SET, Action.PUBLISH);
+    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
   } else hasPermissionSetPublish.value = false;
 });
 
@@ -174,7 +174,7 @@ onMounted(async () => {
   }
   if (!hasDefinition.value) showMembers.value = true;
   if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = await CasbinService.hasPermission(Resource.SET, Action.PUBLISH);
+    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
   }
 });
 

@@ -151,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService, CasdoorService, CasbinService } from "@/services";
+import { DirectService, FilerService, CodeGenService, CasdoorService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -163,9 +163,7 @@ import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
 import { FontSize, UserRole } from "@/enums";
-import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
-import { Action, Resource } from "@/interfaces/AutoGen";
 import Swal from "sweetalert2";
 import { useDialog } from "primevue/usedialog";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
@@ -175,7 +173,6 @@ import { useDialogStore } from "@/stores/dialogStore";
 
 const dynamicDialog = useDialog();
 const router = useRouter();
-const { getSigninUrl, getSignupUrl, getMyProfileUrl } = useCasdoor();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const dialogStore = useDialogStore();
@@ -253,7 +250,7 @@ watch(includeUserGraph, async newValue => {
 
 watch(currentUser, async newValue => {
   if (newValue) {
-    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
   } else hasPermissionDocumentWrite.value = false;
 });
 
@@ -267,7 +264,7 @@ onMounted(async () => {
   setAppMenuItems();
   setUploadDownloadMenuItems();
   if (isLoggedIn.value) {
-    hasPermissionDocumentWrite.value = await CasbinService.hasPermission(Resource.DOCUMENT, Action.WRITE);
+    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
   }
 });
 
@@ -296,12 +293,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: () => (window.location.href = getSigninUrl())
+      command: async() => (window.location.href = await CasdoorService.getLoginUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: () => (window.location.href = getSignupUrl())
+      command: async() => (window.location.href =await CasdoorService.getRegisterUrl())
     },
     {
       separator: true

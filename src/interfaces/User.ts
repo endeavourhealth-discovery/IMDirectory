@@ -5,8 +5,7 @@ import { RecentActivityItem } from "./RecentActivityItem";
 export interface User {
   id: string;
   username: string;
-  firstName: string;
-  lastName: string;
+  displayName: string;
   email: string;
   password: string;
   avatar: string;

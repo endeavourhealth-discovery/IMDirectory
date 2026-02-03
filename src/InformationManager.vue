@@ -30,7 +30,7 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { CasdoorService, GithubService } from "@/services";
+import { CasdoorService, Env, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
@@ -42,7 +42,6 @@ import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useChangeThemeOptions } from "./composables/useChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
-import { useCasdoor } from "casdoor-vue-sdk";
 import { useCookies } from "@vueuse/integrations";
 import { useDialog } from "primevue/usedialog";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -59,10 +58,6 @@ const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
-const dialogStore = useDialogStore();
-const { getSigninUrl, getSignupUrl, isSilentSigninRequested, silentSignin } = useCasdoor();
-sharedStore.updateSigninUrl(getSigninUrl());
-sharedStore.updateSignupUrl(getSignupUrl());
 const finishedOnMounted = ref(false);
 
 const { changeFontSize } = useChangeFontSize();
@@ -113,14 +108,14 @@ onMounted(async () => {
 
   loadingStore.updateViewsLoading(true);
 
-  if (isPublicMode.value || isLoggedIn.value) {
+  if (isPublicMode.value || isLoggedIn.value || route.fullPath.startsWith("/callback")) {
     userStore.getAllFromUserDatabase();
     await setThemeOptions();
     if (currentFontSize.value) await changeFontSize(currentFontSize.value);
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
   } else {
-    window.location.href = getSigninUrl();
+    window.location.href = await CasdoorService.getLoginUrl();
   }
 
   dialogStore.register(dialog);
@@ -158,8 +153,12 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.set("Graph", userStore.includeUserGraph);
-    } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
-      window.location.href = getSigninUrl();
+    } else if (
+      !isLoggedIn.value &&
+      isPublicMode.value === false &&
+      !(request.url?.startsWith(Env.API))
+    ) {
+      window.location.href = await CasdoorService.getLoginUrl();
     }
     return request;
   });
@@ -212,7 +211,7 @@ async function handle401(error: AxiosError) {
 async function handle403(error: any) {
   if (!isPublicMode.value && error.response?.data === "Access forbidden") {
     if (route.path !== "/user/login") {
-      window.location.href = getSigninUrl();
+      window.location.href = await CasdoorService.getLoginUrl();
     } else console.error(error);
   } else if (error.response?.data) {
     toast.add({

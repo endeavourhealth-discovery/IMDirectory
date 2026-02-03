@@ -13,7 +13,6 @@ import DataModelService from "./DataModelService";
 import ConceptService from "./ConceptService";
 import StatusService from "./StatusService";
 import CasdoorService from "./CasdoorService";
-import CasbinService from "./CasbinService";
 
 export {
   DirectService,
@@ -30,6 +29,5 @@ export {
   DataModelService,
   ConceptService,
   StatusService,
-  CasdoorService,
-  CasbinService
+  CasdoorService
 };
