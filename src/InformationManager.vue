@@ -30,7 +30,7 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { CasdoorService, GithubService } from "@/services";
+import { CasdoorService, Env, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
@@ -106,7 +106,7 @@ onMounted(async () => {
 
   loadingStore.updateViewsLoading(true);
 
-  if (isPublicMode.value || isLoggedIn.value) {
+  if (isPublicMode.value || isLoggedIn.value || route.fullPath.startsWith("/callback")) {
     userStore.getAllFromUserDatabase();
     await setThemeOptions();
     if (currentFontSize.value) await changeFontSize(currentFontSize.value);
@@ -149,7 +149,11 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.set("Graph", userStore.includeUserGraph);
-    } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
+    } else if (
+      !isLoggedIn.value &&
+      isPublicMode.value === false &&
+      !(request.url?.startsWith(Env.API))
+    ) {
       window.location.href = await CasdoorService.getLoginUrl();
     }
     return request;
