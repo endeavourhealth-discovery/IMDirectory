@@ -73,7 +73,6 @@ export async function pageNotFoundFromEditor(to: RouteLocationNormalized, router
 export async function viewerIriExistsGuard(to: RouteLocationNormalized, router: Router) {
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
     const iri = to.params.selectedIri as string;
-    await SecurityService.getUser();
     try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {

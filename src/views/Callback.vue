@@ -3,11 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import { User } from "@/interfaces";
-import { Env } from "@/services";
 import SecurityService from "@/services/SecurityService";
 import { useUserStore } from "@/stores/userStore";
-import axios from "axios";
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
