@@ -3,9 +3,9 @@ import Env from "./Env";
 import { UserRole } from "@/interfaces/AutoGen";
 import { User } from "@/interfaces";
 
-const API_URL = Env.API + "api/casdoor";
+const API_URL = Env.API + "api/security";
 
-const CasdoorService = {
+const SecurityService = {
   async getLoginUrl(redirectUrl?: string): Promise<string> {
     if (!redirectUrl) redirectUrl = Env.DIRECTORY_URL + "callback";
     return await axios.get(API_URL + "/public/loginUrl", { params: { redirectUrl: redirectUrl } });
@@ -41,6 +41,6 @@ const CasdoorService = {
   }
 };
 
-if (process.env.NODE_ENV !== "test") Object.freeze(CasdoorService);
+if (process.env.NODE_ENV !== "test") Object.freeze(SecurityService);
 
-export default CasdoorService;
+export default SecurityService;

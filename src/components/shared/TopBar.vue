@@ -151,7 +151,7 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService, CasdoorService } from "@/services";
+import { DirectService, FilerService, CodeGenService, SecurityService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
 import { useUserStore } from "@/stores/userStore";
@@ -286,12 +286,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: async() => (window.location.href = await CasdoorService.getLoginUrl())
+      command: async() => (window.location.href = await SecurityService.getLoginUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: async() => (window.location.href =await CasdoorService.getRegisterUrl())
+      command: async() => (window.location.href =await SecurityService.getRegisterUrl())
     },
     {
       separator: true
@@ -357,14 +357,14 @@ async function logout() {
     showCancelButton: true
   }).then(async result => {
     if (result.isConfirmed) {
-      await CasdoorService.logout();
+      await SecurityService.logout();
       location.reload();
     }
   });
 }
 
 async function goToMyProfile() {
-  const url = await CasdoorService.getProfileUrl();
+  const url = await SecurityService.getProfileUrl();
   if (url) window.location.href = url;
 }
 

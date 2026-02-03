@@ -30,7 +30,7 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { CasdoorService, Env, GithubService } from "@/services";
+import { SecurityService, Env, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
@@ -96,7 +96,7 @@ watch(darkMode, async (newValue, oldValue) => {
 
 onMounted(async () => {
   try {
-    const user = await CasdoorService.getUser(true);
+    const user = await SecurityService.getUser(true);
     if (user) userStore.updateCurrentUser(user);
   } catch (e: any) {
     console.log("No user session found");
@@ -113,7 +113,7 @@ onMounted(async () => {
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
   } else {
-    window.location.href = await CasdoorService.getLoginUrl();
+    window.location.href = await SecurityService.getLoginUrl();
   }
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
@@ -154,7 +154,7 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
       isPublicMode.value === false &&
       !(request.url?.startsWith(Env.API))
     ) {
-      window.location.href = await CasdoorService.getLoginUrl();
+      window.location.href = await SecurityService.getLoginUrl();
     }
     return request;
   });
@@ -207,7 +207,7 @@ async function handle401(error: AxiosError) {
 async function handle403(error: any) {
   if (!isPublicMode.value && error.response?.data === "Access forbidden") {
     if (route.path !== "/user/login") {
-      window.location.href = await CasdoorService.getLoginUrl();
+      window.location.href = await SecurityService.getLoginUrl();
     } else console.error(error);
   } else if (error.response?.data) {
     toast.add({

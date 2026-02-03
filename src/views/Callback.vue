@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { User } from "@/interfaces";
 import { Env } from "@/services";
-import CasdoorService from "@/services/CasdoorService";
+import SecurityService from "@/services/SecurityService";
 import { useUserStore } from "@/stores/userStore";
 import axios from "axios";
 import { onMounted } from "vue";
@@ -23,7 +23,7 @@ interface Props {
 const props = defineProps<Props>();
 
 onMounted(async () => {
-  const {user,state} = await CasdoorService.login(props.code, props.state);
+  const {user,state} = await SecurityService.login(props.code, props.state);
   if (user) userStore.updateCurrentUser(user);
   if (state) window.location.href = state
   else await router.push({ name: "Directory" });

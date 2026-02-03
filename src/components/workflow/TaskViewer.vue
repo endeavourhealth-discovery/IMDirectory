@@ -78,7 +78,7 @@ import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskHistoryDialog from "@/components/workflow/TaskHistoryDialog.vue";
-import CasdoorService from "@/services/CasdoorService";
+import SecurityService from "@/services/SecurityService";
 import { User } from "@/interfaces";
 
 interface Props {
@@ -190,7 +190,7 @@ async function setOptions() {
     TaskState.TODO,
     TaskState.UNDER_REVIEW
   ];
-  assignedToOptions.value = await CasdoorService.adminGetUsersByGroup(UserRole.ADMIN);
+  assignedToOptions.value = await SecurityService.adminGetUsersByGroup(UserRole.ADMIN);
   const unassigned: User = { id: "UNASSIGNED", username: "Unassigned" } as User;
   assignedToOptions.value.push(unassigned);
 }
