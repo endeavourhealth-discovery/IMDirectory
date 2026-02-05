@@ -54,6 +54,7 @@ const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 const cookie = useCookies();
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();

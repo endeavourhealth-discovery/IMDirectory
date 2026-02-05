@@ -10,10 +10,11 @@ import Swal from "sweetalert2";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { getDialog } from "@/services/DialogService";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function useCreateNew() {
   const directService = new DirectService();
-  const dynamicDialog = useDialog();
+  const dialogStore = useDialogStore();
 
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [

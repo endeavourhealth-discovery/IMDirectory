@@ -5,6 +5,7 @@ import { useToast } from "primevue/usetoast";
 import { cloneDeep } from "lodash-es";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { CasdoorService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
   const toast = useToast();
@@ -54,17 +55,20 @@ export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     ) {
       insert(draggedItem, rawDropzoneItem);
     } else if (draggedItem.type === "BoolGroup" && rawDropzoneItem.type === "BoolGroup") {
-      await dialogStore.open(GenericDialog, {
-        props: { modal: true, style: { width: "30vw" }, closable: false },
-        data: {
-          title: "Do you want to insert or merge?",
-          confirmButtonText: "Insert",
-          denyButtonText: "Merge",
-          cancelButtonText: "Cancel"
-        },
-        onClose: async (result: any) => {
-          if (result?.data.confirm) insert(draggedItem, rawDropzoneItem);
-          else if (result?.data.deny) merge(draggedItem, dropzoneItem, parent);
+      const dialogStore = useDialogStore();
+      await dialogStore
+        .open(GenericDialog, {
+          props: { modal: true, style: { width: "30vw" }, closable: false },
+          data: {
+            title: "Do you want to insert or merge?",
+            confirmButtonText: "Insert",
+            denyButtonText: "Merge",
+            cancelButtonText: "Cancel"
+          }
+        })
+        .then(async (result: any) => {
+          if (result.confirm) insert(draggedItem, rawDropzoneItem);
+          else if (result.deny) merge(draggedItem, dropzoneItem, parent);
           if (isObjectHasKeys(parent, ["items"]) && isArrayHasLength(parent.items))
             parent.items = parent.items.filter(
               (parentItem: any) =>
@@ -72,8 +76,7 @@ export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
                 JSON.stringify(draggedItem.conceptSingle) !== JSON.stringify(parentItem.conceptSingle) ||
                 draggedItem.constraintOperator !== toRaw(parentItem.constraintOperator)
             );
-        }
-      });
+        });
     } else {
       toast.add({
         severity: "warn",

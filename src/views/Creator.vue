@@ -117,6 +117,7 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@/helpers/EditorMethods";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   type?: TTIriRef;
@@ -127,6 +128,7 @@ const props = defineProps<Props>();
 const route = useRoute();
 const router = useRouter();
 const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
 const userStore = useUserStore();

@@ -68,6 +68,7 @@ import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue
 import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import { useDialogStore } from "@/stores/dialogStore";
 interface Props {
   showDialog?: boolean;
 }
@@ -79,7 +80,7 @@ const emit = defineEmits<{
   closeDialog: [];
 }>();
 
-const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
 
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});

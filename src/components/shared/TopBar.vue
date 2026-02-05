@@ -356,22 +356,23 @@ function setUserMenuItems(): void {
 }
 
 async function logout() {
-  await dialogStore.open(GenericDialog, {
-    props: { modal: true, style: { width: "30vw" }, closable: false },
-    data: {
-      title: "Confirm logout?",
-      text: "Are you sure you want to logout?",
-      icon: "fa-regular fa-circle-question",
-      confirmButtonText: "Logout",
-      cancelButtonText: "Cancel"
-    },
-    onClose: async result => {
-      if (result?.data.confirm) {
+  await dialogStore
+    .open(GenericDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        title: "Confirm logout?",
+        text: "Are you sure you want to logout?",
+        icon: "fa-regular fa-circle-question",
+        confirmButtonText: "Logout",
+        cancelButtonText: "Cancel"
+      }
+    })
+    .then(async result => {
+      if (result.confirm) {
         await CasdoorService.logout();
         location.reload();
       }
-    }
-  });
+    });
 }
 
 async function goToMyProfile() {

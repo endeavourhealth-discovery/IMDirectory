@@ -42,6 +42,7 @@ import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   id: string;
@@ -49,7 +50,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
 

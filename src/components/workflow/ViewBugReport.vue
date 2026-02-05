@@ -130,10 +130,8 @@ import { computed, onMounted, Ref, ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
-import { CasdoorService } from "@/services";
-import { useDialog } from "primevue/usedialog";
+import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   id: string;
@@ -141,9 +139,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
-const dynamicDialog = useDialog();
 
 const currentUser = computed(() => userStore.currentUser);
 const canEdit = computed(() => currentUser.value?.username === bugReport.value?.createdBy);

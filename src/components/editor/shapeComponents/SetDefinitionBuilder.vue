@@ -214,8 +214,8 @@ async function validateModel(showOnlyInvalid?: boolean) {
   if (lastValidEcl) {
     const eclQuery = await EclService.validateModelFromECL(lastValidEcl.value, showNames.value);
     if (showOnlyInvalid && eclQuery.status && !eclQuery.status.valid) {
-      await showValidationMessage(true, dynamicDialog);
-    } else await showValidationMessage(!eclQuery.status?.valid, dynamicDialog);
+      await showValidationMessage(true);
+    } else await showValidationMessage(!eclQuery.status?.valid);
   }
 }
 async function showOrHideNames() {

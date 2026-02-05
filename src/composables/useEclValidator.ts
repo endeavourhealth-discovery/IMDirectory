@@ -1,8 +1,11 @@
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import Swal from "sweetalert2";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function useEclValidator() {
+  const dialogStore = useDialogStore();
+
   function showVerificationDialog(dynamicDialog: any): any {
     return dynamicDialog.open(LoadingDialog, {
       props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
@@ -10,7 +13,7 @@ export function useEclValidator() {
     });
   }
 
-  async function showValidationMessage(invalid: boolean | undefined, dynamicDialog: any) {
+  async function showValidationMessage(invalid: boolean | undefined) {
     if (!invalid) {
       await dialogStore.open(GenericDialog, {
         props: { modal: true, style: { width: "30vw" }, closable: false },

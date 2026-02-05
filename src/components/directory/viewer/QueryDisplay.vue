@@ -82,7 +82,7 @@
         </template>
       </ConfirmDialog>
       <ArgumentDisplayDialog
-        :arguments="missingArguments.length ? missingArguments : requestArguments"
+        :arguments="missingArguments ? missingArguments : requestArguments"
         :runOnConfirm="runOnConfirm"
         :showFooterButtons="true"
         v-model:showDialog="showArgumentSelector"

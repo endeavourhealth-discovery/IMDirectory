@@ -66,14 +66,15 @@ onMounted(() => {
 });
 
 function buttonClick() {
-  dialogStore.resolve(false, { confirm: false });
+  dialogStore.resolve({ confirm: false });
 }
 
 function confirmButtonClick() {
-  dialogStore.resolve(true, { confirm: true });
+  dialogStore.resolve({ confirm: true });
 }
+
 function denyButtonClick() {
-  dialogStore.resolve(false, { deny: true });
+  dialogStore.resolve({ deny: true });
 }
 </script>
 
