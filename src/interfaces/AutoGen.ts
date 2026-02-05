@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-30 10:40:59.
+// Generated using typescript-generator version 3.2.1263 on 2026-02-05 14:34:41.
 
 export interface ConceptContextMap {
     id?: string;
@@ -56,63 +56,6 @@ export interface Pageable<T> {
     currentPage?: number;
     pageSize?: number;
     result?: T[];
-}
-
-export interface PolicyRequest {
-    userRole?: UserRole;
-    resource?: Resource;
-    action?: Action;
-}
-
-export interface OAuthTokens {
-    access_token?: string;
-    id_token?: string;
-    refresh_token?: string;
-    token_type?: string;
-    scope?: string;
-    expires_in?: number;
-}
-
-export interface Session extends OAuthTokens {
-    id?: string;
-    createdAt?: Date;
-    ipAddress?: string;
-    expired?: boolean;
-}
-
-export interface TokenStatus {
-    active?: boolean;
-    scope?: string;
-    client_id?: string;
-    username?: string;
-    token_type?: string;
-    exp?: number;
-    iat?: number;
-    nbf?: number;
-    sub?: string;
-    aud?: string[];
-    iss?: string;
-    jti?: string;
-}
-
-export interface User {
-    id?: string;
-    username?: string;
-    email?: string;
-    displayName?: string;
-    password?: string;
-    avatar?: string;
-    roles?: UserRole[];
-    groups?: string[];
-    theme?: PrimeVuePresetThemes;
-    primaryColor?: PrimeVueColors;
-    surfaceColor?: PrimeVueColors;
-    darkMode?: boolean;
-    fontSize?: FontSize;
-    favourites?: string[];
-    recentActivity?: RecentActivityItemDto[];
-    organisations?: string[];
-    roleNames?: string[];
 }
 
 export interface CodeGenDto {
@@ -424,10 +367,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
     ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -656,7 +599,7 @@ export interface EclSearchRequest {
 export interface EditRequest {
     entity?: TTEntity;
     hostUrl?: string;
-    graph?: Graph;
+    namespace?: Namespace;
     crud?: string;
 }
 
@@ -668,7 +611,7 @@ export interface EntityValidationRequest {
 
 export interface FileDocumentRequest {
     document?: TTDocument;
-    insertGraph?: Graph;
+    insertNamespace?: Namespace;
 }
 
 export interface FunctionRequest {
@@ -795,7 +738,7 @@ export interface ValidatedEntitiesRequest {
  * Structure containing search request parameters and filters
  */
 export interface WorkflowRequest {
-    casdoorService?: CasdoorService;
+    securityService?: SecurityService;
     page?: number;
     size?: number;
     userId?: string;
@@ -807,8 +750,14 @@ export interface EntityValidationResponse {
 }
 
 export interface LoginResponse {
+    user?: User;
+    state?: string;
+}
+
+export interface LoginResponseES {
     sessionId?: string;
     user?: User;
+    state?: string;
 }
 
 export interface OdsResponse {
@@ -938,15 +887,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     description?: string;
-    types?: TTIriRef[];
+    status?: TTIriRef;
     code?: string;
     prefixes?: TTPrefix[];
-    status?: TTIriRef;
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -1030,15 +979,9 @@ export interface TTArray extends Serializable {
     list?: boolean;
 }
 
-export interface RecentActivityItemDto {
-    iri?: string;
-    dateTime?: Date;
-    action?: string;
-}
-
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1063,7 +1006,27 @@ export interface StackTraceElement extends Serializable {
 export interface Exception extends Throwable {
 }
 
-export interface CasdoorService {
+export interface SecurityService {
+}
+
+export interface User {
+    id?: string;
+    username?: string;
+    email?: string;
+    displayName?: string;
+    password?: string;
+    avatar?: string;
+    roles?: UserRole[];
+    organisations?: string[];
+    theme?: PrimeVuePresetThemes;
+    primaryColor?: PrimeVueColors;
+    surfaceColor?: PrimeVueColors;
+    darkMode?: boolean;
+    fontSize?: FontSize;
+    favourites?: string[];
+    recentActivity?: RecentActivityItemDto[];
+    namespaces?: NamespacePermission[];
+    roleNames?: string[];
 }
 
 export interface Organisation {
@@ -1095,6 +1058,18 @@ export interface TTNode extends TTValue, Serializable {
 }
 
 export interface TTValue extends Serializable {
+}
+
+export interface RecentActivityItemDto {
+    iri?: string;
+    dateTime?: Date;
+    action?: string;
+}
+
+export interface NamespacePermission {
+    iri?: Namespace;
+    read?: boolean;
+    write?: boolean;
 }
 
 export interface OrgId {
@@ -1135,40 +1110,6 @@ export interface OrgRelationship {
 
 export interface OrgRelTarget {
     OrgId?: OrgId;
-}
-
-export enum Action {
-    READ = "READ",
-    WRITE = "WRITE",
-    DELETE = "DELETE",
-    PUBLISH = "PUBLISH",
-    APPROVE = "APPROVE",
-    EXECUTE = "EXECUTE",
-}
-
-export enum Resource {
-    ENTITY = "ENTITY",
-    QUERY = "QUERY",
-    USER = "USER",
-    CONFIG = "CONFIG",
-    TASK = "TASK",
-    CODE_GEN = "CODE_GEN",
-    FHIR = "FHIR",
-    GITHUB = "GITHUB",
-    POLICY = "POLICY",
-    CASDOOR_USER = "CASDOOR_USER",
-    DOCUMENT = "DOCUMENT",
-    FOLDER = "FOLDER",
-    DELTA = "DELTA",
-    SET = "SET",
-    BUG_REPORT = "BUG_REPORT",
-    ROLE_REQUEST = "ROLE_REQUEST",
-    GRAPH_REQUEST = "GRAPH_REQUEST",
-    ENTITY_APPROVAL = "ENTITY_APPROVAL",
-    QUERY_RESULTS = "QUERY_RESULTS",
-    PAGE_ADMIN = "PAGE_ADMIN",
-    PAGE_CREATOR = "PAGE_CREATOR",
-    PAGE_EDITOR = "PAGE_EDITOR",
 }
 
 export enum IMLContext {
