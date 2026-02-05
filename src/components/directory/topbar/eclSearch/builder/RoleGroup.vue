@@ -1,5 +1,5 @@
 <template>
-  <span v-if="isBoolWhere(where)" class="attribute-group-checkbox">
+  <span v-if="isBoolWhere(where)" class="attribute-group-checkbox flex items-center">
     <Checkbox
       :inputId="'attributeGroup'"
       binary
@@ -8,7 +8,7 @@
       data-testid="attribute-group-check"
       v-tooltip="'select if properties must be in same role group'"
     />
-    <label for="attributeGroup">is role group</label>
+    <label for="attributeGroup" class="ml-2">is role group</label>
   </span>
 </template>
 

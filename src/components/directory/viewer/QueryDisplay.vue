@@ -1,6 +1,7 @@
 <template>
   <div id="query-display" class="flex flex-1 flex-col">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
+
     <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
       <template v-if="!eclQuery">
@@ -108,6 +109,7 @@ import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQue
 import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
 import ArgumentDisplayDialog from "@/components/directory/viewer/queryDisplay/ArgumentDisplayDialog.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { manageRoleGroup } from "@/helpers/buildQuery";
 
 enum DisplayOptions {
   RuleView = "Rule view",
@@ -160,6 +162,13 @@ watch(
   () => props.definition,
   async () => {
     await init();
+  }
+);
+
+watch(
+  () => props.queryDefinition,
+  () => {
+    query.value = props.queryDefinition;
   }
 );
 

@@ -57,24 +57,158 @@
     </div>
     <div class="results-container">
       <ResultsTable
+        v-if="setDefinition && setDefinition.query"
         v-model:loading="searchLoading"
         :update-search="updateSearch"
-        :ecl-query="eclQuery"
+        :ecl-query="setDefinition"
         :page-size="12"
         @rowSelected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
         @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
     </div>
     <ECLBuilder
-      v-if="showDialog"
+      v-if="showDialog && setDefinition && setDefinition.query"
       :showDialog="showDialog"
-      :eclString="lastValidEcl"
+      :query="setDefinition.query"
       @eclSubmitted="updateECL"
       @closeDialog="showDialog = false"
       :key="builderKey"
     />
   </div>
 </template>
+
+<script setup lang="ts">
+import { Ref, ref, watch, computed, onMounted } from "vue";
+import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
+import { TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
+import { IM } from "@/vocabulary";
+import { EclService } from "@/services";
+import { byName } from "@/helpers/Sorters";
+import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { useEditorStore } from "@/stores/editorStore";
+import { useFilterStore } from "@/stores/filterStore";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { GenericObject } from "@/interfaces/GenericObject";
+
+const emit = defineEmits<{
+  locateInTree: [payload: string];
+  selectedUpdated: [payload: SearchResultSummary];
+}>();
+
+const filterStore = useFilterStore();
+const editorStore = useEditorStore();
+const statusOptions = computed(() => filterStore.filterOptions.status);
+const savedEcl = computed(() => editorStore.eclEditorSavedString);
+const eclQueryString = ref("");
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(eclQueryString);
+const showDialog = ref(false);
+const showNames = ref(false);
+const eclErrorMessage = ref("");
+const selectedStatus: Ref<TTIriRef[]> = ref([]);
+const builderKey = ref(0);
+const keysPressed: GenericObject = {};
+const updateSearch: Ref<boolean> = ref(false);
+const searchLoading: Ref<boolean> = ref(false);
+const setDefinition: Ref<ECLQueryRequest> = ref({ status: { valid: true } });
+const debounceTimer = ref(0);
+const lastValidEcl: Ref<string> = ref("");
+const highlightedText = computed(() => {
+  const lines = eclQueryString.value.split("\n");
+  if (setDefinition.value && setDefinition.value.status && !setDefinition.value.status.valid) {
+    const eclStatus = setDefinition.value.status;
+    const lineIndex = eclStatus.line! - 1;
+    const offset = eclStatus.offset!;
+    if (lines[lineIndex] && offset < lines[lineIndex].length) {
+      const line = lines[lineIndex];
+      lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
+    }
+  }
+  return lines.map(line => line || "&nbsp;").join("<br/>");
+});
+
+watch(eclQueryString, newValue => {
+  clearTimeout(debounceTimer.value);
+  debounceTimer.value = window.setTimeout(async (): Promise<void> => {
+    await validateECL(newValue);
+  }, 600);
+});
+
+watch(selectedStatus, () => {
+  selectedStatus.value.sort(byName);
+});
+
+watch(showNames, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    await showOrHideNames();
+  }
+});
+
+onMounted(async () => {
+  setFilterDefaults();
+  if (savedEcl.value) eclQueryString.value = savedEcl.value;
+  if (eclQueryString.value) {
+    await validateECL(eclQueryString.value);
+  }
+});
+
+async function validateECL(ecl: string) {
+  setDefinition.value = await EclService.validateECL(ecl, showNames.value);
+  if (setDefinition.value && setDefinition.value.status) {
+    if (!setDefinition.value.status.valid) {
+      setDefinition.value.query!.invalid = true;
+    } else {
+      lastValidEcl.value = eclQueryString.value;
+      editorStore.updateEclEditorSavedString(lastValidEcl.value);
+    }
+  }
+}
+
+async function showOrHideNames() {
+  setDefinition.value = await EclService.getEclFromEcl(eclQueryString.value, showNames.value);
+  if (setDefinition.value.status && setDefinition.value.status.valid) {
+    eclQueryString.value = setDefinition.value.ecl!;
+  } else showNames.value = !showNames.value;
+}
+
+async function onKeyDown(event: KeyboardEvent) {
+  keysPressed[event.key] = true;
+  if (keysPressed["Control"] && keysPressed["Enter"] && eclQueryString.value.length && setDefinition.value.status!.valid) await onSearch();
+}
+
+function onKeyUp(event: KeyboardEvent) {
+  delete keysPressed[event.key];
+}
+
+function updateECL(eclQuery: ECLQueryRequest): void {
+  eclQueryString.value = eclQuery.ecl!;
+  showDialog.value = false;
+}
+
+function showBuilder(): void {
+  if (lastValidEcl.value === "") {
+    if (!setDefinition.value.query) setDefinition.value.query = {};
+  }
+  builderKey.value = Math.round(Math.random() * 1000);
+  showDialog.value = true;
+}
+
+async function onSearch(): Promise<void> {
+  if (eclQueryString.value) {
+    const imQuery = await EclService.getQueryFromECL(eclQueryString.value);
+    setDefinition.value = {
+      query: imQuery.query,
+      includeLegacy: false,
+      status: imQuery.status,
+      statusFilter: selectedStatus.value
+    } as ECLQueryRequest;
+    updateSearch.value = !updateSearch.value;
+  }
+}
+
+function setFilterDefaults() {
+  //selectedStatus.value = statusOptions.value.filter(option => option.iri === IM.ACTIVE);
+}
+</script>
 
 <style scoped>
 #ecl-search-container {
@@ -180,133 +314,3 @@
   min-height: 15rem;
 }
 </style>
-
-<script setup lang="ts">
-import { Ref, ref, watch, computed, onMounted } from "vue";
-import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
-import { EclSearchRequest, TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
-import { EclService } from "@/services";
-import { byName } from "@/helpers/Sorters";
-import ResultsTable from "@/components/shared/ResultsTable.vue";
-import { useEditorStore } from "@/stores/editorStore";
-import { useFilterStore } from "@/stores/filterStore";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { GenericObject } from "@/interfaces/GenericObject";
-
-const emit = defineEmits<{
-  locateInTree: [payload: string];
-  selectedUpdated: [payload: SearchResultSummary];
-}>();
-
-const filterStore = useFilterStore();
-const editorStore = useEditorStore();
-const statusOptions = computed(() => filterStore.filterOptions.status);
-const savedEcl = computed(() => editorStore.eclEditorSavedString);
-const eclQueryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(eclQueryString);
-const showDialog = ref(false);
-const showNames = ref(false);
-const eclErrorMessage = ref("");
-const selectedStatus: Ref<TTIriRef[]> = ref([]);
-const builderKey = ref(0);
-const eclQuery: Ref<EclSearchRequest | undefined> = ref();
-const keysPressed: GenericObject = {};
-const updateSearch: Ref<boolean> = ref(false);
-const searchLoading: Ref<boolean> = ref(false);
-const setDefinition: Ref<ECLQueryRequest> = ref({ status: { valid: true } });
-const debounceTimer = ref(0);
-const lastValidEcl: Ref<string> = ref("");
-const highlightedText = computed(() => {
-  const lines = eclQueryString.value.split("\n");
-  if (setDefinition.value && setDefinition.value.status && !setDefinition.value.status.valid) {
-    const eclStatus = setDefinition.value.status;
-    const lineIndex = eclStatus.line! - 1;
-    const offset = eclStatus.offset!;
-    if (lines[lineIndex] && offset < lines[lineIndex].length) {
-      const line = lines[lineIndex];
-      lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
-    }
-  }
-  return lines.map(line => line || "&nbsp;").join("<br/>");
-});
-
-watch(eclQueryString, newValue => {
-  clearTimeout(debounceTimer.value);
-  debounceTimer.value = window.setTimeout(async (): Promise<void> => {
-    await validateECL(newValue);
-  }, 600);
-});
-
-watch(selectedStatus, () => {
-  selectedStatus.value.sort(byName);
-});
-
-watch(showNames, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    await showOrHideNames();
-  }
-});
-
-onMounted(async () => {
-  setFilterDefaults();
-  if (savedEcl.value) eclQueryString.value = savedEcl.value;
-  if (eclQueryString.value) {
-    await validateECL(eclQueryString.value);
-  }
-});
-
-async function validateECL(ecl: string) {
-  setDefinition.value = await EclService.validateECL(ecl, showNames.value);
-  if (setDefinition.value && setDefinition.value.status) {
-    if (!setDefinition.value.status.valid) {
-      setDefinition.value.query!.invalid = true;
-    } else {
-      lastValidEcl.value = eclQueryString.value;
-      editorStore.updateEclEditorSavedString(lastValidEcl.value);
-    }
-  }
-}
-
-async function showOrHideNames() {
-  setDefinition.value = await EclService.getEclFromEcl(eclQueryString.value, showNames.value);
-  if (setDefinition.value.status && setDefinition.value.status.valid) {
-    eclQueryString.value = setDefinition.value.ecl!;
-  } else showNames.value = !showNames.value;
-}
-
-async function onKeyDown(event: KeyboardEvent) {
-  keysPressed[event.key] = true;
-  if (keysPressed["Control"] && keysPressed["Enter"] && eclQueryString.value.length && setDefinition.value.status!.valid) await onSearch();
-}
-
-function onKeyUp(event: KeyboardEvent) {
-  delete keysPressed[event.key];
-}
-
-function updateECL(eclQuery: ECLQueryRequest): void {
-  eclQueryString.value = eclQuery.ecl!;
-  showDialog.value = false;
-}
-
-function showBuilder(): void {
-  builderKey.value = Math.round(Math.random() * 1000);
-  showDialog.value = true;
-}
-
-async function onSearch(): Promise<void> {
-  if (eclQueryString.value) {
-    const imQuery = await EclService.getQueryFromECL(eclQueryString.value);
-    eclQuery.value = {
-      eclQuery: imQuery.query,
-      includeLegacy: false,
-      statusFilter: selectedStatus.value
-    } as EclSearchRequest;
-    updateSearch.value = !updateSearch.value;
-  }
-}
-
-function setFilterDefaults() {
-  //selectedStatus.value = statusOptions.value.filter(option => option.iri === IM.ACTIVE);
-}
-</script>

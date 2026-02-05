@@ -77,6 +77,7 @@ interface Props {
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
 const node = defineModel<Node>("node", { default: {} });
+const emit = defineEmits(["deleteProperty"]);
 const valueConstraintOperator: Ref<string | undefined> = ref<"<<">();
 const hoverAddValue = ref(false);
 const loadingValue = ref(true);
@@ -135,9 +136,13 @@ function updateValue(value: SearchResultSummary | undefined) {
 
 function deleteValue() {
   if (props.index === 0 && where.value!.is!.length === 1) {
-    delete node.value.iri;
-    delete node.value.name;
-    node.value.descendantsOrSelfOf = true;
+    if (!node.value.iri) {
+      emit("deleteProperty");
+    } else {
+      delete node.value.iri;
+      delete node.value.name;
+      node.value.descendantsOrSelfOf = true;
+    }
   } else where.value!.is!.splice(props.index, 1);
 }
 

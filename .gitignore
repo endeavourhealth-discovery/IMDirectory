@@ -85,3 +85,6 @@ coverage
 /playwright/.auth/
 
 /docs/test_reports/
+env/default/default.properties
+/env
+env/default/default.properties

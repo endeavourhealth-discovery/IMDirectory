@@ -2,7 +2,7 @@ import { describe, beforeEach, it, expect, vi } from "vitest";
 import { EclService, Env } from "@/services";
 import axios from "axios";
 import { fakerFactory } from "@/mocks/fakerFactory";
-import { EclSearchRequest, Query } from "@/interfaces/AutoGen";
+import { ECLQueryRequest, Query } from "@/interfaces/AutoGen";
 
 describe("EclService ___ axios success", () => {
   beforeEach(() => {
@@ -15,7 +15,7 @@ describe("EclService ___ axios success", () => {
     const fakerResults = [fakerFactory.conceptSummary.create()];
     axios.post = vi.fn().mockResolvedValue({ entities: fakerResults, count: fakerResults.length, page: 1 });
     const controller = new AbortController();
-    const eclSearchRequest: EclSearchRequest = { eclQuery: { is: [{ iri: "testString" }] }, includeLegacy: false, limit: 1000 };
+    const eclSearchRequest: ECLQueryRequest = { query: { is: [{ iri: "testString" }] }, includeLegacy: false, limit: 1000 };
     const result = await EclService.ECLSearch(eclSearchRequest, controller);
     expect(axios.post).toBeCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/private/eclSearch", eclSearchRequest, {

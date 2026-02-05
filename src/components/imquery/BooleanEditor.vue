@@ -10,11 +10,12 @@
     />
   </div>
   <span v-if="parentOperator != Bool.rule">
-    <div :class="hasSubgroups ? 'operator-selector-subgroups' : parentOperator === 'not' ? 'operator-selector-not' : 'operator-selector'">
+    <span>operator={{ operator }}has subgroups {{ hasSubgroups }}</span>
+    <div :class="hasSubgroups ? 'operator-selector-subgroups' : 'operator-selector'">
       <Select
         :disabled="parentGroup.length > 0 && (!parentGroup.includes(clauseIndex) || parentGroup.length === 1)"
-        :modelValue="parentOperator"
-        :options="getBooleanOptions(clauseType, clauseIndex, true, hasSubgroups, grandParentOperator)"
+        :modelValue="operator"
+        :options="getBooleanOptions(clauseType, clauseIndex, true, hasSubgroups, parentOperator)"
         option-label="label"
         option-value="value"
         data-testid="operator-selector"
@@ -57,9 +58,9 @@ interface Props {
   expanded?: boolean;
   canExpand?: boolean;
   from?: Match;
-  parentOperator?: Bool;
+  operator?: Bool;
   hasSubgroups?: boolean;
-  grandParentOperator?: Bool;
+  parentOperator?: Bool;
 }
 
 const props = defineProps<Props>();
