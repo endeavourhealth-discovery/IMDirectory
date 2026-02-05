@@ -37,7 +37,7 @@
                 </div>
               </TabPanel>
               <TabPanel value="1">
-                <QueryDisplay :definition="value" :eclQuery="true" />
+                <QueryDisplay :queryDefinition="eclQuery.query" :eclQuery="true" />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -63,7 +63,6 @@
     <ECLBuilder
       v-if="showDialog"
       :showDialog="showDialog"
-      :eclString="lastValidEcl"
       :query="eclQuery.query"
       :showNames="showNames"
       @eclSubmitted="updatefromBuilder"
@@ -96,6 +95,7 @@ import { useEclValidator } from "@/composables/useEclValidator";
 import { useDialog } from "primevue/usedialog";
 import { IM } from "@/vocabulary";
 import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
+import Swal from "sweetalert2";
 
 interface Props {
   shape: PropertyShape;
@@ -140,17 +140,20 @@ const buttonOptions = [
 
 const debounceTimer = ref(0);
 const highlightedText = computed(() => {
-  const lines = ecl.value.split("\n");
-  if (eclQuery.value && eclQuery.value.status && !eclQuery.value.status.valid) {
-    const eclStatus = eclQuery.value.status;
-    const lineIndex = eclStatus.line! - 1;
-    const offset = eclStatus.offset!;
-    if (lines[lineIndex] && offset < lines[lineIndex].length) {
-      const line = lines[lineIndex];
-      lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
+  if (ecl.value) {
+    const lines = ecl.value.split("\n");
+    if (eclQuery.value && eclQuery.value.status && !eclQuery.value.status.valid) {
+      const eclStatus = eclQuery.value.status;
+      const lineIndex = eclStatus.line! - 1;
+      const offset = eclStatus.offset!;
+      if (lines[lineIndex] && offset < lines[lineIndex].length) {
+        const line = lines[lineIndex];
+        lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
+      }
     }
+    return lines.map(line => line || "&nbsp;").join("<br/>");
   }
-  return lines.map(line => line || "&nbsp;").join("<br/>");
+  return "";
 });
 
 if (forceValidation) {
@@ -178,6 +181,9 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 }
 
 watch(ecl, newValue => {
+  if (!ecl.value) {
+    eclQuery.value.query = {};
+  }
   if (!initialised.value) {
     initialised.value = true;
     return;
@@ -225,7 +231,8 @@ async function showOrHideNames() {
 }
 
 function previewExpansion() {
-  showMembersDialog.value = !showMembersDialog.value;
+  if (eclQuery.value.query && eclQuery.value.query.invalid) showInvalidAlert();
+  else showMembersDialog.value = !showMembersDialog.value;
 }
 
 function updateEntity() {
@@ -254,7 +261,18 @@ function toggleMenuOptions(event: MouseEvent) {
 }
 
 function showBuilder(): void {
-  showDialog.value = true;
+  if (eclQuery.value.query && eclQuery.value.query.invalid) showInvalidAlert();
+  else showDialog.value = true;
+}
+
+async function showInvalidAlert() {
+  await Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "Invalid ECL . Please fix or remove ecl before using builder.",
+    confirmButtonText: "Close",
+    confirmButtonColor: "#689F38"
+  });
 }
 
 function showAddByCodeList(): void {
@@ -287,6 +305,9 @@ function processCodeList(data: SearchResultSummary[]) {
 async function updatefromBuilder(builderQuery: ECLQueryRequest): Promise<void> {
   eclQuery.value = await EclService.getECLFromQuery(builderQuery.query!, showNames.value);
   ecl.value = eclQuery.value.ecl!;
+  if (!ecl.value) {
+    eclQuery.value.query = {};
+  }
   lastValidEcl.value = ecl.value;
   showDialog.value = false;
 }

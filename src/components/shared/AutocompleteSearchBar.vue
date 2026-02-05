@@ -69,6 +69,7 @@
       :quick-type-filters-allowed="quickTypeFiltersAllowed"
       :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
       :selected-quick-type-filter="selectedQuickTypeFilter"
+      :validEntityQuery="validEntityQuery"
       @update-selected-filters="(filters: FilterOptions) => $emit('updateSelectedFilters', filters)"
     />
     <OverlaySummary ref="OS" />
@@ -98,6 +99,7 @@ interface Props {
   allowBrowserAutocomplete?: boolean;
   setupSearch?: () => Promise<QueryRequest>;
   setupRootEntities?: () => Promise<string[]>;
+  validEntityQuery?: QueryRequest;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowBrowserAutocomplete: false });
@@ -247,6 +249,7 @@ async function doSearch(event: any) {
 
 async function onEnter(event: KeyboardEvent) {
   if (listBoxSelected.value) onListBoxOptionClick(listBoxSelected.value);
+  else await doSearch(event);
 }
 function select(event: KeyboardEvent) {
   if (isArrayHasLength(results.value?.entities))

@@ -124,6 +124,7 @@ interface Props {
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
   showFilters?: boolean;
+  validEntityQuery?: QueryRequest;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -144,6 +145,7 @@ const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
+const loading = ref(true);
 const searchLoading = ref(false);
 const treeIri = ref("");
 const searchTerm = ref(props.searchTerm ?? "");
@@ -258,7 +260,13 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (props.imQuery) {
+  if (props.validEntityQuery) {
+    const existing = props.validEntityQuery.argument!.find(a => a.parameter === "entity");
+    if (existing) {
+      existing.valueIri = { iri: detailsIri.value };
+    } else props.validEntityQuery.argument!.push({ parameter: "entity", valueIri: { iri: detailsIri.value } });
+    return await QueryService.askQuery(props.validEntityQuery);
+  } else if (props.imQuery) {
     const imQuery = cloneDeep(props.imQuery);
     imQuery.askIri = detailsIri.value;
     return await QueryService.askQuery(imQuery);

@@ -1,73 +1,130 @@
 <template>
-  <div class="nested-ecl-match">
-    <div v-if="match.where">
-      <span class="subtypes-checkbox">Include subtypes from expression</span>
-      <Checkbox
-        :inputId="'subtypeCheck'"
-        name="subtypeCheck"
-        binary
-        v-model="checkIncludeSubtypes"
-        @update:modelValue="onCheckIncludeSubTypes"
-        v-tooltip="'Select if subtypes are not needed'"
-      />
-    </div>
-    <div v-if="match.is">
-      <div v-if="match.is.length > 0 && match.is[0].match">
+  <div v-if="boolGroup">
+    <BooleanEditor
+      v-model:clause="match as Clause<Match>"
+      v-model:parent="parent as Clause<Match>"
+      :parentType="'Match'"
+      :index="index"
+      v-model:group="group"
+      :parentOperator="parentOperator as Bool"
+      :operator="operator"
+      :rootBool="rootBool"
+      :clauseType="'Match'"
+    />
+
+    <div class="nested-match-container">
+      <div v-for="(item, index) in boolGroup" :key="item.uuid">
         <ExpressionConstraint
-          v-model:match="match.is[0].match"
+          v-model:match="boolGroup![index]"
           v-model:parent="match"
-          v-model:parentGroup="parentGroup"
+          v-model:parentGroup="group"
           :index="index"
-          :includeSubtypes="true"
-          @includeSubtypesChanged="onChangeIncludeSubtypes"
+          :parentOperator="operator"
           @rationalise="onRationalise"
-          :rootBool="rootBool"
+          :rootBool="false"
+          :activeInputId="activeInputId"
+          :canCheck="boolGroup!.length > 2"
+          @activateInput="activeInputId = $event"
         />
       </div>
-      <div v-else class="instance-of">
+      <div>
         <Button
-          icon="drag-icon fa-solid fa-grip-vertical"
-          severity="secondary"
-          text
-          draggable="true"
-          @dragstart="onDragStart($event, match, parent)"
-          @dragend="onDragEnd(match, parent)"
+          type="button"
+          icon="fa-solid fa-plus"
+          label="Add concept"
+          data-testid="add-bool-concept-button"
+          :severity="hoverAddConcept ? 'success' : 'secondary'"
+          :outlined="!hoverAddConcept"
+          :class="!hoverAddConcept && 'hover-button'"
+          @click.stop="addConcept()"
+          @mouseover="hoverAddConcept = true"
+          @mouseout="hoverAddConcept = false"
         />
-        <div style="width: 5.5rem">
-          <span v-if="!rootBool">
-            <Select
-              :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
-              :class="'operator-selector'"
-              :modelValue="match.notExists ? Bool.not : parentOperator"
-              :options="getBooleanOptions('Match', index, false, false, parentOperator as Bool)"
-              option-label="label"
-              option-value="value"
-              data-testid="operator-selector"
-              @update:modelValue="val => updateOperator(val)"
-            >
-              <template #option="slotProps">
-                <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-                  <div>{{ slotProps.option.label }}</div>
-                </div>
-              </template>
-            </Select>
-          </span>
-        </div>
-        <span>
-          <div v-if="parent && (parent[parentOperator as keyof typeof parent] as Match[]).length > 2" class="group-checkbox">
-            <Checkbox
-              :disabled="parentGroup.length + 1 === (parent[parentOperator as keyof typeof parent] as Match[]).length && !parentGroup.includes(index)"
-              :inputId="'group' + index"
-              name="Group"
-              :value="index"
-              v-model="checked"
-              @update:modelValue="onCheckGroupChange"
-              data-testid="group-checkbox"
-              v-tooltip="'Select to create boolean subgroup'"
-            />
+      </div>
+    </div>
+    <div v-if="boolGroup" class="add-group">
+      <Button
+        type="button"
+        icon="fa-solid fa-plus"
+        label="Add attribute to concept group"
+        data-testid="add-refinement-button"
+        :severity="hoverAddRefinement ? 'success' : 'secondary'"
+        :outlined="!hoverAddRefinement"
+        :class="!hoverAddRefinement && 'hover-button'"
+        @click="addRefinement()"
+        @mouseover="hoverAddRefinement = true"
+        @mouseout="hoverAddRefinement = false"
+      />
+    </div>
+    <div v-if="match.where && rootProperties">
+      <span>With these attributes:</span>
+      <ECLRefinement
+        v-model:where="match.where"
+        v-model:parent="match"
+        :index="index"
+        :rootBool="true"
+        :isInAttributeGroup="isRoleGroup"
+        :rootProperties="rootProperties"
+        :propertySearch="propertyFilter"
+        :isValidPropertySearch="isValidPropertySearch"
+        :parentType="'Match'"
+        @rationalise="onRationalise"
+      />
+    </div>
+  </div>
+  <div v-else class="expression-constraint">
+    <div>
+      <Button
+        icon="drag-icon fa-solid fa-grip-vertical"
+        severity="secondary"
+        text
+        draggable="true"
+        @dragstart="onDragStart($event, match, parent)"
+        @dragend="onDragEnd(match, parent)"
+      />
+    </div>
+
+    <div v-if="parentOperator">
+      <Select
+        :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
+        :class="'exclusion-selector'"
+        :modelValue="notExists"
+        :options="getExclusionOptions()"
+        option-label="label"
+        option-value="value"
+        data-testid="operator-selector"
+        @update:modelValue="val => updateExclusion(val)"
+      >
+        <template #option="slotProps">
+          <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+            <div>{{ slotProps.option.label }}</div>
           </div>
-        </span>
-        <span class="concept-selector-container">
+        </template>
+      </Select>
+    </div>
+
+    <div v-if="match.is">
+      <div class="instance-of">
+        <div v-if="canCheck" class="group-checkbox">
+          <Checkbox
+            :inputId="'group' + index"
+            name="Group"
+            binary
+            v-model="subgroupCheck"
+            data-testid="group-checkbox"
+            @update:modelValue="onCheckGroupChange"
+            v-tooltip="'Select to build boolean subgroup'"
+          />
+        </div>
+        <div v-if="parentGroup.includes(index) && parentGroup.length > 1">
+          <Button
+            :label="index === parentGroup[0] ? '(' : ')'"
+            :severity="'secondary'"
+            v-tooltip="'Click to create boolean subgroup'"
+            @click="onCreateSubgroup"
+          />
+        </div>
+        <div class="concept-selector-container">
           <ConceptSelector
             v-model:node="match.is[0]"
             :parent="parent"
@@ -75,9 +132,11 @@
             @activateInput="emit('activateInput', $event)"
             @update-match="updateMatch"
           />
-        </span>
-        <Button v-if="match.is[0].invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
-        <span class="add-group">
+        </div>
+        <div v-if="match.is[0].invalid">
+          <Button icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
+        </div>
+        <div class="add-group">
           <Button
             type="button"
             icon="fa-solid fa-plus"
@@ -90,8 +149,8 @@
             @mouseover="hoverAddRefinement = true"
             @mouseout="hoverAddRefinement = false"
           />
-        </span>
-        <span class="add-group">
+        </div>
+        <div class="add-group">
           <Button
             @click.stop="deleteMatch"
             class="builder-button"
@@ -102,70 +161,38 @@
             @mouseover="hoverDeleteConcept = true"
             @mouseout="hoverDeleteConcept = false"
           />
-        </span>
+        </div>
       </div>
-      <div v-if="match.where">
+      <div v-if="match.where && rootProperties">
         <span>With these attributes:</span>
-        <RoleGroup v-model:where="match.where" v-model:isRoleGroup="isRoleGroup" />
         <ECLRefinement
           v-model:where="match.where"
           v-model:parent="match"
           :index="index"
           :rootBool="true"
           :isInAttributeGroup="isRoleGroup"
-          :focusConcepts="focusConcepts"
-          :propertyTreeRoots="propertyTreeRoots"
-          :imQueryForPropertySearch="imQueryForPropertySearch"
-          :parentType="'match'"
-          class="refinement"
+          :rootProperties="rootProperties"
+          :propertySearch="propertyFilter"
+          :isValidPropertySearch="isValidPropertySearch"
+          :parentType="'Match'"
           @rationalise="onRationalise"
         />
       </div>
-      <div v-if="rootBool && match.is[0].iri">
-        <Button
-          type="button"
-          icon="fa-solid fa-plus"
-          label="Add concept"
-          data-testid="add-concept-button"
-          :severity="hoverAddConcept ? 'success' : 'secondary'"
-          :outlined="!hoverAddConcept"
-          :class="!hoverAddConcept && 'hover-button'"
-          @click.stop="addConcept()"
-          @mouseover="hoverAddConcept = true"
-          @mouseout="hoverAddConcept = false"
-        />
-      </div>
     </div>
-    <div v-else>
-      <span v-if="index > 0">
-        <Button
-          icon="drag-icon fa-solid fa-grip-vertical"
-          severity="secondary"
-          text
-          draggable="true"
-          @dragstart="onDragStart($event, match, parent)"
-          @dragend="onDragEnd(match, parent)"
-        />
-
-        <Select
-          :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
-          :class="'operator-selector'"
-          :modelValue="match.notExists ? Bool.not : parentOperator"
-          :options="getBooleanOptions('Match', index, false, false, parentOperator as Bool)"
-          option-label="label"
-          option-value="value"
-          data-testid="operator-selector"
-          @update:modelValue="val => updateOperator(val)"
-        >
-          <template #option="slotProps">
-            <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-              <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </Select>
-      </span>
-      <ECLBoolQuery v-model:match="match" v-model:parent="parent" :index="index" :rootBool="rootBool" @rationalise="emit('rationalise')" />
-    </div>
+  </div>
+  <div v-if="rootBool && !boolGroup">
+    <Button
+      type="button"
+      icon="fa-solid fa-plus"
+      label="Add concept"
+      data-testid="add-bool-concept-button"
+      :severity="hoverAddConcept ? 'success' : 'secondary'"
+      :outlined="!hoverAddConcept"
+      :class="!hoverAddConcept && 'hover-button'"
+      @click.stop="addConcept()"
+      @mouseover="hoverAddConcept = true"
+      @mouseout="hoverAddConcept = false"
+    />
   </div>
 </template>
 
@@ -174,24 +201,36 @@ import { inject, onMounted, Ref, ref, computed, watch } from "vue";
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
 import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
-import { Bool, Match, Where, TTIriRef, QueryRequest } from "@/interfaces/AutoGen";
+import { Match, Where, Node, QueryRequest, TTIriRef, Clause, Bool } from "@/interfaces/AutoGen";
 import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
-import { addConceptToGroup, checkGroupChange, getBooleanOptions, getIsRoleGroup, manageRoleGroup, updateFocusConcepts } from "@/helpers/buildQuery";
+import {
+  addConceptToGroup,
+  addRefinementToGroup,
+  checkGroupChange,
+  createNewBoolGroup,
+  getExclusionOptions,
+  getIsRoleGroup,
+  manageRoleGroup,
+  updateFocusConcepts
+} from "@/helpers/buildQuery";
 import { v4 } from "uuid";
-import ECLBoolQuery from "@/components/directory/topbar/eclSearch/builder/ECLBoolQuery.vue";
-import RoleGroup from "@/components/directory/topbar/eclSearch/builder/RoleGroup.vue";
+import { QUERY } from "@/vocabulary";
+import { Namespace } from "@/vocabulary/Namespace";
+import { QueryService } from "@/services";
+import BooleanEditor from "@/components/directory/topbar/eclSearch/builder/BooleanEditor.vue";
 
 interface Props {
   index: number;
   parentOperator?: string;
-  rootBool?: boolean;
-  activeInputId?: string;
+  rootBool: boolean;
   includeSubtypes?: boolean;
+  canCheck?: boolean;
 }
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
+const activeInputId = defineModel<string>("activeInputId", { default: "" });
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "includeSubtypesChanged"]);
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
@@ -200,14 +239,23 @@ const hoverAddRefinement = ref(false);
 const hoverDeleteConcept = ref(false);
 const hoverAddConcept = ref(false);
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
-const checkIncludeSubtypes = ref(props.includeSubtypes);
-const checked = ref(false);
-const focusConcepts = computed(() => {
-  return updateFocusConcepts(match.value);
+const propertySearch: Ref<QueryRequest | undefined> = ref(undefined);
+const isValidPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
+const propertyFilter: Ref<QueryRequest | undefined> = ref(undefined);
+const rootProperties: Ref<string[]> = ref([]);
+const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
+const focusConcepts: Ref<TTIriRef[]> = ref([]);
+const focusIris: Ref<string[]> = ref([]);
+const operator = computed(() => (match.value.and ? Bool.and : Bool.or));
+const boolGroup = computed(() => (match.value.and ? match.value.and : match.value.or ? match.value.or : undefined));
+
+const notExists = computed(() => {
+  if (!match.value.notExists) return false;
+  return match.value.notExists;
 });
-const propertyTreeRoots: Ref<string[]> = ref(["http://snomed.info/sct#410662002"]);
-const imQueryForPropertySearch: Ref<QueryRequest> = ref({} as QueryRequest);
-onMounted(() => {});
+onMounted(() => {
+  init();
+});
 
 watch(isRoleGroup, (newValue, oldValue) => {
   if (newValue != oldValue) {
@@ -216,45 +264,46 @@ watch(isRoleGroup, (newValue, oldValue) => {
     }
   }
 });
+function onCreateSubgroup() {
+  createNewBoolGroup(parent.value as Match, parentGroup.value);
+  parentGroup.value = [];
+}
+
+function init() {
+  if (!match.value.or && !match.value.and && !match.value.is) {
+    match.value.is = [{ descendantsOrSelfOf: true } as Node];
+  }
+  if (!match.value.notExists) match.value.notExists = false;
+  maintainFocusConcepts();
+}
 
 function addConcept() {
   addConceptToGroup(match.value);
+  maintainFocusConcepts();
 }
-function updateOperator(val: string) {
-  if (val === Bool.not) {
-    match.value.notExists = true;
-  } else if (match.value.notExists) {
-    match.value.notExists = false;
-  }
-  if (val != Bool.not) {
-    updateFocusConcepts(match.value);
-    emit("updateBool", props.parentOperator, val, props.index);
-  }
+function updateExclusion(val: boolean) {
+  match.value.notExists = val;
 }
 
 function updateMatch() {
-  updateFocusConcepts(match.value);
-}
-
-function onCheckIncludeSubTypes() {
-  if (props.includeSubtypes) {
-    emit("includeSubtypesChanged", match.value);
-  } else {
-    match.value = { is: [{ descendantsOrSelfOf: true, match: match.value }] };
-  }
-}
-
-function onChangeIncludeSubtypes(e: Match) {
-  match.value = e;
+  maintainFocusConcepts();
 }
 
 function onRationalise() {
+  if (match.value.where) {
+    if (match.value.where.or) {
+      if (match.value.where.or.length === 1) match.value.where = match.value.where.or[0];
+    } else if (match.value.where.and) {
+      if (match.value.where.and.length === 1) match.value.where = match.value.where.and[0];
+    } else if (!match.value.where.is) delete match.value.where;
+  }
   emit("rationalise");
 }
 
 function deleteMatch() {
   if (!props.parentOperator) {
     delete match.value.is;
+    maintainFocusConcepts();
     return;
   }
   if (parent.value) {
@@ -262,11 +311,23 @@ function deleteMatch() {
     if (parent.value[operator]) {
       (parent.value[operator] as Match[]).splice(props.index, 1);
     }
-    updateFocusConcepts(parent.value);
+  }
+}
+
+function maintainFocusConcepts() {
+  focusIris.value = updateFocusConcepts(match.value);
+  focusConcepts.value = focusIris.value.map(iri => ({ iri }));
+  if (match.value.where) {
+    updateQueryForPropertySearch();
+    updateIsValidPropertySearch();
   }
 }
 
 function addRefinement() {
+  if (!propertySearch.value) {
+    updateQueryForPropertySearch();
+    updateIsValidPropertySearch();
+  }
   const where = { uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where;
   if (match.value.where) {
     if (match.value.where.and) match.value.where.and.push(where);
@@ -283,17 +344,74 @@ function addRefinement() {
 function onCheckGroupChange(e: any) {
   checkGroupChange(e, parentGroup.value, props.index);
 }
+
+function updateIsValidPropertySearch() {
+  if (focusConcepts.value.length > 0) {
+    isValidPropertySearch.value = {
+      query: { iri: QUERY.IS_VALID_PROPERTY },
+      argument: [
+        {
+          parameter: "concept",
+          valueIriList: focusConcepts.value
+        }
+      ]
+    } as QueryRequest;
+  } else {
+    isValidPropertySearch.value = {
+      query: { iri: QUERY.IS_VALID_DESCENDANT },
+      argument: [
+        {
+          parameter: "parent",
+          valueIriList: [{ iri: "http://snomed.info/sct#410662002" }]
+        }
+      ]
+    } as QueryRequest;
+  }
+}
+async function updateQueryForPropertySearch() {
+  if (!propertySearch.value) {
+    if (focusConcepts.value.length > 0) {
+      propertySearch.value = {
+        query: { iri: QUERY.ALLOWABLE_PROPERTIES },
+        argument: [
+          {
+            parameter: "this",
+            valueIriList: focusConcepts.value
+          }
+        ]
+      } as QueryRequest;
+    } else {
+      propertySearch.value = {
+        query: { iri: QUERY.GET_DESCENDANTS },
+        argument: [
+          {
+            parameter: "this",
+            valueIriList: [{ iri: "http://snomed.info/sct#410662002" }]
+          }
+        ]
+      } as QueryRequest;
+    }
+    const allowableProperties = await QueryService.queryIM(propertySearch.value);
+    if (allowableProperties.entities) {
+      rootProperties.value = allowableProperties.entities.map(e => e.iri);
+    }
+    propertyFilter.value = {
+      query: { iri: QUERY.ENTITY_FILTER },
+      argument: [
+        {
+          parameter: "entities",
+          valueIriList: allowableProperties.entities
+        }
+      ]
+    };
+  }
+}
 </script>
 
 <style scoped>
-.conjunction {
+.nested-match-container {
   display: flex;
-  flex-flow: row nowrap;
-  width: fit-content;
-}
-
-.nested-ecl-match {
-  width: 100%;
+  width: 99%;
   box-sizing: border-box;
   flex-direction: column;
   flex: 1 1 0%;
@@ -305,10 +423,24 @@ function onCheckGroupChange(e: any) {
   margin: 0.5rem;
   font-size: 1rem;
 }
+.exclusion-selector {
+  max-height: 10vh;
+  width: 7.5rem;
+}
 
-.refinement {
-  flex: 1 1 auto;
+.expression-constraint {
+  width: 98%;
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: row;
+  flex: 1 1 0%;
   min-width: 0;
+  padding: 0.5rem;
+  border: #488bc230 1px solid;
+  border-radius: 5px;
+  background-color: #488bc210;
+  margin: 0.5rem;
+  font-size: 1rem;
 }
 
 .instance-of {
@@ -332,7 +464,7 @@ function onCheckGroupChange(e: any) {
 
 .concept-selector-container {
   flex: 1 1 0%;
-  min-width: 0;
+  min-width: 70vw;
 }
 
 .add-group {

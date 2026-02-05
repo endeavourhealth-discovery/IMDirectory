@@ -24,23 +24,18 @@
       </div>
     </template>
     <BaseTypeEditor v-model:match="query" />
-    <template v-if="query.typeOf" v-for="operator in operators" :key="operator">
-      <template v-if="query[operator]">
-        <template v-for="(nestedMatch, index) in query[operator]" :key="index">
-          <BooleanMatchEditor
-            v-model:match="query[operator][index]"
-            :rootBool="true"
-            :depth="0"
-            v-model:parentMatch="query"
-            :parentIndex="parentIndex"
-            :clauseIndex="index"
-            :parentOperator="operator as Bool"
-            :baseType="query.typeOf!"
-            @activateInput="activeInputId = $event"
-            @rationalise="rationaliseBooleans"
-          />
-        </template>
-      </template>
+    <template v-if="query.typeOf">
+      <BooleanMatchEditor
+        v-model:match="query"
+        :rootBool="true"
+        :depth="0"
+        v-model:parentMatch="query"
+        :parentIndex="parentIndex"
+        :clauseIndex="0"
+        :baseType="query.typeOf!"
+        @activateInput="activeInputId = $event"
+        @rationalise="rationaliseBooleans"
+      />
     </template>
     <div v-if="query.typeOf">
       <DataSetEditor :query="query" />
