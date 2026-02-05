@@ -3,6 +3,7 @@
 const { chromium } = require("@playwright/test");
 const { pw } = require("./playwright");
 const path = require("path");
+require("dotenv").config()
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:8082";
 let currentSpec, currentScenario;
