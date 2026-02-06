@@ -42,7 +42,8 @@ describe("getters", () => {
       darkMode: true,
       organisations: [],
       recentActivity: [],
-      favourites: []
+      favourites: [],
+      namespaces:[]
     };
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);
@@ -86,7 +87,8 @@ describe("mutations", () => {
       darkMode: true,
       organisations: [],
       recentActivity: [],
-      favourites: []
+      favourites: [],
+      namespaces:[]
     };
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);

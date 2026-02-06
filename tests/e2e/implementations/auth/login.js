@@ -4,12 +4,12 @@ const { expect } = require("@playwright/test");
 const assert = require("node:assert");
 const { pw } = require("../playwright");
 
-step("Click <text>", async (text) => {
+step("Click <text>", async text => {
   await pw.page.click(`button >> text=${text}`);
 });
 
 step("routes to casdoor", async () => {
-  await pw.page.waitForSelector('.login-form');
+  await pw.page.waitForSelector(".login-form");
 });
 
 step("routes to IMDirectory", async () => {

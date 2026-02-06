@@ -98,7 +98,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { Env, QueryService } from "@/services";
-import { Action, Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, QueryRequest, Resource, UserRole } from "@/interfaces/AutoGen";
+import { Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, QueryRequest, UserRole } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import IMLDisplay from "./IMLDisplay.vue";

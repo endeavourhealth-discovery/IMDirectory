@@ -3,22 +3,23 @@
 const { chromium } = require("@playwright/test");
 const { pw } = require("./playwright");
 const path = require("path");
+require("dotenv").config();
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:8082";
 let currentSpec, currentScenario;
 
 gauge.customScreenshotWriter = async function () {
-  const screenshotFilePath = path.join(process.env['gauge_screenshots_dir'],`${currentSpec.name}-${currentScenario.name}.png`);
+  const screenshotFilePath = path.join(process.env["gauge_screenshots_dir"], `${currentSpec.name}-${currentScenario.name}.png`);
   await pw.page.screenshot({ path: screenshotFilePath });
   return screenshotFilePath;
 };
 
-beforeSpec(async (context) => {
+beforeSpec(async context => {
   currentSpec = context.currentSpec;
 });
 
-beforeScenario(async (context) => {
-  currentScenario = context.currentScenario
+beforeScenario(async context => {
+  currentScenario = context.currentScenario;
   pw.browser = await chromium.launch({
     headless: process.env.headless_chrome === "true" || false
   });
@@ -108,16 +109,14 @@ step("Search for <text>", async text => {
   await pw.page.waitForSelector("#search-results-main-container >> tr");
 });
 
-step("Select <text> result", async (text) => {
+step("Select <text> result", async text => {
   const node = pw.page.locator("#search-results-main-container >> tr").filter({ hasText: text }).first();
-  await node.waitFor({ state: "visible"});
+  await node.waitFor({ state: "visible" });
   await node.click();
-  await pw.page.waitForSelector(".back-to-search", { state: "visible"});
+  await pw.page.waitForSelector(".back-to-search", { state: "visible" });
   await pw.page.waitForLoadState("networkidle");
 });
-
 
 step("Click dialog confirm", async () => {
   await pw.page.locator(".p-confirmdialog").locator(".p-confirmdialog-accept-button").click();
 });
-

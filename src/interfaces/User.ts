@@ -1,5 +1,5 @@
 import { FontSize, PrimeVueColors, PrimeVuePresetThemes } from "@/enums";
-import { UserRole } from "./AutoGen";
+import { NamespacePermission,UserRole } from "./AutoGen";
 import { RecentActivityItem } from "./RecentActivityItem";
 
 export interface User {
@@ -18,4 +18,5 @@ export interface User {
   favourites: string[];
   recentActivity: RecentActivityItem[];
   organisations: string[];
+  namespaces: NamespacePermission[]
 }

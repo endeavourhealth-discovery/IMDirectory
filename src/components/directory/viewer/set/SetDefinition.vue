@@ -111,7 +111,7 @@ import { useDownloadFile } from "@/composables/useDownloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
-import { Action, Resource, SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
+import { SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
