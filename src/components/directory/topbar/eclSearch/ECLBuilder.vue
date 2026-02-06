@@ -26,16 +26,12 @@
     <div id="builder-string-container">
       <div v-if="!previewECL" id="query-builder-container">
         <ProgressSpinner v-if="loading" />
-        <ExpressionConstraint
-          v-else
-          v-model:match="build"
-          :rootBool="true"
-          :index="0"
-          :parentOperator="'and'"
-          :activeInputId="activeInputId"
-          @activateInput="activeInputId = $event"
-          @rationalise="rationaliseBooleans"
-        />
+        <ExpressionConstraint v-model:match="build" :index="0" :rootBool="true" @rationalise="rationaliseBooleans" />
+        <div v-if="build.where">
+          <span class="subtypes-checkbox">Include un-inferred subtypes of the concepts found in this expression </span>
+          <Checkbox :inputId="'subtypeCheck'" name="subtypeCheck" binary v-model="checkIncludeSubtypes" v-tooltip="'Select if subtypes are not needed'" />
+        </div>
+
         <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.is && !loading">
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
@@ -80,11 +76,10 @@ import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builde
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { Match, ECLQueryRequest, Query } from "@/interfaces/AutoGen";
+import { Match, ECLQueryRequest, Query, Node } from "@/interfaces/AutoGen";
 import { useEclValidator } from "@/composables/useEclValidator";
 interface Props {
   showDialog?: boolean;
-  eclString?: string;
   showNames?: boolean;
   query?: Query;
 }
@@ -95,6 +90,7 @@ const emit = defineEmits<{
   closeDialog: [];
 }>();
 
+const checkIncludeSubtypes = ref(false);
 const dynamicDialog = useDialog();
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});
@@ -141,14 +137,13 @@ function toggle(event: any) {
 
 async function init() {
   loading.value = true;
-  if (props.eclString) {
-    if (props.query) {
-      await createBuildFromQuery(props.query);
-    } else {
-      const eclRequest = await EclService.getQueryFromECL(props.eclString, false);
-      if (eclRequest.query) build.value = eclRequest.query;
-    }
+  if (props.query) {
+    await createBuildFromQuery(props.query);
   } else createDefaultBuild();
+  if (build.value.is && build.value.is[0].match) {
+    checkIncludeSubtypes.value = true;
+    build.value = build.value.is[0].match;
+  }
   loading.value = false;
 }
 function createDefaultBuild() {
@@ -159,33 +154,32 @@ async function rationaliseBooleans() {
 }
 
 async function createBuildFromQuery(query: Query) {
-  try {
-    loading.value = true;
-    const eclQuery = { query: query } as ECLQueryRequest;
-    build.value = eclQuery.query!;
-  } catch (err: any) {
-    createDefaultBuild();
-    if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
-    else eclConversionError.value = { error: true, message: err.message };
-  }
-  emit("eclConversionError", eclConversionError.value);
-  loading.value = false;
-  await generateQueryString();
+  build.value = cloneDeep(query!);
 }
 
 async function preview() {
   if (!previewECL.value) {
-    const rationalised = await QueryService.optimiseECLQuery(build.value);
+    let rationalised = await QueryService.optimiseECLQuery(build.value);
+    rationalised = includeSubtypes(rationalised);
     const eclQuery = await EclService.getECLFromQuery(rationalised, includeTerms.value);
     queryString.value = eclQuery.ecl!;
   }
   previewECL.value = !previewECL.value;
 }
 
+function includeSubtypes(query: Match): Match {
+  if (checkIncludeSubtypes.value) {
+    return { is: [{ descendantsOrSelfOf: true, match: query }] };
+  } else return query;
+}
+
 async function submit(): Promise<void> {
   build.value = await QueryService.optimiseECLQuery(build.value);
-  const eclQuery = await EclService.getECLFromQuery(build.value, props.showNames);
-  emit("eclSubmitted", eclQuery);
+  const rationalised = includeSubtypes(build.value);
+  const eclQuery = await EclService.getECLFromQuery(rationalised, props.showNames);
+  if (eclQuery.status && !eclQuery.status.valid) {
+    await displayValidationMessage(true, eclQuery.status.message);
+  } else emit("eclSubmitted", eclQuery);
 }
 
 function closeBuilderDialog(): void {
@@ -213,12 +207,17 @@ async function generateQueryString() {
 async function validateBuild() {
   const verificationDialog = showVerificationDialog(dynamicDialog);
   const eclQuery = await EclService.validateModelFromQuery(build.value);
-  build.value = eclQuery.query!;
-  verificationDialog.close();
-  await displayValidationMessage(!eclQuery.status!.valid);
+  if (eclQuery.status && !eclQuery.status.valid) {
+    verificationDialog.close();
+    await displayValidationMessage(true, eclQuery.status.message);
+  } else {
+    build.value = eclQuery.query!;
+    verificationDialog.close();
+    await displayValidationMessage(!eclQuery.status!.valid);
+  }
 }
 
-async function displayValidationMessage(invalid: boolean | undefined) {
+async function displayValidationMessage(invalid: boolean | undefined, message?: string) {
   if (!invalid) {
     await Swal.fire({
       icon: "success",
@@ -233,7 +232,7 @@ async function displayValidationMessage(invalid: boolean | undefined) {
     await Swal.fire({
       icon: "warning",
       title: "Warning",
-      text: "Invalid values found. Please review your entries.",
+      text: message ? message : "Invalid values found. Please review your entries.",
       confirmButtonText: "Close",
       confirmButtonColor: "#689F38"
     });

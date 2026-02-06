@@ -6,18 +6,18 @@
       </span>
       <span v-if="where.qualifier">{{ where.qualifier.name }} of </span>
       <span v-if="whereName" class="field">{{ whereName }}</span>
-      <span v-if="eclQuery">=</span>
       <span v-if="where.valueLabel || where.description">
         <span v-if="where.description" class="field">{{ where.description }}</span>
-        <span v-if="where.valueLabel && where.is" @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0">
-          {{ where.valueLabel }}</span
-        >
+        <span v-if="where.valueLabel && where.is">
+          <span class="field">{{ getIsOperator(where.is) }}</span>
+          <span @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0"> {{ where.valueLabel }}</span>
+        </span>
         <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
       </span>
       <template v-if="where.relativeTo">
         <span v-if="where.relativeTo.name" class="field">{{ where.relativeTo.name }} of</span>
         <span v-if="where.relativeTo.parameterName" class="field">{{ where.relativeTo.parameterName }}</span>
-        <span v-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
+        <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </template>
       <span v-if="isExpanded && isArrayHasLength(where.is)">
         <span>, defined as</span>
@@ -54,6 +54,7 @@
               :eclQuery="eclQuery"
               :editMode="editMode"
               :bracketed="!root"
+              :step="step"
             />
           </span>
         </span>
@@ -82,6 +83,7 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
+  step?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -98,6 +100,12 @@ const boolGroup = computed(() => {
     ...(props.where.or ? { or: props.where.or } : {})
   };
 });
+
+function getIsOperator(nodes: Node[]) {
+  if (props.eclQuery) return "=";
+  if (nodes.length === 1) return "is";
+  else return "in";
+}
 
 function getOperator(operator: Bool | undefined, index: number): string {
   if (operator === "or") {
@@ -142,7 +150,7 @@ function indentationStyle(inLine: boolean, depth: number) {
 }
 
 .node-ref {
-  color: var(--p-amber-700) !important;
+  font-style: italic;
   cursor: pointer !important;
 }
 .or {

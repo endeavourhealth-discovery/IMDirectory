@@ -103,13 +103,13 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Bool, Where } from "@/interfaces/AutoGen";
+import { Match, Node, Where, Bool } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { deletePropertyFromParent, hasBoolGroups, updateWhereBooleans, updateFocusConcepts } from "@/helpers/buildQuery";
+import { deletePropertyFromParent, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/helpers/buildQuery";
 import { cloneDeep } from "lodash-es";
 import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
@@ -192,8 +192,8 @@ function onUpdateParentOperator(val: string) {
   }
 }
 
-function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateWhereBooleans(property.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+function updateBool(oldOperator: Bool, newOperator: Bool, index: number) {
+  updateBooleans(property.value!, oldOperator, newOperator);
 }
 
 function truncateName(name: string) {

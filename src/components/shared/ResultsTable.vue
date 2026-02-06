@@ -35,6 +35,7 @@
                 <span data-testid="total-results">{{ totalCount }}</span>
                 <span>)</span>
               </span>
+              <span v-else>0 found</span>
             </div>
             <Button
               :disabled="!searchResults.length"
@@ -107,7 +108,7 @@ import { cloneDeep } from "lodash-es";
 import { useOverlay } from "@/composables/useOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { DownloadByQueryOptions, EclSearchRequest, QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
+import { DownloadByQueryOptions, ECLQueryRequest, QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
 import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
@@ -121,7 +122,7 @@ interface Props {
   searchTerm?: string;
   updateSearch?: boolean;
   imQuery?: QueryRequest;
-  eclQuery?: EclSearchRequest;
+  eclQuery?: ECLQueryRequest;
   pageSize?: number;
   disablePageDropdown?: boolean;
   showSelect?: boolean;
@@ -169,6 +170,7 @@ const rows = ref(props.pageSize ? props.pageSize : 25);
 const rowsOriginal = ref(20);
 const searchTable = ref<InstanceType<typeof DataTable> | null>(null);
 const pageForcer = ref(1000);
+const total: Ref<number> = ref(0);
 const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Select",
@@ -291,6 +293,7 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
     //if (searchResults.value && searchResults.value.length) addSearchResults(searchResponse);
     searchResults.value = mapSearchResults(searchResponse);
     if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.count ?? 0;
+    if (searchResponse.count) total.value = searchResponse.count;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
@@ -364,7 +367,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     data: { title: "Downloading", text: "Preparing your download..." }
   });
   let downloadQuery: QueryRequest | undefined;
-  let eclSearchRequest: EclSearchRequest | undefined;
+  let eclSearchRequest: ECLQueryRequest | undefined;
   if (props.eclQuery) {
     eclSearchRequest = cloneDeep(props.eclQuery);
     eclSearchRequest.page = 1;

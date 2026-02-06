@@ -1,11 +1,11 @@
 import axios from "axios";
 import Env from "./Env";
-import { Query, EclSearchRequest, SearchResponse, ECLQueryRequest } from "@/interfaces/AutoGen";
+import { Query, SearchResponse, ECLQueryRequest } from "@/interfaces/AutoGen";
 
 const API_URL = Env.API + "api/ecl";
 
 const EclService = {
-  async ECLSearch(eclSearchRequest: EclSearchRequest, controller?: AbortController): Promise<SearchResponse> {
+  async ECLSearch(eclSearchRequest: ECLQueryRequest, controller?: AbortController): Promise<SearchResponse> {
     const results: SearchResponse = await axios.post(API_URL + "/private/eclSearch", eclSearchRequest, {
       signal: controller?.signal
     });
@@ -13,7 +13,7 @@ const EclService = {
   },
 
   async getEcl(query: Query): Promise<string> {
-    return await axios.post(API_URL + "/private/ecl", { eclQuery: query });
+    return await axios.post(API_URL + "/private/ecl", { query: query });
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<ECLQueryRequest> {

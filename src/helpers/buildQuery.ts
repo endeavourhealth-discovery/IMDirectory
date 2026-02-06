@@ -1,4 +1,4 @@
-import { Bool, Element, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, Operator } from "@/interfaces/AutoGen";
+import { Bool, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, Operator } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
@@ -35,7 +35,7 @@ export async function setReturn(match: Match, keepAs: string) {
 }
 
 export function checkGroupChange(e: any, parentGroup: number[], index: number) {
-  if (e.length === 1) {
+  if (e) {
     if (!parentGroup.includes(index)) {
       parentGroup.push(index);
     }
@@ -44,6 +44,7 @@ export function checkGroupChange(e: any, parentGroup: number[], index: number) {
       parentGroup.splice(parentGroup.indexOf(index), 1);
     }
   }
+  parentGroup.sort((a, b) => a - b);
 }
 
 function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
@@ -72,49 +73,58 @@ function focusChildren(children: Match[] | undefined): string[] {
   }
   return focusConcepts;
 }
-
-function createNewBoolGroup(clause: any, group: number[], oldBool: Bool, newBool: Bool) {
-  group.sort((a, b) => a - b);
-  const newGroup: Match[] = [];
-  const from = oldBool as keyof Match;
-  const to = newBool as keyof Match;
-  const newGroupIndex = group[0];
-  const newItem = {
-    [to]: newGroup
-  };
-
-  group.forEach(index => {
-    newGroup.push(clause[from]![index]!);
-  });
-  const newBoolGroup = [];
-  for (const [index, item] of clause[from]!.entries()) {
-    if (index === newGroupIndex) {
-      newBoolGroup.push(newItem);
-    } else if (!group.includes(index)) newBoolGroup.push(item);
+export function removeSubgroup(clause: Match | Where, parent: Match | Where, index: number) {
+  if (parent.or) {
+    parent.or.splice(index, 1);
+    if (clause.and) parent.or.push(...clause.and);
   }
-  clause[from] = newBoolGroup;
+  if (parent.and) {
+    parent.and.splice(index, 1);
+    if (clause.or) parent.and.push(...clause.or);
+  }
+}
+
+export function createNewBoolGroup(clause: Match | Where, group: number[]) {
+  group.sort((a, b) => a - b);
+  const newClause: Match | Where = {};
+  if (clause.and) {
+    newClause.or = [];
+    group.forEach(index => {
+      newClause.or!.push(clause.and![index]!);
+    });
+    const newAndGroup = [];
+    for (const [index, item] of clause.and!.entries()) {
+      if (!group.includes(index)) newAndGroup.push(item);
+    }
+    clause.and = newAndGroup;
+    clause.and.push(newClause);
+  }
+  if (clause.or) {
+    newClause.and = [];
+    group.forEach(index => {
+      newClause.and!.push(clause.or![index]!);
+    });
+    const newOrGroup = [];
+    for (const [index, item] of clause.or!.entries()) {
+      if (!group.includes(index)) newOrGroup.push(item);
+    }
+    clause.or = newOrGroup;
+    clause.or.push(newClause);
+  }
 }
 
 export function addConceptToGroup(match: Match) {
-  if (match.is) {
-    const subMatch = { uuid: match.uuid, is: match.is } as Match;
+  if (match.or) match.or.push({ is: [{ descendantsOrSelfOf: true }] });
+  else if (match.and) match.and.push({ is: [{ descendantsOrSelfOf: true }] });
+  else {
+    const subMatch = cloneDeep(match);
     delete match.is;
     match.or = [subMatch];
+    match.or.push({ is: [{ descendantsOrSelfOf: true }] });
   }
-  const bool = match.and ? Bool.and : match.or ? Bool.or : undefined;
-  if (bool) {
-    const subMatch = { is: [{ descendantsOrSelfOf: true }] };
-    match[bool]!.push(subMatch);
-  } else match.is = [{ descendantsOrSelfOf: true }];
 }
 
-export function updateMatchBooleans(clause: Match, from: Bool, to: Bool, index: number, group: number[]) {
-  if (!clause) return;
-  if (group.length > 1) {
-    createNewBoolGroup(clause, group, from, to);
-    group.length = 0;
-    return;
-  }
+export function updateBooleans(clause: Match | Where, from: Bool, to: Bool) {
   if (from === to) return;
   if (from === Bool.and) {
     clause.or = clause.and;
@@ -125,25 +135,12 @@ export function updateMatchBooleans(clause: Match, from: Bool, to: Bool, index: 
   }
 }
 
-export function updateWhereBooleans(clause: Where, from: Bool, to: Bool, index: number, group: number[]) {
-  if (!clause) return;
-  if (group.length > 1) {
-    createNewBoolGroup(clause, group, from, to);
-    group.length = 0;
-    return;
-  }
-  if (from === to) return;
-  if (from === Bool.and) {
-    clause.or = clause.and;
-    delete clause.and;
-  } else if (from === Bool.or) {
-    clause.and = clause.or;
-    delete clause.or;
-  }
-}
-
-export function hasBoolGroups(clause: Match | Where) {
+export function hasBoolGroups(clause: Match) {
   return !!(clause.or || clause.and);
+}
+
+export function hasExpandableGroups(clause: Match) {
+  return !!clause.step;
 }
 
 export function getBooleanLabel(
@@ -162,14 +159,18 @@ export function getBooleanLabel(
   }
   if (operator === Bool.union) return "merge results from the following";
   else {
-    if (hasSubgroups)
-      return isFirst ? "at least one of the following" : (parentOperator && parentOperator === Bool.and ? "and " : "or ") + "at least one of the following";
-    else return isFirst ? (isMatch ? "Either" : "Either") : "Or";
+    if (hasSubgroups) {
+      if (standardQuery) {
+        return isFirst ? "at least one of the following" : (parentOperator && parentOperator === Bool.and ? "and " : "or ") + "at least one of the following";
+      } else return isFirst ? "any of the following" : (parentOperator && parentOperator === Bool.and ? "and " : "or ") + " any of the following";
+    }
+    return "Or";
   }
 }
 
-export function getIsRoleGroup(where: Where | undefined): boolean {
-  if (!where) return false;
+export function getIsRoleGroup(clause: Where | undefined | Match): boolean {
+  if (!clause) return false;
+  const where = clause as Where;
   return !!where.roleGroup;
 }
 
@@ -291,7 +292,7 @@ export function addWhereToMatch(match: Match, node: TreeNode, property: string) 
 }
 
 export function matchDefined(match: Match): boolean {
-  return !!(match.path || match.where || match.is || match.rule || match.and || match.or);
+  return !!(match.path || match.where || match.is || match.rule || match.and || match.or || match.step);
 }
 export function getRuleAction(match: Match): string {
   if (match.ifTrue) {
@@ -384,6 +385,20 @@ export function getRuleActionOptions(): any[] {
     }
   ];
 }
+export function getExclusionOptions(): any[] {
+  const options = [];
+  options.push({
+    label: "Include",
+    value: false,
+    tooltip: "Include by default"
+  });
+  options.push({
+    label: "Exclude",
+    value: true,
+    tooltip: "Exclude from results"
+  });
+  return options;
+}
 
 export function getBooleanOptions(clauseType: string, index: number, standardQuery?: boolean, hasSubgroups?: boolean, parentOperator?: Bool): any[] {
   const andLabel = getBooleanLabel(clauseType, Bool.and, index, standardQuery, hasSubgroups, parentOperator);
@@ -419,49 +434,56 @@ export function isGroupable(rootBool?: boolean, parentClause?: Match | Where, pa
   }
   return false;
 }
-export function getConstraintOperator(constrainer: Element) {
+export function getConstraintOperator(constrainer: Node | Where) {
   if (constrainer.descendantsOrSelfOf) return "<<";
   if (constrainer.descendantsOf) return "<";
   if (constrainer.memberOf) return "^";
-  if (constrainer.ancestorsOrSelfOf) return ">>!";
+  if (constrainer.ancestorsOf) return ">>";
   return "";
 }
 
-export function setConstraintOperator(constrainer: Element, valueConstraintOperator: string) {
+export function setConstraintOperator(constrainer: Node | Where, valueConstraintOperator: string) {
   switch (valueConstraintOperator) {
     case "<<":
     case "descendantsOrSelfOf":
       constrainer.descendantsOrSelfOf = true;
       delete constrainer.descendantsOf;
       delete constrainer.memberOf;
-      delete constrainer.ancestorsOrSelfOf;
+      delete constrainer.ancestorsOf;
       break;
     case "<":
     case "descendantsOf":
       constrainer.descendantsOf = true;
       delete constrainer.descendantsOrSelfOf;
       delete constrainer.memberOf;
-      delete constrainer.ancestorsOrSelfOf;
+      delete constrainer.ancestorsOf;
       break;
     case "^":
     case "memberOf":
       constrainer.memberOf = true;
       delete constrainer.descendantsOrSelfOf;
       delete constrainer.descendantsOf;
-      delete constrainer.ancestorsOrSelfOf;
+      delete constrainer.ancestorsOf;
       break;
-    case ">>!":
+    case ">>":
     case "ancestorsOrSelfOf":
-      constrainer.ancestorsOrSelfOf = true;
+      constrainer.ancestorsOf = true;
       delete constrainer.descendantsOrSelfOf;
       delete constrainer.descendantsOf;
       delete constrainer.memberOf;
       break;
     default:
-      delete constrainer.ancestorsOrSelfOf;
+      delete constrainer.ancestorsOf;
       delete constrainer.descendantsOrSelfOf;
       delete constrainer.descendantsOf;
       delete constrainer.memberOf;
+  }
+}
+export function addRefinementToGroup(where: Where) {
+  if (where.or) {
+    where.or.push({ uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where);
+  } else if (where.and) {
+    where.and.push({ uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where);
   }
 }
 
