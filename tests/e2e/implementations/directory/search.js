@@ -3,7 +3,7 @@
 const assert = require("node:assert");
 const { pw } = require("../playwright");
 
-step("Results page contains rows greater than <num>", async (num) => {
+step("Results page contains rows greater than <num>", async num => {
   const rows = pw.page.locator(".p-datatable-selectable-row");
   const count = await rows.count();
   assert(count > Number(num), `Expected more than ${num} rows, but got ${count}`);
@@ -13,7 +13,7 @@ step("Click next page button", async () => {
   await pw.page.locator(".p-paginator-next").click();
   await pw.page.waitForTimeout(1000);
   const mask = pw.page.locator(".p-datatable-mask");
-  await mask.waitFor({ state: "hidden"});
+  await mask.waitFor({ state: "hidden" });
   await pw.page.waitForTimeout(1000);
 });
 
@@ -28,21 +28,21 @@ step("Page results are different from previous page", async () => {
 
 step("Filter <filterType> by <filterValue>", async (filterType, filterValue) => {
   const filterMap = {
-    "status": "status-filter",
-    "scheme": "scheme-filter",
-    "type": "type-filter"
+    status: "status-filter",
+    scheme: "scheme-filter",
+    type: "type-filter"
   };
   const testId = filterMap[filterType.toLowerCase()];
   if (!testId) {
     throw new Error(`Unknown filter type: ${filterType}`);
   }
-  
+
   await pw.page.locator(`[data-testid="${testId}"]`).locator(".p-multiselect-dropdown").click();
   await pw.page.locator(".p-multiselect-overlay").filter({ hasText: filterValue }).click();
   await pw.page.locator(`[data-testid="${testId}"]`).locator(".p-multiselect-dropdown").click();
   await pw.page.waitForTimeout(1000);
   const mask = pw.page.locator(".p-datatable-mask");
-  await mask.waitFor({ state: "hidden"});
+  await mask.waitFor({ state: "hidden" });
   await pw.page.waitForTimeout(1000);
 });
 

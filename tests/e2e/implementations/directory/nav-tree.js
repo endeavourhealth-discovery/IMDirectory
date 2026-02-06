@@ -8,23 +8,23 @@ async function getNodeByText(text) {
   const node = pw.page
     .locator("#hierarchy-tree-bar-container li")
     .filter({ hasText: text })
-    .filter({ hasNot: pw.page.locator("ul").filter({ hasText: text})})
+    .filter({ hasNot: pw.page.locator("ul").filter({ hasText: text }) });
 
-  await node.highlight()
+  await node.highlight();
 
-  return node
+  return node;
 }
 
-step("Expand tree node <text>", async (text) => {
+step("Expand tree node <text>", async text => {
   const node = await getNodeByText(text);
   await node.locator("button").click();
-  await node.locator("ul").waitFor()
+  await node.locator("ul").waitFor();
   await pw.page.waitForLoadState("networkidle");
 });
 
-step("Tree contains <text>", async (text) => {
+step("Tree contains <text>", async text => {
   const node = await getNodeByText(text);
-  await node.waitFor({ state: "visible"});
+  await node.waitFor({ state: "visible" });
 });
 
 step("<text> has at most <num> children", async (text, num) => {
@@ -34,24 +34,27 @@ step("<text> has at most <num> children", async (text, num) => {
   assert(count <= Number(num), `Expected at most ${num} children, but got ${count}`);
 });
 
-step("Scroll <text> into view", async (text) => {
-  const node = await getNodeByText(text)
+step("Scroll <text> into view", async text => {
+  const node = await getNodeByText(text);
   await node.evaluate(el => {
-    el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
   });
   await pw.page.waitForLoadState("networkidle");
 });
 
-step("Load more children of <text>", async (text) => {
+step("Load more children of <text>", async text => {
   const node = await getNodeByText(text);
   const count = await node.locator("ul li").count();
   const btn = await node.locator("li").filter({ hasText: "Load more..." });
   await btn.click();
-  await node.locator("ul li").nth(count + 1).waitFor()
+  await node
+    .locator("ul li")
+    .nth(count + 1)
+    .waitFor();
   await pw.page.waitForLoadState("networkidle");
 });
 
-step("Click tree node <text>", async (text) => {
+step("Click tree node <text>", async text => {
   const node = await getNodeByText(text);
   await node.click();
   await pw.page.waitForLoadState("networkidle");
@@ -66,24 +69,23 @@ step("Scroll up tree", async () => {
 });
 
 step("<text> has at least <num> children", async (text, num) => {
- const node = await getNodeByText(text);
+  const node = await getNodeByText(text);
   const children = node.locator(".. >> .p-tree-node-children").locator(".p-tree-node");
   const count = await children.count();
   assert(count >= Number(num), `Expected at least ${num} children, but got ${count}`);
 });
 
-step("Directory table contains <text>", async (text) => {
-  const table = pw.page.locator("#directory-table-container")
-    .locator(".parent-header-container").filter({ hasText: text });
-  await table.waitFor({ state: "visible"});
+step("Directory table contains <text>", async text => {
+  const table = pw.page.locator("#directory-table-container").locator(".parent-header-container").filter({ hasText: text });
+  await table.waitFor({ state: "visible" });
 });
 
-step("Hover over tree node <text>", async (text) => {
+step("Hover over tree node <text>", async text => {
   const node = await getNodeByText(text);
   await node.hover();
 });
 
-step("Overlay panel contains <text>", async (text) => {
+step("Overlay panel contains <text>", async text => {
   const overlay = pw.page.locator("#overlay-panel").filter({ hasText: text });
-  await overlay.waitFor({ state: "visible"});
+  await overlay.waitFor({ state: "visible" });
 });
