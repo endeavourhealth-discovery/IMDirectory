@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-02-06 10:43:01.
+// Generated using typescript-generator version 3.2.1263 on 2026-02-09 10:22:50.
 
 export interface ConceptContextMap {
     id?: string;
@@ -311,12 +311,12 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    description?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    operator?: Operator;
+    description?: string;
     qualifier?: TTIriRef;
+    operator?: Operator;
     valueLabel?: string;
 }
 
@@ -326,8 +326,8 @@ export interface Case {
 }
 
 export interface Clause<T> {
-    and?: T[];
     or?: T[];
+    and?: T[];
 }
 
 export interface ContextMap {
@@ -366,10 +366,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -906,13 +906,13 @@ export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
     type?: TTArray;
-    status?: TTIriRef;
-    description?: string;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    code?: string;
+    status?: TTIriRef;
+    description?: string;
     types?: TTIriRef[];
+    code?: string;
     prefixes?: TTPrefix[];
 }
 
@@ -938,8 +938,8 @@ export interface EntityApproval extends Task {
     approvalType?: ApprovalType;
 }
 
-export interface GraphRequest extends Task {
-    graph?: Graph;
+export interface NamespaceRequest extends Task {
+    namespacePermission?: NamespacePermission;
 }
 
 export interface RoleRequest extends Task {
@@ -1074,6 +1074,12 @@ export interface TTNode extends TTValue, Serializable {
     predicateMap?: { [index: string]: TTArray };
 }
 
+export interface NamespacePermission {
+    iri?: Namespace;
+    read?: boolean;
+    write?: boolean;
+}
+
 export interface TTValue extends Serializable {
 }
 
@@ -1081,12 +1087,6 @@ export interface RecentActivityItemDto {
     iri?: string;
     dateTime?: Date;
     action?: string;
-}
-
-export interface NamespacePermission {
-    iri?: Namespace;
-    read?: boolean;
-    write?: boolean;
 }
 
 export interface OrgId {
@@ -2050,7 +2050,7 @@ export enum WORKFLOW {
     ACTUAL_RESULT = "http://endhealth.info/workflow#actualResult",
     RELATED_VERSION = "http://endhealth.info/workflow#relatedVersion",
     REQUESTED_ROLE = "http://endhealth.info/workflow#requestedRole",
-    REQUESTED_GRAPH = "http://endhealth.info/workflow#requestedGraph",
+    REQUESTED_NAMESPACE = "http://endhealth.info/workflow#requestedNamespace",
     APPROVAL_TYPE = "http://endhealth.info/workflow#approvalType",
     HISTORY = "http://endhealth.info/workflow#history",
     HISTORY_PREDICATE = "http://endhealth.info/workflow#historyPredicate",
