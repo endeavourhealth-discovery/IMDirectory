@@ -1,6 +1,6 @@
 import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { CasdoorService, DirectService, EntityService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import { IM, RDFS, SHACL } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";

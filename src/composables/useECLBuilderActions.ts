@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 import { useToast } from "primevue/usetoast";
 import { cloneDeep } from "lodash-es";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
-import { CasdoorService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 
 export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
@@ -15,7 +14,7 @@ export function useECLBuilderActions(wasDraggedAndDropped: Ref<boolean>) {
     event.dataTransfer.effectAllowed = "move";
   }
 
-  async function onDrop(event: any, dropzoneItem: any, parent: any, dynamicDialog: any, index?: number) {
+  async function onDrop(event: any, dropzoneItem: any, parent: any, index?: number) {
     event.preventDefault();
     const draggedItemDataString = event.dataTransfer.getData("draggedItem");
     const { draggedItem, draggedItemParent } = JSON.parse(draggedItemDataString);

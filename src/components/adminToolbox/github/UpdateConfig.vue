@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { CasdoorService, GithubService } from "@/services";
+import { GithubService } from "@/services";
 import Swal from "sweetalert2";
 import { ref } from "vue";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";

@@ -293,12 +293,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: async() => (window.location.href = await SecurityService.getLoginUrl())
+      command: async () => (window.location.href = await SecurityService.getLoginUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: async() => (window.location.href =await SecurityService.getRegisterUrl())
+      command: async () => (window.location.href = await SecurityService.getRegisterUrl())
     },
     {
       separator: true
@@ -356,18 +356,6 @@ function setUserMenuItems(): void {
 }
 
 async function logout() {
-  await Swal.fire({
-    icon: "question",
-    title: "Confirm logout?",
-    text: "Are you sure you want to logout?",
-    confirmButtonText: "Logout",
-    showCancelButton: true
-  }).then(async result => {
-    if (result.isConfirmed) {
-      await SecurityService.logout();
-      location.reload();
-    }
-  });
   await dialogStore
     .open(GenericDialog, {
       props: { modal: true, style: { width: "30vw" }, closable: false },
@@ -381,7 +369,7 @@ async function logout() {
     })
     .then(async result => {
       if (result.confirm) {
-        await CasdoorService.logout();
+        await SecurityService.logout();
         location.reload();
       }
     });
