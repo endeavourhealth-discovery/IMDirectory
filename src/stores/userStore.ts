@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { CasdoorService, UserService } from "@/services";
+import { SecurityService, UserService } from "@/services";
 import { HistoryItem, RecentActivityItem, User } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";

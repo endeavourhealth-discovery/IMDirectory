@@ -4,18 +4,17 @@ const { expect } = require("@playwright/test");
 const assert = require("node:assert");
 const { pw } = require("../playwright");
 
-
 step("Verify Creator layout is displayed", async () => {
   await pw.page.waitForSelector(".creator-layout-container");
 });
 
 step("Entity combo box is empty", async () => {
-  const value = await pw.page.locator('[data-testid="entity-combo-box"]').locator('input').inputValue();
+  const value = await pw.page.locator('[data-testid="entity-combo-box"]').locator("input").inputValue();
   assert.strictEqual(value, "");
 });
 
 step("IRI builder dropdown is not empty", async () => {
-  await pw.page.waitForSelector('.iri-builder-container');
+  await pw.page.waitForSelector(".iri-builder-container");
   const element = await pw.page.locator('[data-testid="iri-builder-dropdown"]');
   await expect(element).not.toBeEmpty();
 });
@@ -46,7 +45,7 @@ step("HTML input is empty", async () => {
   assert.strictEqual(value, "");
 });
 
-step("Status is <text>", async (text) => {
+step("Status is <text>", async text => {
   const actual = await pw.page.locator('[data-testid="entity-single-dropdown"]').textContent();
   assert.strictEqual(actual, text);
 });
@@ -64,20 +63,20 @@ step("Property builder has no properties", async () => {
   assert.strictEqual(properties.length, 0);
 });
 
-step("Type <text> into IRI builder input", async (text) => {
+step("Type <text> into IRI builder input", async text => {
   await pw.page.fill('[data-testid="iri-builder-input"]', text);
 });
 
-step("Code has value <text>", async (text) => {
-  await pw.page.locator('[data-testid="text-display"]').textContent(text)
+step("Code has value <text>", async text => {
+  await pw.page.locator('[data-testid="text-display"]').textContent(text);
 });
 
-step("IRI builder container contains <iri>", async (iri) => {
+step("IRI builder container contains <iri>", async iri => {
   const text = await pw.page.locator(".iri-builder-container").textContent();
   assert(text.includes(iri));
 });
 
-step("Select status <text>", async (text) => {
+step("Select status <text>", async text => {
   await pw.page.waitForSelector(".entity-single-dropdown-container");
   await pw.page.click('[data-testid="entity-single-dropdown"]');
   await pw.page.click(".p-select-option >> text=" + text);
@@ -100,7 +99,7 @@ step("Select first listbox item", async () => {
   await pw.page.locator(".listbox-item").first().click();
 });
 
-step("Click add button in <dropdown> array builder", async (dropdown) => {
+step("Click add button in <dropdown> array builder", async dropdown => {
   const input = pw.page.locator(".array-builder-container >> text=" + dropdown + " >> .. >> ..");
   await input.locator('[data-testid="add-button"]').first().click();
 });
@@ -110,11 +109,11 @@ step("Click delete button <index> in <dropdown> array builder", async (index, dr
   await input.locator('[data-testid="delete-button"]').nth(index).click();
 });
 
-step("Property builder has <num> properties", async (num) => {
+step("Property builder has <num> properties", async num => {
   const properties = await pw.page.locator('[data-testid="property-builder"] .property').all();
   assert.strictEqual(properties.length, Number.parseInt(num));
-})
+});
 
-step("Click delete property button <index>", async (index) => {
+step("Click delete property button <index>", async index => {
   await pw.page.locator('[data-testid="delete-property-button"]').nth(index).click();
 });

@@ -26,16 +26,12 @@
     <div id="builder-string-container">
       <div v-if="!previewECL" id="query-builder-container">
         <ProgressSpinner v-if="loading" />
-        <ExpressionConstraint
-          v-else
-          v-model:match="build"
-          :rootBool="true"
-          :index="0"
-          :parentOperator="'and'"
-          :activeInputId="activeInputId"
-          @activateInput="activeInputId = $event"
-          @rationalise="rationaliseBooleans"
-        />
+        <ExpressionConstraint v-model:match="build" :index="0" :rootBool="true" @rationalise="rationaliseBooleans" />
+        <div v-if="build.where">
+          <span class="subtypes-checkbox">Include un-inferred subtypes of the concepts found in this expression </span>
+          <Checkbox :inputId="'subtypeCheck'" name="subtypeCheck" binary v-model="checkIncludeSubtypes" v-tooltip="'Select if subtypes are not needed'" />
+        </div>
+
         <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.is && !loading">
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
@@ -65,14 +61,7 @@
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
       <Button :label="!previewECL ? 'PreviewECL' : 'Show editor'" severity="info" @click="preview" data-testid="ecl-preview-button" />
       <Button label="Validate model" severity="help" @click="validateBuild" data-testid="ecl-validate-button" />
-      <Button
-        :disabled="Object.keys(build).length === 0"
-        label="OK"
-        icon="fa-solid fa-check"
-        class="p-button-primary"
-        @click="submit"
-        data-testid="ecl-ok-button"
-      />
+      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
     </template>
   </Dialog>
 </template>
@@ -87,13 +76,10 @@ import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builde
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { Match, ECLQueryRequest, Query } from "@/interfaces/AutoGen";
+import { Match, ECLQueryRequest, Query, Node } from "@/interfaces/AutoGen";
 import { useEclValidator } from "@/composables/useEclValidator";
-import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
-import { useDialogStore } from "@/stores/dialogStore";
 interface Props {
   showDialog?: boolean;
-  eclString?: string;
   showNames?: boolean;
   query?: Query;
 }
@@ -104,9 +90,8 @@ const emit = defineEmits<{
   closeDialog: [];
 }>();
 
-const dialogStore = useDialogStore();
-const dynamicDialog = useDialogStore();
-
+const checkIncludeSubtypes = ref(false);
+const dynamicDialog = useDialog();
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
@@ -152,14 +137,13 @@ function toggle(event: any) {
 
 async function init() {
   loading.value = true;
-  if (props.eclString) {
-    if (props.query) {
-      await createBuildFromQuery(props.query);
-    } else {
-      const eclRequest = await EclService.getQueryFromECL(props.eclString, false);
-      if (eclRequest.query) build.value = eclRequest.query;
-    }
+  if (props.query) {
+    await createBuildFromQuery(props.query);
   } else createDefaultBuild();
+  if (build.value.is && build.value.is[0].match) {
+    checkIncludeSubtypes.value = true;
+    build.value = build.value.is[0].match;
+  }
   loading.value = false;
 }
 function createDefaultBuild() {
@@ -170,33 +154,32 @@ async function rationaliseBooleans() {
 }
 
 async function createBuildFromQuery(query: Query) {
-  try {
-    loading.value = true;
-    const eclQuery = { query: query } as ECLQueryRequest;
-    build.value = eclQuery.query!;
-  } catch (err: any) {
-    createDefaultBuild();
-    if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
-    else eclConversionError.value = { error: true, message: err.message };
-  }
-  emit("eclConversionError", eclConversionError.value);
-  loading.value = false;
-  await generateQueryString();
+  build.value = cloneDeep(query!);
 }
 
 async function preview() {
   if (!previewECL.value) {
-    const rationalised = await QueryService.optimiseECLQuery(build.value);
+    let rationalised = await QueryService.optimiseECLQuery(build.value);
+    rationalised = includeSubtypes(rationalised);
     const eclQuery = await EclService.getECLFromQuery(rationalised, includeTerms.value);
     queryString.value = eclQuery.ecl!;
   }
   previewECL.value = !previewECL.value;
 }
 
+function includeSubtypes(query: Match): Match {
+  if (checkIncludeSubtypes.value) {
+    return { is: [{ descendantsOrSelfOf: true, match: query }] };
+  } else return query;
+}
+
 async function submit(): Promise<void> {
   build.value = await QueryService.optimiseECLQuery(build.value);
-  const eclQuery = await EclService.getECLFromQuery(build.value, props.showNames);
-  emit("eclSubmitted", eclQuery);
+  const rationalised = includeSubtypes(build.value);
+  const eclQuery = await EclService.getECLFromQuery(rationalised, props.showNames);
+  if (eclQuery.status && !eclQuery.status.valid) {
+    await displayValidationMessage(true, eclQuery.status.message);
+  } else emit("eclSubmitted", eclQuery);
 }
 
 function closeBuilderDialog(): void {
@@ -222,46 +205,36 @@ async function generateQueryString() {
 }
 
 async function validateBuild() {
-  console.log(Object.keys(build.value).length);
-  if (Object.keys(build.value).length) {
-    const verificationDialog = showVerificationDialog(dynamicDialog);
-    const eclQuery = await EclService.validateModelFromQuery(build.value);
+  const verificationDialog = showVerificationDialog(dynamicDialog);
+  const eclQuery = await EclService.validateModelFromQuery(build.value);
+  if (eclQuery.status && !eclQuery.status.valid) {
+    verificationDialog.close();
+    await displayValidationMessage(true, eclQuery.status.message);
+  } else {
     build.value = eclQuery.query!;
     verificationDialog.close();
     await displayValidationMessage(!eclQuery.status!.valid);
-  } else {
-    await dialogStore.open(GenericDialog, {
-      props: { modal: true, style: { width: "30vw" }, closable: false },
-      data: {
-        icon: "fa-regular fa-circle-exclamation",
-        title: "Validation failed",
-        text: "ECL cannot be empty.",
-        confirmButtonText: "Close"
-      }
-    });
   }
 }
 
-async function displayValidationMessage(invalid: boolean | undefined) {
+async function displayValidationMessage(invalid: boolean | undefined, message?: string) {
   if (!invalid) {
-    await dialogStore.open(GenericDialog, {
-      props: { modal: true, style: { width: "30vw" }, closable: false },
-      data: {
-        icon: "fa-regular fa-circle-check",
-        title: "Success",
-        text: "All entities are valid.",
-        confirmButtonText: "Close"
-      }
+    await Swal.fire({
+      icon: "success",
+      title: "Success",
+      backdrop: true,
+      showClass: { popup: "swal-popup" },
+      text: "All entities are valid.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
     });
   } else {
-    await dialogStore.open(GenericDialog, {
-      props: { modal: true, style: { width: "30vw" }, closable: false },
-      data: {
-        icon: "fa-regular fa-circle-exclamation",
-        title: "Warning",
-        text: "Invalid values found. Please review your entries.",
-        confirmButtonText: "Close"
-      }
+    await Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: message ? message : "Invalid values found. Please review your entries.",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
     });
   }
 }

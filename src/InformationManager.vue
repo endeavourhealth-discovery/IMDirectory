@@ -30,7 +30,7 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { CasdoorService, Env, GithubService } from "@/services";
+import { SecurityService, Env, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
@@ -99,7 +99,7 @@ watch(darkMode, async (newValue, oldValue) => {
 
 onMounted(async () => {
   try {
-    const user = await CasdoorService.getUser(true);
+    const user = await SecurityService.getUser(true);
     if (user) userStore.updateCurrentUser(user);
   } catch (e: any) {
     console.log("No user session found");
@@ -116,7 +116,7 @@ onMounted(async () => {
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
   } else {
-    window.location.href = await CasdoorService.getLoginUrl();
+    window.location.href = await SecurityService.getLoginUrl();
   }
 
   dialogStore.register(dialog);
@@ -154,12 +154,8 @@ function setupAxiosInterceptors(axios: AxiosInstance) {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
       request.headers.set("Graph", userStore.includeUserGraph);
-    } else if (
-      !isLoggedIn.value &&
-      isPublicMode.value === false &&
-      !(request.url?.startsWith(Env.API))
-    ) {
-      window.location.href = await CasdoorService.getLoginUrl();
+    } else if (!isLoggedIn.value && isPublicMode.value === false && !request.url?.startsWith(Env.API)) {
+      window.location.href = await SecurityService.getLoginUrl();
     }
     return request;
   });
@@ -210,27 +206,40 @@ async function handle401(error: AxiosError) {
 }
 
 async function handle403(error: any) {
-  if (!isPublicMode.value && error.response?.data === "Access forbidden") {
-    if (route.path !== "/user/login") {
-      window.location.href = await CasdoorService.getLoginUrl();
-    } else console.error(error);
-  } else if (error.response?.data) {
+  if (userStore.isLoggedIn) {
     toast.add({
       severity: "error",
       summary: "Access denied",
-      detail: error.response.data.debugMessage
+      detail:
+        "Insufficient clearance to access " +
+        error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
+        ". Please contact an admin to change your account security clearance if you require access to this resource."
     });
-  } else if (error?.config?.url) {
-    toast.add({
-      severity: "error",
-      summary: "Access denied",
-      detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-    });
+    await router.push({ name: "AccessDenied" }).then();
   } else {
-    toast.add({
-      severity: "error",
-      summary: "Access denied"
-    });
+    if (error.response?.data) {
+      toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail: error.response.data.debugMessage
+      });
+    } else if (error?.config?.url) {
+      toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+      });
+    } else {
+      toast.add({
+        severity: "error",
+        summary: "Access denied"
+      });
+    }
+    if (route.path === "/user/login") {
+      console.error(error);
+    } else {
+      window.location.href = await SecurityService.getLoginUrl();
+    }
   }
 }
 

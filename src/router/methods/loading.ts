@@ -46,13 +46,15 @@ export function endRouterLoading() {
 }
 
 function getViewPathFromRoutePath(routeLocation: RouteLocationNormalized, routes: Array<RouteRecordRaw>): string {
+  const flatRoutes = routes.flatMap(({ children = [], ...route }) => [route, ...children]);
+
   if (routeLocation.fullPath === "/") {
-    const found = routes.find(r => r.name === "Directory");
+    const found = flatRoutes.find(r => r.name === "Directory");
     if (found) return found.path;
   } else if (routeLocation.fullPath === "/?silentSignin=1") {
     return "/";
   } else {
-    const found = routes.find(r => routeLocation.fullPath.startsWith(r.path));
+    const found = flatRoutes.find(r => routeLocation.fullPath.startsWith(r.path));
     if (found) return found.path;
   }
   throw new Error("Failed to find view path from route path: " + routeLocation.fullPath);

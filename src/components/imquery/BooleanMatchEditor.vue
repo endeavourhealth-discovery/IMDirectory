@@ -15,6 +15,7 @@
     <div v-if="hasBoolGroups(match)">
       <div v-for="operator in operators" :key="operator">
         <div v-if="match[operator]">
+          <span>parent= {{ operator }}</span>
           <div class="match-clause">
             <BooleanEditor
               v-if="showBoolean"
@@ -22,8 +23,8 @@
               v-model:parentClause="parentMatch"
               :depth="depth"
               :hasSubgroups="true"
-              :parentOperator="operator as Bool"
-              :grandParentOperator="parentOperator as Bool"
+              :operator="operator as Bool"
+              :parentOperator="parentOperator as Bool"
               :clauseIndex="clauseIndex"
               :clauseType="'Match'"
               v-model:parentGroup="parentGroup"
@@ -106,7 +107,6 @@
         />
       </div>
     </div>
-
     <div v-if="parentOperator === Bool.rule">
       <RuleActionEditor :rule="match" />
     </div>
@@ -114,11 +114,11 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node, SearchResultSummary, Where } from "@/interfaces/AutoGen";
+import { Match, Bool, Node } from "@/interfaces/AutoGen";
 import { inject, Ref, ref, computed, onMounted, watch } from "vue";
 import {
   hasBoolGroups,
-  updateMatchBooleans,
+  updateBooleans,
   updateFocusConcepts,
   isGroupable,
   addMatchToParent,
@@ -202,7 +202,7 @@ function onUpdateParentOperator(val: string) {
   }
 }
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateMatchBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+  updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool);
 }
 function addMatch() {
   addMatchToParent({}, parentMatch.value);

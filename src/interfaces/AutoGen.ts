@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-30 10:40:59.
+// Generated using typescript-generator version 3.2.1263 on 2026-02-06 10:43:01.
 
 export interface ConceptContextMap {
     id?: string;
@@ -56,63 +56,6 @@ export interface Pageable<T> {
     currentPage?: number;
     pageSize?: number;
     result?: T[];
-}
-
-export interface PolicyRequest {
-    userRole?: UserRole;
-    resource?: Resource;
-    action?: Action;
-}
-
-export interface OAuthTokens {
-    access_token?: string;
-    id_token?: string;
-    refresh_token?: string;
-    token_type?: string;
-    scope?: string;
-    expires_in?: number;
-}
-
-export interface Session extends OAuthTokens {
-    id?: string;
-    createdAt?: Date;
-    ipAddress?: string;
-    expired?: boolean;
-}
-
-export interface TokenStatus {
-    active?: boolean;
-    scope?: string;
-    client_id?: string;
-    username?: string;
-    token_type?: string;
-    exp?: number;
-    iat?: number;
-    nbf?: number;
-    sub?: string;
-    aud?: string[];
-    iss?: string;
-    jti?: string;
-}
-
-export interface User {
-    id?: string;
-    username?: string;
-    email?: string;
-    displayName?: string;
-    password?: string;
-    avatar?: string;
-    roles?: UserRole[];
-    groups?: string[];
-    theme?: PrimeVuePresetThemes;
-    primaryColor?: PrimeVueColors;
-    surfaceColor?: PrimeVueColors;
-    darkMode?: boolean;
-    fontSize?: FontSize;
-    favourites?: string[];
-    recentActivity?: RecentActivityItemDto[];
-    organisations?: string[];
-    roleNames?: string[];
 }
 
 export interface CodeGenDto {
@@ -368,10 +311,10 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    description?: string;
     value?: string;
     function?: FunctionClause;
     units?: TTIriRef;
-    description?: string;
     operator?: Operator;
     qualifier?: TTIriRef;
     valueLabel?: string;
@@ -382,16 +325,21 @@ export interface Case {
     else?: string;
 }
 
+export interface Clause<T> {
+    and?: T[];
+    or?: T[];
+}
+
 export interface ContextMap {
     context?: { [index: string]: string };
 }
 
 export interface Delete {
     property?: Where;
-    subject?: Element;
+    subject?: Node;
     inverse?: boolean;
-    predicate?: Element;
-    object?: Element;
+    predicate?: Node;
+    object?: Node;
     delete?: Delete[];
 }
 
@@ -400,6 +348,11 @@ export interface ECLQueryRequest {
     query?: Query;
     showNames?: boolean;
     status?: ECLStatus;
+    includeLegacy?: boolean;
+    limit?: number;
+    statusFilter?: TTIriRef[];
+    page?: number;
+    size?: number;
 }
 
 export interface ECLStatus {
@@ -410,24 +363,13 @@ export interface ECLStatus {
 }
 
 export interface Element extends IriLD, Entailment {
-    parameter?: string;
-    node?: string;
-    ancestorsOrSelfOf?: boolean;
-    childOrSelfOf?: boolean;
-    childOf?: boolean;
-    parentOrSelfOf?: boolean;
-    parentOf?: boolean;
-    cohort?: boolean;
-    nodeRef?: string;
-    invalid?: boolean;
-    isCohort?: boolean;
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
     memberOf?: boolean;
-    ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -456,7 +398,7 @@ export interface IriLD {
     uuid?: string;
 }
 
-export interface Match extends IriLD, HasPaths {
+export interface Match extends IriLD, HasPaths, Clause<Match> {
     notExists?: boolean;
     ifTrue?: RuleAction;
     ifFalse?: RuleAction;
@@ -467,7 +409,7 @@ export interface Match extends IriLD, HasPaths {
     or?: Match[];
     where?: Where;
     return?: Return[];
-    graph?: Element;
+    graph?: Node;
     optional?: boolean;
     aggregate?: FunctionClause;
     parameter?: string;
@@ -488,11 +430,19 @@ export interface Match extends IriLD, HasPaths {
 }
 
 export interface Node extends Element {
+    parameter?: string;
     type?: string;
     match?: Match;
+    childOrSelfOf?: boolean;
+    childOf?: boolean;
+    cohort?: boolean;
+    nodeRef?: string;
+    invalid?: boolean;
     exclude?: boolean;
     code?: string;
     inverse?: boolean;
+    node?: string;
+    isCohort?: boolean;
 }
 
 export interface OrderDirection extends RelativeTo {
@@ -507,10 +457,18 @@ export interface OrderLimit {
 }
 
 export interface Path extends Element, HasPaths {
+    parameter?: string;
+    childOrSelfOf?: boolean;
+    childOf?: boolean;
+    cohort?: boolean;
+    nodeRef?: string;
+    invalid?: boolean;
     inverse?: boolean;
     optional?: boolean;
+    pathVariable?: string;
     typeOf?: Node;
     qualifier?: TTIriRef;
+    isCohort?: boolean;
 }
 
 export interface PathDocument {
@@ -574,6 +532,7 @@ export interface Return {
     as?: string;
     nodeRef?: string;
     propertyRef?: string;
+    pathRef?: string;
     inverse?: boolean;
     unit?: string;
     dataType?: TTIriRef;
@@ -602,23 +561,35 @@ export interface When {
     case?: Case;
 }
 
-export interface Where extends Element, Assignable {
+export interface Where extends Element, Assignable, Clause<Where> {
+    nodeRef?: string;
     range?: Range;
     isNull?: boolean;
     is?: Node[];
     relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
+    parameter?: string;
+    childOrSelfOf?: boolean;
+    childOf?: boolean;
+    cohort?: boolean;
+    invalid?: boolean;
     inverse?: boolean;
     typeOf?: Node;
+    subjectVariable?: string;
     not?: boolean;
     roleGroup?: boolean;
     isNotNull?: boolean;
     or?: Where[];
     and?: Where[];
+    propertyRef?: string;
     shortLabel?: string;
     propertyList?: Node[];
     propertyVariable?: string;
+    node?: string;
+    excludeProperty?: IriLD[];
+    exists?: boolean;
     notNull?: boolean;
+    isCohort?: boolean;
 }
 
 export interface DBEntry {
@@ -643,20 +614,10 @@ export interface CognitoGroupRequest {
     groupName?: UserRole;
 }
 
-export interface EclSearchRequest {
-    eclQuery?: Query;
-    includeLegacy?: boolean;
-    limit?: number;
-    statusFilter?: TTIriRef[];
-    page?: number;
-    size?: number;
-    select?: string[];
-}
-
 export interface EditRequest {
     entity?: TTEntity;
     hostUrl?: string;
-    graph?: Graph;
+    namespace?: Namespace;
     crud?: string;
 }
 
@@ -668,7 +629,7 @@ export interface EntityValidationRequest {
 
 export interface FileDocumentRequest {
     document?: TTDocument;
-    insertGraph?: Graph;
+    insertNamespace?: Namespace;
 }
 
 export interface FunctionRequest {
@@ -795,7 +756,7 @@ export interface ValidatedEntitiesRequest {
  * Structure containing search request parameters and filters
  */
 export interface WorkflowRequest {
-    casdoorService?: CasdoorService;
+    securityService?: SecurityService;
     page?: number;
     size?: number;
     userId?: string;
@@ -807,8 +768,14 @@ export interface EntityValidationResponse {
 }
 
 export interface LoginResponse {
+    user?: User;
+    state?: string;
+}
+
+export interface LoginResponseES {
     sessionId?: string;
     user?: User;
+    state?: string;
 }
 
 export interface OdsResponse {
@@ -834,7 +801,7 @@ export interface WorkflowResponse {
 
 export interface DownloadByQueryOptions {
     queryRequest?: QueryRequest;
-    eclSearchRequest?: EclSearchRequest;
+    eclSearchRequest?: ECLQueryRequest;
     totalCount?: number;
     format?: string;
     includeDefinition?: boolean;
@@ -938,15 +905,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    status?: TTIriRef;
+    description?: string;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
-    types?: TTIriRef[];
     code?: string;
+    types?: TTIriRef[];
     prefixes?: TTPrefix[];
-    status?: TTIriRef;
 }
 
 export interface BugReport extends Task {
@@ -1030,15 +997,9 @@ export interface TTArray extends Serializable {
     list?: boolean;
 }
 
-export interface RecentActivityItemDto {
-    iri?: string;
-    dateTime?: Date;
-    action?: string;
-}
-
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1063,7 +1024,26 @@ export interface StackTraceElement extends Serializable {
 export interface Exception extends Throwable {
 }
 
-export interface CasdoorService {
+export interface SecurityService {
+}
+
+export interface User {
+    id?: string;
+    username?: string;
+    email?: string;
+    displayName?: string;
+    password?: string;
+    avatar?: string;
+    roles?: UserRole[];
+    organisations?: string[];
+    theme?: PrimeVuePresetThemes;
+    primaryColor?: PrimeVueColors;
+    surfaceColor?: PrimeVueColors;
+    darkMode?: boolean;
+    fontSize?: FontSize;
+    favourites?: string[];
+    recentActivity?: RecentActivityItemDto[];
+    namespaces?: NamespacePermission[];
 }
 
 export interface Organisation {
@@ -1095,6 +1075,18 @@ export interface TTNode extends TTValue, Serializable {
 }
 
 export interface TTValue extends Serializable {
+}
+
+export interface RecentActivityItemDto {
+    iri?: string;
+    dateTime?: Date;
+    action?: string;
+}
+
+export interface NamespacePermission {
+    iri?: Namespace;
+    read?: boolean;
+    write?: boolean;
 }
 
 export interface OrgId {
@@ -1137,40 +1129,6 @@ export interface OrgRelTarget {
     OrgId?: OrgId;
 }
 
-export enum Action {
-    READ = "READ",
-    WRITE = "WRITE",
-    DELETE = "DELETE",
-    PUBLISH = "PUBLISH",
-    APPROVE = "APPROVE",
-    EXECUTE = "EXECUTE",
-}
-
-export enum Resource {
-    ENTITY = "ENTITY",
-    QUERY = "QUERY",
-    USER = "USER",
-    CONFIG = "CONFIG",
-    TASK = "TASK",
-    CODE_GEN = "CODE_GEN",
-    FHIR = "FHIR",
-    GITHUB = "GITHUB",
-    POLICY = "POLICY",
-    CASDOOR_USER = "CASDOOR_USER",
-    DOCUMENT = "DOCUMENT",
-    FOLDER = "FOLDER",
-    DELTA = "DELTA",
-    SET = "SET",
-    BUG_REPORT = "BUG_REPORT",
-    ROLE_REQUEST = "ROLE_REQUEST",
-    GRAPH_REQUEST = "GRAPH_REQUEST",
-    ENTITY_APPROVAL = "ENTITY_APPROVAL",
-    QUERY_RESULTS = "QUERY_RESULTS",
-    PAGE_ADMIN = "PAGE_ADMIN",
-    PAGE_CREATOR = "PAGE_CREATOR",
-    PAGE_EDITOR = "PAGE_EDITOR",
-}
-
 export enum IMLContext {
     prefix = "prefix",
     match = "match",
@@ -1201,7 +1159,6 @@ export enum Aggregate {
 export enum Bool {
     and = "and",
     or = "or",
-    not = "not",
     rule = "rule",
     union = "union",
     step = "step",
@@ -1945,6 +1902,8 @@ export enum QUERY {
     IS_ALLOWABLE_RANGE = "http://endhealth.info/im#Query_IsAllowableRange",
     ALLOWABLE_RANGE_SUGGESTIONS = "http://endhealth.info/im#Query_AllowableRangeSuggestions",
     GET_SUBCLASSES = "http://endhealth.info/im#Query_GetSubClasses",
+    GET_DESCENDANTS = "http://endhealth.info/im#Query_GetDescendants",
+    IS_VALID_DESCENDANT = "http://endhealth.info/im#Query_IsValidDescendant",
     GET_ANCESTORS = "http://endhealth.info/im#Query_GetAncestors",
     SEARCH_CONTAINED_IN = "http://endhealth.info/im#Query_SearchContainedIn",
     ALLOWABLE_CHILD_TYPES = "http://endhealth.info/im#Query_AllowableChildTypes",
@@ -1954,7 +1913,7 @@ export enum QUERY {
     ALLOWABLE_PROPERTIES = "http://endhealth.info/im#Query_AllowableProperties",
     ALLOWABLE_PROPERTY_ANCESTORS = "http://endhealth.info/im#Query_AllowablePropertyAncestors",
     IS_VALID_PROPERTY = "http://endhealth.info/im#Query_IsValidProperty",
-    SEARCH_PROPERTIES = "http://endhealth.info/im#Query_SearchProperties",
+    ENTITY_FILTER = "http://endhealth.info/im#Query_EntityFilter",
     SEARCH_ENTITIES = "http://endhealth.info/im#Query_SearchEntities",
     SEARCH_FOLDERS = "http://endhealth.info/im#Query_SearchFolders",
     SEARCH_ALLOWABLE_CONTAINED_IN = "http://endhealth.info/im#Query_SearchAllowableContainedIn",

@@ -12,7 +12,7 @@ import CodeGenService from "./CodeGenService";
 import DataModelService from "./DataModelService";
 import ConceptService from "./ConceptService";
 import StatusService from "./StatusService";
-import CasdoorService from "./CasdoorService";
+import SecurityService from "./SecurityService";
 
 export {
   DirectService,
@@ -29,5 +29,5 @@ export {
   DataModelService,
   ConceptService,
   StatusService,
-  CasdoorService
+  SecurityService
 };

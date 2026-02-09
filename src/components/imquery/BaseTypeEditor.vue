@@ -12,24 +12,11 @@
         @navigateTo="emit('navigateTo', $event)"
       />
     </div>
-    <template v-if="match.is">
-      <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
-        <span v-if="index > 0" class="or">or</span>
-        <span v-else class="field">in</span>
-        <IMViewerLink
-          v-if="item.iri"
-          :iri="item.iri"
-          :action="editMode ? 'view' : 'select'"
-          :label="item.name"
-          @navigateTo="(iri: string) => emit('navigateTo', iri)"
-        />
-      </template>
-    </template>
     <div v-if="!editMode" class="edit-button">
       <Button
         type="button"
         icon="fa-solid fa-pen-to-square"
-        label="Edit denominator"
+        label="Edit base type"
         data-testid="edit-base-type-button"
         :severity="hoverEditClause ? 'success' : 'secondary'"
         :outlined="!hoverEditClause"
@@ -121,13 +108,19 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
     if (selectedBaseType.type[0].iri === IM.QUERY) {
       const parentCohort = await QueryService.getQueryFromIri(selectedBaseType.iri);
       match.value.typeOf = parentCohort.typeOf;
-      match.value.is = [
-        {
-          iri: selectedBaseType.iri,
-          name: selectedBaseType.name,
-          cohort: true
-        }
-      ];
+      const denominator = {
+        is: [
+          {
+            iri: selectedBaseType.iri,
+            name: selectedBaseType.name,
+            cohort: true
+          }
+        ]
+      } as Match;
+      if (match.value.and) {
+        if (match.value.and[0].is) match.value.and[0] = denominator;
+        else match.value.and.unshift(denominator);
+      } else match.value.and = [denominator];
     } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
   }
   editMode.value = false;

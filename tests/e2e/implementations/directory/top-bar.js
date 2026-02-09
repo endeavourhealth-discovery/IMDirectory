@@ -13,12 +13,12 @@ step("Click account menu", async () => {
   await pw.page.locator('[data-testid="account-menu-logged-in"]').click();
 });
 
-step("Click <text> in account menu", async (text) => {
+step("Click <text> in account menu", async text => {
   await pw.page.locator("#account-menu").locator("span").filter({ hasText: text }).click();
   await pw.page.waitForLoadState("networkidle");
 });
 
-step("URL contains <text>", async (text) => {
+step("URL contains <text>", async text => {
   await pw.page.waitForURL(`**${text}**`);
 });
 
@@ -29,5 +29,5 @@ step("Confirm dialog", async () => {
 step("Login button is displayed", async () => {
   await pw.page.waitForSelector('[data-testid="account-menu"]');
   await pw.page.locator('[data-testid="account-menu"]').click();
-  await pw.page.locator("#account-menu").locator("span").filter({ hasText: "Login" }).waitFor({ state: "visible"});
+  await pw.page.locator("#account-menu").locator("span").filter({ hasText: "Login" }).waitFor({ state: "visible" });
 });

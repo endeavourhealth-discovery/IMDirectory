@@ -59,7 +59,7 @@ import { useTree } from "@/composables/useTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useCreateNew } from "@/composables/useCreateNew";
-import { Action, Resource, TTIriRef, UserRole } from "@/interfaces/AutoGen";
+import { TTIriRef, UserRole } from "@/interfaces/AutoGen";
 import { useOverlay } from "@/composables/useOverlay";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
