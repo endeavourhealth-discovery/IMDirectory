@@ -1,4 +1,4 @@
-import { BugReport, EntityApproval, GraphRequest, RoleRequest, Task, WorkflowResponse } from "@/interfaces/AutoGen";
+import { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 
@@ -30,16 +30,16 @@ const WorkflowService = {
     return await axios.post(API_URL + "/updateRoleRequest", roleRequest);
   },
 
-  async createGraphRequest(roleRequest: GraphRequest): Promise<void> {
-    return await axios.post(API_URL + "/createGraphRequest", roleRequest);
+  async createNamespaceRequest(roleRequest: NamespaceRequest): Promise<void> {
+    return await axios.post(API_URL + "/createNamespaceRequest", roleRequest);
   },
 
-  async getGraphRequest(id: string): Promise<GraphRequest> {
-    return await axios.get(API_URL + "/graphRequest", { params: { id: id } });
+  async getNamespaceRequest(id: string): Promise<NamespaceRequest> {
+    return await axios.get(API_URL + "/namespaceRequest", { params: { id: id } });
   },
 
-  async updateGraphRequest(graphRequest: GraphRequest): Promise<void> {
-    return await axios.post(API_URL + "/updateGraphRequest", graphRequest);
+  async updateNamespaceRequest(namespaceRequest: NamespaceRequest): Promise<void> {
+    return await axios.post(API_URL + "/updateNamespaceRequest", namespaceRequest);
   },
 
   async createEntityApproval(entityApproval: EntityApproval): Promise<void> {
@@ -86,12 +86,12 @@ const WorkflowService = {
     return await axios.post(API_URL + "/rejectRoleRequest", roleRequest);
   },
 
-  async approveGraphRequest(graphRequest: GraphRequest) {
-    return await axios.post(API_URL + "/approveGraphRequest", graphRequest);
+  async approveNamespaceRequest(namespaceRequest: NamespaceRequest) {
+    return await axios.post(API_URL + "/approveNamespaceRequest", namespaceRequest);
   },
 
-  async rejectGraphRequest(graphRequest: GraphRequest) {
-    return await axios.post(API_URL + "/rejectGraphRequest", graphRequest);
+  async rejectNamespaceRequest(namespaceRequest: NamespaceRequest) {
+    return await axios.post(API_URL + "/rejectNamespaceRequest", namespaceRequest);
   },
 
   async approveEntityApproval(entityApproval: EntityApproval) {
