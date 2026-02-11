@@ -190,7 +190,7 @@ onUnmounted(() => {
 
 onMounted(async () => {
   loading.value = true;
-  if (currentUser.value && currentUser.value.organisations.length < 1) {
+  if (currentUser.value && currentUser.value.namespaces.length < 1) {
     await router.push({ name: "AccessDenied" });
   }
   await filterStore.fetchFilterSettings();
