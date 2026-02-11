@@ -5,7 +5,7 @@ import { User } from "@/interfaces";
 import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
 import PrimeVueColors from "@/enums/PrimeVueColors";
 import { UserData } from "@/interfaces/UserData";
-import { Graph,RecentActivityItemDto } from "@/interfaces/AutoGen";
+import { Graph, NamespacePermission, RecentActivityItemDto } from "@/interfaces/AutoGen";
 
 const API_URL = Env.API + "api/user";
 
@@ -33,6 +33,9 @@ const UserService = {
   },
   async updateUserOrganisations(organisations: string[]): Promise<User> {
     return await axios.post(API_URL + "/organisations", organisations);
+  },
+  async updateUserNamespaces(namespaces: NamespacePermission[]): Promise<User> {
+    return await axios.post(API_URL + "/namespaces", namespaces);
   },
 
   async updateEmailVerified(verified: boolean): Promise<void> {

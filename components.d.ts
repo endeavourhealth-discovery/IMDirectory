@@ -242,6 +242,7 @@ declare module 'vue' {
     WorkflowViewBugReport: typeof import('./src/components/workflow/ViewBugReport.vue')['default']
     WorkflowViewEntityApproval: typeof import('./src/components/workflow/ViewEntityApproval.vue')['default']
     WorkflowViewGraphRequest: typeof import('./src/components/workflow/ViewGraphRequest.vue')['default']
+    WorkflowViewNamespaceRequest: typeof import('./src/components/workflow/ViewNamespaceRequest.vue')['default']
     WorkflowViewRoleRequest: typeof import('./src/components/workflow/ViewRoleRequest.vue')['default']
   }
   export interface ComponentCustomProperties {

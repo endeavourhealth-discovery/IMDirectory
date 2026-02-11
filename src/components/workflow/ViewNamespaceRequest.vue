@@ -28,7 +28,7 @@
           <div class="flex gap-1">
             <Button v-if="canEdit && !editMode" label="Edit" @click="editMode = true" />
             <Button v-if="editMode" label="Cancel" @click="cancelEdit" severity="secondary" />
-            <Button v-if="editMode" @click="updateGraphRequest" :loading="loading" label="Update" />
+            <Button v-if="editMode" @click="updateNamespaceRequest" :loading="loading" label="Update" />
             <Button v-if="isAdmin || isAssignee" label="Reject" severity="danger" @click="rejectNamespaceRequest" />
             <Button v-if="isAdmin || isAssignee" label="Approve" @click="approveRequest" severity="success" />
           </div>
@@ -96,7 +96,7 @@ function setValuesFromNamespaceRequest(namespaceRequest: NamespaceRequest) {
   if (namespaceRequest.namespacePermission) selectedNamespace.value = namespaceRequest.namespacePermission.iri;
 }
 
-function updateGraphRequest() {
+function updateNamespaceRequest() {
   submitRequested.value = true;
 }
 

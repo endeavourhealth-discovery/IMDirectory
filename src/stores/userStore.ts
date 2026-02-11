@@ -8,7 +8,7 @@ import FontSize from "@/enums/FontSize";
 import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
 import { UserRole } from "@/enums";
 import { computed, ref } from "vue";
-import { RecentActivityItemDto } from "@/interfaces/AutoGen";
+import { NamespacePermission, RecentActivityItemDto } from "@/interfaces/AutoGen";
 
 export const useUserStore = defineStore("user", () => {
   const cookiesEssentialAccepted = ref<boolean>(localStorageWithExpiry.getItem("cookiesEssentialAccepted") === true ? true : false);
@@ -26,6 +26,7 @@ export const useUserStore = defineStore("user", () => {
   const uprnAgreementAccepted = ref<boolean>(localStorageWithExpiry.getItem("uprnAgreementAccepted") === true ? true : false);
   const organisations = ref<string[]>([]);
   const includeUserGraph = ref<boolean>(false);
+  const namespaces = ref<NamespacePermission[]>([]);
 
   const isLoggedIn = computed(() => isObjectHasKeys(currentUser.value));
   const isAdmin = computed(() => (currentUser.value?.roles.includes(UserRole.ADMIN) ? true : false));
@@ -69,11 +70,12 @@ export const useUserStore = defineStore("user", () => {
     clearAllFromLocalStorage();
     if (currentUser.value?.theme) currentPreset.value = currentUser.value.theme;
     if (currentUser.value?.primaryColor) currentPrimaryColor.value = currentUser.value?.primaryColor;
-    if (currentUser.value?.darkMode) darkMode.value = currentUser.value?.darkMode;
+    if (currentUser.value?.darkMode) darkMode.value = currentUser.value.darkMode;
     if (currentUser.value?.fontSize) currentFontSize.value = currentUser.value?.fontSize;
     if (currentUser.value?.organisations) organisations.value = currentUser.value?.organisations;
-    if (currentUser.value?.favourites) favourites.value = currentUser.value?.favourites;
-    if (currentUser.value?.recentActivity) recentLocalActivity.value = currentUser.value?.recentActivity;
+    if (currentUser.value?.namespaces) namespaces.value = currentUser.value.namespaces;
+    if (currentUser.value?.favourites) favourites.value = currentUser.value.favourites;
+    if (currentUser.value?.recentActivity) recentLocalActivity.value = currentUser.value.recentActivity;
   }
 
   function getAllFromLocalStorage(): void {
@@ -105,7 +107,7 @@ export const useUserStore = defineStore("user", () => {
     else activity = recentLocalActivity.value ? recentLocalActivity.value : [];
 
     activity.forEach(activityItem => {
-      if (activityItem.dateTime)activityItem.dateTime = new Date(activityItem.dateTime);
+      if (activityItem.dateTime) activityItem.dateTime = new Date(activityItem.dateTime);
     });
     const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.action === recentActivityItem.action);
     if (foundIndex !== -1) {
@@ -231,6 +233,14 @@ export const useUserStore = defineStore("user", () => {
       currentUser.value = updatedUser;
       getAllFromUserDatabase();
     } else organisations.value = orgs;
+  }
+
+    async function updateNamespaces(ns: NamespacePermission[]) {
+    if (isLoggedIn.value) {
+      const updatedUser = await UserService.updateUserNamespaces(ns);
+      currentUser.value = updatedUser;
+      getAllFromUserDatabase();
+    } else namespaces.value = ns;
   }
 
   function updateIncludeUserGraph(bool: boolean) {
