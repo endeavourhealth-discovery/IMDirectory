@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { ref, watch,onUnmounted } from "vue";
 import { DirectService } from "../../services";
 import OverlaySummary from "./OverlaySummary.vue";
 import { useOverlay } from "@/composables/useOverlay";
@@ -44,6 +44,10 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
+
+onUnmounted(() => {
+  hideOverlay()
+})
 
 const vLinkMenu = ref();
 const items = ref([
