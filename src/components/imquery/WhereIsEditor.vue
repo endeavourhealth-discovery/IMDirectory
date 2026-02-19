@@ -185,6 +185,7 @@ function updateIsIri(node: Node) {
     node.iri = selected.value.iri;
     node.name = selected.value.name;
     node.type = selected.value.type[0].iri;
+    property.value.invalid= false;
     setConstraintOperator(node, node.type === IM.CONCEPT ? "descendantsOrSelfOf" : "memberOf");
     if (!property.value.is) property.value.is = [];
     selected.value = {} as SearchResultSummary;

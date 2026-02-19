@@ -12,6 +12,7 @@
         :value="activities"
         v-model:selection="selected"
         selectionMode="single"
+        @row-click="hideOverlay"
         @rowSelect="onRowSelect"
         dataKey="dateTime"
         :scrollable="true"

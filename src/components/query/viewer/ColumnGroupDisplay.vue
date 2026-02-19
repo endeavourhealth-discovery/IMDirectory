@@ -13,6 +13,7 @@
           :match="dataSet"
           :key="index"
           :clause-index="index"
+          :parentIndex="0"
           :depth="1"
           :operator="Bool.and"
           :expanded="false"

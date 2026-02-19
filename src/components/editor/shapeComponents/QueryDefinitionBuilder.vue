@@ -16,7 +16,7 @@
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
     <div v-if="!loading">
-      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" :sourceQuery="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
     </div>
     <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <SQLDisplay :sql="sql" />
@@ -90,7 +90,6 @@ const sql: Ref<string> = ref("");
 const queryTestResults: Ref<string[]> = ref([]);
 const showTestQueryResults = ref(false);
 const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(sql);
-
 const key = props.shape.path.iri;
 
 onMounted(async () => {
@@ -105,6 +104,7 @@ function cancelEditor() {
 }
 
 function updateQuery(query: Query) {
+  queryDefinition.value = query;
   originalDefinition.value = cloneDeep(queryDefinition.value);
   showEditor.value = false;
 }

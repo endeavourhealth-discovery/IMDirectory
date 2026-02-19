@@ -76,11 +76,6 @@ import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { QueryService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { addWhereToMatch, setReturn, hasBoolGroups, addMatchToParent } from "@/helpers/buildQuery";
-import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
-import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
-import { usePropertyTree } from "@/composables/usePropertyTree";
-import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 import TypeSelector from "@/components/imquery/TypeSelector.vue";
 import Button from "primevue/button";
 import RecursiveReturnDisplay from "@/components/query/viewer/RecursiveReturnDisplay.vue";
@@ -98,7 +93,6 @@ const emit = defineEmits<{
   (event: "cancel"): void;
 }>();
 
-const { getRootNodes, getDefiningProperty, createPropertyTree, getOrderables } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const showFilterSelector = ref(false);
@@ -125,27 +119,6 @@ function updateOrderable(value: any) {
   match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
 }
 
-async function onMatchTypeSelected(node: TreeNode) {
-  showFilterSelector.value = false;
-  if (node.data.typeOf) {
-    if (node.children && node.children.length === 0) {
-      await createPropertyTree(node.data.typeOf, node);
-    }
-    const definingProperty = getDefiningProperty(node);
-    if (definingProperty) {
-      addWhereToMatch(match.value, node, definingProperty);
-      match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
-      if (!orderables.value) orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
-      edited.value = true;
-    }
-  } else {
-    addWhereToMatch(match.value, node, node.data.iri);
-    match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
-    rootNodes.value = await getRootNodes(match.value, propertyTree.value[1].children!);
-    if (!orderables.value) orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
-    edited.value = true;
-  }
-}
 function addColumns() {
   showColumnSelector.value = true;
 }

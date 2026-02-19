@@ -337,6 +337,7 @@ function processEntityValue(property: PropertyShape) {
 }
 
 async function closeEditor() {
+  editorStore.updateEditorHasChanges(false);
   await Swal.fire({
     icon: "warning",
     title: "Warning",

@@ -1,6 +1,6 @@
 <template>
   <component id="recursive-where-display" :is="inline ? 'span' : 'div'">
-    <span :style="indentationStyle(inline, depth)">
+    <span style="padding-left: 0.5rem">
       <span :class="operator">
         <span>{{ getOperator(operator, index) }}</span>
       </span>
@@ -17,7 +17,6 @@
       <template v-if="where.relativeTo">
         <span v-if="where.relativeTo.name" class="field">{{ where.relativeTo.name }} of</span>
         <span v-if="where.relativeTo.parameterName" class="field">{{ where.relativeTo.parameterName }}</span>
-        <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
       </template>
       <span v-if="isExpanded && isArrayHasLength(where.is)">
         <span>, defined as</span>
@@ -37,11 +36,10 @@
           </span>
         </div>
       </span>
-
       <span v-for="(matches, type) in boolGroup" :key="type">
         <span v-if="!root">(</span>
         <span v-for="(nestedProperty, index) in matches" :key="index">
-          <span>
+          <span v-if="!nestedProperty.linked">
             <RecursiveWhereDisplay
               :where="nestedProperty"
               :index="index"
@@ -53,7 +51,7 @@
               :root="false"
               :eclQuery="eclQuery"
               :editMode="editMode"
-              :bracketed="!root"
+              :bracketed="!root && index === matches!.length - 1"
               :step="step"
             />
           </span>

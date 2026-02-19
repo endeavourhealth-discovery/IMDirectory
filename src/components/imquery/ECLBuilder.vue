@@ -26,7 +26,7 @@
     <div id="builder-string-container">
       <div v-if="!previewECL" id="query-builder-container">
         <ProgressSpinner v-if="loading" />
-        <ExpressionConstraint v-model:match="build" :index="0" :rootBool="true" @rationalise="rationaliseBooleans" />
+        <ECLExpressionConstraint v-model:match="build" :index="0" :parentIndex="0" :rootBool="true" @rationalise="rationaliseBooleans" />
         <div v-if="build.where">
           <span class="subtypes-checkbox">Include un-inferred subtypes of the concepts found in this expression </span>
           <Checkbox :inputId="'subtypeCheck'" name="subtypeCheck" binary v-model="checkIncludeSubtypes" v-tooltip="'Select if subtypes are not needed'" />
@@ -72,7 +72,7 @@ import { cloneDeep } from "lodash-es";
 import EclService from "@/services/EclService";
 import QueryService from "@/services/QueryService";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
+import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
