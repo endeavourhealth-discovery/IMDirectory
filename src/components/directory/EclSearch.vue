@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
-import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import { TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { EclService } from "@/services";

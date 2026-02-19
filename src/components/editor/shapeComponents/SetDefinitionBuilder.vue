@@ -80,7 +80,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, inject, nextTick, onMounted, ref, Ref, watch } from "vue";
-import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 import { EditorMode } from "@/enums";
 import { EclService } from "@/services";

@@ -8,7 +8,7 @@
         :rootBaseEntities="rootBaseEntities"
         v-model:base-cohort-query="baseCohortQuery"
         @updateBaseType="updateBaseType($event)"
-        @cancel="editMode = false"
+        @cancel="onCancel"
         @navigateTo="emit('navigateTo', $event)"
       />
     </div>
@@ -29,20 +29,6 @@
         @mouseout="hoverEditClause = false"
       />
     </div>
-    <div v-if="!editMode && !hasBoolGroups(match)" class="add-button">
-      <Button
-        type="button"
-        icon="fa-solid fa-plus"
-        label="Add clause"
-        data-testid="add-clause-button"
-        :severity="hoverAddClause ? 'success' : 'secondary'"
-        :outlined="!hoverAddClause"
-        :class="!hoverAddClause && 'hover-button'"
-        @click="addMatch()"
-        @mouseover="hoverAddClause = true"
-        @mouseout="hoverAddClause = false"
-      />
-    </div>
   </div>
 </template>
 
@@ -51,7 +37,7 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
 import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
 import { EntityService, QueryService } from "@/services";
-import { addMatchToParent, buildIMQueryFromFilters, hasBoolGroups } from "@/helpers/buildQuery";
+import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
@@ -63,8 +49,8 @@ const rootBaseEntities: Ref<string[]> = ref([]);
 const hoverEditClause = ref(false);
 const hoverAddClause = ref(false);
 const baseType: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const cohortFilterOptions: Ref<SearchOptions> = ref({
-  types: [{ iri: IM.QUERY }, { iri: SHACL.NODESHAPE }],
+const baseTypeFilterOptions: Ref<SearchOptions> = ref({
+  types: [{ iri: SHACL.NODESHAPE }],
   status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
   schemes: []
 });
@@ -73,7 +59,7 @@ const baseCohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 const emit = defineEmits<{
   (event: "node-selected", query: any): void;
   (event: "navigateTo", iri: string): void;
-  (event: "onCancel", visible: boolean): void;
+  (event: "cancel"): void;
 }>();
 
 onMounted(async () => {
@@ -81,8 +67,8 @@ onMounted(async () => {
 });
 
 async function init() {
-  rootBaseEntities.value = await EntityService.getChildEntities(IM.DEFAULT_COHORTS);
-  baseCohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
+  rootBaseEntities.value = await EntityService.getChildEntities(IM.HEALTH_RECORDS);
+  baseCohortQuery.value = buildIMQueryFromFilters(baseTypeFilterOptions.value);
   if (match.value.typeOf) {
     baseType.value.iri = match.value.typeOf!.iri!;
     baseType.value.name = match.value.typeOf.name;
@@ -98,6 +84,11 @@ function addMatch() {
     match.value.and = [];
     addMatchToParent({}, match.value);
   } else addMatchToParent({}, match.value);
+}
+
+function onCancel() {
+  editMode.value = false;
+  emit("cancel");
 }
 
 async function updateBaseType(newBaseType?: SearchResultSummary) {

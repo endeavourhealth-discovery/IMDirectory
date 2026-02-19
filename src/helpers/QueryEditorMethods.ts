@@ -268,15 +268,7 @@ export function getInclusivityOptions(fromOrTo: "from" | "to"): any[] {
   }
   return results;
 }
-export function getPathName(nodeRef: string, match: Match): string {
-  if (!match.path) return "";
-  let flatPath = "";
-  const path = match.path[0];
-  flatPath = flatPath + (path.name! === "" ? path.iri?.split("#")[1] : path.name);
-  if (path.node === nodeRef) return flatPath;
-  flatPath = getPathNameFromPath(nodeRef, flatPath, path);
-  return flatPath;
-}
+
 
 function getPathNameFromPath(nodeRef: string, flatPath: string, path: Path): string {
   flatPath = flatPath.concat("/");
@@ -344,10 +336,15 @@ export function getOrderOptions(orderables: Orderable[]): any[] {
       results.push({
         label: orderable[direction] + " " + orderable.name,
         value: { iri: orderable.iri, direction: direction as Order, label: orderable[direction] + " " + orderable.name },
-        tooltip: "latest from the entries following the filters"
+        tooltip: "From the entries following the filters"
       });
     }
   }
+  results.push({
+    label: "Any",
+    value: {},
+    tooltip: "Any entries following the filters"
+  });
   return results;
 }
 

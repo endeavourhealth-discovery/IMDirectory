@@ -2,61 +2,56 @@ import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Path, PropertyShape, Node } from "@/interfaces/AutoGen";
+import { Match, Node, PropertyShape, Where } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
-import { Orderable } from "@/models/orderable";
+import { addWhereToMatch, setPathGetNodeRef } from "@/helpers/buildQuery";
+import { trimEnd } from "lodash-es";
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const loading: Ref<boolean> = ref(false);
 
   async function createPropertyTree(iri: string, parent: TreeNode) {
+    const parentKey = parent.key;
     const entity = await DataModelService.getDataModelProperties(iri, false);
     const propertyList = [] as TreeNode[];
+    const path = parent.data.path ? parent.data.path : "";
     if (entity.property && isArrayHasLength(entity.property)) {
       for (const [index, property] of entity.property.entries()) {
-        if (!isBase(property)) propertyList.push(createPropertyNode(index.toString(), property, parent));
+        if (!isBase(property)) propertyList.push(createPropertyNode(parentKey + "_" + index.toString(), property, path, parentKey));
       }
       if (propertyList.length > 0) parent.children = propertyList;
     }
   }
 
-  async function createFeatureTree(queryBaseType: Node, propertiesOnly?: boolean): Promise<TreeNode[]> {
+  async function createFeatureTree(queryBaseType: Node): Promise<TreeNode[]> {
     baseType.value = queryBaseType;
     const data = ref([] as TreeNode[]);
-    let key = "0";
-    let keyIndex = 0;
-    if (!propertiesOnly) {
-      data.value.push(createNode(key, "Add a cohort as feature", "cohort", "cohort", IM.QUERY, undefined, "", null));
-      key = "1";
-      keyIndex++;
-    }
-    data.value.push(createNode(key, "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, undefined, "", null));
-    data.value[0].selectable = true;
-    await createPropertyTree(queryBaseType.iri!, data.value[keyIndex]);
+    data.value.push(createNode("0", "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, undefined, "", "", ""));
+    data.value[0].selectable = false;
+    await createPropertyTree(queryBaseType.iri!, data.value[0]);
     return data.value;
   }
 
   function createNode(
-    index: string,
+    key: string,
     name: string | undefined,
     iri: string,
     type: string,
     iconType: string,
     typeOf: string | undefined,
     rangeType: string | undefined,
-    parent: TreeNode | null,
+    path: string,
+    parentKey: string,
     ascending?: string,
     descending?: string,
     definingProperty?: boolean
   ): TreeNode {
-    const key = parent === null ? index : parent.key + "_" + index;
-    let path;
-    if (parent && parent.type === "property") {
-      if (parent.data.path) path = parent.data.path;
+    if (typeOf) {
+      if (path === "") path = path + iri + "\t" + typeOf;
+      else path = path + "\t" + iri + "\t" + typeOf;
     }
-    if (typeOf) path = (path ? path + "\t" : "") + iri + "\t" + typeOf;
     const node = {
       key: key,
       label: name,
@@ -67,10 +62,10 @@ export function usePropertyTree() {
         iri: iri,
         path: path,
         typeOf: typeOf,
+        parentKey: parentKey,
         definingProperty: definingProperty,
         ascending: ascending,
         descending: descending,
-        parent: parent ? parent.key : null,
         rangeType: rangeType
       },
       loading: false,
@@ -85,13 +80,13 @@ export function usePropertyTree() {
     return node;
   }
 
-  function createGroupNode(index: string, property: PropertyShape, parent: TreeNode): TreeNode {
+  function createGroupNode(key: string, property: PropertyShape, path: string, parentKey: string): TreeNode {
     const name = property.group!.name;
-    const groupNode = createNode(index, name, property.group!.iri, "folder", IM.FOLDER, undefined, "", parent) as TreeNode;
+    const groupNode = createNode(key, name, property.group!.iri, "folder", IM.FOLDER, undefined, "", path, parentKey) as TreeNode;
     if (property.property) {
       const propertyList = [] as TreeNode[];
       for (const [propertyIndex, groupedProperty] of property.property.entries()) {
-        propertyList.push(createPropertyNode(propertyIndex.toString(), groupedProperty, groupNode));
+        propertyList.push(createPropertyNode(key + "_" + propertyIndex.toString(), groupedProperty, path, key));
       }
       groupNode.children = propertyList;
     }
@@ -99,9 +94,9 @@ export function usePropertyTree() {
     return groupNode;
   }
 
-  function createPropertyNode(index: string, property: PropertyShape, parent: TreeNode): TreeNode {
+  function createPropertyNode(key: string, property: PropertyShape, path: string, parentKey: string): TreeNode {
     if (property.group) {
-      return createGroupNode(index, property, parent);
+      return createGroupNode(key, property, path, parentKey);
     }
     let rangeType;
     let typeOf;
@@ -118,19 +113,23 @@ export function usePropertyTree() {
       name += ` (${value})`;
     }
     const propertyNode = createNode(
-      index,
+      key,
       name!,
       property.path.iri,
       "property",
       RDF.PROPERTY,
       typeOf,
       rangeType,
-      parent,
+      path,
+      parentKey,
       property.ascending,
       property.descending,
       property.definingProperty
     ) as TreeNode;
-    propertyNode.selectable = true;
+    if (rangeType === SHACL.NODESHAPE) {
+      propertyNode.selectable = false;
+      propertyNode.leaf = false;
+    } else propertyNode.selectable = true;
     return propertyNode;
   }
 
@@ -156,76 +155,34 @@ export function usePropertyTree() {
     node.loading = false;
   }
 
-  async function getRootNodes(match: Match, nodes: TreeNode[]): Promise<TreeNode[]> {
-    if (!match.path) return nodes;
-    const rootNodes = [] as TreeNode[];
-    await setRootNodesFromMatch(match, nodes, rootNodes);
-    return rootNodes;
+  function addWhereFromTree(match: Match, node: TreeNode) {
+    const path = node.data.path;
+    let nodeRef = undefined;
+    if (path) nodeRef = setPathGetNodeRef(match, path);
+    if (node.type === "property" && node.data.rangeType != SHACL.NODESHAPE) {
+      const where = { iri: node.data.iri, invalid: true } as Where;
+      if (nodeRef) where.nodeRef = nodeRef;
+      if (node.data.rangeType === IM.VALUESET || node.data.rangeType === IM.CONCEPT) where.is = [{}];
+      addWhereToMatch(match, where);
+    }
   }
-
-  async function setRootNodesFromMatch(match: Match, nodes: TreeNode[], rootNodes: TreeNode[]) {
-    const path = match.path![0]!;
+  function findNodeFromPath(path: string, nodes: TreeNode[]): TreeNode[] | undefined {
     for (const node of nodes) {
-      if (node.type === "folder") {
-        await setRootNodesFromMatch(match, node.children!, rootNodes);
-      } else if (node.data.iri === path.iri) {
-        rootNodes.push(node);
-        if (node.children!.length === 0) await expandNode(node);
-        if (path.path && node.children && node.children.length > 0) {
-          const subPath = path.path[0];
-          await addRootNodes(rootNodes, subPath, node);
-        }
-      }
-    }
-    return rootNodes;
-  }
-  async function addRootNodes(rootNodes: TreeNode[], subPath: Path, node: TreeNode) {
-    for (const child of node.children!) {
-      if (child.type === "folder") {
-        await addRootNodes(rootNodes, subPath, child);
-      } else if (child.data.iri === subPath.iri) {
-        rootNodes.push(child);
-        if (child.children!.length === 0) await expandNode(child);
-        if (subPath.path && child.children && child.children.length > 0) {
-          const subSubPath = subPath.path[0];
-          await addRootNodes(rootNodes, subSubPath, child);
-        }
-      }
-    }
-  }
-  function getDefiningProperty(node: TreeNode): string | undefined {
-    if (node.children && node.children.length > 0) {
-      for (const child of node.children) {
-        if (child.data.definingProperty) return child.data.iri;
+      if (node.data.path === path) return [node];
+      if (node.children && node.children.length > 0) {
+        const foundNode = findNodeFromPath(path, node.children);
+        if (foundNode) return foundNode;
       }
     }
     return undefined;
   }
 
-  function getOrderables(node: TreeNode): Orderable[] {
-    const orderables = [] as Orderable[];
-    if (node.children && node.children.length > 0) {
-      for (const child of node.children) {
-        if (child.data.ascending) {
-          orderables.push({
-            iri: child.data.iri,
-            name: child.label,
-            ascending: child.data.ascending,
-            descending: child.data.descending
-          });
-        }
-      }
-    }
-    return orderables;
-  }
-
   return {
-    getRootNodes,
-    getOrderables,
-    getDefiningProperty,
     createFeatureTree,
     expandNode,
     createPropertyTree,
+    addWhereFromTree,
+    findNodeFromPath,
     loading
   };
 }

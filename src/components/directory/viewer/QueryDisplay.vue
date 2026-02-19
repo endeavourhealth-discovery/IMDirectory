@@ -6,29 +6,6 @@
     <div v-else class="query-display-container flex flex-col gap-4">
       <template v-if="!eclQuery">
         <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
-        <div class="flex flex-row gap-2">
-          <div v-if="isLoggedIn">
-            <Button
-              label="View arguments"
-              @click="
-                showArgumentsDisplay();
-                runOnConfirm = false;
-              "
-              :loading="checkingArguments"
-            />
-          </div>
-          <div v-if="isLoggedIn"><Button label="Test run query" @click="testRunQuery" severity="help" /></div>
-          <div v-if="isLoggedIn">
-            <Button
-              label="Run query"
-              @click="
-                runQuery();
-                runOnConfirm = true;
-              "
-              :loading="checkingArguments"
-            />
-          </div>
-        </div>
       </template>
       <template v-if="query && (selectedDisplayOption == DisplayOptions.RuleView || selectedDisplayOption == DisplayOptions.LogicalView)">
         <div class="query-display-content rec-query-display">
@@ -37,16 +14,36 @@
             <span class="field" v-html="query.typeOf.name"></span>
             <span class="include-title text-black-500">with the following features</span>
           </div>
-          <RecursiveMatchDisplay
-            :match="query"
-            :clauseIndex="0"
-            :depth="0"
-            :inline="false"
-            :parent-match="rootQuery"
-            :bracketed="false"
-            :eclQuery="eclQuery"
-            :expanded="query.name === undefined"
-          />
+          <template v-if="boolGroup">
+            <div :style="{ marginLeft: `0rem` }">
+              <div
+                v-for="(nestedQuery, index) in boolGroup"
+                :key="`nestedQueryDisplay-${index}`"
+                :class="operator === Bool.rule && index > 0 ? 'rule-box' : ''"
+              >
+                <RecursiveMatchDisplay
+                  :match="nestedQuery"
+                  :clause-index="index"
+                  :parent-operator="operator"
+                  :depth="1"
+                  :parent-match="query"
+                  :eclQuery="eclQuery"
+                />
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <div>
+              <RecursiveMatchDisplay
+                :match="query"
+                :clauseIndex="0"
+                :depth="0"
+                :parent-match="rootQuery"
+                :eclQuery="eclQuery"
+                :expanded="query.name === undefined"
+              />
+            </div>
+          </template>
         </div>
       </template>
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
@@ -70,25 +67,6 @@
           />
         </div>
       </div>
-      <TestQueryResults v-model:show-dialog="showTestResults" :test-query-results="testResults" />
-      <ConfirmDialog group="templating">
-        <template #message="slotProps">
-          <div class="border-surface-200 dark:border-surface-700 flex w-full flex-col items-center gap-4 border-b">
-            <div class="confirm-container gap-4">
-              <IMFontAwesomeIcon size="2x" :icon="slotProps.message.icon"></IMFontAwesomeIcon>
-              <p>{{ slotProps.message.message }}</p>
-            </div>
-            <ArgumentDisplay :arguments="missingArguments.length ? missingArguments : requestArguments" :show-footer-buttons="false" />
-          </div>
-        </template>
-      </ConfirmDialog>
-      <ArgumentDisplayDialog
-        :arguments="missingArguments.length ? missingArguments : requestArguments"
-        :runOnConfirm="runOnConfirm"
-        :showFooterButtons="true"
-        v-model:showDialog="showArgumentSelector"
-        @arguments-completed="addArgumentsAndRun"
-      />
     </div>
   </div>
 </template>
@@ -102,14 +80,11 @@ import { Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, Que
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import IMLDisplay from "./IMLDisplay.vue";
-import { useUserStore } from "@/stores/userStore";
-import { useConfirm } from "primevue/useconfirm";
-import { useRouter } from "vue-router";
 import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
 import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
 import ArgumentDisplayDialog from "@/components/directory/viewer/queryDisplay/ArgumentDisplayDialog.vue";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { manageRoleGroup } from "@/helpers/buildQuery";
+import { cloneDeep } from "lodash-es";
+import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
 
 enum DisplayOptions {
   RuleView = "Rule view",
@@ -131,12 +106,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
-const userStore = useUserStore();
-const confirm = useConfirm();
-const router = useRouter();
 
-const isLoggedIn = computed(() => userStore.isLoggedIn);
-const currentUser = computed(() => userStore.currentUser);
 const showColumns = ref(false);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
@@ -155,6 +125,13 @@ const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
 const runOnConfirm = ref(false);
 const hasPermissionQueryExecute = ref(false);
+const deepQuery: Ref<Query | undefined> = ref();
+const operator = computed(() => {
+  return getBooleanOperator("Match", query.value);
+});
+const boolGroup = computed(() => {
+  return getBoolGroup("Match", query.value);
+});
 provide("queryIri", props.entityIri);
 provide("displayMode", displayMode);
 
@@ -178,10 +155,6 @@ watch(
     await init();
   }
 );
-
-watch(currentUser, async () => {
-  hasPermissionQueryExecute.value = currentUser.value?.roles.includes(UserRole.EXECUTOR)!!;
-});
 
 watch(selectedDisplayOption, async (newValue, oldValue) => {
   if (!newValue) selectedDisplayOption.value = oldValue;
@@ -217,6 +190,7 @@ async function init() {
   if (!query.value?.typeOf) {
     if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, DisplayMode.ORIGINAL);
   }
+  deepQuery.value = cloneDeep(query.value);
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();
   if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
@@ -238,61 +212,6 @@ async function getQueryDisplay(displayMode: DisplayMode) {
   return undefined;
 }
 
-async function showArgumentsDisplay() {
-  showArgumentSelector.value = true;
-  await checkArguments();
-}
-
-async function checkArguments(): Promise<boolean> {
-  if (query.value && query.value.iri) {
-    checkingArguments.value = true;
-    const request: QueryRequest = { query: query.value, argument: requestArguments.value };
-    missingArguments.value = await QueryService.findMissingArguments(request);
-    if (missingArguments.value.length) showArgumentSelector.value = true;
-    checkingArguments.value = false;
-  }
-  return !missingArguments.value.length;
-}
-
-async function runQuery() {
-  if (query.value) {
-    const argumentsVerified = await checkArguments();
-    if (!argumentsVerified) return;
-    confirm.require({
-      group: "templating",
-      message: "Are you sure you want to run this query '" + query.value.name + "' with the following arguments: \n",
-      header: "Run query",
-      icon: "fa-regular fa-circle-exclamation",
-      rejectProps: {
-        label: "No",
-        severity: "secondary",
-        outlined: true
-      },
-      acceptProps: {
-        label: "Yes"
-      },
-      accept: async () => {
-        await addQueryToRunnerQueue();
-        window.open(`${Env.QUERY_RUNNER}`, "_blank");
-      },
-      reject: () => confirm.close()
-    });
-  }
-}
-
-async function addArgumentsAndRun(completedArguments: Argument[], run: boolean) {
-  requestArguments.value = completedArguments;
-  showArgumentSelector.value = false;
-  if (run) await runQuery();
-}
-
-async function addQueryToRunnerQueue() {
-  if (query.value) {
-    const request: QueryRequest = await getQueryRequestFromQueryIri();
-    await QueryService.addQueryToRunnerQueue(request);
-  }
-}
-
 async function getQueryRequestFromQueryIri() {
   if (query.value?.iri) {
     const queryDisplay = await QueryService.getDisplayFromQueryIri(query.value.iri, DisplayMode.LOGICAL);
@@ -300,37 +219,13 @@ async function getQueryRequestFromQueryIri() {
   }
   return {} as QueryRequest;
 }
-
-async function testRunQuery() {
-  if (query.value) {
-    const argumentsVerified = await checkArguments();
-    if (!argumentsVerified) return;
-    confirm.require({
-      message: "Are you sure you want to test run this query '" + query.value.name + "'?",
-      header: "Test run query",
-      icon: "pi pi-exclamation-triangle",
-      rejectProps: {
-        label: "No",
-        severity: "secondary",
-        outlined: true
-      },
-      acceptProps: {
-        label: "Yes"
-      },
-      accept: async () => {
-        if (query.value) {
-          const request: QueryRequest = { query: query.value, argument: requestArguments.value };
-          testResults.value = await QueryService.testRunQuery(request);
-          showTestResults.value = true;
-        }
-      },
-      reject: () => confirm.close()
-    });
-  }
-}
 </script>
 
 <style scoped>
+.rule-box {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
 .confirm-container {
   display: flex;
   flex-direction: row;
@@ -357,20 +252,6 @@ async function testRunQuery() {
 
 .field {
   padding-right: 1rem;
-}
-
-.tree-node-wrapper {
-  position: relative;
-  padding-left: 0rem;
-}
-
-.tree-node-wrapper::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 0.1rem;
-  height: 100%;
-  border-left: 0.1rem dotted #999;
 }
 
 .rec-query-display {

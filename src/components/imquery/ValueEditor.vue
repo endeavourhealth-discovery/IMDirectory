@@ -1,4 +1,5 @@
 <template>
+  <span>{{ assignable }}</span>
   <Select
     v-if="!fromOrTo"
     :modelValue="operator"
@@ -257,6 +258,7 @@ function updateAssignable() {
   property.value.units = units.value;
   if (offset.value === "-" && numeric.value != null) assignable.value.value = "-" + numeric.value.toString();
   removeUndefined(assignable.value);
+  assignable.value.invalid = false;
   emit("updateProperty");
 }
 

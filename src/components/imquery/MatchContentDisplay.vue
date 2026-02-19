@@ -18,9 +18,31 @@
   <template v-else>
     <span class="field">{{ getFormattedPath(match) }}</span>
     <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
-    <span v-if="match.where">
-      <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
-    </span>
+    <template v-if="match.where">
+      <template v-if="!boolWhereGroup">
+        <WhereContentDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :key="0" :index="0" :root="true" />
+      </template>
+      <template v-else>
+        <WhereContentDisplay
+          :where="boolWhereGroup![0]"
+          :depth="depth + (match.nodeRef ? 1 : 0)"
+          :parentOperator="whereOperator"
+          :key="0"
+          :index="0"
+          :root="true"
+        />
+        <div v-for="(nestedProperty, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
+          <WhereContentDisplay
+            :where="boolWhereGroup![subIndex + 1]"
+            :depth="depth + (match.nodeRef ? 1 : 0)"
+            :parentOperator="whereOperator"
+            :key="0"
+            :index="subIndex + 1"
+            :root="false"
+          />
+        </div>
+      </template>
+    </template>
     <span v-if="match.node">
       <span class="field">(as</span>
       <span class="as">{{ match.node }})</span>
@@ -30,9 +52,11 @@
 
 <script setup lang="ts">
 import { Bool, Match } from "@/interfaces/AutoGen";
-import WhereDisplay from "@/components/imquery/WhereDisplay.vue";
+import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import DirectService from "@/services/DirectService";
+import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+import { computed } from "vue";
 interface Props {
   match: Match;
   depth: number;
@@ -44,6 +68,13 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits(["navigateTo"]);
 const directService = new DirectService();
+const whereOperator = computed(() => {
+  return getBooleanOperator("Where", props.match.where);
+});
+const boolWhereGroup = computed(() => {
+  return getBoolGroup("Where", props.match.where);
+});
+
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -59,6 +90,11 @@ function getFormattedPath(path: any): string {
 <style scoped>
 .order-by {
   padding-left: 0.2rem;
+}
+.where-container {
+  min-width: 0;
+  font-size: 1rem;
+  margin-left: 2rem;
 }
 
 .as {

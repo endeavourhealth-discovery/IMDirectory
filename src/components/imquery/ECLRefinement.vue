@@ -1,9 +1,9 @@
 <template>
-  <div v-if="boolGroup" class="refinement-container" @drop="onDrop($event, where, parent)" @dragover="onDragOver($event)">
+  <div v-if="boolGroup" class="refinement-container">
     <div>
       <BooleanEditor
-        v-model:clause="where as Clause<Where>"
-        v-model:parent="parent as Clause<Where>"
+        v-model:clause="where"
+        v-model:parent="parent"
         :parentType="'Where'"
         :index="index"
         v-model:group="group"
@@ -16,12 +16,13 @@
     </div>
 
     <div class="nested-refinement-container">
-      <div v-for="(item, index) in boolGroup" :key="item.uuid">
+      <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
         <ECLRefinement
-          v-model:where="boolGroup![index]"
+          v-model:where="boolGroup![subIndex]"
           v-model:parent="where"
           v-model:parentGroup="group"
-          :index="index"
+          :index="subIndex"
+          :parentIndex="index"
           :isInAttributeGroup="isRoleGroup"
           :rootBool="false"
           :parentType="'Where'"
@@ -39,17 +40,13 @@
           icon="fa-solid fa-plus"
           label="Add attribute"
           data-testid="add-refinement-button"
-          :severity="hoverAddRefinement ? 'success' : 'secondary'"
-          :outlined="!hoverAddRefinement"
-          :class="!hoverAddRefinement && 'hover-button'"
+          class="add-button"
           @click="addRefinementToGroup()"
-          @mouseover="hoverAddRefinement = true"
-          @mouseout="hoverAddRefinement = false"
         />
       </div>
     </div>
   </div>
-  <div v-else class="single-refinement" @drop="onDrop($event, where, parent)" @dragover="onDragOver($event)">
+  <div v-else class="single-refinement" @drop="onDrop($event, where, parent, index, 'Where')" @dragover="onDragOver($event, 'Where')">
     <div class="property-column">
       <div class="property-container">
         <Button
@@ -57,8 +54,8 @@
           severity="secondary"
           text
           draggable="true"
-          @dragstart="onDragStart($event, where, parent)"
-          @dragend="onDragEnd(where, parent)"
+          @dragstart="onDragStart(where, parent, index, 'Where')"
+          @dragend="onDragEnd()"
         />
         <div v-if="canCheck" class="group-checkbox">
           <Checkbox
@@ -108,16 +105,7 @@
         />
 
         <Button v-if="where.invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
-        <Button
-          @click.stop="deleteProperty"
-          class="builder-button"
-          :severity="hoverDeleteProperty ? 'danger' : 'secondary'"
-          :outlined="!hoverDeleteProperty"
-          :class="!hoverDeleteProperty && 'hover-button'"
-          icon="fa-solid fa-trash"
-          @mouseover="hoverDeleteProperty = true"
-          @mouseout="hoverDeleteProperty = false"
-        />
+        <Button @click.stop="deleteProperty" class="delete-button" icon="fa-solid fa-trash" />
 
         <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
         <Select style="width: 5rem" v-model="inNotIn" :options="operatorOptions" />
@@ -145,16 +133,24 @@ import { EclService, QueryService } from "@/services";
 import { IM, QUERY } from "@/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ToastSeverity } from "@/enums";
-import { Bool, Where, Match, QueryRequest, SearchResultSummary, Clause } from "@/interfaces/AutoGen";
+import { Bool, Where, Match, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
-import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
-import { getBooleanOptions, getIsRoleGroup, checkGroupChange, createNewBoolGroup, removeSubgroup } from "@/helpers/buildQuery";
+import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";
+import {
+  getBooleanOptions,
+  getIsRoleGroup,
+  checkGroupChange,
+  createNewBoolGroup,
+  removeSubgroup,
+  getBooleanOperator,
+  getBoolGroup
+} from "@/helpers/buildQuery";
 import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/helpers/buildQuery";
 import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
-import ECLRefinementValue from "@/components/directory/topbar/eclSearch/builder/ECLRefinementValue.vue";
+import ECLRefinementValue from "@/components/imquery/ECLRefinementValue.vue";
 import { v4 } from "uuid";
-import BooleanEditor from "@/components/directory/topbar/eclSearch/builder/BooleanEditor.vue";
+import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 
 interface Props {
   index: number;
@@ -166,6 +162,7 @@ interface Props {
   propertySearch?: QueryRequest;
   isValidPropertySearch?: QueryRequest;
   rootProperties?: string[];
+  parentIndex: number;
 }
 
 const props = defineProps<Props>();
@@ -176,14 +173,11 @@ const emit = defineEmits(["updateBool", "rationalise", "createSubgroup"]);
 const group: Ref<number[]> = ref([]);
 const checked: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
 const checkUngroup: Ref<boolean> = ref(false);
-const hoverAddRefinement = ref(false);
 const toast = useToast();
 const filterStore = useFilterStore();
-const hoverDeleteProperty = ref(false);
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or"] as const;
-const { onDragEnd, onDragStart, onDrop, onDragOver } = useECLBuilderActions(wasDraggedAndDropped);
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref(where.value as SearchResultSummary | undefined);
 const loadingProperty = ref(true);
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
@@ -191,8 +185,12 @@ const isRoleGroup = computed(() => getIsRoleGroup(where.value));
 const operatorOptions = ["=", "!="];
 const hover = ref();
 const propertyConstraintOperator: Ref<string | undefined> = ref<"<<">();
-const operator = computed(() => (where.value.and ? Bool.and : Bool.or));
-const boolGroup = computed(() => (where.value.and ? where.value.and : where.value.or ? where.value.or : undefined));
+const operator = computed(() => {
+  return getBooleanOperator("Where", where.value);
+});
+const boolGroup = computed(() => {
+  return getBoolGroup("Where", where.value);
+});
 const inNotIn = computed(() => {
   if (where.value.not) return "!=";
   else return "=";
@@ -306,6 +304,25 @@ async function updateProperty(property: SearchResultSummary | undefined) {
 </script>
 
 <style scoped>
+.add-button,
+.delete-button {
+  color: #444444; /* text */
+  background-color: #f0f0f0; /* greyish default */
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.add-button:hover,
+.add-button:focus {
+  background-color: #a5d6a7;
+}
+.delete-button:hover,
+.delete-button:focus {
+  background-color: red;
+}
+
 .refinement-container {
   padding: 0;
   margin: 0.5rem;

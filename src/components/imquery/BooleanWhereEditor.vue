@@ -1,102 +1,60 @@
 <template>
-  <div v-if="loading" class="flex">
-    <ProgressBar mode="indeterminate" style="height: 6px"></ProgressBar>
-  </div>
-  <div class="nested-where">
-    <div v-if="hasBoolGroups(property)">
-      <div v-for="operator in operators" :key="operator">
-        <div v-if="property[operator]">
-          <div class="match-clause">
-            <BooleanEditor
-              v-model:clause="property"
-              v-model:parentClause="parentProperty"
-              :depth="0"
-              :hasSubgroups="true"
-              :parentOperator="operator as Bool"
-              :grandParentOperator="parentOperator as Bool"
-              :clauseIndex="clauseIndex"
-              :clauseType="'Where'"
-              v-model:parentGroup="group"
-              @updateOperator="onUpdateParentOperator"
-              :rootBool="false"
-            />
-          </div>
-          <div v-for="(item, index) in property[operator]" :key="index">
-            <BooleanWhereEditor
-              :match="match"
-              v-model:property="property[operator][index]"
-              v-model:parentProperty="property"
-              :clauseIndex="index"
-              :baseType="baseType"
-              :parentOperator="operator as Bool"
-              :show-delete="showDelete"
-              @deletedProperty="onDeletedProperty"
-              @addProperty="emit('addProperty')"
-              @updateBool="updateBool"
-              @updateProperty="updateProperty"
-            />
-          </div>
-        </div>
+  <div v-if="boolGroup">
+    <BooleanEditor
+      v-model:clause="where"
+      v-model:parent="parent"
+      :parentType="'Match'"
+      :index="index"
+      v-model:group="group"
+      :parentOperator="parentOperator as Bool"
+      :operator="operator"
+      :rootBool="rootBool"
+      :clauseType="'Match'"
+    />
+
+    <div class="nested-where">
+      <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
+        <BooleanWhereEditor
+          :match="match"
+          v-model:where="boolGroup![subIndex]"
+          v-model:parent="where"
+          :index="subIndex"
+          :parentIndex="index"
+          :baseType="baseType"
+          :rootBool="false"
+          :parentOperator="operator as Bool"
+          :show-delete="showDelete"
+          @deleteWhere="onDeleteBooleanWhere(subIndex)"
+          @addProperty="emit('addProperty')"
+          @updateBool="updateBool"
+          @updateProperty="updateProperty"
+        />
       </div>
     </div>
-    <div v-else class="property-value-container">
-      <BooleanEditor
-        v-model:clause="property"
-        v-model:parentClause="parentProperty"
-        :depth="0"
-        :hasSubgroups="false"
-        :parentOperator="parentOperator as Bool"
-        :clauseIndex="clauseIndex"
-        :clauseType="'Where'"
-        v-model:parentGroup="group"
-        @updateOperator="onUpdateOperator"
-        :rootBool="false"
-      />
-
-      <div class="property-display">
-        <span class="property-label">{{ propertyPath }}</span>
-      </div>
-      <div v-if="selectedProperty?.propertyType === 'class'">
-        <WhereIsEditor :key="refreshCounter" v-model:property="property" :uiProperty="selectedProperty" />
+  </div>
+  <div v-else :class="where.invalid ? 'property-container-invalid' : 'property-container'">
+    <span class="property-label">{{ pathPropertyName }}</span>
+    <div class="property-value-container">
+      <div v-if="selectedWhere?.propertyType === 'class'">
+        <WhereIsEditor :key="refreshCounter" v-model:property="where" :uiProperty="selectedWhere" />
         <Popover ref="dropdown">
           <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
-            <span v-for="is of property.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
+            <span v-for="is of where.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
           </div>
         </Popover>
       </div>
-      <div v-else-if="selectedProperty?.propertyType === 'datatype'">
+      <div v-else-if="selectedWhere?.propertyType === 'datatype'">
         <WhereValueEditor
           :key="refreshCounter"
-          :ui-property="selectedProperty"
-          v-model:property="property!"
+          :ui-property="selectedWhere"
+          v-model:property="where!"
           :refresh="refreshCounter"
           @updateProperty="updateProperty"
         />
       </div>
       <div class="mt-auto ml-auto flex flex-row items-end">
         <Button v-if="updated" data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
-
-        <Button
-          type="button"
-          icon="fa-solid fa-plus"
-          label="Add property"
-          data-testid="add-clause-button"
-          :severity="hoverAddProperty ? 'success' : 'secondary'"
-          :outlined="!hoverAddProperty"
-          :class="!hoverAddProperty && 'hover-button'"
-          @click="addProperty"
-          @mouseover="hoverAddProperty = true"
-          @mouseout="hoverAddProperty = false"
-        />
-        <Button
-          @click.stop="deleteProperty"
-          :class="!hoverDeleteProperty && 'hover-button'"
-          :severity="hoverDeleteProperty ? 'danger' : 'secondary'"
-          :outlined="!hoverDeleteProperty"
-          icon="fa-solid fa-trash"
-          @mouseover="hoverDeleteProperty = true"
-          @mouseout="hoverDeleteProperty = false"
-        />
+        <Button @click.stop="deleteProperty" class="delete-button" icon="fa-solid fa-trash" />
       </div>
     </div>
   </div>
@@ -109,11 +67,19 @@ import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { deletePropertyFromParent, hasBoolGroups, updateBooleans, updateFocusConcepts } from "@/helpers/buildQuery";
+import {
+  deletePropertyFromParent,
+  getBooleanOperator,
+  getBoolGroup,
+  getDisplayOperator,
+  updateBooleans,
+  getTypeIriFromMatch,
+  updateFocusConcepts,
+  getPathPropertyNames
+} from "@/helpers/buildQuery";
 import { cloneDeep } from "lodash-es";
 import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
-import { getPathName, getTypeFromClause } from "@/helpers/QueryEditorMethods";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 
 const props = withDefaults(
@@ -121,79 +87,72 @@ const props = withDefaults(
     showDelete?: boolean;
     match: Match;
     baseType: Node;
-    clauseIndex: number;
+    index: number;
+    rootBool: boolean;
     parentOperator?: Bool;
+    parentIndex: number;
   }>(),
   { showDelete: true }
 );
 
-const property = defineModel<Where>("property", { default: {} });
-const selectedProperty: Ref<UIProperty | undefined> = ref();
-const emit = defineEmits(["updateBool", "addProperty", "deletedProperty", "updateProperty"]);
+const where = defineModel<Where>("where", { default: {} });
+const parent = defineModel<Where | Match>("parent", { default: {} });
+const selectedWhere: Ref<UIProperty | undefined> = ref();
+const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);
 const expandSet: Ref<boolean> = ref(false);
 const group: Ref<number[]> = ref([]);
 const loading = ref(true);
 const parentProperty = defineModel<Where>("parentProperty", { default: {} });
 const dropdown = ref();
-const operators = ["and", "or"] as const;
-const hoverAddProperty = ref(false);
-const hoverDeleteProperty = ref(false);
-
-const dataModelIri: Ref<string> = ref("");
-const propertyPath = computed(() => {
-  if (property.value.nodeRef) return getPathName(property.value.nodeRef, props.match) + "/" + property.value.name;
-  else return property.value.name;
+const operator = computed(() => {
+  return getBooleanOperator("Where", where.value);
 });
-const originalProperty: Ref<Where> = ref({});
+const boolGroup = computed(() => {
+  return getBoolGroup("Where", where.value);
+});
+const pathPropertyName = ref();
+const displayOperator = computed(() => {
+  return getDisplayOperator(props.parentOperator, props.index);
+});
+const dataModelIri: Ref<string> = ref("");
+const originalWhere: Ref<Where> = ref({});
 const refreshCounter: Ref<number> = ref(0);
-
 const updated = ref(false);
 
-watch(
-  () => property.value,
-  newProperty => {
-    init();
-  },
-  { immediate: true }
-);
+onMounted(async () => {
+  await init();
+});
 
 async function init() {
   loading.value = true;
-  let dataModel = getTypeFromClause(props.match);
-  if (!dataModel) dataModel = props.baseType.iri;
-  dataModelIri.value = dataModel!;
-  originalProperty.value = cloneDeep(property.value);
-  if (dataModelIri.value && property!.value.iri) selectedProperty.value = await DataModelService.getUIProperty(dataModelIri.value, property!.value.iri);
+  if (where.value.iri) {
+    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType, where.value.nodeRef);
+    originalWhere.value = cloneDeep(where.value);
+    if (dataModelIri.value && where!.value.iri) {
+      selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);
+      if (selectedWhere.value!.propertyType === "class" && !where.value.is) where.value.is = [{}];
+    }
+    pathPropertyName.value = getPathPropertyNames(props.match, where.value);
+  }
   loading.value = false;
 }
 
 function deleteProperty() {
-  deletePropertyFromParent(props.match, parentProperty.value, props.clauseIndex);
-  emit("deletedProperty");
-}
-function onDeletedProperty() {
-  if (property.value.and && property.value.and.length === 0) {
-    emit("deletedProperty");
-  } else if (property.value.or && property.value.or.length === 0) {
-    emit("deletedProperty");
-  }
-}
-function onUpdateOperator(val: string) {
-  emit("updateBool", props.parentOperator, val, props.clauseIndex);
+  emit("deleteWhere");
 }
 
-function onUpdateParentOperator(val: string) {
-  if (property.value.and) {
-    property.value.or = property.value.and;
-    delete property.value.and;
-  } else if (property.value.or) {
-    property.value.and = property.value.or;
-    delete property.value.or;
+function onDeleteBooleanWhere(index: number) {
+  if (where.value.and) {
+    where.value.and.splice(index, 1);
+    if (where.value.and.length === 1) where.value = where.value.and[0];
+  } else if (where.value.or) {
+    where.value.or.splice(index, 1);
+    if (where.value.or.length === 1) where.value = where.value.or[0];
   }
 }
 
 function updateBool(oldOperator: Bool, newOperator: Bool, index: number) {
-  updateBooleans(property.value!, oldOperator, newOperator);
+  updateBooleans(where.value!, oldOperator, newOperator);
 }
 
 function truncateName(name: string) {
@@ -213,16 +172,47 @@ function toggleDropdown(event: MouseEvent) {
 }
 
 function onSaveCustomSet(newSet: Node) {
-  property.value.is = [newSet];
-  property.value.memberOf = true;
+  where.value.is = [newSet];
+  where.value.memberOf = true;
 }
 function revert() {
-  property.value = originalProperty.value;
+  where.value = originalWhere.value;
   refreshCounter.value++;
 }
 </script>
 
 <style scoped>
+add-button,
+.delete-button {
+  color: #444444; /* text */
+  background-color: #f0f0f0; /* greyish default */
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.add-button:hover,
+.add-button:focus {
+  background-color: #a5d6a7;
+}
+.delete-button:hover,
+.delete-button:focus {
+  background-color: red;
+}
+.property-container {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1;
+  border: 0.5px solid #999999;
+}
+
+.property-container-invalid {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1;
+  border: 0.5px solid red;
+}
 .property-value-container {
   display: flex;
   flex-flow: row;
@@ -231,10 +221,7 @@ function revert() {
 }
 
 .property-display {
-  width: 20rem;
-  display: flex;
-  flex-flow: wrap;
-  align-items: flex-start;
+  padding-right: 1rem;
 }
 .property-label {
   background: #e0f7fa;

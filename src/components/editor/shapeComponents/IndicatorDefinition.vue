@@ -17,7 +17,7 @@
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
     <div v-if="!loading">
-      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" :sourceQuery="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
     </div>
     <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <SQLDisplay :sql="sql" />

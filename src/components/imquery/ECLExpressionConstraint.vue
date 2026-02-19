@@ -1,8 +1,8 @@
 <template>
   <div v-if="boolGroup">
     <BooleanEditor
-      v-model:clause="match as Clause<Match>"
-      v-model:parent="parent as Clause<Match>"
+      v-model:clause="match"
+      v-model:parent="parent"
       :parentType="'Match'"
       :index="index"
       v-model:group="group"
@@ -13,12 +13,13 @@
     />
 
     <div class="nested-match-container">
-      <div v-for="(item, index) in boolGroup" :key="item.uuid">
-        <ExpressionConstraint
-          v-model:match="boolGroup![index]"
+      <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
+        <ECLExpressionConstraint
+          v-model:match="boolGroup![subIndex]"
           v-model:parent="match"
           v-model:parentGroup="group"
-          :index="index"
+          :index="subIndex"
+          :parentIndex="index"
           :parentOperator="operator"
           @rationalise="onRationalise"
           :rootBool="false"
@@ -28,18 +29,7 @@
         />
       </div>
       <div>
-        <Button
-          type="button"
-          icon="fa-solid fa-plus"
-          label="Add concept"
-          data-testid="add-bool-concept-button"
-          :severity="hoverAddConcept ? 'success' : 'secondary'"
-          :outlined="!hoverAddConcept"
-          :class="!hoverAddConcept && 'hover-button'"
-          @click.stop="addConcept()"
-          @mouseover="hoverAddConcept = true"
-          @mouseout="hoverAddConcept = false"
-        />
+        <Button type="button" icon="fa-solid fa-plus" label="Add concept" data-testid="add-bool-concept-button" class="add-button" @click.stop="addConcept()" />
       </div>
     </div>
     <div v-if="boolGroup" class="add-group">
@@ -48,12 +38,8 @@
         icon="fa-solid fa-plus"
         label="Add attribute to concept group"
         data-testid="add-refinement-button"
-        :severity="hoverAddRefinement ? 'success' : 'secondary'"
-        :outlined="!hoverAddRefinement"
-        :class="!hoverAddRefinement && 'hover-button'"
+        class="add-button"
         @click="addRefinement()"
-        @mouseover="hoverAddRefinement = true"
-        @mouseout="hoverAddRefinement = false"
       />
     </div>
     <div v-if="match.where && rootProperties">
@@ -61,7 +47,8 @@
       <ECLRefinement
         v-model:where="match.where"
         v-model:parent="match"
-        :index="index"
+        :index="0"
+        :parentIndex="0"
         :rootBool="true"
         :isInAttributeGroup="isRoleGroup"
         :rootProperties="rootProperties"
@@ -72,15 +59,15 @@
       />
     </div>
   </div>
-  <div v-else class="expression-constraint">
+  <div v-else class="expression-constraint" @drop="onDrop($event, match, parent, index, 'Match')" @dragover="onDragOver($event, 'Match')">
     <div>
       <Button
         icon="drag-icon fa-solid fa-grip-vertical"
         severity="secondary"
         text
         draggable="true"
-        @dragstart="onDragStart($event, match, parent)"
-        @dragend="onDragEnd(match, parent)"
+        @dragstart="onDragStart(match, parent, index, 'Match')"
+        @dragend="onDragEnd()"
       />
     </div>
 
@@ -137,30 +124,10 @@
           <Button icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
         </div>
         <div class="add-group">
-          <Button
-            type="button"
-            icon="fa-solid fa-plus"
-            label="Add attribute"
-            data-testid="add-refinement-button"
-            :severity="hoverAddRefinement ? 'success' : 'secondary'"
-            :outlined="!hoverAddRefinement"
-            :class="!hoverAddRefinement && 'hover-button'"
-            @click="addRefinement()"
-            @mouseover="hoverAddRefinement = true"
-            @mouseout="hoverAddRefinement = false"
-          />
+          <Button type="button" icon="fa-solid fa-plus" label="Add attribute" data-testid="add-refinement-button" class="add-button" @click="addRefinement()" />
         </div>
         <div class="add-group">
-          <Button
-            @click.stop="deleteMatch"
-            class="builder-button"
-            :severity="hoverDeleteConcept ? 'danger' : 'secondary'"
-            :outlined="!hoverDeleteConcept"
-            :class="!hoverDeleteConcept && 'hover-button'"
-            icon="fa-solid fa-trash"
-            @mouseover="hoverDeleteConcept = true"
-            @mouseout="hoverDeleteConcept = false"
-          />
+          <Button @click.stop="deleteMatch" class="delete-button" icon="fa-solid fa-trash" />
         </div>
       </div>
       <div v-if="match.where && rootProperties">
@@ -168,7 +135,8 @@
         <ECLRefinement
           v-model:where="match.where"
           v-model:parent="match"
-          :index="index"
+          :index="0"
+          :parentIndex="0"
           :rootBool="true"
           :isInAttributeGroup="isRoleGroup"
           :rootProperties="rootProperties"
@@ -181,18 +149,7 @@
     </div>
   </div>
   <div v-if="rootBool && !boolGroup">
-    <Button
-      type="button"
-      icon="fa-solid fa-plus"
-      label="Add concept"
-      data-testid="add-bool-concept-button"
-      :severity="hoverAddConcept ? 'success' : 'secondary'"
-      :outlined="!hoverAddConcept"
-      :class="!hoverAddConcept && 'hover-button'"
-      @click.stop="addConcept()"
-      @mouseover="hoverAddConcept = true"
-      @mouseout="hoverAddConcept = false"
-    />
+    <Button type="button" icon="fa-solid fa-plus" label="Add concept" data-testid="add-bool-concept-button" class="add-button" @click.stop="addConcept()" />
   </div>
 </template>
 
@@ -200,14 +157,16 @@
 import { inject, onMounted, Ref, ref, computed, watch } from "vue";
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
-import { useECLBuilderActions } from "@/composables/useECLBuilderActions";
-import { Match, Where, Node, QueryRequest, TTIriRef, Clause, Bool } from "@/interfaces/AutoGen";
-import ECLRefinement from "@/components/directory/topbar/eclSearch/builder/ECLRefinement.vue";
+import { Match, Where, Node, QueryRequest, TTIriRef, Bool } from "@/interfaces/AutoGen";
+import ECLRefinement from "@/components/imquery/ECLRefinement.vue";
+import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";
 import {
   addConceptToGroup,
   addRefinementToGroup,
   checkGroupChange,
   createNewBoolGroup,
+  getBooleanOperator,
+  getBoolGroup,
   getExclusionOptions,
   getIsRoleGroup,
   manageRoleGroup,
@@ -217,7 +176,7 @@ import { v4 } from "uuid";
 import { QUERY } from "@/vocabulary";
 import { Namespace } from "@/vocabulary/Namespace";
 import { QueryService } from "@/services";
-import BooleanEditor from "@/components/directory/topbar/eclSearch/builder/BooleanEditor.vue";
+import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 
 interface Props {
   index: number;
@@ -225,6 +184,7 @@ interface Props {
   rootBool: boolean;
   includeSubtypes?: boolean;
   canCheck?: boolean;
+  parentIndex: number;
 }
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
@@ -233,11 +193,6 @@ const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const activeInputId = defineModel<string>("activeInputId", { default: "" });
 const group: Ref<number[]> = ref([]);
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "includeSubtypesChanged"]);
-const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
-const { onDragEnd, onDragStart, onDrop, onDragOver } = useECLBuilderActions(wasDraggedAndDropped);
-const hoverAddRefinement = ref(false);
-const hoverDeleteConcept = ref(false);
-const hoverAddConcept = ref(false);
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
 const propertySearch: Ref<QueryRequest | undefined> = ref(undefined);
 const isValidPropertySearch: Ref<QueryRequest | undefined> = ref(undefined);
@@ -246,9 +201,12 @@ const rootProperties: Ref<string[]> = ref([]);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
 const focusConcepts: Ref<TTIriRef[]> = ref([]);
 const focusIris: Ref<string[]> = ref([]);
-const operator = computed(() => (match.value.and ? Bool.and : Bool.or));
-const boolGroup = computed(() => (match.value.and ? match.value.and : match.value.or ? match.value.or : undefined));
-
+const operator = computed(() => {
+  return getBooleanOperator("Match", match.value);
+});
+const boolGroup = computed(() => {
+  return getBoolGroup("Match", match.value);
+});
 const notExists = computed(() => {
   if (!match.value.notExists) return false;
   return match.value.notExists;
@@ -270,6 +228,7 @@ function onCreateSubgroup() {
 }
 
 function init() {
+  if (!match.value.uuid) match.value.uuid = v4();
   if (!match.value.or && !match.value.and && !match.value.is) {
     match.value.is = [{ descendantsOrSelfOf: true } as Node];
   }
@@ -409,6 +368,25 @@ async function updateQueryForPropertySearch() {
 </script>
 
 <style scoped>
+.add-button,
+.delete-button {
+  color: #444444;
+  background-color: #f0f0f0; /* greyish default */
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.add-button:hover,
+.add-button:focus {
+  background-color: #a5d6a7;
+}
+.delete-button:hover,
+.delete-button:focus {
+  background-color: red;
+}
+
 .nested-match-container {
   display: flex;
   width: 99%;

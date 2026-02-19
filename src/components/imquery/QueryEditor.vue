@@ -29,9 +29,9 @@
         v-model:match="query"
         :rootBool="true"
         :depth="0"
-        v-model:parentMatch="query"
+        v-model:parent="query"
         :parentIndex="parentIndex"
-        :clauseIndex="0"
+        :index="0"
         :baseType="query.typeOf!"
         @activateInput="activeInputId = $event"
         @rationalise="rationaliseBooleans"
@@ -61,11 +61,15 @@ import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
+import { cloneDeep, isEqual } from "lodash-es";
+import { usePropertyTree } from "@/composables/usePropertyTree";
+import type { TreeNode } from "primevue/treenode";
 interface Props {
   showDialog?: boolean;
+  sourceQuery: Query;
 }
 const props = defineProps<Props>();
-const query = defineModel<Query>("query", { default: {} });
+const query: Ref<Query> = ref(cloneDeep(props.sourceQuery));
 const emit = defineEmits<{
   querySubmitted: [payload: Query];
   eclConversionError: [payload: { error: boolean; message: string }];
@@ -86,14 +90,26 @@ const op = ref();
 const parentIndex = ref(0);
 const nodeRefMap = ref<{ [key: string]: any }>({});
 const queryStore = useQueryStore();
+const { createFeatureTree } = usePropertyTree();
 const newColumnGroup: Ref<Match | undefined> = ref(undefined);
 const columnGroupIndex = ref(0);
 const showColumnGroupEditor = ref(false);
+const rootNodes: Ref<TreeNode[]> = ref([]);
 provide("query", query);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
 provide("childLoadingState", childLoadingState);
+provide("featureTree", rootNodes);
+
+watch(
+  () => query.value.typeOf,
+  async newValue => {
+    if (query.value.typeOf) {
+      rootNodes.value = await createFeatureTree(query.value.typeOf);
+    }
+  }
+);
 
 watch(
   () => props.showDialog,
@@ -112,6 +128,9 @@ function toggle(event: any) {
 
 async function init() {
   queryStore.createReturnMap(query.value);
+  if (query.value.typeOf) {
+    rootNodes.value = await createFeatureTree(query.value.typeOf);
+  }
   loading.value = false;
 }
 function createDefaultBuild() {

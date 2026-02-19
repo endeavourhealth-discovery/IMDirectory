@@ -83,7 +83,7 @@
       <div class="im-dialog-footer">
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>
         <div class="button-footer">
-          <Button label="Cancel" @click="modelShowDialog = false" text />
+          <Button label="Cancel" @click="onCancel" text />
           <Button
             v-if="selectedName && isSelectableEntity"
             :disabled="!isSelectableEntity"
@@ -133,6 +133,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   updateSelectedFilters: [payload: FilterOptions];
+  cancel: [];
 }>();
 
 const modelShowDialog = defineModel<boolean>("showDialog", { required: true });
@@ -190,6 +191,10 @@ onMounted(() => {
   searchTerm.value = props.searchTerm ?? "";
   initSelection();
 });
+function onCancel() {
+  modelShowDialog.value = false;
+  emit("cancel");
+}
 
 function updateSplitter(event: SplitterResizeEndEvent) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
@@ -266,10 +271,6 @@ async function getIsSelectableEntity(): Promise<boolean> {
       existing.valueIri = { iri: detailsIri.value };
     } else props.validEntityQuery.argument!.push({ parameter: "entity", valueIri: { iri: detailsIri.value } });
     return await QueryService.askQuery(props.validEntityQuery);
-  } else if (props.imQuery) {
-    const imQuery = cloneDeep(props.imQuery);
-    imQuery.askIri = detailsIri.value;
-    return await QueryService.askQuery(imQuery);
   }
   return true;
 }
