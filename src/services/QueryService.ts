@@ -90,7 +90,7 @@ const QueryService = {
   },
 
   async addQueryToRunnerQueue(queryRequest: QueryRequest): Promise<void> {
-    return axios.post(Env.QUERY_RUNNER + "/api/queue/query/add", queryRequest);
+    return axios.post(Env.QUERY_RUNNER + "/api/queue/job/add", queryRequest);
   },
 
   async testRunQuery(request: QueryRequest): Promise<string[]> {
@@ -98,7 +98,7 @@ const QueryService = {
   },
 
   async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
-    return axios.post(API_URL + "/private/findRequestMissingArguments", request);
+    return axios.post(API_URL + "/public/findRequestMissingArguments", request);
   },
 
   async getNestedReturns(match: Match): Promise<Return[]> {
