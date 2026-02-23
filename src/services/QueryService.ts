@@ -98,7 +98,7 @@ const QueryService = {
   },
 
   async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
-    return axios.post(API_URL + "/findRequestMissingArguments", request);
+    return axios.post(API_URL + "/private/findRequestMissingArguments", request);
   },
 
   async getNestedReturns(match: Match): Promise<Return[]> {
