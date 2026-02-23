@@ -1,4 +1,4 @@
-import { Router, useRouter } from "vue-router";
+import { LocationQuery, Router, useRouter } from "vue-router";
 import { RecentActivityItemDto } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import { useUserStore } from "@/stores/userStore";
@@ -17,7 +17,7 @@ export default class DirectService {
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 
-  private async directTo(options: { iri?: string; action?: string; appRoute: string; newTab?: boolean }) {
+  private async directTo(options: { iri?: string; action?: string; appRoute: string; query?: LocationQuery; newTab?: boolean }) {
     let pathUrl = "";
     pathUrl += options.appRoute + "/";
     if (options.iri) pathUrl += encodeURIComponent(options.iri);
@@ -27,7 +27,8 @@ export default class DirectService {
     if (!options.newTab) {
       if (options.iri) this.directoryStore.updateConceptIri(options.iri);
       await this.router.push({
-        path: "/" + pathUrl
+        path: "/" + pathUrl,
+        query: options.query
       });
     } else {
       window.open(Env.DIRECTORY_URL + pathUrl);
@@ -60,7 +61,7 @@ export default class DirectService {
       await this.directTo({ appRoute: "creator", newTab: false });
     } else {
       const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
-      await this.directTo({ appRoute: routeData.href.replace("#/", ""), newTab: false });
+      await this.directTo({ appRoute: routeData.href.replace("#/", ""), query: routeData.query, newTab: false });
     }
   }
 
