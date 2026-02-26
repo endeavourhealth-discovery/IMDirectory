@@ -13,7 +13,7 @@ const SetService = {
   },
 
   async IMV1(conceptIri: string, raw?: boolean) {
-    return await axios.get(API_URL + "/private/export", {
+    return await axios.get(API_URL + "/protected/export", {
       params: { iri: conceptIri },
       responseType: "blob",
       raw: raw
