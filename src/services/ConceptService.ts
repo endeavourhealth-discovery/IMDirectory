@@ -2,11 +2,11 @@ import { SimpleMap, TermCode } from "@/interfaces";
 import Env from "./Env";
 import axios from "axios";
 import { ConceptContextMap } from "@/interfaces/AutoGen";
-const API_URL = Env.API + "api/concept";
+const API_URL = Env.API + "api/concept/protected";
 
 const ConceptService = {
   async getMatchedFrom(iri: string): Promise<SimpleMap[]> {
-    return await axios.get(API_URL + "/private/matchedFrom", {
+    return await axios.get(API_URL + "/matchedFrom", {
       params: {
         iri: iri
       }
@@ -14,7 +14,7 @@ const ConceptService = {
   },
 
   async getMatchedTo(iri: string): Promise<SimpleMap[]> {
-    return await axios.get(API_URL + "/private/matchedTo", {
+    return await axios.get(API_URL + "/matchedTo", {
       params: {
         iri: iri
       }
@@ -22,13 +22,13 @@ const ConceptService = {
   },
 
   async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
-    return await axios.get(API_URL + "/private/termCode", {
+    return await axios.get(API_URL + "/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
   },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
-    return await axios.get(API_URL + "/private/conceptContextMaps", {
+    return await axios.get(API_URL + "/conceptContextMaps", {
       params: { iri: conceptIri }
     });
   }

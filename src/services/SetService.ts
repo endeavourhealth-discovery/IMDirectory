@@ -7,7 +7,7 @@ const API_URL = Env.API + "api/set";
 
 const SetService = {
   async publish(conceptIri: string) {
-    return await axios.get(API_URL + "/publish", {
+    return await axios.get(API_URL + "/private/publish", {
       params: { iri: conceptIri }
     });
   },
@@ -20,7 +20,7 @@ const SetService = {
     });
   },
   async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<Pageable<Node>> {
-    return await axios.get(API_URL + "/private/members", {
+    return await axios.get(API_URL + "/protected/members", {
       params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
@@ -28,35 +28,34 @@ const SetService = {
 
   async getMembersFromQuery(query: Query, pageIndex: number, pageSize: number): Promise<Pageable<Node>> {
     const request = { query: query, page: pageIndex, size: pageSize } as ECLQueryRequest;
-    return await axios.post(API_URL + "/private/membersFromQuery", request);
+    return await axios.post(API_URL + "/protected/membersFromQuery", request);
   },
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
-    return await axios.get(API_URL + "/private/subsets", {
+    return await axios.get(API_URL + "/protected/subsets", {
       params: {
         iri: iri
       }
     });
   },
 
+  async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<Blob> {
+    return await axios.post(API_URL + "/protected/setExport", setRequest, {
+      responseType: "blob",
+      raw: raw
+    });
+  },
+
   async getSetComparison(iriA?: string, iriB?: string): Promise<SetDiffObject> {
-    return await axios.get(API_URL + "/private/setDiff", {
+    return await axios.get(API_URL + "/protected/setDiff", {
       params: {
         setIriA: iriA,
         setIriB: iriB
       }
     });
   },
-
-  async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<Blob> {
-    return await axios.post(API_URL + "/private/setExport", setRequest, {
-      responseType: "blob",
-      raw: raw
-    });
-  },
-
   async updateSubsetsFromSuper(entity: TTEntity) {
-    return await axios.post(API_URL + "/updateSubsetsFromSuper", entity);
+    return await axios.post(API_URL + "/private/updateSubsetsFromSuper", entity);
   }
 };
 

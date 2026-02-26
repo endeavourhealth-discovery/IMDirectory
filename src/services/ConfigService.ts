@@ -1,13 +1,12 @@
-import { Graph } from "@/interfaces/AutoGen";
 import axios from "axios";
 import Env from "./Env";
 import { Namespace } from "@/interfaces/AutoGen";
 
-const API_URL = Env.API + "api/config";
+const API_URL = Env.API + "api/config/public";
 
 const ConfigService = {
   async getNamespaces(): Promise<Namespace[]> {
-    return await axios.get(API_URL + "/public/namespaces");
+    return await axios.get(API_URL + "/namespaces");
   }
 };
 
