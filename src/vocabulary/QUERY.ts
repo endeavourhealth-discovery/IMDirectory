@@ -19,6 +19,7 @@ export class QUERY {
   public static readonly ALLOWABLE_PROPERTIES = Namespace.IM_QUERY + "AllowableProperties"
   public static readonly ALLOWABLE_PROPERTY_ANCESTORS = Namespace.IM_QUERY + "AllowablePropertyAncestors"
   public static readonly IS_VALID_PROPERTY = Namespace.IM_QUERY + "IsValidProperty"
+  public static readonly IS_VALID_TYPE = Namespace.IM_QUERY + "IsValidType"
   public static readonly ENTITY_FILTER = Namespace.IM_QUERY + "EntityFilter"
   public static readonly SEARCH_ENTITIES = Namespace.IM_QUERY + "SearchEntities"
   public static readonly SEARCH_FOLDERS = Namespace.IM_QUERY + "SearchFolders"
@@ -26,6 +27,7 @@ export class QUERY {
   public static readonly SEARCH_MAIN_TYPES = Namespace.IM_QUERY + "SearchmainTypes"
   public static readonly DM_PROPERTY = Namespace.IM_QUERY + "DataModelPropertyByShape"
   public static readonly SEARCH_ALLOWABLE_SUBCLASS = Namespace.IM_QUERY + "SearchAllowableSubclass"
+  public static readonly SEARCH_ALLOWABLE_CHILD_OF = Namespace.IM_QUERY + "SearchAllowableChildOf"
   public static readonly GET_VALUES_FROM_PROPERTY_RANGE = Namespace.IM_QUERY + "GetValuesFromPropertyRange"
   public static readonly GET_SUBSETS = Namespace.IM_QUERY + "GetSubsets"
 }
