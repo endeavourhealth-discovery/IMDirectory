@@ -1,18 +1,7 @@
 import Env from "./Env";
 import { QueryResponse } from "@/interfaces";
 import axios from "axios";
-import {
-  DisplayMode,
-  Match,
-  PathQuery,
-  Query,
-  QueryRequest,
-  SearchResponse,
-  ArgumentReference,
-  IMLLanguage,
-  Indicator,
-  Return
-} from "@/interfaces/AutoGen";
+import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse, ArgumentReference, IMLLanguage, Indicator, Return } from "@/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 const API_URL = Env.API + "api/query/protected";
@@ -97,6 +86,9 @@ const QueryService = {
 
   async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
     return axios.post(API_URL + "/public/findRequestMissingArguments", request);
+  },
+  async validateQuery(query: Query): Promise<Query> {
+    return await axios.post(API_URL + "/validateQuery", query);
   },
 
   async getNestedReturns(match: Match): Promise<Return[]> {

@@ -3,16 +3,31 @@
   <span v-if="where.qualifier">{{ where.qualifier.name }} of </span>
   <span class="field">{{ whereName }}</span>
   <span v-if="eclQuery">=</span>
-  <span v-if="where.valueLabel || where.description">
-    <span v-if="where.description" class="field">{{ where.description }}</span>
-    <span v-if="where.valueLabel && where.is" @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0"> {{ where.valueLabel }}</span>
-    <span v-else-if="where.valueLabel" class="field">{{ where.valueLabel }}</span>
+  <span v-if="where.description" class="field">{{ where.description }}</span>
+  <span v-if="where.valueLabel && where.is">
+    <span class="field">{{ getIsOperator(where.is, eclQuery) }}</span>
+    <span @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0"> {{ where.valueLabel }}</span>
   </span>
-  <template v-if="where.relativeTo">
-    <span v-if="where.relativeTo.name" class="field">{{ where.relativeTo.name }} of</span>
-    <span v-if="where.relativeTo.parameterName" class="field">{{ where.relativeTo.parameterName }}</span>
-    <span v-else-if="where.relativeTo.nodeRef" class="node-ref">{{ where.relativeTo.nodeRef }}</span>
-  </template>
+  <span v-if="valueSentence">
+    <span v-for="(part, i) in valueSentence" :key="i">
+      <template v-if="part.type === 'text'">
+        {{ part.value }}
+      </template>
+      <template v-else-if="part.type === 'field'">
+        {{ part.value }}
+      </template>
+      <template v-else-if="part.type === 'parameter'">
+        {{ part.value }}
+      </template>
+
+      <template v-else-if="part.type === 'nodeRef'">
+        <span class="node-ref">
+          {{ part.value }}
+        </span>
+      </template>
+    </span>
+  </span>
+
   <span v-if="isExpanded && isArrayHasLength(where.is)">
     <span>, defined as</span>
     <div>
@@ -57,8 +72,10 @@ import { Where, Bool, Node } from "@/interfaces/AutoGen";
 import { computed, ref } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@/vocabulary/IM";
+import { buildValueSentence, getIsOperator } from "@/helpers/QueryEditorMethods";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
+import { getRelativeTo } from "@/helpers/QueryEditorMethods";
 
 interface Props {
   where: Where;
@@ -81,13 +98,18 @@ const isExpanded = ref(props.expandedSet);
 const operator = computed(() => {
   return getBooleanOperator("Where", props.where);
 });
+const valueSentence = computed(() => {
+  return buildValueSentence(props.where);
+});
 const boolGroup = computed(() => {
   return getBoolGroup("Where", props.where);
 });
 const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.index);
 });
-
+const relativeTo = computed(() => {
+  return getRelativeTo(props.where);
+});
 const whereName = computed(() => {
   return props.where.name ? (props.where.name === "concept" ? "" : props.where.name) : "";
 });

@@ -7,6 +7,7 @@
         :base-type="baseType"
         v-model:parent="match"
         v-model:where="match.where"
+        :from="from"
         :index="0"
         :parentIndex="0"
         :rootBool="true"
@@ -45,8 +46,11 @@
       <span class="keep-as-reference">Keep as reference</span>
       <InputText v-model="match.node" type="text" />
     </div>
-    <div v-if="orderables && orderables.length > 0 && match.where && match.orderBy">
-      <Button data-testid="add-test-button" class="add-button" label="Add further test on the results" @click="addTest" />
+    <div v-if="orderables && orderables.length > 0 && match.where">
+      <span v-if="match.orderBy">
+        <Button data-testid="add-test-button" class="add-button" label="Add further test on the results" @click="addTest" />
+      </span>
+      <Button data-testid="add-test-button" class="add-button" label="Add related feature" @click="addLinked" />
     </div>
   </div>
 </template>
@@ -81,6 +85,8 @@ const emit = defineEmits<{
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
   (event: "addTest"): void;
+  (event: "addLinked"): void;
+  (event: "updateMatch"): void;
 }>();
 const expandedKeys = ref<Record<string, boolean>>({});
 const { onCopy, onCopyError } = useCopyToClipboard(ref(JSON.stringify(match.value)));
@@ -113,6 +119,7 @@ onMounted(async () => {
 });
 function onUpdate() {
   edited.value = true;
+  emit("updateMatch");
 }
 function onDeleteWhere() {
   delete match.value.where;
@@ -148,6 +155,11 @@ function updateOrderable(value: any) {
 function addTest() {
   showMatchEditor.value = false;
   emit("addTest");
+}
+
+function addLinked() {
+  showMatchEditor.value = false;
+  emit("addLinked");
 }
 
 async function onMatchTypeSelected() {

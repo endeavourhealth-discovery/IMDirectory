@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-02-18 15:24:00.
+// Generated using typescript-generator version 3.2.1263 on 2026-03-05 10:04:55.
 
 export interface ConceptContextMap {
     id?: string;
@@ -268,6 +268,8 @@ export interface PropertyShape {
     orderable?: boolean;
     hasValueSet?: TTIriRef;
     definingProperty?: boolean;
+    isValidEntity?: TTIriRef;
+    isValidArguments?: Argument[];
 }
 
 export interface SetContent {
@@ -311,19 +313,24 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    qualifier?: TTIriRef;
-    value?: string;
-    function?: FunctionClause;
-    invalid?: boolean;
-    units?: TTIriRef;
+    compare?: Compare;
     description?: string;
-    valueLabel?: string;
+    value?: string;
+    invalid?: boolean;
     operator?: Operator;
+    valueLabel?: string;
+    valueTerm?: string;
 }
 
 export interface Case {
     when?: When[];
     else?: string;
+}
+
+export interface Compare {
+    left?: ValueSource;
+    right?: ValueSource;
+    units?: TTIriRef;
 }
 
 export interface ContextMap {
@@ -362,9 +369,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -424,6 +431,7 @@ export interface Match extends IriLD, HasPaths {
     asDescription?: string;
     union?: Match[];
     relationMessage?: string;
+    errorMessage?: string;
 }
 
 export interface Node extends Element {
@@ -441,13 +449,15 @@ export interface Node extends Element {
     code?: string;
     inverse?: boolean;
     node?: string;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
-export interface OrderDirection extends RelativeTo {
+export interface OrderDirection extends IriLD {
     direction?: Order;
     function?: FunctionClause;
+    nodeRef?: string;
+    variable?: string;
 }
 
 export interface OrderLimit {
@@ -469,8 +479,8 @@ export interface Path extends Element, HasPaths {
     pathVariable?: string;
     typeOf?: Node;
     qualifier?: TTIriRef;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface PathDocument {
@@ -513,16 +523,6 @@ export interface Range {
     to: Value;
 }
 
-export interface RelativeTo extends IriLD {
-    qualifier?: TTIriRef;
-    valueVariable?: string;
-    propertyRef?: string;
-    targetLabel?: string;
-    parameterName?: string;
-    nodeRef?: string;
-    parameter?: string;
-}
-
 export interface RequeueQueryRequest {
     queueId?: string;
     queryRequest?: QueryRequest;
@@ -555,7 +555,15 @@ export interface Update extends TTIriRef {
 
 export interface Value extends Assignable {
     valueParameter?: string;
+    units?: TTIriRef;
     isInvalid?: boolean;
+}
+
+export interface ValueSource {
+    parameter?: string;
+    name?: string;
+    path?: Path;
+    nodeRef?: string;
 }
 
 export interface When {
@@ -570,7 +578,6 @@ export interface Where extends Element, Assignable {
     range?: Range;
     isNull?: boolean;
     is?: Node[];
-    relativeTo?: RelativeTo;
     anyRoleGroup?: boolean;
     parameter?: string;
     childOrSelfOf?: boolean;
@@ -587,6 +594,7 @@ export interface Where extends Element, Assignable {
     and?: Where[];
     propertyRef?: string;
     shortLabel?: string;
+    qualifier?: TTIriRef;
     propertyList?: Node[];
     propertyVariable?: string;
     node?: string;
@@ -594,9 +602,10 @@ export interface Where extends Element, Assignable {
     exists?: boolean;
     linked?: boolean;
     notNull?: boolean;
+    units?: TTIriRef;
     isInvalid?: boolean;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface DBEntry {
@@ -914,13 +923,13 @@ export interface TTEntity extends TTNode, Serializable {
     crud?: TTIriRef;
     type?: TTArray;
     status?: TTIriRef;
+    description?: string;
     name?: string;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
     code?: string;
-    prefixes?: TTPrefix[];
     types?: TTIriRef[];
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
@@ -1005,8 +1014,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1169,14 +1178,6 @@ export const enum Bool {
     rule = "rule",
     union = "union",
     step = "step",
-}
-
-export const enum Comparison {
-    eq = "eq",
-    gte = "gte",
-    gt = "gt",
-    lte = "lte",
-    lt = "lt",
 }
 
 export const enum DatabaseOption {
@@ -1712,14 +1713,19 @@ export const enum IM {
     INTERVAL_UNIT = "http://endhealth.info/im#intervalUnit",
     PARAMETER = "http://endhealth.info/im#parameter",
     NUMERIC_DIFFERENCE = "http://endhealth.info/im#NumericDifference",
-    FISCAL_YEAR = "http://endhealth.info/im#fiscalYear",
+    FISCAL_YEAR = "http://endhealth.info/im#FiscalYear",
+    QUARTER = "http://endhealth.info/im#Quarter",
+    WEEK = "http://endhealth.info/im#Week",
+    WEEK_NUMBER = "http://endhealth.info/im#WeekNumber",
+    YEAR = "http://endhealth.info/im#Year",
     YEARS = "http://endhealth.info/im#Years",
-    MONTH = "http://endhealth.info/im#month",
+    MONTH = "http://endhealth.info/im#Month",
     MONTHS = "http://endhealth.info/im#Months",
+    DAY = "http://endhealth.info/im#Day",
     DAYS = "http://endhealth.info/im#Days",
     HOURS = "http://endhealth.info/im#Hours",
-    MINUTES = "http://endhealth.info/im#Minutes",
-    SECONDS = "http://endhealth.info/im#Seconds",
+    MINUTES = "http://endhealth.info/im#Minute",
+    SECONDS = "http://endhealth.info/im#Second",
     DATATYPE_QUALIFIER = "http://endhealth.info/im#datatypeQualifier",
     TYPE_FILTER_OPTIONS = "http://endhealth.info/im#TypeFilterOptions",
     SORT_FIELD_FILTER_OPTIONS = "http://endhealth.info/im#SortFieldFilterOptions",
@@ -1925,6 +1931,7 @@ export const enum QUERY {
     ALLOWABLE_PROPERTIES = "http://endhealth.info/im#Query_AllowableProperties",
     ALLOWABLE_PROPERTY_ANCESTORS = "http://endhealth.info/im#Query_AllowablePropertyAncestors",
     IS_VALID_PROPERTY = "http://endhealth.info/im#Query_IsValidProperty",
+    IS_VALID_TYPE = "http://endhealth.info/im#Query_IsValidType",
     ENTITY_FILTER = "http://endhealth.info/im#Query_EntityFilter",
     SEARCH_ENTITIES = "http://endhealth.info/im#Query_SearchEntities",
     SEARCH_FOLDERS = "http://endhealth.info/im#Query_SearchFolders",
@@ -1932,6 +1939,7 @@ export const enum QUERY {
     SEARCH_MAIN_TYPES = "http://endhealth.info/im#Query_SearchmainTypes",
     DM_PROPERTY = "http://endhealth.info/im#Query_DataModelPropertyByShape",
     SEARCH_ALLOWABLE_SUBCLASS = "http://endhealth.info/im#Query_SearchAllowableSubclass",
+    SEARCH_ALLOWABLE_CHILD_OF = "http://endhealth.info/im#Query_SearchAllowableChildOf",
     GET_VALUES_FROM_PROPERTY_RANGE = "http://endhealth.info/im#Query_GetValuesFromPropertyRange",
     GET_SUBSETS = "http://endhealth.info/im#Query_GetSubsets",
 }

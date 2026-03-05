@@ -1,5 +1,5 @@
 <template>
-  <div class="datatype-select">
+  <div class="where-value-editor">
     <div>{{ whereDisplay }}</div>
     <div v-if="uiProperty.valueType === XSD.STRING" class="property-input-container">
       <Select
@@ -12,88 +12,82 @@
         ]"
         optionValue="id"
         optionLabel="name"
-        v-model:model-value="property.operator"
+        v-model:model-value="where.operator"
       />
-      <InputText type="text" v-model:model-value="property.value" data-testid="property-value-input" />
+      <InputText type="text" v-model:model-value="where.value" data-testid="property-value-input" />
     </div>
     <div v-else-if="uiProperty.valueType === XSD.BOOLEAN" class="property-input-container">
-      <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="property.value" />
+      <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="where.value" />
     </div>
-    <div v-else class="property-input-container">
+    <div v-else class="where-relative-container">
+      <div class="relative-buttons">
+        <span class="field">
+          <span v-for="opt in rangeValueOptions" :key="opt.value" class="gap-1">
+            <RadioButton v-model="rangeOrValue" :value="opt.value" :inputId="opt.value" @update:modelValue="updateRangeOrValue" />
+            <label :for="opt.value" class="field">{{ opt.label }}</label>
+          </span>
+        </span>
+      </div>
+    </div>
+    <div v-if="rangeOrValue === RangeOrValue.SingleValue" class="value-editor">
+      <ValueEditor
+        :ui-property="uiProperty"
+        v-model:assignable="where"
+        v-model:where="where"
+        :qualifier="where.qualifier"
+        :refresh="refresh"
+        @updateAssignable="updateWhereDisplay(where)"
+      />
+    </div>
+    <div v-else-if="rangeOrValue === RangeOrValue.Range && where.range && where.range.from && where.range.to" class="value-editor">
+      <span class="range-label">between</span>
+      <ValueEditor
+        :ui-property="uiProperty"
+        v-model:assignable="where.range.from"
+        v-model:where="where"
+        :qualifier="where.qualifier"
+        :refresh="refresh"
+        :fromOrTo="'from'"
+        @updateAssignable="updateWhereDisplay(where.range.from)"
+      />
+      <span class="range-label">and</span>
+      <ValueEditor
+        :ui-property="uiProperty"
+        v-model:assignable="where.range.to"
+        v-model:where="where"
+        :qualifier="where.qualifier"
+        :refresh="refresh"
+        :fromOrTo="'to'"
+        @updateAssignable="updateWhereDisplay(where.range.to)"
+      />
+    </div>
+    <div v-if="uiProperty.qualifierOptions">
+      <span class="qualifier">Qualifier:</span>
       <Select
-        :modelValue="relativity"
-        :options="relativityOptions"
-        scroll-height="50rem"
-        option-label="label"
-        option-value="value"
-        placeholder="Relative/absolute"
-        data-testid="relativity-selector"
-        @update:modelValue="updateRelativity"
+        v-model="qualifierIri"
+        :options="qualifierOptions"
+        optionLabel="displayName"
+        optionValue="iri"
+        :placeholder="'no function on ' + where.name"
+        @update:modelValue="updateQualifier"
       >
         <template #option="slotProps">
           <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-            <div>{{ slotProps.option.label }}</div>
+            <div>{{ slotProps.option.displayName }}</div>
           </div>
         </template>
       </Select>
-      <template v-if="relativity && relativity != 'notNull' && relativity !== 'isNull'">
-        <div v-if="!relativity.includes('Range')">
-          <ValueEditor
-            :ui-property="uiProperty"
-            v-model:assignable="property"
-            v-model:property="property"
-            :relativeTo="property.relativeTo"
-            :absolute="relativity === 'absolute'"
-            :refresh="refresh"
-            @updateProperty="updateWhereDisplay"
-          />
-        </div>
-        <div v-else-if="relativity.includes('Range')" class="property-range">
-          <div>
-            <span class="range-label">between</span>
-            <ValueEditor
-              :ui-property="uiProperty"
-              v-model:assignable="property.range!.from"
-              v-model:property="property"
-              :relativeTo="property.relativeTo"
-              :absolute="relativity.includes('absolute')"
-              :refresh="refresh"
-              :fromOrTo="'from'"
-              @updateProperty="updateWhereDisplay"
-            />
-          </div>
-          <div>
-            <span class="range-label">and</span>
-            <ValueEditor
-              :ui-property="uiProperty"
-              v-model:assignable="property.range!.to"
-              v-model:property="property"
-              :relativeTo="property.relativeTo"
-              :absolute="relativity.includes('absolute')"
-              :refresh="refresh"
-              :fromOrTo="'to'"
-              @updateProperty="updateWhereDisplay"
-            />
-          </div>
-        </div>
-      </template>
-      <RelativeToSelect
-        v-if="relativity === 'relative' || relativity === 'relativeRange'"
-        v-model:property="property"
-        :uiProperty="uiProperty"
-        :property-iri="property.iri!"
-      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch, computed } from "vue";
 import { IM, XSD } from "@/vocabulary";
-import { Range, Where, RelativeTo, Operator } from "@/interfaces/AutoGen";
+import { Range, Where, Operator, TTIriRef, Assignable } from "@/interfaces/AutoGen";
 import RelativeToSelect from "./RelativeToSelect.vue";
 import { UIProperty } from "@/interfaces";
-import { operatorOptions, getWhereDisplay, relativityOptions } from "@/helpers/QueryEditorMethods";
+import { getWhereDisplay, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import { cloneDeep } from "lodash-es";
 interface Props {
@@ -102,15 +96,27 @@ interface Props {
 
 const refresh = defineModel<number>("refresh", { default: 0 });
 const props = defineProps<Props>();
-const property = defineModel<Where>("property", { default: {} });
+const where = defineModel<Where>("where", { default: {} });
 const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }
 ];
 const emit = defineEmits(["updateProperty"]);
-const relativity: Ref<string | undefined> = ref();
-const originalRelativeTo: Ref<RelativeTo | undefined> = ref();
 const whereDisplay: Ref<string> = ref("");
+const rangeOrValue: Ref<RangeOrValue> = ref(where.value.range ? RangeOrValue.Range : RangeOrValue.SingleValue);
+
+const qualifierOptions = computed(() => {
+  const options = [];
+  options.push({ iri: undefined, displayName: "no qualifier" });
+  options.push(
+    ...props.uiProperty.qualifierOptions.map(opt => ({
+      ...opt,
+      displayName: `${opt.name} of ${where.value.name}`
+    }))
+  );
+  return options;
+});
+const qualifierIri: Ref<string | undefined> = ref(undefined);
 
 onMounted(() => {
   init();
@@ -124,55 +130,112 @@ watch(
 );
 
 function init() {
-  if (property.value.range) {
-    if (property.value.relativeTo) relativity.value = "relativeRange";
-    else relativity.value = "absoluteRange";
-  } else {
-    if (property.value.relativeTo) {
-      originalRelativeTo.value = cloneDeep(property.value.relativeTo);
-      relativity.value = "relative";
-    } else relativity.value = "absolute";
+  if (where.value.qualifier) {
+    qualifierIri.value = where.value.qualifier.iri;
   }
-  if (property.value.isNotNull) relativity.value = "notNull";
-  if (property.value.isNull) relativity.value = "isNull";
-  whereDisplay.value = getWhereDisplay(property.value, props.uiProperty.valueType);
+  if (where.value.range) {
+    rangeOrValue.value = RangeOrValue.Range;
+  } else if (where.value.isNull) {
+    rangeOrValue.value = RangeOrValue.IsNull;
+  } else if (where.value.isNotNull) {
+    rangeOrValue.value = RangeOrValue.IsNotNull;
+  } else rangeOrValue.value = RangeOrValue.SingleValue;
+  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
 }
-
-function updateRelativity(value: string) {
-  if (value === "relative" || value === "relativeRange") {
-    if (!property.value.relativeTo) {
-      if (originalRelativeTo.value) {
-        property.value.relativeTo = originalRelativeTo.value;
-      } else property.value.relativeTo = {};
+function updateRangeOrValue() {
+  if (rangeOrValue.value === RangeOrValue.Range) {
+    if (!where.value.range) {
+      where.value.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } };
+      where.value.range.from.operator = where.value.operator;
+      where.value.range.from.value = where.value.value;
+      where.value.range.to.operator = (() => {
+        switch (where.value.range.from.operator) {
+          case Operator.eq:
+            return Operator.eq;
+          case Operator.gt:
+            return Operator.lt;
+          case Operator.lt:
+            return Operator.gt;
+          case Operator.gte:
+            return Operator.lte;
+          default:
+            return Operator.eq; // or throw error if appropriate
+        }
+      })();
+      if (where.value.compare) {
+        where.value.range.from.compare = where.value.compare;
+        where.value.range.to.compare = { left: {}, right: {} };
+        where.value.range.to.compare.right = cloneDeep(where.value.range.from.compare.right);
+        where.value.range.to.compare.units = where.value.range.from.compare.units;
+        if (where.value.range.to.compare.units && !where.value.range.to.value) {
+          where.value.range.to.value = "0";
+          where.value.range.to.operator = Operator.eq;
+        }
+        delete where.value.compare;
+      }
+      delete where.value.value;
+      delete where.value.operator;
     }
-    delete property.value.isNotNull;
-    delete property.value.isNull;
   } else {
-    delete property.value.relativeTo;
-    if (value === "notNull") {
-      delete property.value.operator;
-      delete property.value.value;
-      property.value.isNotNull = true;
-    } else if (value === "isNull") {
-      delete property.value.operator;
-      delete property.value.value;
-      property.value.isNull = true;
-    } else {
-      delete property.value.isNotNull;
-      delete property.value.isNull;
+    if (where.value.range) {
+      if (where.value.range.from.compare) {
+        where.value.compare = where.value.range.from.compare;
+        where.value.operator = where.value.range.from.operator;
+        where.value.value = where.value.range.from.value;
+      } else {
+        where.value.value = where.value.range.from.value;
+        where.value.operator = where.value.range.from.operator;
+      }
     }
+    delete where.value.range;
   }
-  init();
-  refresh.value++;
+  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
   emit("updateProperty");
 }
-function updateWhereDisplay() {
-  whereDisplay.value = getWhereDisplay(property.value, props.uiProperty.valueType);
+
+function updateQualifier() {
+  if (qualifierIri.value) {
+    where.value.qualifier = props.uiProperty.qualifierOptions.find(opt => opt.iri === qualifierIri.value);
+  } else {
+    delete where.value.qualifier;
+  }
+  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
+}
+
+function selectedQualifierTemplate(option: any) {
+  return `${option.name} of ${where.value.name}`;
+}
+function updateWhereDisplay(assignable: Assignable) {
+  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
   emit("updateProperty");
 }
 </script>
 
 <style scoped>
+.where-value-editor {
+  display: flex;
+  flex-direction: column;
+}
+.value-editor {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+.relative-buttons {
+  margin-top: 0.5rem;
+  --p-radiobutton-checked-border-color: green;
+  --p-radiobutton-checked-background: white;
+  --p-radiobutton-icon-checked-color: black;
+  --p-radiobutton-icon-size: 10px;
+}
+.qualifier {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.where-relative-container {
+  display: flex;
+  flex-direction: row;
+}
 .property-input-container {
   display: flex;
   flex-flow: row;
@@ -184,16 +247,18 @@ function updateWhereDisplay() {
   flex-flow: row;
   align-items: baseline;
   flex-wrap: wrap;
+  margin-top: 1rem;
 }
-
-.property-input-title {
-  width: 4rem;
+.field {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .property-range {
   display: flex;
   flex-flow: row;
   align-items: baseline;
+  margin-top: 1rem;
 }
 .range-label {
   padding-left: 0.5rem;

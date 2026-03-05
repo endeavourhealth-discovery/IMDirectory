@@ -137,7 +137,6 @@ declare module 'vue' {
     ImqueryMatchEditor: typeof import('./src/components/imquery/MatchEditor.vue')['default']
     ImqueryParameterSelect: typeof import('./src/components/imquery/ParameterSelect.vue')['default']
     ImqueryQueryEditor: typeof import('./src/components/imquery/QueryEditor.vue')['default']
-    ImqueryRangeEditor: typeof import('./src/components/imquery/RangeEditor.vue')['default']
     ImqueryRelativeToSelect: typeof import('./src/components/imquery/RelativeToSelect.vue')['default']
     ImqueryRoleGroup: typeof import('./src/components/imquery/RoleGroup.vue')['default']
     ImqueryRuleActionEditor: typeof import('./src/components/imquery/RuleActionEditor.vue')['default']
