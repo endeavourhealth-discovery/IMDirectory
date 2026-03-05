@@ -12,6 +12,8 @@
     @cancel="cancelEditMatch"
     @deleteMatch="onDeleteMatchList"
     @saveChanges="saveEditMatch"
+    @add-test="addTest"
+    @add-linked="addLinked"
   />
   <div v-if="boolGroup" class="match-container">
     <div class="match-clause-inner">
@@ -126,10 +128,10 @@ import { computed, onMounted, Ref, ref, watch } from "vue";
 import {
   addMatchToParent,
   checkGroupChange,
-  deleteMatchFromParent,
   getBooleanOperator,
   getBoolGroup,
   getDisplayOperator,
+  getMatchFromNodeRef,
   updateBooleans
 } from "@/helpers/buildQuery";
 import Button from "primevue/button";
@@ -149,7 +151,6 @@ interface Props {
   index: number;
   expanded?: boolean;
   canExpand?: boolean;
-  from?: Match;
   parentOperator?: Bool;
   parentIndex: number;
   baseType: Node;
@@ -165,6 +166,7 @@ const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
 const editMatch: Ref<Match | undefined> = ref();
+const from: Ref<Match | undefined> = ref();
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
@@ -173,7 +175,7 @@ const menu = ref();
 const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
   { label: "Add cohort", icon: "pi pi-users", command: () => addCohort() },
-  { label: "Import deftinition", icon: "pi pi-file", command: () => addDefinition() }
+  { label: "Import definition", icon: "pi pi-file", command: () => addDefinition() }
 ];
 const isNewMatch = ref(false);
 const boolGroup = computed(() => {
@@ -189,6 +191,10 @@ const adding = ref(false);
 function onDeleteMatchList() {
   emit("deleteMatch");
 }
+
+function deleteMatch() {
+  emit("deleteMatch");
+}
 function onDeleteMatch(index: number) {
   if (match.value.or) {
     match.value.or.splice(index, 1);
@@ -199,6 +205,13 @@ function onDeleteMatch(index: number) {
     match.value.and.splice(index, 1);
     if (match.value.and.length === 1) {
       match.value = match.value.and[0];
+    }
+  } else if (match.value.step) {
+    match.value.step.splice(index, 1);
+    if (match.value.step.length === 1) {
+      if (match.value.step[0].nodeRef) {
+        emit("deleteMatch");
+      } else match.value = match.value.step[0];
     }
   } else emit("deleteMatch");
 }
@@ -227,9 +240,6 @@ function createNewMatch() {
   showEditor.value = true;
 }
 
-function deleteMatch() {
-  deleteMatchFromParent(parent.value, props.index);
-}
 async function saveEditMatch() {
   showEditor.value = false;
   if (isNewMatch.value && editMatch.value) {
@@ -243,10 +253,39 @@ async function saveEditMatch() {
   isNewMatch.value = false;
   definitionSelector.value = false;
 }
+
+function createStep(match: Match): Match {
+  const stepMatch = {} as Match;
+  stepMatch.step = [];
+  if (isNewMatch.value && editMatch.value) {
+    stepMatch.step.push(editMatch.value!);
+    addMatchToParent(parent.value, stepMatch);
+  } else {
+    if (parent.value.and) parent.value.and[props.index] = stepMatch;
+    else if (parent.value.or) parent.value.or[props.index] = stepMatch;
+    stepMatch.step.push(editMatch.value!);
+  }
+  return stepMatch;
+}
+
+async function addTest() {
+  showEditor.value = true;
+  const stepMatch = createStep(editMatch.value!);
+  isNewMatch.value = false;
+  from.value = editMatch.value!;
+  editMatch.value = { nodeRef: editMatch.value!.node };
+  stepMatch.step!.push(editMatch.value!);
+  showEditor.value = true;
+}
+
+async function addLinked() {
+  showEditor.value = false;
+}
 function onDeletedWhere() {
   emit("deleteMatch");
 }
 function editMatchClause() {
+  if (match.value.nodeRef) from.value = getMatchFromNodeRef(match.value.nodeRef, parent.value);
   editMatch.value = match.value;
   showEditor.value = true;
 }

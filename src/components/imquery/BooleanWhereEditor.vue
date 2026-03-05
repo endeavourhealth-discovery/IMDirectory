@@ -18,6 +18,7 @@
           :match="match"
           v-model:where="boolGroup![subIndex]"
           v-model:parent="where"
+          :from="from"
           :index="subIndex"
           :parentIndex="index"
           :baseType="baseType"
@@ -47,7 +48,7 @@
         <WhereValueEditor
           :key="refreshCounter"
           :ui-property="selectedWhere"
-          v-model:property="where!"
+          v-model:where="where!"
           :refresh="refreshCounter"
           @updateProperty="updateProperty"
         />
@@ -91,6 +92,7 @@ const props = withDefaults(
     rootBool: boolean;
     parentOperator?: Bool;
     parentIndex: number;
+    from?: Match;
   }>(),
   { showDelete: true }
 );
@@ -99,10 +101,8 @@ const where = defineModel<Where>("where", { default: {} });
 const parent = defineModel<Where | Match>("parent", { default: {} });
 const selectedWhere: Ref<UIProperty | undefined> = ref();
 const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);
-const expandSet: Ref<boolean> = ref(false);
 const group: Ref<number[]> = ref([]);
 const loading = ref(true);
-const parentProperty = defineModel<Where>("parentProperty", { default: {} });
 const dropdown = ref();
 const operator = computed(() => {
   return getBooleanOperator("Where", where.value);
@@ -126,7 +126,7 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   if (where.value.iri) {
-    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType, where.value.nodeRef);
+    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType, where.value.nodeRef, props.from);
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);
@@ -155,11 +155,8 @@ function updateBool(oldOperator: Bool, newOperator: Bool, index: number) {
   updateBooleans(where.value!, oldOperator, newOperator);
 }
 
-function truncateName(name: string) {
-  if (name.length > 25) return name.substring(0, 25) + "...";
-  return name;
-}
 function updateProperty() {
+  updated.value = true;
   emit("updateProperty");
 }
 

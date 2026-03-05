@@ -1,32 +1,43 @@
-import { Node, Order, RelativeTo, Where, Assignable, Match, Path } from "@/interfaces/AutoGen";
+import { Node, Order, Where, Assignable, Match, Path, Operator, TTIriRef, ValueSource } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { Orderable } from "@/models/orderable";
 import { useQueryStore } from "@/stores/queryStore";
 
-export const relativityOptions = [
-  {
-    label: "Relative value",
-    value: "relative",
-    tooltip: "The date or time or value is relative to the value of a parameter or result of another query"
-  },
-  {
-    label: "Absolute value",
-    value: "absolute",
-    tooltip: "The date time or value is not relative to any other value"
-  },
-  {
-    label: "Relative range",
-    value: "relativeRange",
-    tooltip: "The range of date or time or value is relative to the value of a parameter or result of another query"
-  },
-  {
-    label: "Absolute range",
-    value: "absoluteRange",
-    tooltip: "The range of date time or value is not relative to any other value"
-  },
-  { label: "is not recorded", value: "isNull", tooltip: "Test for absence of value" },
-  { label: "is recorded", name: "notNull", tooltip: "Test for presence of any value" }
-];
+export type RelativeTo = {
+  nodeRef?: string;
+  parameter?: string;
+  qualifier?: TTIriRef;
+  path?: Path;
+  name?: string;
+};
+export const Relativity = {
+  Compare: "compare",
+  Relative: "relative",
+  Absolute: "absolute"
+} as const;
+export type Relativity = (typeof Relativity)[keyof typeof Relativity];
+
+export const compareOptions = [
+  { label: "Compare to another value", value: Relativity.Compare },
+  { label: "Compare to relative value", value: Relativity.Relative },
+  { label: "Compare to fixed value", value: Relativity.Absolute }
+] satisfies { label: string; value: Relativity }[];
+
+export const RangeOrValue = {
+  Range: "range",
+  SingleValue: "singleValue",
+  IsNull: "isNull",
+  IsNotNull: "isNotNull"
+} as const;
+
+export type RangeOrValue = (typeof RangeOrValue)[keyof typeof RangeOrValue];
+
+export const rangeValueOptions = [
+  { label: "Range", value: RangeOrValue.Range },
+  { label: "Single value", value: RangeOrValue.SingleValue },
+  { label: "Is absent", value: RangeOrValue.IsNull },
+  { label: "Is present", value: RangeOrValue.IsNotNull }
+] satisfies { label: string; value: RangeOrValue }[];
 
 export const offsetOptions = [
   { label: "relative to", value: "0" },
@@ -130,41 +141,59 @@ export function getDateFromString(date: string): Date {
   return new Date();
 }
 
-export const operatorOptions = (valueType: string): any[] => {
-  return [
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "on" : "equal",
-      value: "=",
-      tooltip: "exactly equal to value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "on or after" : "greater or equal to",
-      value: ">=",
-      tooltip: "inclusive of value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "on or before" : "less than or equal to",
-      value: "<=",
-      tooltip: "inclusive of value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "after" : "greater than",
-      value: ">",
-      tooltip: "exclusive of value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "before" : "less than",
-      value: "<",
-      tooltip: "exclusive of value"
-    }
-  ];
-};
+export const operatorOptions = [
+  {
+    label: "equal to",
+    value: Operator.eq,
+    tooltip: "exactly equal to value"
+  },
+  {
+    label: "greater or equal to",
+    value: Operator.gte,
+    tooltip: "inclusive of value"
+  },
+  {
+    label: "less than or equal to",
+    value: Operator.lte,
+    tooltip: "inclusive of value"
+  },
+  {
+    label: "greater than",
+    value: Operator.gt,
+    tooltip: "exclusive of value"
+  },
+  {
+    label: "less than",
+    value: Operator.lt,
+    tooltip: "exclusive of value"
+  }
+] satisfies { label: string; value: Operator; tooltip: string }[];
 
+export function getRelativeTo(where: Where): RelativeTo | undefined {
+  if (where.compare && where.compare.right) {
+    return {
+      nodeRef: where.compare.right.nodeRef,
+      path: where.compare.right.path,
+      parameter: where.compare.right.parameter,
+      name: where.compare.right.name
+    };
+  }
+  return undefined;
+}
 export function getWhereDisplay(where: Where, valueType: string): string {
   let result = "";
-  const relative = where.relativeTo;
+  if (where.qualifier) result += where.qualifier.name + " ";
+  const relative: RelativeTo | undefined =
+    where.compare && where.compare.right
+      ? {
+          nodeRef: where.compare.right.nodeRef,
+          path: where.compare.right.path,
+          parameter: where.compare.right.parameter,
+          name: where.compare.right.name
+        }
+      : undefined;
   const isTime = valueType === IM.DATE || valueType === IM.TIME;
-  if (where.range) {
+  if (where.range && where.range.from && where.range.to) {
     result = "between ";
     result = result.concat(assignDisplay(where, where.range.from, relative, isTime));
     result = result.concat(" and ");
@@ -172,8 +201,10 @@ export function getWhereDisplay(where: Where, valueType: string): string {
   } else {
     result = result.concat(assignDisplay(where, where, relative, isTime));
   }
-  if (relative) result = result.concat(getRelativeToTerm(relative));
-  else if (where.isNull) result = result.concat("is not recorded");
+  if (relative) {
+    if (relative.qualifier) result = result + relative.qualifier.name + " of ";
+    result = result.concat(getRelativeToTerm(relative));
+  } else if (where.isNull) result = result.concat("is not recorded");
   else if (where.isNotNull) result = result.concat("is recorded");
   return result;
 }
@@ -186,7 +217,7 @@ function assignDisplay(where: Where, assign: Assignable, relative: RelativeTo | 
   if (value || operator) {
     switch (operator) {
       case "=":
-        result = result.concat("exactly ");
+        result = result.concat("equal to ");
         break;
       case ">=":
         result = result.concat(isTime ? "on or after " : "equal to or greater than ");
@@ -203,9 +234,10 @@ function assignDisplay(where: Where, assign: Assignable, relative: RelativeTo | 
     if (!value) {
       if (!relative) result = result.concat("0");
     }
+    const units = where.compare && where.compare.units ? where.compare.units.name : "";
     if (value) {
-      if (!relative && negative) result = result.concat(getValueUnits("-" + value, where.units?.name));
-      else result = result.concat(getValueUnits(value, where.units?.name));
+      if (!relative && negative) result = result.concat(getValueUnits("-" + value, units));
+      else result = result.concat(getValueUnits(value, units));
       if (relative) {
         if (negative) {
           result = result.concat(isTime ? "prior to " : "below ");
@@ -240,46 +272,6 @@ function getRelativeToTerm(relativeTo: RelativeTo): string {
   return "unknown";
 }
 
-export function getInclusivityOptions(fromOrTo: "from" | "to"): any[] {
-  const results = [];
-  if (fromOrTo === "from") {
-    results.push({
-      label: " Inclusive",
-      value: ">=",
-      tooltip: "Inclusive of value"
-    });
-    results.push({
-      label: "Exclusive",
-      value: ">",
-      tooltip: "Exclusive of value"
-    });
-  }
-  if (fromOrTo === "to") {
-    results.push({
-      label: "Inclusive",
-      value: "<=",
-      tooltip: "Inclusive of value"
-    });
-    results.push({
-      label: "Exclusive",
-      value: "<",
-      tooltip: "Exclusive of value"
-    });
-  }
-  return results;
-}
-
-
-function getPathNameFromPath(nodeRef: string, flatPath: string, path: Path): string {
-  flatPath = flatPath.concat("/");
-  if (path.path) {
-    const subPath = path.path[0];
-    flatPath = flatPath.concat(subPath.name!);
-    if (path.node === nodeRef) return flatPath;
-    flatPath = getPathNameFromPath(nodeRef, flatPath, path);
-  }
-  return flatPath;
-}
 export function getTypeFromClause(match: Match): string | undefined {
   const queryStore = useQueryStore();
   if (!match.path) {
@@ -356,4 +348,113 @@ function toMinutes(time: string): number {
 export function isTimeInRange(time: string, start: string, end: string): boolean {
   const t = toMinutes(time);
   return t >= toMinutes(start) && t <= toMinutes(end);
+}
+export type SentencePart =
+  | { type: "text"; value?: string }
+  | { type: "field"; value?: string }
+  | { type: "parameter"; value?: string }
+  | { type: "nodeRef"; value?: string };
+
+export function buildValueSentence(where: Where): SentencePart[] | undefined {
+  if (where.range) return buildRangeSentence(where);
+  return buildNonRangeSentence(where);
+}
+
+function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
+  const parts: SentencePart[] = [];
+  const units = where.compare && where.compare.units ? where.compare.units.name : "";
+  const value = where.value && where.value != "0" ? where.value : undefined;
+  if (where.operator) {
+    parts.push({ type: "text", value: getOperatorTerm(where.operator) });
+  }
+  if (value) parts.push({ type: "text", value: `${value} ${units} ` });
+  if (where.compare) {
+    addReference(parts, value, where.compare!.right!);
+  }
+  return parts;
+}
+
+function buildRangeSentence(where: Where): SentencePart[] | undefined {
+  const parts: SentencePart[] = [];
+  const { from, to } = where.range!;
+  const units = from.compare && from.compare.units ? from.compare.units.name : "";
+  const fromVal = from.value && from.value != "0" ? from.value : undefined;
+  const toVal = to.value && to.value != "0" ? to.value : undefined;
+  parts.push({ type: "text", value: " is between " });
+  let inclusive = false;
+  if (from.operator) {
+    if (from.operator === Operator.gte || from.operator === Operator.lte) inclusive = true;
+  }
+  parts.push({ type: "text", value: `${fromVal} ${units} ` });
+  if (inclusive) parts.push({ type: "text", value: "(inc.) " });
+  if (from.compare && from.compare.right) {
+    if (to.compare && to.compare.right) {
+      if (from.compare.right.parameter) {
+        if (to.compare && to.compare.right && to.compare.right.parameter) {
+          if (to.compare.right.parameter !== from.compare.right.parameter) {
+            addReference(parts, fromVal, from.compare!.right!);
+          }
+        }
+      }
+    } else addReference(parts, fromVal, from.compare.right);
+  }
+  parts.push({ type: "text", value: " and " });
+  inclusive = false;
+  if (to.operator) {
+    if (to.operator === Operator.gte || to.operator === Operator.lte) inclusive = true;
+  }
+  if (!inclusive && to.operator) {
+    parts.push({ type: "text", value: getOperatorTerm(to.operator) });
+  }
+  parts.push({ type: "text", value: `${toVal} ${units} ` });
+  if (inclusive) parts.push({ type: "text", value: "(inc.) " });
+  if (to.compare) {
+    addReference(parts, toVal, to.compare!.right!);
+  }
+  return parts;
+}
+
+function addReference(parts: SentencePart[], value: string | undefined, source: ValueSource) {
+  if (value) parts.push({ type: "text", value: "relative to " });
+  if (source.parameter) {
+    parts.push({
+      type: "parameter",
+      value: source.name
+    });
+  } else if (source.path && source.path.name) {
+    parts.push({
+      type: "field",
+      value: source.path.name
+    });
+    parts.push({ type: "text", value: " of " });
+    parts.push({
+      type: "nodeRef",
+      value: source.nodeRef
+    });
+  }
+}
+function getOperatorTerm(operator: Operator): string {
+  switch (operator) {
+    case "=":
+      return "= ";
+      break;
+    case ">=":
+      return "equal to or greater than ";
+      break;
+    case "<=":
+      return "equal to or less than ";
+      break;
+    case ">":
+      return "greater than ";
+      break;
+    case "<":
+      return "less than ";
+    default:
+      return "";
+  }
+}
+export function getIsOperator(nodes: Node[], eclQuery: boolean | undefined) {
+  if (eclQuery) return "=";
+  if (nodes.length === 1) return "is";
+  else return "in";
 }

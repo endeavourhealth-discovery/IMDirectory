@@ -14,7 +14,6 @@
         <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
           <ProgressSpinner />
         </div>
-        <div>match= {{ match }}</div>
         <Splitter class="h-full w-full" layout="horizontal">
           <SplitterPanel :size="25" class="column-selector">
             <div class="tree-scroll-container" @click.stop>
@@ -55,17 +54,24 @@
             </div>
           </SplitterPanel>
           <SplitterPanel class="column-selector">
-            <div>With the following conditions:</div>
+            <div v-if="match.nodeRef">
+              <span>From: </span>
+              <MatchContentDisplay :match="from!" :depth="0" :clauseIndex="0" :parentOperator="Bool.step" />
+              <div>Test for the following:</div>
+            </div>
+            <div v-else>With the following conditions:</div>
             <div>
               <MatchContentEditor
                 v-if="!match.invalid"
                 :base-type="baseType"
                 v-model:match="match"
-                :from="match"
+                :from="from"
                 :depth="0"
                 :index="0"
                 @deleteMatch="deleteMatch"
                 @addTest="addThen"
+                @addLinked="addLinked"
+                @updateMatch="onUpdate"
               />
             </div>
           </SplitterPanel>
@@ -86,7 +92,7 @@
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { DisplayMode, Match, Node, TTIriRef } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, Node, TTIriRef } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref, watch, inject } from "vue";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { EntityService, QueryService } from "@/services";
@@ -99,6 +105,8 @@ import { cloneDeep } from "lodash-es";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import { findNodeByKey } from "@/helpers/TreeHelper";
+import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
+import Swal from "sweetalert2";
 interface Props {
   baseType: Node;
   from?: Match;
@@ -115,10 +123,12 @@ const emit = defineEmits<{
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
   (event: "addTest"): void;
+  (event: "addLinked"): void;
+  (event: "updateMatch"): void;
 }>();
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const { expandNode, addWhereFromTree, findNodeFromPath } = usePropertyTree();
+const { expandNode, addWhereFromTree, findNodeFromFlatPath, findNodeFromMatchPath } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
@@ -130,13 +140,18 @@ const typeNodes: Ref<TreeNode[]> = ref(rootNodes.value);
 onMounted(async () => {
   await init();
 });
-function onUpdate() {
-  edited.value = true;
-}
+
+watch(expandedKeys.value, () => {
+  console.log(expandedKeys.value);
+});
 
 async function init() {
   loading.value = true;
-  expandedKeys.value["0"] = true;
+  if (match.value.path) {
+    const nodes = await findNodeFromMatchPath(match.value, rootNodes.value);
+    if (nodes) typeNodes.value = nodes;
+  }
+  expandedKeys.value = { [typeNodes.value[0].key]: true };
   loading.value = false;
   initialized.value = true;
 }
@@ -151,16 +166,27 @@ async function onNodeSelect(node: any) {
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   match.value.invalid = false;
   edited.value = true;
-  const nodes = findNodeFromPath(node.data.path, rootNodes.value);
-  if (nodes) typeNodes.value = nodes;
+  const nodes = findNodeFromFlatPath(node.data.path, rootNodes.value);
+  if (nodes) {
+    typeNodes.value = nodes;
+    expandedKeys.value = { [nodes[0].key]: true };
+  }
+  selectedNodeKey.value = {};
 }
-
+function onUpdate() {
+  edited.value = true;
+  emit("updateMatch");
+}
 function deleteMatch() {
   emit("deleteMatch");
 }
 
 function addThen() {
   emit("addTest");
+}
+
+function addLinked() {
+  emit("addLinked");
 }
 
 async function getFunctionTemplates() {
@@ -175,9 +201,20 @@ async function getFunctionTemplates() {
 }
 
 async function onSave() {
-  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
-  showMatchEditor.value = false;
-  emit("saveChanges", match.value);
+  const matchCheck = await QueryService.validateQuery(match.value);
+  if (matchCheck.invalid) {
+    await Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: matchCheck.errorMessage,
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+  } else {
+    match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+    showMatchEditor.value = false;
+    emit("saveChanges", match.value);
+  }
 }
 function onCancel() {
   emit("cancel");

@@ -88,6 +88,9 @@ const QueryService = {
       queryResponse.entities.some((entity: TTEntity) => entity.iri === selectedIri)
     );
   },
+  async validateQuery(query: Query): Promise<Query> {
+    return await axios.post(API_URL + "/private/validateQuery", query);
+  },
 
   async addQueryToRunnerQueue(queryRequest: QueryRequest): Promise<void> {
     return axios.post(Env.QUERY_RUNNER + "/api/queue/query/add", queryRequest);

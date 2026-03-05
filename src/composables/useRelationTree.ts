@@ -96,13 +96,13 @@ export function useRelationTree() {
     }
   }
   function getDefaultTarget(where: Where, tree: TreeNode[]): TreeNode {
-    if (where.relativeTo) {
+    if (where.compare && where.compare.right) {
       for (const node in tree) {
-        if (where.relativeTo.parameter) {
+        if (where.compare.right.parameter) {
           if (tree[node].data) {
-            if (tree[node].data.parameter === where.relativeTo.parameter) return tree[node];
+            if (tree[node].data.parameter === where.compare.right.parameter) return tree[node];
           }
-        } else if (where.relativeTo.nodeRef) if (tree[node].data.nodeRef && tree[node].data.nodeRef === where.relativeTo.nodeRef) return tree[node];
+        } else if (where.compare.right.nodeRef) if (tree[node].data.nodeRef && tree[node].data.nodeRef === where.compare.right.nodeRef) return tree[node];
       }
     }
     return tree[0];

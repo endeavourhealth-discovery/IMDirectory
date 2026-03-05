@@ -49,9 +49,6 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
-      <div v-else-if="selectedDisplayOption == DisplayOptions.IML" class="query-display-content flex flex-col gap-4">
-        <IMLDisplay v-if="iml" :iml="iml" />
-      </div>
       <div v-if="query && query.columnGroup">
         <span>Output columns </span>
         <Button text :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="showColumns = !showColumns"></Button>
@@ -90,8 +87,7 @@ enum DisplayOptions {
   RuleView = "Rule view",
   LogicalView = "Logical view",
   MySQL = "MySQL",
-  PostreSQL = "PostgreSQL",
-  IML = "IMLanguage"
+  PostreSQL = "PostgreSQL"
 }
 
 interface Props {
@@ -173,9 +169,6 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
     case DisplayOptions.PostreSQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
       break;
-    case DisplayOptions.IML:
-      if (props.entityIri) iml.value = await QueryService.generateQueryIML(props.entityIri);
-      break;
     default:
       break;
   }
@@ -202,7 +195,7 @@ async function init() {
 }
 
 function setDisplayOptions() {
-  displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL, DisplayOptions.IML];
+  displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
 }
 
 async function getQueryDisplay(displayMode: DisplayMode) {

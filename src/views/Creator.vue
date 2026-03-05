@@ -107,7 +107,7 @@ import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
+import { DisplayMode, PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { EditorMode } from "@/enums";
 import { IM, RDF, RDFS } from "@/vocabulary";
@@ -214,6 +214,17 @@ onMounted(async () => {
     if (propertyIri && valueIri) {
       const propertyIriFixed = removeEndSlash(propertyIri as string);
       const valueIriFixed = removeEndSlash(valueIri as string);
+      if (typeIriFixed === IM.QUERY && propertyIriFixed === IM.IS_CHILD_OF) {
+        const baseQuery = await QueryService.getDisplayFromQueryIri(valueIriFixed, DisplayMode.LOGICAL);
+        editorEntity.value[IM.DEFINITION] = JSON.stringify({
+          typeOf: baseQuery.typeOf,
+          and: [
+            {
+              is: [{ iri: valueIriFixed, cohort: true }]
+            }
+          ]
+        });
+      }
       if (propertyIriFixed === IM.DEFINITION) {
         const newValue = await QueryService.getQueryDisplay(valueIriFixed, false);
         editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;

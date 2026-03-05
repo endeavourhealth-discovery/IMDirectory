@@ -236,14 +236,6 @@ function removeRoleSubgroups(where: Where): void {
   }
 }
 
-export function deleteMatchFromParent(parentMatch: Match, index: number) {
-  for (const key of ["rule", "and", "or"] as const) {
-    if (parentMatch[key]) {
-      parentMatch[key]!.splice(index, 1);
-    }
-  }
-}
-
 export function deleteGroupFromQuery(query: Query, index: number) {
   query.columnGroup!.splice(index, 1);
 }
@@ -280,7 +272,6 @@ function hasWhereInWhere(where: Where, whereToFind: Where): boolean {
 }
 
 export function addWhereToMatch(match: Match, where: Where, index?: number) {
-  if (hasWhere(match, where)) return;
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;
@@ -529,7 +520,7 @@ export function setDefiningProperty(match: Match, typeNode: TreeNode, path: stri
   if (typeNode.children)
     for (const property of typeNode.children) {
       if (property.data.definingProperty) {
-        if (!hasProperty(match, property.data!.iri)) {
+        if (!hasProperty(match.where, property.data!.iri)) {
           const nodeRef = setPathGetNodeRef(match, path);
           addWhereToMatch(match, { nodeRef: nodeRef, iri: property.data!.iri, invalid: true }, 0);
         }
@@ -537,7 +528,7 @@ export function setDefiningProperty(match: Match, typeNode: TreeNode, path: stri
     }
 }
 
-function hasProperty(where: Where, propertyIri: string): boolean {
+function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   if (!where) return false;
   if (where.iri) return where.iri === propertyIri;
   const wheres = where.and || where.or;
@@ -545,12 +536,21 @@ function hasProperty(where: Where, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef: string | undefined): string {
-  if (!nodeRef || nodeRef === "") return baseType.iri!;
-  if (match.path) {
+export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef: string | undefined, parent?: Match): string {
+  if ((!nodeRef || nodeRef === "") && !match.nodeRef) return baseType.iri!;
+  if (match.path && nodeRef) {
     for (const path of match.path) {
       const type = getTypeIriFromPath(path, nodeRef);
       if (type) return type;
+    }
+  } else if (match.nodeRef && parent) {
+    if (parent.return) {
+      for (const ret of parent.return) {
+        if (ret.nodeRef) {
+          const type = getTypeIriFromMatch(parent, baseType, ret.nodeRef);
+          if (type) return type;
+        }
+      }
     }
   }
   return baseType.iri!;
@@ -683,15 +683,18 @@ function findPath(paths: Path[], pathIri: string): Path | undefined {
 }
 
 export function updateRelativeTo(property: Where, node: TreeNode) {
-  if (!property.relativeTo) property.relativeTo = {};
+  if (!property.compare) property.compare = {};
+  if (!property.compare.right) property.compare.right = {};
   if (node.data.parameter) {
-    property.relativeTo.parameter = node.data.parameter;
-    delete property.relativeTo.nodeRef;
+    property.compare.right.parameter = node.data.parameter;
+    delete property.compare.right.nodeRef;
   }
   if (node.data.nodeRef) {
-    property.relativeTo.nodeRef = node.data.nodeRef;
-    property.relativeTo.iri = node.data.iri;
-    delete property.relativeTo.parameter;
+    property.compare.right.nodeRef = node.data.nodeRef;
+    property.compare.right.path = {
+      iri: node.data.iri
+    };
+    delete property.compare.right.parameter;
   }
 }
 
@@ -701,4 +704,14 @@ export function removeUndefined(obj: any) {
       delete obj[key];
     }
   });
+}
+
+export function getMatchFromNodeRef(nodeRef: string, parent: Match | undefined): Match | undefined {
+  if (!parent) return undefined;
+  if (parent.step) {
+    for (const step of parent.step) {
+      if (step.node && step.node === nodeRef) return step;
+    }
+  }
+  return undefined;
 }

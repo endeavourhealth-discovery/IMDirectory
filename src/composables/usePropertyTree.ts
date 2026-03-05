@@ -6,7 +6,6 @@ import { Match, Node, PropertyShape, Where } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 import { addWhereToMatch, setPathGetNodeRef } from "@/helpers/buildQuery";
-import { trimEnd } from "lodash-es";
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
@@ -166,12 +165,28 @@ export function usePropertyTree() {
       addWhereToMatch(match, where);
     }
   }
-  function findNodeFromPath(path: string, nodes: TreeNode[]): TreeNode[] | undefined {
+  function findNodeFromFlatPath(path: string, nodes: TreeNode[]): TreeNode[] | undefined {
     for (const node of nodes) {
       if (node.data.path === path) return [node];
       if (node.children && node.children.length > 0) {
-        const foundNode = findNodeFromPath(path, node.children);
+        const foundNode = findNodeFromFlatPath(path, node.children);
         if (foundNode) return foundNode;
+      }
+    }
+    return undefined;
+  }
+  async function findNodeFromMatchPath(match: Match, nodes: TreeNode[]): Promise<TreeNode[] | undefined> {
+    if (match.path) {
+      for (const node of nodes) {
+        if (node.data.iri === match.path[0].iri) {
+          if (!node.children || node.children.length === 0) {
+            await expandNode(node);
+          }
+          return [node];
+        } else if (node.type && node.type === "folder" && node.children && node.children.length > 0) {
+          const foundNode = await findNodeFromMatchPath(match, node.children);
+          if (foundNode) return foundNode;
+        }
       }
     }
     return undefined;
@@ -182,7 +197,8 @@ export function usePropertyTree() {
     expandNode,
     createPropertyTree,
     addWhereFromTree,
-    findNodeFromPath,
+    findNodeFromFlatPath,
+    findNodeFromMatchPath,
     loading
   };
 }

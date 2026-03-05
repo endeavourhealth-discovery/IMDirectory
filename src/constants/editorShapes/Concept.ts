@@ -298,6 +298,13 @@ const ConceptShape: FormGenerator = {
                   order: 1,
                   minCount: 0,
                   builderChild: true,
+                  isValidEntity: { iri: QUERY.IS_VALID_TYPE },
+                  isValidArguments: [
+                    {
+                      valueIri: { iri: IM.FOLDER },
+                      parameter: "type"
+                    }
+                  ],
                   componentType: {
                     iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
