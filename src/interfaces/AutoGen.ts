@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-03-04 15:54:32.
+// Generated using typescript-generator version 3.2.1263 on 2026-03-05 10:04:55.
 
 export interface ConceptContextMap {
     id?: string;
@@ -313,13 +313,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
-    operator?: Operator;
-    valueTerm?: string;
-    valueLabel?: string;
+    compare?: Compare;
     description?: string;
     value?: string;
     invalid?: boolean;
-    compare?: Compare;
+    operator?: Operator;
+    valueLabel?: string;
+    valueTerm?: string;
 }
 
 export interface Case {
@@ -370,9 +370,9 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    descendantsOrSelfOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -449,8 +449,8 @@ export interface Node extends Element {
     code?: string;
     inverse?: boolean;
     node?: string;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface OrderDirection extends IriLD {
@@ -479,8 +479,8 @@ export interface Path extends Element, HasPaths {
     pathVariable?: string;
     typeOf?: Node;
     qualifier?: TTIriRef;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface PathDocument {
@@ -604,8 +604,8 @@ export interface Where extends Element, Assignable {
     notNull?: boolean;
     units?: TTIriRef;
     isInvalid?: boolean;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface DBEntry {
@@ -921,8 +921,6 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    prefixes?: TTPrefix[];
-    types?: TTIriRef[];
     type?: TTArray;
     status?: TTIriRef;
     description?: string;
@@ -930,6 +928,8 @@ export interface TTEntity extends TTNode, Serializable {
     scheme?: TTIriRef;
     version?: number;
     code?: string;
+    types?: TTIriRef[];
+    prefixes?: TTPrefix[];
 }
 
 export interface BugReport extends Task {
