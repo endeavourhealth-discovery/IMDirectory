@@ -1,9 +1,9 @@
-import { Graph, TTDocument } from "@/interfaces/AutoGen";
+import { TTDocument } from "@/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { Namespace } from "@/vocabulary/Namespace";
-const API_URL = Env.API + "api/filer";
+const API_URL = Env.API + "api/filer/private";
 const FilerService = {
   async moveFolder(entity: string, oldFolder: string, newFolder: string): Promise<void> {
     return await axios.post(API_URL + "/folder/move", null, {

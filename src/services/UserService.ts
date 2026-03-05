@@ -7,7 +7,7 @@ import PrimeVueColors from "@/enums/PrimeVueColors";
 import { UserData } from "@/interfaces/UserData";
 import { Graph, NamespacePermission, RecentActivityItemDto } from "@/interfaces/AutoGen";
 
-const API_URL = Env.API + "api/user";
+const API_URL = Env.API + "api/user/private";
 
 const UserService = {
   async updateUserPreset(preset: PrimeVuePresetThemes): Promise<User> {

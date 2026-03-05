@@ -2,7 +2,7 @@ import { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, Workflo
 import Env from "./Env";
 import axios from "axios";
 
-const API_URL = Env.API + "api/workflow";
+const API_URL = Env.API + "api/workflow/private";
 
 const WorkflowService = {
   async createBugReport(bugReport: BugReport): Promise<void> {

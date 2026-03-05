@@ -18,7 +18,7 @@ describe("EclService ___ axios success", () => {
     const eclSearchRequest: ECLQueryRequest = { query: { is: [{ iri: "testString" }] }, includeLegacy: false, limit: 1000 };
     const result = await EclService.ECLSearch(eclSearchRequest, controller);
     expect(axios.post).toBeCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/private/eclSearch", eclSearchRequest, {
+    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/eclSearch", eclSearchRequest, {
       signal: controller.signal
     });
     expect(result).toEqual({ entities: fakerResults, count: fakerResults.length, page: 1 });
@@ -28,7 +28,7 @@ describe("EclService ___ axios success", () => {
     const testQuery: Query = { is: [{ iri: "testEntity" }] };
     const result = await EclService.getEcl(testQuery);
     expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/private/ecl", { query: testQuery });
+    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/ecl", { query: testQuery });
     expect(result).toBe("axios post return");
   });
 });

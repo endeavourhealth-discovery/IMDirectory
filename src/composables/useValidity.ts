@@ -37,7 +37,7 @@ export function useValidity(shape?: FormGenerator) {
   }
 
   async function checkExists(iri: string): Promise<boolean> {
-    if (await EntityService.checkExists(iri)) {
+    if (await EntityService.entityExists(iri)) {
       await Swal.fire({
         icon: "warning",
         title: "Warning",
