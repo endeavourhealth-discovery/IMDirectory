@@ -1,4 +1,4 @@
-import { Bool, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, NodeShape } from "@/interfaces/AutoGen";
+import { Bool, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, NodeShape, Return } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
@@ -176,20 +176,11 @@ export function getBoolGroup(clauseType: string, clause: Match | Where | undefin
   } else return undefined;
 }
 
-export function getBooleanLabel(
-  clauseType: string,
-  operator: Bool,
-  index: number,
-  standardQuery?: boolean,
-  hasSubgroups?: boolean,
-  parentOperator?: Bool
-): string {
+export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean): string {
   const isFirst = index === 0;
   const isMatch = clauseType === "Match";
-  let parentPrefix = "";
-  if (parentOperator) {
-    parentPrefix = parentOperator === Bool.or ? "or " : parentOperator === Bool.and ? "and " : "";
-  }
+  const parentPrefix = "";
+
   if (operator === Bool.and) {
     if (hasSubgroups) return isFirst ? "all of the following" : parentPrefix + "all of the following";
     else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
@@ -292,6 +283,15 @@ export function getPathPropertyNames(pathable: Match | Path, where: Where): stri
     }
   }
   return undefined;
+}
+export function getPathName(pathable: Match | Path, nodeRef: string | undefined): string | undefined {
+  if (!pathable.path) return undefined;
+  if (!nodeRef) return undefined;
+  for (const path of pathable.path) {
+    if (path.node === nodeRef) return path.name + "->";
+    const pathName = getPathName(path, nodeRef);
+    if (pathName) return path.name + "->" + pathName;
+  }
 }
 
 export function getRuleAction(match: Match): string {
@@ -396,9 +396,9 @@ export function getExclusionOptions(): any[] {
   return options;
 }
 
-export function getBooleanOptions(clauseType: string, index: number, standardQuery?: boolean, hasSubgroups?: boolean, parentOperator?: Bool): any[] {
-  const andLabel = getBooleanLabel(clauseType, Bool.and, index, standardQuery, hasSubgroups, parentOperator);
-  const orLabel = getBooleanLabel(clauseType, Bool.or, index, standardQuery, hasSubgroups, parentOperator);
+export function getBooleanOptions(clauseType: string, index: number, standardQuery?: boolean, hasSubgroups?: boolean): any[] {
+  const andLabel = getBooleanLabel(clauseType, Bool.and, index, standardQuery, hasSubgroups);
+  const orLabel = getBooleanLabel(clauseType, Bool.or, index, standardQuery, hasSubgroups);
   const options = [];
 
   options.push({
@@ -567,20 +567,26 @@ function getTypeIriFromPath(path: Path, nodeRef: string): string | undefined {
   return undefined;
 }
 
-export function setPathGetNodeRef(match: Match, path: string): string {
+export function setPathGetNodeRef(match: Match, path: string, optional?: boolean): string {
+  acronyms.clear();
   const fullPath = path.split("\t");
   if (match.path) {
+    for (const path of match.path) {
+      if (path.node) acronyms.add(path.node);
+    }
     const rootPath = findPath(match.path, fullPath[0]);
     if (!rootPath) {
-      const nextMatch = { uuid: v4() } as Match;
-      addMatchToParent(nextMatch, match);
-      return setPathGetNodeRef(nextMatch, path);
+      const path = { iri: fullPath[0], typeOf: { iri: fullPath[1] }, node: getAcronym(fullPath[0]) } as Path;
+      if (optional) path.optional = true;
+      match.path!.push(path);
+      return getPathOnPath(path, fullPath.splice(2).join("\t"));
     } else if (fullPath.length > 2) {
       return getPathOnPath(rootPath, fullPath.splice(2).join("\t"));
     } else return rootPath.node!;
   } else {
     const nodeRef = getAcronym(fullPath[0]);
     match.path = [{ iri: fullPath[0], typeOf: { iri: fullPath[1] }, node: nodeRef }];
+    if (optional) match.path[0].optional = true;
     if (fullPath.length > 2) {
       return getPathOnPath(match.path[0], fullPath.splice(1).join("\t"));
     } else return nodeRef;
@@ -590,6 +596,9 @@ export function setPathGetNodeRef(match: Match, path: string): string {
 function getPathOnPath(pathTrunk: Path, path: string): string {
   const remainingPath = path.split("\t");
   if (pathTrunk.path) {
+    for (const path of pathTrunk.path) {
+      if (path.node) acronyms.add(path.node);
+    }
     const branchPath = findPath(pathTrunk.path, remainingPath[0]);
     if (!branchPath) {
       const nextPath = {
@@ -652,11 +661,7 @@ function getAcronym(iri: string | null | undefined): string {
   // Extract the local name after the last #
   const hashIndex = iri.lastIndexOf("#");
   const local = hashIndex !== -1 ? iri.substring(hashIndex + 1) : iri;
-
-  // Split on uppercase letters or digits (but not at start)
   const parts = local.split(/(?<!^)(?=[A-Z0-9])/);
-
-  // Build acronym from first letters
   let sb = "";
   for (const part of parts) {
     if (part.trim() === "") continue;
@@ -664,8 +669,6 @@ function getAcronym(iri: string | null | undefined): string {
   }
 
   let acronym = sb.toLowerCase();
-
-  // Handle duplicates
   if (acronyms.has(acronym)) {
     let i = 1;
     while (acronyms.has(`${acronym}${i}`)) {
@@ -691,9 +694,7 @@ export function updateRelativeTo(property: Where, node: TreeNode) {
   }
   if (node.data.nodeRef) {
     property.compare.right.nodeRef = node.data.nodeRef;
-    property.compare.right.path = {
-      iri: node.data.iri
-    };
+    property.compare.right.iri = node.data.iri;
     delete property.compare.right.parameter;
   }
 }
@@ -714,4 +715,21 @@ export function getMatchFromNodeRef(nodeRef: string, parent: Match | undefined):
     }
   }
   return undefined;
+}
+export function getResults(nodeRef: string, parentMatch: Match): string | undefined {
+  if (!parentMatch.step) return undefined;
+  for (const step of parentMatch.step) {
+    if (step.node && step.node === nodeRef && step.return) return getReturnFields(step.return);
+  }
+  return undefined;
+}
+function getReturnFields(returnFields: Return[]): string {
+  if (Array.isArray(returnFields)) {
+    let display = "";
+    for (let i = 1; i < returnFields.length; i++) {
+      display += display === "" ? returnFields[i].name : ", " + returnFields[i].name;
+    }
+    return display;
+  }
+  return "";
 }

@@ -1,8 +1,8 @@
 <template>
   <MatchEditor
-    v-if="showEditor"
+    v-if="showEditor && editMatch"
     :key="refreshCounter"
-    v-model:match="editMatch"
+    :match="editMatch"
     v-model:showMatchEditor="showEditor"
     :baseType="baseType"
     :from="from"
@@ -240,7 +240,8 @@ function createNewMatch() {
   showEditor.value = true;
 }
 
-async function saveEditMatch() {
+async function saveEditMatch(editedMatch: Match) {
+  editMatch.value = editedMatch;
   showEditor.value = false;
   if (isNewMatch.value && editMatch.value) {
     if (definitionSelector.value && editMatch.value.is && editMatch.value.is[0].iri) {

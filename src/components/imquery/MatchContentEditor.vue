@@ -1,5 +1,5 @@
 <template>
-  <div class="match-container" v>
+  <div class="match-container">
     <div>Select features and properties from left</div>
     <div v-if="match.where">
       <BooleanWhereEditor
@@ -187,13 +187,17 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 <style scoped>
 .match-container {
   box-sizing: border-box;
-  min-width: 0;
   padding: 0.5rem;
   border: #488bc230 1px solid;
   border-radius: 5px;
   background-color: #fafafa;
   margin: 0.5rem;
   font-size: 1rem;
+
+  /* Important for scrolling */
+  height: 100%; /* fill parent height */
+  overflow-y: auto; /* enable vertical scrolling */
+  min-height: 0; /* allows flex parents to shrink properly */
 }
 .add-button,
 .delete-button {

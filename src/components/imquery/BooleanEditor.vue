@@ -19,7 +19,7 @@
         <Select
           :class="'operator-selector'"
           :modelValue="operator"
-          :options="getBooleanOptions(clauseType, index, false, true, parentOperator as Bool)"
+          :options="getBooleanOptions(clauseType, index, false, true)"
           option-label="label"
           option-value="value"
           @update:modelValue="val => updateOperator(val as string)"

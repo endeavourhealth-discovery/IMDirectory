@@ -64,6 +64,10 @@
           />
         </div>
       </div>
+      <div v-if="query && query.return">
+        <span>Returns:</span>
+        <ReturnColumns :select="query.return" class="pl-8" :parentQuery="query!" />
+      </div>
     </div>
   </div>
 </template>
@@ -82,6 +86,7 @@ import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/Argument
 import ArgumentDisplayDialog from "@/components/directory/viewer/queryDisplay/ArgumentDisplayDialog.vue";
 import { cloneDeep } from "lodash-es";
 import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 
 enum DisplayOptions {
   RuleView = "Rule view",
