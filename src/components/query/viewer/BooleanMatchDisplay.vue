@@ -1,6 +1,5 @@
 <template>
-  <span v-if="parentOperator != Bool.step" style="padding-right: 0.5rem">...</span>
-  <span v-else style="padding-right: 6rem"></span>
+  <span style="padding-right: 0.5rem">...</span>
   <template v-if="parentOperator === Bool.rule">
     <span class="rule">Rule {{ clauseIndex }}</span>
   </template>
@@ -11,31 +10,31 @@
     <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
   </template>
   <span v-if="boolGroup.length > 1" :class="operator">
-    {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true, parentOperator) }}
+    {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }}
   </span>
-  <div :style="{ marginLeft: `${depth}rem` }">
-    <div v-for="(nestedQuery, index) in boolGroup" :key="`nestedQueryDisplay-${index}`">
+  <template v-for="(nestedQuery, index) in boolGroup" :key="`nestedQueryDisplay-${index}`">
+    <div :style="{ marginLeft: `${getMarginDepth(index) * 30}px` }">
       <RecursiveMatchDisplay
         :match="nestedQuery"
         :clause-index="index"
         :parentOperator="operator as Bool"
-        :depth="depth + 1"
+        :depth="depth + (operator === Bool.step && index > 0 ? 2 : 1)"
         :parent-match="match"
         :eclQuery="eclQuery"
       />
     </div>
-    <div v-if="parentOperator === Bool.rule" class="tree-node-line" style="margin-left: 1.5rem">
-      <span class="field">if true</span>
-      <span :class="match.ifTrue">{{ match.ifTrue }},</span>
-      <span class="field">if false</span>
-      <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
-    </div>
+  </template>
+  <div v-if="parentOperator === Bool.rule" class="tree-node-line" style="margin-left: 1.5rem">
+    <span class="field">if true</span>
+    <span :class="match.ifTrue">{{ match.ifTrue }},</span>
+    <span class="field">if false</span>
+    <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Match, Bool } from "@/interfaces/AutoGen";
-import { Ref, ref, inject } from "vue";
+import { Ref, ref, inject, computed } from "vue";
 import { getBooleanLabel } from "@/helpers/buildQuery";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 
@@ -51,6 +50,13 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+function getMarginDepth(index: number) {
+  if (props.operator === Bool.step && index > 0) {
+    return props.depth + 1;
+  }
+  return props.depth;
+}
 
 function getSubrule(index: number): string {
   return index + String.fromCharCode(96 + index);

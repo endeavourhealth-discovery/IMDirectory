@@ -4,7 +4,7 @@
       <span class="field">
         <span v-for="opt in compareOptions" :key="opt.value" class="gap-1">
           <RadioButton v-model="relativeTo" :value="opt.value" :inputId="opt.value" @update:modelValue="onChangeRelativeTo" />
-          <label :for="opt.value" class="field">{{ opt.label }}{{ opt.value === Relativity.Relative ? where.name : " " }}</label>
+          <label :for="opt.value" class="field">{{ opt.label }}</label>
         </span>
       </span>
     </div>
@@ -51,10 +51,10 @@
       </Select>
       <div v-if="relativeTo === Relativity.Relative">
         <span class="field">Relative to</span>
-        <RelativeToSelect v-model:property="where" :uiProperty="uiProperty" :property-iri="where.iri!" />
+        <RelativeToSelect v-model:property="where" :uiProperty="uiProperty" :property-iri="where.iri!" @updateCompare="emit('updateAssignable')"/>
       </div>
       <div v-if="relativeTo === Relativity.Compare">
-        <RelativeToSelect v-model:property="where" :uiProperty="uiProperty" :property-iri="where.iri!" />
+        <RelativeToSelect v-model:property="where" :uiProperty="uiProperty" :property-iri="where.iri!" @updateCompare="emit('updateAssignable')"/> />
       </div>
     </div>
   </div>
@@ -239,7 +239,6 @@ function updateUnits() {
   if (!assignable.value.compare) assignable.value.compare = { left: {}, right: {} };
   assignable.value.compare.units = props.uiProperty.unitOptions.find(opt => opt.iri === units.value);
   emit("updateAssignable");
-
 }
 </script>
 

@@ -1,6 +1,8 @@
 <template>
   <div class="where-value-editor">
-    <div>{{ whereDisplay }}</div>
+    <div>
+      <ValueSentenceDisplay v-if="valueSentence" :value-sentence="valueSentence" />
+    </div>
     <div v-if="uiProperty.valueType === XSD.STRING" class="property-input-container">
       <Select
         :options="[
@@ -84,12 +86,12 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch, computed } from "vue";
 import { IM, XSD } from "@/vocabulary";
-import { Range, Where, Operator, TTIriRef, Assignable } from "@/interfaces/AutoGen";
-import RelativeToSelect from "./RelativeToSelect.vue";
+import { Range, Where, Operator, Assignable } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
-import { getWhereDisplay, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
+import { buildValueSentence, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import { cloneDeep } from "lodash-es";
+import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 interface Props {
   uiProperty: UIProperty;
 }
@@ -117,6 +119,9 @@ const qualifierOptions = computed(() => {
   return options;
 });
 const qualifierIri: Ref<string | undefined> = ref(undefined);
+const valueSentence = computed(() => {
+  return buildValueSentence(where.value);
+});
 
 onMounted(() => {
   init();
@@ -140,7 +145,6 @@ function init() {
   } else if (where.value.isNotNull) {
     rangeOrValue.value = RangeOrValue.IsNotNull;
   } else rangeOrValue.value = RangeOrValue.SingleValue;
-  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
 }
 function updateRangeOrValue() {
   if (rangeOrValue.value === RangeOrValue.Range) {
@@ -189,7 +193,6 @@ function updateRangeOrValue() {
     }
     delete where.value.range;
   }
-  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
   emit("updateProperty");
 }
 
@@ -199,14 +202,12 @@ function updateQualifier() {
   } else {
     delete where.value.qualifier;
   }
-  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
 }
 
 function selectedQualifierTemplate(option: any) {
   return `${option.name} of ${where.value.name}`;
 }
 function updateWhereDisplay(assignable: Assignable) {
-  whereDisplay.value = getWhereDisplay(where.value, props.uiProperty.valueType);
   emit("updateProperty");
 }
 </script>
