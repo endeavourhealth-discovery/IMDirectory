@@ -6,6 +6,7 @@ import { Match, Node, PropertyShape, Where } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 import { addWhereToMatch, setPathGetNodeRef } from "@/helpers/buildQuery";
+const codeable = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
@@ -27,7 +28,7 @@ export function usePropertyTree() {
   async function createFeatureTree(queryBaseType: Node): Promise<TreeNode[]> {
     baseType.value = queryBaseType;
     const data = ref([] as TreeNode[]);
-    data.value.push(createNode("0", "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, undefined, "", "", ""));
+    data.value.push(createNode("0", "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, undefined, "", "", "", false));
     data.value[0].selectable = false;
     await createPropertyTree(queryBaseType.iri!, data.value[0]);
     return data.value;
@@ -43,6 +44,7 @@ export function usePropertyTree() {
     rangeType: string | undefined,
     path: string,
     parentKey: string,
+    highCardinality?: boolean,
     ascending?: string,
     descending?: string,
     definingProperty?: boolean
@@ -65,7 +67,8 @@ export function usePropertyTree() {
         definingProperty: definingProperty,
         ascending: ascending,
         descending: descending,
-        rangeType: rangeType
+        rangeType: rangeType,
+        highCardinality: highCardinality
       },
       loading: false,
       children: [] as TreeNode[],
@@ -81,7 +84,7 @@ export function usePropertyTree() {
 
   function createGroupNode(key: string, property: PropertyShape, path: string, parentKey: string): TreeNode {
     const name = property.group!.name;
-    const groupNode = createNode(key, name, property.group!.iri, "folder", IM.FOLDER, undefined, "", path, parentKey) as TreeNode;
+    const groupNode = createNode(key, name, property.group!.iri, "folder", IM.FOLDER, undefined, "", path, parentKey, false) as TreeNode;
     if (property.property) {
       const propertyList = [] as TreeNode[];
       for (const [propertyIndex, groupedProperty] of property.property.entries()) {
@@ -121,10 +124,12 @@ export function usePropertyTree() {
       rangeType,
       path,
       parentKey,
+      property.highCardinality,
       property.ascending,
       property.descending,
       property.definingProperty
     ) as TreeNode;
+
     if (rangeType === SHACL.NODESHAPE) {
       propertyNode.selectable = false;
       propertyNode.leaf = false;
@@ -175,21 +180,59 @@ export function usePropertyTree() {
     }
     return undefined;
   }
-  async function findNodeFromMatchPath(match: Match, nodes: TreeNode[]): Promise<TreeNode[] | undefined> {
-    if (match.path) {
-      for (const node of nodes) {
-        if (node.data.iri === match.path[0].iri) {
-          if (!node.children || node.children.length === 0) {
-            await expandNode(node);
-          }
-          return [node];
-        } else if (node.type && node.type === "folder" && node.children && node.children.length > 0) {
-          const foundNode = await findNodeFromMatchPath(match, node.children);
-          if (foundNode) return foundNode;
-        }
+
+  async function getPathNode(path: string, nodes: TreeNode[]): Promise<TreeNode | undefined> {
+    for (const node of nodes) {
+      if (node.data.path.split("\t")[0] === path) {
+        await expandNode(node);
+        return node;
+      } else if (node.data.path === "" && node.children && node.children.length > 0) {
+        const foundNode = await getPathNode(path, node.children);
+        if (foundNode) return foundNode;
       }
     }
     return undefined;
+  }
+  async function findNodesFromMatch(match: Match, nodes: TreeNode[]): Promise<TreeNode[]> {
+    if (match.path) {
+      const pathNode = await getPathNode(match.path[0]!.iri!, nodes);
+      if (pathNode) return [pathNode];
+      else return nodes;
+    } else {
+      return nodes;
+    }
+  }
+
+  async function findReturnNodesFromMatch(match: Match, nodes: TreeNode[]): Promise<TreeNode[]> {
+    const newNodes: TreeNode[] = [];
+    if (match.path) {
+      const pathNode = await getPathNode(match.path[0]!.iri!, nodes);
+      if (!pathNode) return nodes;
+      newNodes.push(pathNode!);
+      pathNode.children = findReturnNodes(pathNode.children!);
+      return newNodes;
+    } else return findReturnNodes(nodes);
+  }
+
+  function findReturnNodes(nodes: TreeNode[]): TreeNode[] {
+    const newNodes: TreeNode[] = [];
+    for (const node of nodes) {
+      if (!node.data.highCardinality) {
+        const newNode = { ...node };
+        delete newNode.children;
+        if (node.data.rangeType) {
+          if (codeable.includes(node.data.rangeType)) {
+            newNode.leaf = false;
+            newNode.data.rangeType = IM.CODEABLE;
+          }
+        }
+        if (node.type === "folder" && node.children && node.children.length > 0) {
+          newNode.children = findReturnNodes(node.children);
+          if (newNode.children.length > 0) newNodes.push(newNode);
+        } else newNodes.push(newNode);
+      }
+    }
+    return newNodes;
   }
 
   return {
@@ -198,7 +241,8 @@ export function usePropertyTree() {
     createPropertyTree,
     addWhereFromTree,
     findNodeFromFlatPath,
-    findNodeFromMatchPath,
+    findNodesFromMatch,
+    findReturnNodesFromMatch,
     loading
   };
 }

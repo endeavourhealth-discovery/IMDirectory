@@ -149,6 +149,7 @@ function onDeleteBooleanWhere(index: number) {
     where.value.or.splice(index, 1);
     if (where.value.or.length === 1) where.value = where.value.or[0];
   }
+  emit("updateProperty");
 }
 
 function updateBool(oldOperator: Bool, newOperator: Bool, index: number) {

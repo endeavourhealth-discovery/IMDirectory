@@ -9,7 +9,6 @@ import { useQueryStore } from "@/stores/queryStore";
 export function useRelationTree() {
   const expandedKeys: Ref<any> = ref({});
   const loading: Ref<boolean> = ref(false);
-  const nodes: Ref<TreeNode[]> = ref([]);
   const queryStore = useQueryStore();
 
   function createReturnTree(match: Match, nodes: TreeNode[], shapes: NodeShape[]): void {
@@ -51,13 +50,14 @@ export function useRelationTree() {
   }
 
   async function createRelationTree(match: Match, dataType: string): Promise<TreeNode[]> {
+    const nodes: TreeNode[] = [];
     if (dataType === IM.DATE) {
-      nodes.value.push(createNode("searchDate", "Search date", "$searchDate", null, undefined, null, "parameter", true));
-      nodes.value.push(createNode("achievementDate", "Achievement date", "$achievementDate", null, undefined, null, "parameter", true));
+      nodes.push(createNode("0", "Search date", "$searchDate", null, undefined, null, "parameter", true));
+      nodes.push(createNode("1", "Achievement date", "$achievementDate", null, undefined, null, "parameter", true));
     }
     const potentialTargets = await getPotentialTargetsInQuery(match, dataType);
-    createReturnTree(match, nodes.value, potentialTargets);
-    return nodes.value;
+    createReturnTree(match, nodes, potentialTargets);
+    return nodes;
   }
 
   function createNode(
@@ -95,24 +95,23 @@ export function useRelationTree() {
       }
     }
   }
-  function getDefaultTarget(where: Where, tree: TreeNode[]): TreeNode {
+  function getDefaultTarget(where: Where, tree: TreeNode[]): string {
     if (where.compare && where.compare.right) {
       for (const node in tree) {
         if (where.compare.right.parameter) {
           if (tree[node].data) {
-            if (tree[node].data.parameter === where.compare.right.parameter) return tree[node];
+            if (tree[node].data.parameter === where.compare.right.parameter) return tree[node].key;
           }
-        } else if (where.compare.right.nodeRef) if (tree[node].data.nodeRef && tree[node].data.nodeRef === where.compare.right.nodeRef) return tree[node];
+        } else if (where.compare.right.nodeRef) if (tree[node].data.nodeRef && tree[node].data.nodeRef === where.compare.right.nodeRef) return tree[node].key;
       }
     }
-    return tree[0];
+    return tree[0].key;
   }
   return {
     collapseNode,
     expandedKeys,
     loading,
     createRelationTree,
-    nodes,
     getDefaultTarget
   };
 }

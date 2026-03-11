@@ -8,25 +8,7 @@
     <span class="field">{{ getIsOperator(where.is, eclQuery) }}</span>
     <span @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0"> {{ where.valueLabel }}</span>
   </span>
-  <span v-if="valueSentence">
-    <span v-for="(part, i) in valueSentence" :key="i">
-      <template v-if="part.type === 'text'">
-        {{ part.value }}
-      </template>
-      <template v-else-if="part.type === 'field'">
-        {{ part.value }}
-      </template>
-      <template v-else-if="part.type === 'parameter'">
-        {{ part.value }}
-      </template>
-
-      <template v-else-if="part.type === 'nodeRef'">
-        <span class="node-ref">
-          {{ part.value }}
-        </span>
-      </template>
-    </span>
-  </span>
+  <ValueSentenceDisplay v-if="valueSentence" :valueSentence="valueSentence" />
 
   <span v-if="isExpanded && isArrayHasLength(where.is)">
     <span>, defined as</span>
@@ -76,6 +58,7 @@ import { buildValueSentence, getIsOperator } from "@/helpers/QueryEditorMethods"
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
 import { getRelativeTo } from "@/helpers/QueryEditorMethods";
+import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 
 interface Props {
   where: Where;

@@ -1,5 +1,4 @@
-import { Node, Order, Where, Assignable, Match, Path, Operator, TTIriRef, ValueSource } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
+import { Node, Order, Where, Match, Path, Operator, TTIriRef, Compare } from "@/interfaces/AutoGen";
 import { Orderable } from "@/models/orderable";
 import { useQueryStore } from "@/stores/queryStore";
 
@@ -7,7 +6,7 @@ export type RelativeTo = {
   nodeRef?: string;
   parameter?: string;
   qualifier?: TTIriRef;
-  path?: Path;
+  iri?: string;
   name?: string;
 };
 export const Relativity = {
@@ -173,103 +172,12 @@ export function getRelativeTo(where: Where): RelativeTo | undefined {
   if (where.compare && where.compare.right) {
     return {
       nodeRef: where.compare.right.nodeRef,
-      path: where.compare.right.path,
+      iri: where.compare.right.iri,
       parameter: where.compare.right.parameter,
       name: where.compare.right.name
     };
   }
   return undefined;
-}
-export function getWhereDisplay(where: Where, valueType: string): string {
-  let result = "";
-  if (where.qualifier) result += where.qualifier.name + " ";
-  const relative: RelativeTo | undefined =
-    where.compare && where.compare.right
-      ? {
-          nodeRef: where.compare.right.nodeRef,
-          path: where.compare.right.path,
-          parameter: where.compare.right.parameter,
-          name: where.compare.right.name
-        }
-      : undefined;
-  const isTime = valueType === IM.DATE || valueType === IM.TIME;
-  if (where.range && where.range.from && where.range.to) {
-    result = "between ";
-    result = result.concat(assignDisplay(where, where.range.from, relative, isTime));
-    result = result.concat(" and ");
-    result = result.concat(assignDisplay(where, where.range.to, relative, isTime));
-  } else {
-    result = result.concat(assignDisplay(where, where, relative, isTime));
-  }
-  if (relative) {
-    if (relative.qualifier) result = result + relative.qualifier.name + " of ";
-    result = result.concat(getRelativeToTerm(relative));
-  } else if (where.isNull) result = result.concat("is not recorded");
-  else if (where.isNotNull) result = result.concat("is recorded");
-  return result;
-}
-
-function assignDisplay(where: Where, assign: Assignable, relative: RelativeTo | undefined, isTime: boolean): string {
-  let result = "";
-  const value = assign.value ? (assign.value.startsWith("-") ? assign.value.substring(1) : assign.value) : undefined;
-  const operator = assign.operator ? assign.operator : undefined;
-  const negative = !assign.value ? false : assign.value.startsWith("-");
-  if (value || operator) {
-    switch (operator) {
-      case "=":
-        result = result.concat("equal to ");
-        break;
-      case ">=":
-        result = result.concat(isTime ? "on or after " : "equal to or greater than ");
-        break;
-      case "<=":
-        result = result.concat(isTime ? "on or before " : "equal to or less than ");
-        break;
-      case ">":
-        result = result.concat(isTime ? "after " : "greater than ");
-        break;
-      case "<":
-        result = result.concat(isTime ? "before " : "less than ");
-    }
-    if (!value) {
-      if (!relative) result = result.concat("0");
-    }
-    const units = where.compare && where.compare.units ? where.compare.units.name : "";
-    if (value) {
-      if (!relative && negative) result = result.concat(getValueUnits("-" + value, units));
-      else result = result.concat(getValueUnits(value, units));
-      if (relative) {
-        if (negative) {
-          result = result.concat(isTime ? "prior to " : "below ");
-        } else {
-          result = result.concat(isTime ? "after " : "above ");
-        }
-      }
-    }
-  }
-  return result;
-}
-
-function getValueUnits(value: string | undefined, units: string | undefined): string {
-  if (!value) return "";
-  return units ? value + " " + units + " " : value + " ";
-}
-
-function getRelativeToTerm(relativeTo: RelativeTo): string {
-  if (relativeTo.nodeRef) return relativeTo.nodeRef;
-  if (relativeTo.parameter) {
-    switch (relativeTo.parameter) {
-      case "$searchDate":
-        return "Search date";
-      case "$achievementDate":
-        return "Achievement date";
-      case "$now":
-        return "Current date";
-      default:
-        return "unknown parameter";
-    }
-  }
-  return "unknown";
 }
 
 export function getTypeFromClause(match: Match): string | undefined {
@@ -362,6 +270,14 @@ export function buildValueSentence(where: Where): SentencePart[] | undefined {
 
 function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
   const parts: SentencePart[] = [];
+  if (where.isNull) {
+    parts.push({ type: "text", value: "is absent" });
+    return parts;
+  }
+  if (where.notNull) {
+    parts.push({ type: "text", value: "is present" });
+    return parts;
+  }
   const units = where.compare && where.compare.units ? where.compare.units.name : "";
   const value = where.value && where.value != "0" ? where.value : undefined;
   if (where.operator) {
@@ -369,7 +285,7 @@ function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
   }
   if (value) parts.push({ type: "text", value: `${value} ${units} ` });
   if (where.compare) {
-    addReference(parts, value, where.compare!.right!);
+    addReference(parts, where.compare);
   }
   return parts;
 }
@@ -379,7 +295,7 @@ function buildRangeSentence(where: Where): SentencePart[] | undefined {
   const { from, to } = where.range!;
   const units = from.compare && from.compare.units ? from.compare.units.name : "";
   const fromVal = from.value && from.value != "0" ? from.value : undefined;
-  const toVal = to.value && to.value != "0" ? to.value : undefined;
+  const toVal = to.value;
   parts.push({ type: "text", value: " is between " });
   let inclusive = false;
   if (from.operator) {
@@ -392,11 +308,11 @@ function buildRangeSentence(where: Where): SentencePart[] | undefined {
       if (from.compare.right.parameter) {
         if (to.compare && to.compare.right && to.compare.right.parameter) {
           if (to.compare.right.parameter !== from.compare.right.parameter) {
-            addReference(parts, fromVal, from.compare!.right!);
+            addReference(parts, from.compare);
           }
         }
       }
-    } else addReference(parts, fromVal, from.compare.right);
+    } else addReference(parts, from.compare);
   }
   parts.push({ type: "text", value: " and " });
   inclusive = false;
@@ -409,22 +325,25 @@ function buildRangeSentence(where: Where): SentencePart[] | undefined {
   parts.push({ type: "text", value: `${toVal} ${units} ` });
   if (inclusive) parts.push({ type: "text", value: "(inc.) " });
   if (to.compare) {
-    addReference(parts, toVal, to.compare!.right!);
+    addReference(parts, to.compare);
   }
   return parts;
 }
 
-function addReference(parts: SentencePart[], value: string | undefined, source: ValueSource) {
-  if (value) parts.push({ type: "text", value: "relative to " });
+function addReference(parts: SentencePart[], compare: Compare) {
+  if (compare.units) {
+    parts.push({ type: "text", value: "relative to " });
+  }
+  const source = compare.right!;
   if (source.parameter) {
     parts.push({
       type: "parameter",
       value: source.name
     });
-  } else if (source.path && source.path.name) {
+  } else if (source.name) {
     parts.push({
       type: "field",
-      value: source.path.name
+      value: source.name
     });
     parts.push({ type: "text", value: " of " });
     parts.push({
