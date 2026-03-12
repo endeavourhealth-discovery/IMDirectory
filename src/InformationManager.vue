@@ -30,19 +30,19 @@ import DevBanner from "./components/app/DevBanner.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { AuthService, GithubService } from "@/services";
-import { fetchAuthSession } from "aws-amplify/auth";
+import { SecurityService, Env, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import setupChangeScale from "@/composables/setupChangeScale";
+import { useChangeFontSize } from "@/composables/useChangeFontSize";
 import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
-import setupChangeThemeOptions from "./composables/setupChangeThemeOptions";
+import { useChangeThemeOptions } from "./composables/useChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
+import { useCookies } from "@vueuse/integrations";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -50,14 +50,15 @@ setupExternalErrorHandler();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
+const cookie = useCookies();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
 const filterStore = useFilterStore();
 const finishedOnMounted = ref(false);
 
-const { changeScale } = setupChangeScale();
-const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = setupChangeThemeOptions();
+const { changeFontSize } = useChangeFontSize();
+const { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode } = useChangeThemeOptions();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showReleaseBanner: ComputedRef<boolean> = computed(() => sharedStore.showReleaseBanner);
@@ -65,7 +66,7 @@ const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBa
 const isPublicMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isPublicMode);
 const isDevMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isDevMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const currentScale = computed(() => userStore.currentScale);
+const currentFontSize = computed(() => userStore.currentFontSize);
 const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
 const currentSurfaceColor = computed(() => userStore.currentSurfaceColor);
@@ -80,8 +81,8 @@ const latestRelease: Ref<GithubRelease | undefined> = ref();
 watch(currentPreset, async (newValue, oldValue) => {
   if (newValue && newValue !== oldValue) await changePreset(newValue);
 });
-watch(currentScale, async (newValue, oldValue) => {
-  if (newValue && newValue !== oldValue) await changeScale(newValue);
+watch(currentFontSize, async (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) await changeFontSize(newValue);
 });
 watch(currentPrimaryColor, async (newValue, oldValue) => {
   if (newValue && newValue !== oldValue) await changePrimaryColor(newValue);
@@ -94,20 +95,25 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  await AuthService.getCurrentAuthenticatedUser();
+  try {
+    const user = await SecurityService.getUser(true);
+    if (user) userStore.updateCurrentUser(user);
+  } catch (e: any) {
+    console.log("No user session found");
+  }
 
   await setModes();
 
   loadingStore.updateViewsLoading(true);
 
-  if (isPublicMode.value || isLoggedIn.value) {
-    await userStore.getAllFromUserDatabase();
+  if (isPublicMode.value || isLoggedIn.value || route.fullPath.startsWith("/callback")) {
+    userStore.getAllFromUserDatabase();
     await setThemeOptions();
-    if (currentScale.value) await changeScale(currentScale.value);
+    if (currentFontSize.value) await changeFontSize(currentFontSize.value);
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
   } else {
-    await router.push({ name: "Login" });
+    window.location.href = await SecurityService.getLoginUrl();
   }
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
@@ -138,13 +144,13 @@ function getLocalVersion(repoName: string): string | null {
 }
 
 function setupAxiosInterceptors(axios: AxiosInstance) {
+  axios.defaults.withCredentials = true;
   axios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
     if (isLoggedIn.value) {
       if (!request.headers) request.headers = {} as AxiosRequestHeaders;
-      request.headers.Authorization = "Bearer " + (await fetchAuthSession()).tokens?.idToken;
       request.headers.set("Graph", userStore.includeUserGraph);
-    } else if (!isLoggedIn.value && isPublicMode.value === false && !(request.url?.endsWith("isPublicMode") || request.url?.endsWith("isDevMode"))) {
-      await router.push({ name: "Login" });
+    } else if (!isLoggedIn.value && isPublicMode.value === false && !request.url?.startsWith(Env.API)) {
+      window.location.href = await SecurityService.getLoginUrl();
     }
     return request;
   });
@@ -195,27 +201,40 @@ async function handle401(error: AxiosError) {
 }
 
 async function handle403(error: any) {
-  if (!isPublicMode.value && error.response?.data === "Access forbidden") {
-    if (route.path !== "/user/login") {
-      await router.push({ name: "Login" });
-    } else console.error(error);
-  } else if (error.response?.data) {
+  if (userStore.isLoggedIn) {
     toast.add({
       severity: "error",
       summary: "Access denied",
-      detail: error.response.data.debugMessage
+      detail:
+        "Insufficient clearance to access " +
+        error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
+        ". Please contact an admin to change your account security clearance if you require access to this resource."
     });
-  } else if (error?.config?.url) {
-    toast.add({
-      severity: "error",
-      summary: "Access denied",
-      detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-    });
+    await router.push({ name: "AccessDenied" }).then();
   } else {
-    toast.add({
-      severity: "error",
-      summary: "Access denied"
-    });
+    if (error.response?.data) {
+      toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail: error.response.data.debugMessage
+      });
+    } else if (error?.config?.url) {
+      toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+      });
+    } else {
+      toast.add({
+        severity: "error",
+        summary: "Access denied"
+      });
+    }
+    if (route.path === "/user/login") {
+      console.error(error);
+    } else {
+      window.location.href = await SecurityService.getLoginUrl();
+    }
   }
 }
 

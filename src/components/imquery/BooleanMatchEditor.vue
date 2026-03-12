@@ -1,69 +1,101 @@
 <template>
   <MatchEditor
+    v-if="showEditor && editMatch"
     :key="refreshCounter"
-    v-model:match="match"
+    :match="editMatch"
     v-model:showMatchEditor="showEditor"
     :baseType="baseType"
     :from="from"
     :depth="depth"
-    :clauseIndex="clauseIndex"
+    :clauseIndex="index"
+    :editCohort="editMatch && !!editMatch.is"
     @cancel="cancelEditMatch"
+    @deleteMatch="onDeleteMatchList"
     @saveChanges="saveEditMatch"
+    @add-test="addTest"
+    @add-linked="addLinked"
   />
-  <div class="nested-match">
-    <div v-if="parentOperator === Bool.rule" class="rule">Rule {{ clauseIndex }}</div>
-    <div v-if="hasBoolGroups(match)">
-      <div v-for="operator in operators" :key="operator">
-        <div v-if="match[operator]">
-          <div class="match-clause">
-            <BooleanEditor
-              v-if="showBoolean && operator !== 'not'"
-              v-model:clause="match"
-              v-model:parentClause="parentMatch"
-              :depth="depth"
-              :hasSubgroups="true"
-              :parentOperator="operator as Bool"
-              :grandParentOperator="parentOperator as Bool"
-              :clauseIndex="clauseIndex"
-              :clauseType="'Match'"
-              v-model:parentGroup="parentGroup"
-              @updateOperator="onUpdateParentOperator"
-              :rootBool="false"
-            />
-          </div>
-          <div v-for="(item, index) in match[operator]" :key="item.uuid">
-            <BooleanMatchEditor
-              v-model:match="match[operator]![index]"
-              v-model:parentMatch="match"
-              :depth="depth + 1"
-              :baseType="baseType"
-              :parentOperator="operator as Bool"
-              :parentIndex="clauseIndex"
-              :clauseIndex="index"
-              v-model:parentGroup="group"
-              @updateBool="updateBool"
-              :rootBool="false"
-            />
-          </div>
-        </div>
+  <div v-if="boolGroup" class="match-container">
+    <div class="match-clause-inner">
+      <div v-if="canCheck" class="group-checkbox">
+        <Checkbox
+          :inputId="'group' + index"
+          name="Group"
+          binary
+          v-model="subgroupCheck"
+          data-testid="group-checkbox"
+          @update:modelValue="onCheckGroupChange"
+          v-tooltip="'Select to build boolean subgroup'"
+        />
+      </div>
+      <BooleanEditor
+        v-model:clause="match"
+        v-model:parent="parent"
+        :parentType="'Match'"
+        :index="index"
+        v-model:group="group"
+        :parentOperator="parentOperator as Bool"
+        :operator="operator"
+        :rootBool="rootBool"
+        :clauseType="'Match'"
+      />
+    </div>
+    <div>
+      <div v-if="parentOperator === Bool.rule && index > 0" class="rule">Rule {{ index }}</div>
+      <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
+        <BooleanMatchEditor
+          v-model:match="boolGroup![subIndex]"
+          v-model:parent="match"
+          :depth="depth + 1"
+          :baseType="baseType"
+          :parentOperator="operator as Bool"
+          :parentIndex="index"
+          :index="subIndex"
+          :canCheck="boolGroup!.length > 2 && !match.step"
+          v-model:parentGroup="group"
+          @updateBool="updateBool"
+          @deleteMatch="onDeleteMatch(subIndex)"
+          :rootBool="false"
+        />
       </div>
     </div>
-    <div v-else class="match-clause">
-      <div v-if="parentMatch?.union && !from" class="number">{{ getSubrule(parentIndex, clauseIndex + 1) }}</div>
-      <BooleanEditor
-        v-if="showBoolean"
-        v-model:clause="match"
-        v-model:parentClause="parentMatch"
-        :depth="depth"
-        :parentOperator="parentOperator"
-        :clauseIndex="clauseIndex"
-        :clauseType="'Match'"
-        v-model:parentGroup="parentGroup"
-        @update-operator="val => onUpdateOperator(val)"
-        :rootBool="false"
-      />
+    <div v-if="!match.step">
+      <Button type="button" icon="fa-solid fa-plus" label="Add clause" data-testid="add-clause-button" class="add-button" @click="menu.toggle($event)" />
+      <Menu ref="menu" :model="addItems" popup />
+    </div>
+  </div>
+  <div v-else class="match-clause-outer" @drop="onDrop($event, match, parent, index, 'Match')" @dragover="onDragOver($event, 'Match')">
+    <div v-if="match.nodeRef">
+      <span class="from">from</span>
+      <span class="node-ref">{{ match.nodeRef }}</span>
+    </div>
+    <div class="match-clause-inner">
+      <div v-if="!parent.step">
+        <Button
+          icon="drag-icon fa-solid fa-grip-vertical"
+          severity="secondary"
+          text
+          draggable="true"
+          @dragstart="onDragStart(match, parent, index, 'Match')"
+          @dragend="onDragEnd()"
+        />
+      </div>
+      <div v-if="canCheck" class="group-checkbox">
+        <Checkbox
+          :inputId="'group' + index"
+          name="Group"
+          binary
+          v-model="subgroupCheck"
+          data-testid="group-checkbox"
+          @update:modelValue="onCheckGroupChange"
+          v-tooltip="'Select to build boolean subgroup'"
+        />
+      </div>
+      <div v-if="parent?.union && !from" class="number">{{ getSubrule(parentIndex, index + 1) }}</div>
+      <span v-else-if="displayOperator" :class="parentOperator">{{ displayOperator }}</span>
+      <span v-else-if="parent.step && !match.nodeRef && index > 0" :class="'and'">with</span>
       <div class="match-display">
-        <MatchContentDisplay :match="match" :parentMatch="parentMatch" :from="from" :depth="depth" :clauseIndex="clauseIndex" :expandSet="expandSet" />
+        <MatchContentDisplay :match="match" :parentMatch="parent" :from="from" :depth="depth" :clauseIndex="index" />
       </div>
       <div class="edit-button">
         <Button
@@ -71,161 +103,191 @@
           icon="fa-solid fa-pen-to-square"
           label="Edit clause"
           data-testid="edit-clause-button"
-          :severity="hoverEditClause ? 'success' : 'secondary'"
-          :outlined="!hoverEditClause"
-          :class="!hoverEditClause && 'hover-button'"
-          @click="editMatch()"
-          @mouseover="hoverEditClause = true"
-          @mouseout="hoverEditClause = false"
+          class="add-button"
+          @click="editMatchClause()"
         />
       </div>
-      <div class="add-button">
-        <Button
-          type="button"
-          icon="fa-solid fa-plus"
-          label="Add clause"
-          data-testid="add-clause-button"
-          :severity="hoverAddClause ? 'success' : 'secondary'"
-          :outlined="!hoverAddClause"
-          :class="!hoverAddClause && 'hover-button'"
-          @click="addMatch()"
-          @mouseover="hoverAddClause = true"
-          @mouseout="hoverAddClause = false"
-        />
+
+      <div>
+        <Button @click.stop="deleteMatch" class="delete-button" icon="fa-solid fa-trash" />
       </div>
-      <div class="delete-button">
-        <Button
-          @click.stop="deleteMatch"
-          class="builder-button"
-          :severity="hoverDeleteClause ? 'danger' : 'secondary'"
-          :outlined="!hoverDeleteClause"
-          :class="!hoverDeleteClause && 'hover-button'"
-          icon="fa-solid fa-trash"
-          @mouseover="hoverDeleteClause = true"
-          @mouseout="hoverDeleteClause = false"
-        />
-      </div>
-    </div>
-    <div v-if="match.then">
-      <BooleanMatchEditor
-        v-model:match="match.then"
-        :from="match"
-        :depth="depth + 1"
-        :parentOperator="Bool.and"
-        :parentIndex="clauseIndex"
-        :parentGroup="group"
-        :clauseIndex="0"
-        :rootBool="false"
-        :baseType="baseType"
-      />
     </div>
     <div v-if="parentOperator === Bool.rule">
       <RuleActionEditor :rule="match" />
     </div>
   </div>
+  <div v-if="rootBool && !boolGroup">
+    <Button type="button" icon="fa-solid fa-plus" label="Add clause" data-testid="add-clause-button" class="add-button" @click="menu.toggle($event)" />
+    <Menu ref="menu" :model="addItems" popup />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node, SearchResultSummary, Where } from "@/interfaces/AutoGen";
-import { inject, Ref, ref, computed, onMounted, watch } from "vue";
+import { Bool, DisplayMode, Match, Node } from "@/interfaces/AutoGen";
+import { computed, onMounted, Ref, ref, watch } from "vue";
 import {
-  hasBoolGroups,
-  updateMatchBooleans,
-  updateFocusConcepts,
-  isGroupable,
   addMatchToParent,
-  matchDefined,
-  deleteMatchFromParent,
-  setReturn
-} from "@/composables/buildQuery";
+  checkGroupChange,
+  getBooleanOperator,
+  getBoolGroup,
+  getDisplayOperator,
+  getMatchFromNodeRef,
+  updateBooleans
+} from "@/helpers/buildQuery";
 import Button from "primevue/button";
-import setupECLBuilderActions from "@/composables/setupECLBuilderActions";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
-import { cloneDeep, isEqual } from "lodash-es";
+import { isEqual } from "lodash-es";
+import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
+import Menu from "primevue/menu";
+import { QueryService } from "@/services";
+
 interface Props {
   isVariable?: boolean;
   depth: number;
-  rootBool?: boolean;
-  clauseIndex: number;
+  rootBool: boolean;
+  index: number;
   expanded?: boolean;
   canExpand?: boolean;
-  from?: Match;
   parentOperator?: Bool;
   parentIndex: number;
   baseType: Node;
+  canCheck?: boolean;
 }
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const parentMatch = defineModel<Match>("parentMatch", { default: {} });
+const parent = defineModel<Match>("parent", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
-const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo"]);
-const expandSet: Ref<boolean> = ref(false);
-const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
+const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo", "deleteMatch"]);
 const group: Ref<number[]> = ref([]);
-const { onDragEnd, onDragStart, onDrop, onDragOver } = setupECLBuilderActions(wasDraggedAndDropped);
-const hoverEditClause = ref(false);
-const hoverDeleteClause = ref(false);
-const hoverAddClause = ref(false);
 const showEditor = ref(false);
-const operators = ["and", "or", "not"] as const;
+const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
+const editMatch: Ref<Match | undefined> = ref();
+const from: Ref<Match | undefined> = ref();
+const operator = computed(() => {
+  return getBooleanOperator("Match", match.value);
+});
+const definitionSelector = ref(false);
+const menu = ref();
+const addItems = [
+  { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
+  { label: "Add cohort", icon: "pi pi-users", command: () => addCohort() },
+  { label: "Import definition", icon: "pi pi-file", command: () => addDefinition() }
+];
+const isNewMatch = ref(false);
+const boolGroup = computed(() => {
+  return getBoolGroup("Match", match.value);
+});
+const displayOperator = computed(() => {
+  return getDisplayOperator(props.parentOperator, props.index);
+});
+
 const refreshCounter = ref(0);
-const showBoolean = computed(() => {
-  if (props.from) return false;
-  if (props.parentOperator) {
-    return props.parentOperator !== Bool.rule;
-  }
-  return false;
-});
+const adding = ref(false);
 
-watch(match.value, (newValue, oldValue) => {
-  if (!isEqual(newValue, oldValue)) {
-    if (!matchDefined(newValue)) {
-      showEditor.value = true;
+function onDeleteMatchList() {
+  emit("deleteMatch");
+}
+
+function deleteMatch() {
+  emit("deleteMatch");
+}
+function onDeleteMatch(index: number) {
+  if (match.value.or) {
+    match.value.or.splice(index, 1);
+    if (match.value.or.length === 1) {
+      match.value = match.value.or[0];
     }
-  }
-});
-
-onMounted(async () => {
-  init();
-});
-
-function init() {
-  if (!matchDefined(match.value)) {
-    showEditor.value = true;
-  }
+  } else if (match.value.and) {
+    match.value.and.splice(index, 1);
+    if (match.value.and.length === 1) {
+      match.value = match.value.and[0];
+    }
+  } else if (match.value.step) {
+    match.value.step.splice(index, 1);
+    if (match.value.step.length === 1) {
+      if (match.value.step[0].nodeRef) {
+        emit("deleteMatch");
+      } else match.value = match.value.step[0];
+    }
+  } else emit("deleteMatch");
 }
 
-function onUpdateOperator(val: string) {
-  updateFocusConcepts(match.value);
-  emit("updateBool", props.parentOperator, val, props.clauseIndex);
+function onCheckGroupChange(e: any) {
+  checkGroupChange(e, parentGroup.value, props.index);
+}
+function addCohort() {
+  editMatch.value = { is: [{}] } as Match;
+  isNewMatch.value = true;
+  showEditor.value = true;
 }
 
-function onUpdateParentOperator(val: string) {
-  if (match.value.and) {
-    match.value.or = match.value.and;
-    delete match.value.and;
-  } else if (match.value.or) {
-    match.value.and = match.value.or;
-    delete match.value.or;
-  }
+function addDefinition() {
+  editMatch.value = { is: [{}] } as Match;
+  isNewMatch.value = true;
+  definitionSelector.value = true;
+  showEditor.value = true;
 }
 function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
-  updateMatchBooleans(match.value!, oldOperator as Bool, newOperator as Bool, index, group.value);
+  updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool);
 }
-function addMatch() {
-  addMatchToParent({}, parentMatch.value);
+function createNewMatch() {
+  editMatch.value = {} as Match;
+  isNewMatch.value = true;
+  showEditor.value = true;
 }
-function deleteMatch() {
-  deleteMatchFromParent(parentMatch.value, props.clauseIndex);
+
+async function saveEditMatch(editedMatch: Match) {
+  editMatch.value = editedMatch;
+  showEditor.value = false;
+  if (isNewMatch.value && editMatch.value) {
+    if (definitionSelector.value && editMatch.value.is && editMatch.value.is[0].iri) {
+      const definition = await QueryService.getDisplayFromQueryIri(editMatch.value.is[0].iri, DisplayMode.LOGICAL);
+      delete definition.typeOf;
+      editMatch.value = definition;
+      addMatchToParent(parent.value, editMatch.value);
+    } else addMatchToParent(parent.value, editMatch.value);
+  } else match.value = editMatch.value!;
+  isNewMatch.value = false;
+  definitionSelector.value = false;
 }
-function saveEditMatch(editMatch: Match) {
-  match.value = editMatch;
+
+function createStep(match: Match): Match {
+  const stepMatch = {} as Match;
+  stepMatch.step = [];
+  if (isNewMatch.value && editMatch.value) {
+    stepMatch.step.push(editMatch.value!);
+    addMatchToParent(parent.value, stepMatch);
+  } else {
+    if (parent.value.and) parent.value.and[props.index] = stepMatch;
+    else if (parent.value.or) parent.value.or[props.index] = stepMatch;
+    stepMatch.step.push(editMatch.value!);
+  }
+  return stepMatch;
 }
-function editMatch() {
+
+async function addTest() {
+  showEditor.value = true;
+  const stepMatch = createStep(editMatch.value!);
+  isNewMatch.value = false;
+  from.value = editMatch.value!;
+  editMatch.value = { nodeRef: editMatch.value!.node };
+  stepMatch.step!.push(editMatch.value!);
+  showEditor.value = true;
+}
+
+async function addLinked() {
+  showEditor.value = false;
+}
+function onDeletedWhere() {
+  emit("deleteMatch");
+}
+function editMatchClause() {
+  if (match.value.nodeRef) from.value = getMatchFromNodeRef(match.value.nodeRef, parent.value);
+  editMatch.value = match.value;
   showEditor.value = true;
 }
 function mouseover(event: any) {
@@ -236,11 +298,8 @@ function getSubrule(parentIndex: number, index: number): string {
 }
 
 function cancelEditMatch() {
-  if (!matchDefined(match.value)) {
-    deleteMatchFromParent(parentMatch.value, props.clauseIndex);
-  }
-  refreshCounter.value++;
   showEditor.value = false;
+  refreshCounter.value++;
 }
 
 function mouseout(event: any) {
@@ -249,20 +308,59 @@ function mouseout(event: any) {
 </script>
 
 <style scoped>
-.nested-match {
+.add-button,
+.delete-button {
+  color: #444444; /* text */
+  background-color: #f0f0f0; /* greyish default */
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.add-button:hover,
+.add-button:focus {
+  background-color: #a5d6a7;
+}
+.delete-button:hover,
+.delete-button:focus {
+  background-color: red;
+}
+
+button:active {
+  background-color: #d6d6d6;
+}
+.node-ref {
+  padding-right: 0.2rem;
+  font-style: italic;
+}
+.from {
+  padding-right: 0.2rem;
+}
+.match-surround {
+  background-color: #fafafa;
+}
+.match-container {
   box-sizing: border-box;
   min-width: 0;
   padding: 0.5rem;
   border: #488bc230 1px solid;
   border-radius: 5px;
-  background-color: #488bc210;
+  background-color: #fafafa;
   margin: 0.5rem;
   font-size: 1rem;
 }
-.match-clause {
+.match-clause-outer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  border: #488bc230 1px solid;
+  margin: 0.5rem;
+  padding-left: 0.5rem;
+}
+.match-clause-inner {
+  display: flex;
   align-items: center;
+  flex-direction: row;
 }
 .drag-drop {
   align-items: flex-start;
@@ -310,5 +408,16 @@ function mouseout(event: any) {
 .rule {
   font-weight: bold;
   padding-right: 1rem;
+}
+
+.or {
+  color: var(--p-blue-500);
+  font-style: italic;
+  padding-right: 1.2rem;
+}
+.and {
+  color: #707824;
+  font-style: italic;
+  padding-right: 0.3rem;
 }
 </style>

@@ -73,12 +73,12 @@
 </template>
 
 <script setup lang="ts">
-import { Task, TaskHistory, TaskState, TaskType } from "@/interfaces/AutoGen";
+import { Task, TaskHistory, TaskState, TaskType, UserRole } from "@/interfaces/AutoGen";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskHistoryDialog from "@/components/workflow/TaskHistoryDialog.vue";
-import AdminService from "@/services/AdminService";
+import SecurityService from "@/services/SecurityService";
 import { User } from "@/interfaces";
 
 interface Props {
@@ -190,7 +190,7 @@ async function setOptions() {
     TaskState.TODO,
     TaskState.UNDER_REVIEW
   ];
-  assignedToOptions.value = await AdminService.getUsersInGroupAsUser("IMAdmin");
+  assignedToOptions.value = await SecurityService.adminGetUsersByGroup(UserRole.ADMIN);
   const unassigned: User = { id: "UNASSIGNED", username: "Unassigned" } as User;
   assignedToOptions.value.push(unassigned);
 }

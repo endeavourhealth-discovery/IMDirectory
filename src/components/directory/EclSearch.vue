@@ -57,17 +57,19 @@
     </div>
     <div class="results-container">
       <ResultsTable
+        v-if="setDefinition && setDefinition.query"
         v-model:loading="searchLoading"
         :update-search="updateSearch"
-        :ecl-query="eclQuery"
+        :ecl-query="setDefinition"
+        :page-size="12"
         @rowSelected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
         @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
     </div>
     <ECLBuilder
-      v-if="showDialog"
+      v-if="showDialog && setDefinition && setDefinition.query"
       :showDialog="showDialog"
-      :eclString="lastValidEcl"
+      :query="setDefinition.query"
       @eclSubmitted="updateECL"
       @closeDialog="showDialog = false"
       :key="builderKey"
@@ -77,15 +79,15 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
-import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
-import { EclSearchRequest, TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
+import { TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 import { EclService } from "@/services";
 import { byName } from "@/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { GenericObject } from "@/interfaces/GenericObject";
 
 const emit = defineEmits<{
@@ -98,13 +100,12 @@ const editorStore = useEditorStore();
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
 const eclQueryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(eclQueryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(eclQueryString);
 const showDialog = ref(false);
 const showNames = ref(false);
 const eclErrorMessage = ref("");
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
-const eclQuery: Ref<EclSearchRequest | undefined> = ref();
 const keysPressed: GenericObject = {};
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
@@ -184,6 +185,9 @@ function updateECL(eclQuery: ECLQueryRequest): void {
 }
 
 function showBuilder(): void {
+  if (lastValidEcl.value === "") {
+    if (!setDefinition.value.query) setDefinition.value.query = {};
+  }
   builderKey.value = Math.round(Math.random() * 1000);
   showDialog.value = true;
 }
@@ -191,17 +195,18 @@ function showBuilder(): void {
 async function onSearch(): Promise<void> {
   if (eclQueryString.value) {
     const imQuery = await EclService.getQueryFromECL(eclQueryString.value);
-    eclQuery.value = {
-      eclQuery: imQuery.query,
+    setDefinition.value = {
+      query: imQuery.query,
       includeLegacy: false,
+      status: imQuery.status,
       statusFilter: selectedStatus.value
-    } as EclSearchRequest;
+    } as ECLQueryRequest;
     updateSearch.value = !updateSearch.value;
   }
 }
 
 function setFilterDefaults() {
-  selectedStatus.value = statusOptions.value.filter(option => option.iri === IM.ACTIVE);
+  //selectedStatus.value = statusOptions.value.filter(option => option.iri === IM.ACTIVE);
 }
 </script>
 
@@ -219,7 +224,7 @@ function setFilterDefaults() {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  grow: 100;
+  flex-grow: 100;
 }
 
 .info {
@@ -236,6 +241,7 @@ function setFilterDefaults() {
 
 .results-container {
   width: 100%;
+  min-height: 40rem;
   flex: 0 1 auto;
   overflow: auto;
 }
@@ -268,7 +274,6 @@ function setFilterDefaults() {
 
 .ecl-panel {
   flex: 1 1 auto;
-  min-height: 30rem;
   display: flex;
   flex-flow: column nowrap;
   gap: 0.5rem;
@@ -306,6 +311,6 @@ function setFilterDefaults() {
   flex-flow: row;
 }
 .transparent-textarea {
-  min-height: 30rem;
+  min-height: 15rem;
 }
 </style>

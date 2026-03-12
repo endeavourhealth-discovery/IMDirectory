@@ -1,71 +1,32 @@
 <template>
   <div class="nested-match base-cohort-selector">
-    <span>bla</span>
-    <div>Is in the cohort :</div>
-    <div v-if="editMode">
-      <BaseTypeSelector
-        :visible="editMode"
-        :selected="baseType"
-        :rootBaseEntities="rootBaseEntities"
-        v-model:base-cohort-query="cohortQuery"
-        @updateBaseType="updateCohort($event)"
-        @onCancel="editMode = false"
-        @navigateTo="emit('navigateTo', $event)"
-      />
-    </div>
-
-    <div v-else>
-      <span v-if="match.isCohort" class="instance-of">{{ match.isCohort.name }}</span>
-    </div>
-    <div v-if="!editMode" class="edit-button">
-      <Button
-        type="button"
-        icon="fa-solid fa-pen-to-square"
-        label="Edit cohort"
-        data-testid="edit-cohort-button"
-        :severity="hoverEditCohort ? 'success' : 'secondary'"
-        :outlined="!hoverEditCohort"
-        :class="!hoverEditCohort && 'hover-button'"
-        @click="editMode = true"
-        @mouseover="hoverEditCohort = true"
-        @mouseout="hoverEditCohort = false"
-      />
-    </div>
-    <div v-if="!editMode" class="delete-button">
-      <Button
-        @click.stop="deleteCohort()"
-        class="builder-button"
-        :severity="hoverDeleteCohort ? 'danger' : 'secondary'"
-        :outlined="!hoverDeleteCohort"
-        :class="!hoverDeleteCohort && 'hover-button'"
-        icon="fa-solid fa-trash"
-        @mouseover="hoverDeleteCohort = true"
-        @mouseout="hoverDeleteCohort = false"
-      />
-    </div>
+    <DirectorySearchDialog
+      v-model:show-dialog="showDialog"
+      v-model:selected="cohort"
+      :imQuery="cohortQuery"
+      :root-entities="rootEntities"
+      :searchTerm="cohort.name"
+      @cancel="onCancel"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, Ref } from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import { IM } from "@/vocabulary";
 import { Namespace } from "@/vocabulary/Namespace";
 import { Match, Node, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
-import { buildIMQueryFromFilters } from "@/composables/buildQuery";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
-
-interface Props {
-  baseType: Node;
-}
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });
-const rootBaseEntities: Ref<string[]> = ref([]);
-const hoverEditCohort = ref(false);
-const hoverDeleteCohort = ref(false);
-const baseType: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const rootEntities: Ref<string[]> = ref([]);
+const cohort: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const showDialog = ref(true);
 const cohortFilterOptions: Ref<SearchOptions> = ref({
   types: [{ iri: IM.QUERY }],
   status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
@@ -74,30 +35,44 @@ const cohortFilterOptions: Ref<SearchOptions> = ref({
 const cohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 
 const emit = defineEmits<{
-  (event: "updateProperty"): void;
+  (event: "updateCohort"): void;
   (event: "navigateTo", iri: string): void;
-  (event: "onCancel", visible: boolean): void;
+  (event: "cancel"): void;
 }>();
+
+watch(
+  cohort,
+  (newValue, oldValue) => {
+    if (newValue?.iri !== oldValue?.iri) {
+      updateCohort();
+    }
+  },
+  { deep: true }
+);
 
 onMounted(async () => {
   await init();
 });
 
 async function init() {
-  rootBaseEntities.value = [Namespace.IM + "Q_Queries"];
+  rootEntities.value = [Namespace.IM + "Q_Queries"];
   cohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
+  if (match.value.is) {
+    cohort.value.iri = match.value.is[0].iri!;
+    cohort.value.name = match.value.is[0].name;
+  }
+}
+function onCancel() {
+  editMode.value = false;
+  emit("cancel");
 }
 
-async function updateCohort(cohort?: SearchResultSummary) {
-  if (cohort) {
-    match.value.isCohort = { iri: cohort.iri, name: cohort.name } as TTIriRef;
+async function updateCohort() {
+  if (cohort.value) {
+    match.value.is![0] = { iri: cohort.value.iri, name: cohort.value.name } as TTIriRef;
   }
   editMode.value = false;
-  emit("updateProperty");
-}
-function deleteCohort() {
-  delete match.value.isCohort;
-  editMode.value = false;
+  emit("updateCohort");
 }
 </script>
 

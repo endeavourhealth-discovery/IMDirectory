@@ -1,22 +1,31 @@
-type AutocompleteEntry = {
-  element: HTMLElement;
-  reset: () => void;
-};
+import { ref } from "vue";
 
-const autocompletes = new Map<HTMLElement, () => void>();
+export function useAutocompleteRegistry() {
+  type AutocompleteEntry = {
+    element: HTMLElement;
+    reset: () => void;
+  };
 
-export function registerAutocomplete(entry: AutocompleteEntry) {
-  autocompletes.set(entry.element, entry.reset);
-}
+  const autocompletes = ref(new Map<HTMLElement, () => void>());
 
-export function unregisterAutocomplete(element: HTMLElement) {
-  autocompletes.delete(element);
-}
+  function registerAutocomplete(entry: AutocompleteEntry) {
+    autocompletes.value.set(entry.element, entry.reset);
+  }
 
-export function handleFocusChange(newFocusedElement: HTMLElement | null) {
-  for (const [element, resetFn] of autocompletes.entries()) {
-    if (newFocusedElement && !element.contains(newFocusedElement)) {
-      resetFn();
+  function unregisterAutocomplete(element: HTMLElement) {
+    autocompletes.value.delete(element);
+  }
+
+  function handleFocusChange(newFocusedElement: HTMLElement | null) {
+    for (const [element, resetFn] of autocompletes.value.entries()) {
+      if (newFocusedElement && !element.contains(newFocusedElement)) {
+        resetFn();
+      }
     }
   }
+  return {
+    registerAutocomplete,
+    unregisterAutocomplete,
+    handleFocusChange
+  };
 }

@@ -264,6 +264,13 @@ const DataModelShape: FormGenerator = {
                 {
                   comment: "selects an entity based on select query",
                   order: 1,
+                  isValidEntity: { iri: QUERY.IS_VALID_TYPE },
+                  isValidArguments: [
+                    {
+                      valueIri: { iri: IM.FOLDER },
+                      parameter: "type"
+                    }
+                  ],
                   select: [
                     {
                       iri: QUERY.SEARCH_ALLOWABLE_CONTAINED_IN

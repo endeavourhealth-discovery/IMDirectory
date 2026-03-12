@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!editMatch.is">
     <Dialog
       v-model:visible="showMatchEditor"
       modal
@@ -10,85 +10,126 @@
       maximizable
       @hide="onCancel"
     >
-      <template #header>
-        <div class="flex w-full flex-auto flex-col flex-nowrap gap-1 overflow-auto">
-          <strong v-if="from">This is a test on the previous clause : ({{ from?.return?.as }})</strong>
-          <span>Name</span>
-          <InputText v-model="editMatch.name" class="name-display" placeholder="Name" type="text" />
-          <span>Result label</span>
-          <div>
-            <InputText v-model="keepAs" placeholder="label to keep as reference" type="text" />
-          </div>
+      <template #default>
+        <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
+          <ProgressSpinner />
         </div>
+        <Splitter class="h-full w-full" layout="horizontal">
+          <SplitterPanel :size="25" class="column-selector">
+            <div class="tree-scroll-container" @click.stop>
+              <Tree
+                v-if="activeTab === 'filter'"
+                v-model:expandedKeys="expandedKeys"
+                v-model:selectionKeys="selectedNodeKey"
+                :loading="loading"
+                :value="typeNodes"
+                :lazy="true"
+                icon="loading"
+                selectionMode="single"
+                @node-expand="expandNode"
+                @node-select="onNodeSelect"
+                :propagateSelectionUp="false"
+                :propagateSelectionDown="false"
+              >
+                <template #default="{ node }: any">
+                  <div class="items-center">
+                    <ProgressSpinner v-if="node.loading" class="progress-spinner" />
+                    <IMFontAwesomeIcon
+                      v-if="node.data.typeIcon && !node.loading"
+                      :icon="node.data.typeIcon"
+                      :style="'color:' + node.data.color"
+                      class="mr-2"
+                      fixed-width
+                    />
+                    <span class="tree-node-label">{{ node.label }}</span>
+                    <IMFontAwesomeIcon
+                      v-if="node.data.rangeTypeIcon && !node.loading"
+                      :icon="node.data.rangeTypeIcon"
+                      :style="'color:' + node.data.rangeTypeColor"
+                      class="mr-2"
+                      fixed-width
+                    />
+                  </div>
+                </template>
+              </Tree>
+              <Tree
+                v-if="activeTab === 'columns'"
+                v-model:expandedKeys="expandedKeys"
+                v-model:selectionKeys="selectedReturnNodeKey"
+                :loading="loading"
+                :value="returnNodes"
+                :lazy="true"
+                icon="loading"
+                selectionMode="single"
+                @node-expand="expandNode"
+                @node-select="onReturnNodeSelect"
+                :propagateSelectionUp="false"
+                :propagateSelectionDown="false"
+              >
+                <template #default="{ node }: any">
+                  <div class="items-center">
+                    <ProgressSpinner v-if="node.loading" class="progress-spinner" />
+                    <IMFontAwesomeIcon
+                      v-if="node.data.typeIcon && !node.loading"
+                      :icon="node.data.typeIcon"
+                      :style="'color:' + node.data.color"
+                      class="mr-2"
+                      fixed-width
+                    />
+                    <span class="tree-node-label">{{ node.label }}</span>
+                    <IMFontAwesomeIcon
+                      v-if="node.data.rangeTypeIcon && !node.loading"
+                      :icon="node.data.rangeTypeIcon"
+                      :style="'color:' + node.data.rangeTypeColor"
+                      class="mr-2"
+                      fixed-width
+                    />
+                  </div>
+                </template>
+              </Tree>
+            </div>
+          </SplitterPanel>
+          <SplitterPanel class="column-selector">
+            <Tabs v-model:value="activeTab" class="match-editor-tabs">
+              <TabList>
+                <Tab value="filter">Filter</Tab>
+                <Tab value="columns">Return columns</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel value="filter">
+                  <div v-if="editMatch.nodeRef">
+                    <span>From: </span>
+                    <MatchContentDisplay :match="from!" :depth="0" :clauseIndex="0" :parentOperator="Bool.step" />
+                    <div>Test for the following:</div>
+                  </div>
+                  <div v-else>With the following conditions:</div>
+                  <div>
+                    <MatchContentEditor
+                      v-if="!editMatch.invalid"
+                      :base-type="baseType"
+                      v-model:match="editMatch"
+                      :from="from"
+                      :depth="0"
+                      :index="0"
+                      @deleteMatch="deleteMatch"
+                      @addTest="addThen"
+                      @updateMatch="onUpdate"
+                      @addLinked="addLinked"
+                    />
+                  </div>
+                </TabPanel>
+                <TabPanel value="columns">
+                  <div v-if="activeTab === 'columns'">
+                    <span class="field">Select columns from left.</span>
+                    <span v-if="!editMatch.path" style="font-style: italic">To select other columns, first define a filter</span>
+                  </div>
+                  <ReturnEditor v-if="editMatch.return" v-model:returns="editMatch.return" :match="editMatch" />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </SplitterPanel>
+        </Splitter>
       </template>
-      <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
-        <ProgressSpinner />
-      </div>
-      <div v-else class="description-container">
-        <span>Description</span>
-        <Textarea v-model="editMatch.description" autoResize placeholder="Description" rows="2" type="text" />
-      </div>
-      <div>With the following conditions</div>
-      <div v-if="editMatch.isCohort || editMatch.where" class="where-container">
-        <CohortEditor v-if="editMatch.isCohort && !showPropertySelector" v-model:match="editMatch" v-model:editMode="editCohort" @updateProperty="onUpdate" />
-        <div v-else-if="editMatch.where && !showPropertySelector">
-          <BooleanWhereEditor
-            :match="editMatch"
-            :base-type="baseType"
-            v-model:property="editMatch.where"
-            :clauseIndex="0"
-            @addProperty="showPropertySelector = true"
-            @updateProperty="onUpdate"
-          />
-        </div>
-      </div>
-      <div v-if="showPropertySelector">
-        <MatchTypeSelector
-          :base-type="baseType"
-          v-model:match="editMatch"
-          :rootNodes="rootNodes"
-          :from="from"
-          @node-selected="onMatchTypeSelected($event)"
-          @cancel="showPropertySelector = false"
-        />
-      </div>
-      <div v-if="orderables && orderables.length > 0 && isDefined()">
-        <Select
-          class="test-selector"
-          :modelValue="orderable"
-          :options="orderables"
-          :placeholder="`Add Test`"
-          scroll-height="50rem"
-          option-label="label"
-          option-value="value"
-          data-testid="order-selector"
-          @update:modelValue="updateOrderable"
-        >
-          <template #value="slotProps">
-            <div class="test-selector">
-              <div>{{ orderable.label }}</div>
-            </div>
-          </template>
-          <template #dropdownicon="slotProps">
-            <div class="test-dropdown">
-              <i class="pi pi-chevron-down text-white-600 text-xl"></i>
-            </div>
-          </template>
-          <template #option="slotProps">
-            <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-              <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </Select>
-        <Button v-if="!editMatch.then" data-testid="add-test-button" label="Add test" @click="addThen" />
-      </div>
-      <div v-if="editMatch.then">
-        <div>Then test</div>
-        <div v-if="!hasBoolGroups(editMatch.then)" class="match-display">
-          <MatchContentDisplay :match="editMatch.then" :parentMatch="editMatch" :from="editMatch" :depth="0" :clauseIndex="0" :expandSet="false" />
-        </div>
-        <div v-else>Multiple tests - see main editor</div>
-      </div>
       <template #footer>
         <div class="button-footer">
           <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
@@ -97,141 +138,119 @@
       </template>
     </Dialog>
   </div>
+  <div v-if="editMatch.is" class="where-container">
+    <CohortEditor v-model:match="editMatch" :editMode="editCohort" @updateCohort="onSave" @cancel="onCancel" />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Bool, DisplayMode, Match, Node, TTIriRef, NodeShape, PropertyShape, Return } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref, watch } from "vue";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { DataModelService, EntityService, QueryService } from "@/services";
+import { Bool, DisplayMode, Match, Node, TTIriRef, Return } from "@/interfaces/AutoGen";
+import { onMounted, Ref, ref, watch, inject } from "vue";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { EntityService, QueryService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { addWhereToMatch, setReturn, hasBoolGroups, addMatchToParent } from "@/composables/buildQuery";
-import MatchTypeSelector from "@/components/imquery/MatchTypeSelector.vue";
+import { setDefiningProperty, setPathGetNodeRef } from "@/helpers/buildQuery";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
-import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
-import setupPropertyTree from "@/composables/setupPropertyTree";
-import { cloneDeep, isEqual } from "lodash-es";
-import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
-import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
+import { usePropertyTree } from "@/composables/usePropertyTree";
+import { cloneDeep } from "lodash-es";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
+import { findNodeByKey } from "@/helpers/TreeHelper";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
+import Swal from "sweetalert2";
+import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 interface Props {
   baseType: Node;
+  match: Match;
   from?: Match;
   depth: number;
   clauseIndex: number;
+  editCohort?: boolean;
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
 const showMatchEditor = defineModel<boolean>("showMatchEditor", { default: false });
+const editMatch: Ref<Match> = ref(cloneDeep(props.match));
 const emit = defineEmits<{
   (event: "saveChanges", match: Match): void;
   (event: "cancel"): void;
+  (event: "deleteMatch"): void;
+  (event: "addTest"): void;
+  (event: "addLinked"): void;
 }>();
-const editMatch: Ref<Match> = ref({});
-const { createFeatureTree, getRootNodes, getDefiningProperty, createPropertyTree, getOrderables } = setupPropertyTree();
+const activeTab = ref("filter");
+const expandedKeys = ref<Record<string, boolean>>({});
+const expandedReturnKeys = ref<Record<string, boolean>>({});
+const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
+const selectedReturnNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
+const { expandNode, addWhereFromTree, findNodesFromMatch, findReturnNodesFromMatch } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
-const { onCopy, onCopyError } = setupCopyToClipboard(editMatchString);
-const templates: Ref<any> = ref();
-const showPropertySelector = ref(false);
+const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
-const keepAs: Ref<string> = ref("");
-const editCohort = ref(false);
-const propertyTree: Ref<TreeNode[]> = ref([]);
-const rootNodes: Ref<TreeNode[]> = ref([]);
-const orderables: Ref<any[] | undefined> = ref();
-const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
+const rootNodes = inject("featureTree") as Ref<TreeNode[]>;
 const edited = ref(false);
-watch(
-  () => keepAs,
-  () => setReturn(editMatch.value, keepAs.value)
-);
-watch(props.baseType, async (newValue, oldValue) => {
-  if (!isEqual(newValue, oldValue)) {
-    propertyTree.value = await createFeatureTree(props.baseType);
-    rootNodes.value = propertyTree.value;
-  }
-});
+const initialized = ref(false);
+const typeNodes: Ref<TreeNode[]> = ref(rootNodes.value);
+const returnNodes: Ref<TreeNode[]> = ref(rootNodes.value);
 
 onMounted(async () => {
   await init();
 });
+
+async function init() {
+  loading.value = true;
+  typeNodes.value = await findNodesFromMatch(editMatch.value, rootNodes.value);
+  expandedKeys.value = { [typeNodes.value[0].key]: true };
+  returnNodes.value = await findReturnNodesFromMatch(editMatch.value, rootNodes.value);
+  expandedReturnKeys.value = { [returnNodes.value[0].key]: true };
+  loading.value = false;
+  initialized.value = true;
+}
+
+async function onNodeSelect(node: any) {
+  if (node.data.path) {
+    setPathGetNodeRef(editMatch.value, node.data.path);
+    addWhereFromTree(editMatch.value, node);
+    const parentNode = findNodeByKey(rootNodes.value, node.data.parentKey);
+    if (parentNode) setDefiningProperty(editMatch.value, parentNode, node.data.path);
+  } else addWhereFromTree(editMatch.value, node);
+  editMatch.value.invalid = false;
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  edited.value = true;
+  typeNodes.value = await findNodesFromMatch(editMatch.value, rootNodes.value);
+  expandedKeys.value = { [typeNodes.value[0].key]: true };
+  returnNodes.value = await findReturnNodesFromMatch(editMatch.value, rootNodes.value);
+  expandedReturnKeys.value = { [returnNodes.value[0].key]: true };
+  selectedNodeKey.value = {};
+}
 function onUpdate() {
   edited.value = true;
 }
 
-async function init() {
-  loading.value = true;
-  editMatch.value = cloneDeep(match.value);
-  propertyTree.value = await createFeatureTree(props.baseType);
-  if (props.from) {
-    rootNodes.value = await getRootNodes(props.from, propertyTree.value[1].children!);
-  } else if (editMatch.value.path) {
-    rootNodes.value = await getRootNodes(editMatch.value, propertyTree.value[1].children!);
-    orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
-  } else {
-    rootNodes.value = propertyTree.value;
-    orderables.value = getOrderOptions(getOrderables(rootNodes.value[1]));
-  }
-  templates.value = await getFunctionTemplates();
-  loading.value = false;
-  if (!isDefined()) showPropertySelector.value = true;
-  else {
-    orderables.value = getOrderOptions(getOrderables(rootNodes.value[rootNodes.value.length - 1]));
-    if (editMatch.value.orderBy) {
-      orderable.value = getOrderable(editMatch.value, orderables.value);
-    }
+async function onReturnNodeSelect(node: any) {
+  edited.value = true;
+  if (node.data.iri) {
+    const nodeRef = setPathGetNodeRef(editMatch.value, node.data.path, true);
+    const ret = { nodeRef: nodeRef, iri: node.data.iri, name: node.label, as: node.label } as Return;
+    if (!editMatch.value.return) editMatch.value.return = [];
+    editMatch.value.return.push(ret);
+    editMatch.value.invalid = false;
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
   }
 }
 
-function isDefined(): boolean {
-  return !!(editMatch.value.isCohort || editMatch.value.where);
-}
-
-function updateOrderable(value: any) {
-  orderable.value = value;
-  editMatch.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
+function deleteMatch() {
+  emit("deleteMatch");
 }
 
 function addThen() {
-  if (!editMatch.value.return) {
-    const as = keepAs ? keepAs : "Match_" + props.depth + "_" + props.clauseIndex;
-    editMatch.value.return = {
-      as: as
-    } as Return;
-  }
-  if (!editMatch.value.then) editMatch.value.then = { nodeRef: editMatch.value.return!.as! } as Match;
-  showMatchEditor.value = false;
+  emit("addTest");
 }
 
-async function onMatchTypeSelected(node: TreeNode) {
-  showPropertySelector.value = false;
-  if (node.data.iri === "cohort") {
-    editMatch.value.isCohort = {} as TTIriRef;
-    editCohort.value = true;
-  } else {
-    if (node.data.typeOf) {
-      if (node.children && node.children.length === 0) {
-        await createPropertyTree(node.data.typeOf, node);
-      }
-      const definingProperty = getDefiningProperty(node);
-      if (definingProperty) {
-        addWhereToMatch(editMatch.value, node, definingProperty);
-        editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
-        rootNodes.value = await getRootNodes(editMatch.value, propertyTree.value[1].children!);
-        if (!orderables.value) orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
-        edited.value = true;
-      }
-    } else {
-      addWhereToMatch(editMatch.value, node, node.data.iri);
-      editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
-      rootNodes.value = await getRootNodes(editMatch.value, propertyTree.value[1].children!);
-      if (!orderables.value) orderables.value = getOrderOptions(getOrderables(rootNodes.value[0]));
-      edited.value = true;
-    }
-  }
+function addLinked() {
+  emit("addLinked");
 }
 
 async function getFunctionTemplates() {
@@ -246,11 +265,21 @@ async function getFunctionTemplates() {
 }
 
 async function onSave() {
-  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
-  emit("saveChanges", editMatch.value);
-  showMatchEditor.value = false;
+  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  if (matchCheck.invalid) {
+    await Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: matchCheck.errorMessage,
+      confirmButtonText: "Close",
+      confirmButtonColor: "#689F38"
+    });
+  } else {
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    showMatchEditor.value = false;
+    emit("saveChanges", editMatch.value);
+  }
 }
-
 function onCancel() {
   emit("cancel");
   showMatchEditor.value = false;
@@ -264,21 +293,38 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 </script>
 
 <style scoped>
-.name-display {
-  width: 100%;
-}
-.description-container {
+.match-editor-tabs {
   display: flex;
-  flex-flow: column;
+  flex-direction: column;
+  max-height: 80vh;
+  min-height: 0;
+  overflow-y: auto;
+}
+.tree-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+.column-selector {
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
 }
 .where-container {
   display: flex;
   flex-flow: column;
   gap: 1rem;
 }
+.field {
+  padding-right: 0.2rem;
+}
 
 .edit-match-dialog {
   background-color: var(--p-surface-section);
+  min-height: 90vh;
+  min-width: 90vh;
 }
 .test-selector {
   background-color: rgb(16, 185, 129);

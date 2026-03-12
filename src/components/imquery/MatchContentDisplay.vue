@@ -1,51 +1,62 @@
 <template>
-  <span>
-    <span v-if="from">
-      <span class="field">and if the above</span>
-      <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
-    </span>
-
-    <span v-if="parentOperator === Bool.not" class="not">Exclude if </span>
-    <span v-if="match.isCohort">
-      <span class="field">in</span>
-      <IMViewerLink v-if="match.isCohort.iri" :iri="match.isCohort.iri" :label="match.isCohort.name" :action="'view'" />
-    </span>
-    <span v-if="match.instanceOf">
-      <span v-if="match.instanceOf[0].description">{{ match.instanceOf[0].description }}</span>
-      <IMViewerLink v-if="match.instanceOf[0].iri" :iri="match.instanceOf[0].iri" :label="match.instanceOf[0].name" :action="'view'" />
-      <span v-if="match.instanceOf.length > 1">
-        <div>
-          <span v-for="(item, index) in match.instanceOf" :key="index" style="padding-left: 1.5rem">
-            <span v-if="index > 0">
-              <ul>
-                <li class="tight-spacing">
-                  <span class="or">or</span>
-                  <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" :action="'view'" />
-                </li>
-              </ul>
-            </span>
-          </span>
-        </div>
-      </span>
-    </span>
+  <span v-if="from">
+    <span class="field">and if the above</span>
+    <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
+  </span>
+  <span v-if="match.notExists" class="not">Exclude if </span>
+  <template v-if="match.is">
+    <ul>
+      <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
+        <span v-if="index > 0">or</span>
+        <li class="tight-spacing">
+          <span class="field">in</span>
+          <IMViewerLink v-if="item.iri" :iri="item.iri" :action="'view'" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </li>
+      </template>
+    </ul>
+  </template>
+  <template v-else>
     <span class="field">{{ getFormattedPath(match) }}</span>
     <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
-    <span v-if="match.where">
-      <WhereDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :property-index="0" :key="0" :index="0" :root="true" :inline="true" />
-    </span>
-
-    <span v-if="match.return">
+    <template v-if="match.where">
+      <template v-if="!boolWhereGroup">
+        <WhereContentDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :key="0" :index="0" :root="true" />
+      </template>
+      <template v-else>
+        <WhereContentDisplay
+          :where="boolWhereGroup![0]"
+          :depth="depth + (match.nodeRef ? 1 : 0)"
+          :parentOperator="whereOperator"
+          :key="0"
+          :index="0"
+          :root="true"
+        />
+        <div v-for="(nestedProperty, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
+          <WhereContentDisplay
+            :where="boolWhereGroup![subIndex + 1]"
+            :depth="depth + (match.nodeRef ? 1 : 0)"
+            :parentOperator="whereOperator"
+            :key="0"
+            :index="subIndex + 1"
+            :root="false"
+          />
+        </div>
+      </template>
+    </template>
+    <span v-if="match.node">
       <span class="field">(as</span>
-      <span class="as">{{ match.return?.as }})</span>
+      <span class="as">{{ match.node }})</span>
     </span>
-  </span>
+  </template>
 </template>
 
 <script setup lang="ts">
 import { Bool, Match } from "@/interfaces/AutoGen";
-import WhereDisplay from "@/components/imquery/WhereDisplay.vue";
+import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import DirectService from "@/services/DirectService";
+import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+import { computed } from "vue";
 interface Props {
   match: Match;
   depth: number;
@@ -57,6 +68,13 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits(["navigateTo"]);
 const directService = new DirectService();
+const whereOperator = computed(() => {
+  return getBooleanOperator("Where", props.match.where);
+});
+const boolWhereGroup = computed(() => {
+  return getBoolGroup("Where", props.match.where);
+});
+
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -72,6 +90,11 @@ function getFormattedPath(path: any): string {
 <style scoped>
 .order-by {
   padding-left: 0.2rem;
+}
+.where-container {
+  min-width: 0;
+  font-size: 1rem;
+  margin-left: 2rem;
 }
 
 .as {

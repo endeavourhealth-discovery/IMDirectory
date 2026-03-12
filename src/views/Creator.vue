@@ -63,14 +63,16 @@ import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.v
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { QueryService } from "@/services";
 import { defineComponent } from "vue";
-import { setupValidity } from "@/composables/setupValidity";
-import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { useValidity } from "@/composables/useValidity";
+import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useDialog } from "primevue/usedialog";
+import { useUserStore } from "@/stores/userStore";
 
 export default defineComponent({
   components: {
@@ -87,6 +89,7 @@ export default defineComponent({
     HtmlInput,
     ToggleableComponent,
     QueryDefinitionBuilder,
+    IndicatorDefinition,
     ComponentGroup,
     DropdownTextInputConcatenator
   }
@@ -100,11 +103,11 @@ import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
-import { setupEditorShape } from "@/composables/setupEditorShape";
+import { useEditorEntity } from "@/composables/useEditorEntity";
+import { useEditorShape } from "@/composables/useEditorShape";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
+import { DisplayMode, PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { EditorMode } from "@/enums";
 import { IM, RDF, RDFS } from "@/vocabulary";
@@ -125,10 +128,12 @@ const router = useRouter();
 const dynamicDialog = useDialog();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
+const userStore = useUserStore();
 const filterStore = useFilterStore();
 const directService = new DirectService();
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
+const currentUser = computed(() => userStore.currentUser);
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -139,11 +144,11 @@ function onShowSidebar() {
   editorStore.updateFindInEditorTreeIri("");
 }
 
-const { editorEntity, editorEntityOriginal, processEntity, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } = setupEditorEntity(
+const { editorEntity, editorEntityOriginal, processEntity, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } = useEditorEntity(
   EditorMode.CREATE,
   updateType
 );
-const { shape, getShape, getShapesCombined, groups, processShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape } = useEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -157,8 +162,8 @@ const {
   validationChecksCompleted,
   checkValidity,
   checkExists
-} = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
+} = useValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = useValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
@@ -185,6 +190,9 @@ onUnmounted(() => {
 
 onMounted(async () => {
   loading.value = true;
+  if (currentUser.value && currentUser.value.namespaces.length < 1) {
+    await router.push({ name: "AccessDenied" });
+  }
   await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
   if (isObjectHasKeys(creatorSavedEntity.value, ["iri"])) {
@@ -206,6 +214,17 @@ onMounted(async () => {
     if (propertyIri && valueIri) {
       const propertyIriFixed = removeEndSlash(propertyIri as string);
       const valueIriFixed = removeEndSlash(valueIri as string);
+      if (typeIriFixed === IM.QUERY && propertyIriFixed === IM.IS_CHILD_OF) {
+        const baseQuery = await QueryService.getDisplayFromQueryIri(valueIriFixed, DisplayMode.LOGICAL);
+        editorEntity.value[IM.DEFINITION] = JSON.stringify({
+          typeOf: baseQuery.typeOf,
+          and: [
+            {
+              is: [{ iri: valueIriFixed, cohort: true }]
+            }
+          ]
+        });
+      }
       if (propertyIriFixed === IM.DEFINITION) {
         const newValue = await QueryService.getQueryDisplay(valueIriFixed, false);
         editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
@@ -359,16 +378,19 @@ async function submit(): Promise<void> {
               title: "Success",
               text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
               icon: "success",
-              showCancelButton: true,
+              showCloseButton: true,
               reverseButtons: true,
-              confirmButtonText: "Open in Viewer",
+              confirmButtonText: "Close creator",
               confirmButtonColor: "#2196F3",
               cancelButtonColor: "#607D8B"
             }).then(async (result: SweetAlertResult) => {
               if (result.isConfirmed) {
-                await directService.view(editorEntity.value[IM.ID]);
-              } else {
-                await directService.edit(editorEntity.value[IM.ID], true);
+                window.onbeforeunload = null;
+                // If added via addEventListener
+                window.removeEventListener("beforeunload", beforeWindowUnload);
+                setTimeout(() => {
+                  window.close();
+                }, 0);
               }
             });
           }

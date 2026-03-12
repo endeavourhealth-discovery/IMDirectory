@@ -1,5 +1,5 @@
 {
-  "compilerOptions": {
+    "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
     "strict": true,
@@ -15,7 +15,7 @@
     "sourceMap": true,
     "rootDirs": ["."],
     "baseUrl": ".",
-    "types": ["vite/client", "vitest/globals", "cypress", "@testing-library/cypress"],
+    "types": ["vite/client", "vitest/globals", "@vueuse/core", "@vueuse/integrations"],
     "paths": {
       "@/*": ["src/*"]
     },
@@ -26,11 +26,6 @@
     "./src/**/*.vue",
     "./src/**/*.ts",
     "./src/**/*.js",
-    "./cypress/**/*.cy.js",
-    "./cypress/**/*.cy.ts",
-    "./cypress/support/**/*.ts",
-    "./cypress/e2e/**/*.ts",
-    "./cypress/e2e/**/*.js",
     "components.d.ts",
     "./tests/**/*.ts",
     "./tests/**/*.js"

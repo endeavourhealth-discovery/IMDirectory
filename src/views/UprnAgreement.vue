@@ -12,13 +12,13 @@
       <h1>UPRN License Agreement</h1>
       <h3>Attribution statement</h3>
       <p>
-        This code is available to use under the Apache License Version 2.0. (see LICENSE file) and may not be used unless in compliance with the License, and
+        This code is available to use under the AGPL-3.0 License (see LICENSE file) and may not be used unless in compliance with the License, and
         with the following attribution against any outputs created from the use of this code including the assignment of UPRNs, geo-coordinates or any
         pseudonymised or other data based on these.
       </p>
       <p>
-        This service/work/research acknowledges the use of the Open Access Discovery Programme UPRN-match Address Matching Algorithm (current version 4.2) which
-        is licensed under Apache 2.0 and can be accessed <Button link as="a" href="https://github.com/endeavourhealth-discovery/uprn-match">here</Button>. The
+        This service/work/research acknowledges the use of the Open Access Discovery Programme UPRN-match Address Matching Algorithm (current version 6.0) which
+        is licensed under AGPL-3.0 License and can be accessed <Button link as="a" href="https://github.com/endeavourhealth-discovery/uprn-match">here</Button>. The
         current version number can be found
         <Button link as="a" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking">here</Button>.
       </p>
@@ -26,7 +26,7 @@
         This algorithm was developed by David Stables with the support of the Endeavour Health Charity, and by Gill Harper and Carol Dezateux, Queen Mary,
         University of London, with the support of funding from Barts Charity and OneLondon. It was also supported by Health Data Research UK, an initiative
         funded by UK Research and Innovation, Department of Health and Social Care (England) and the devolved administrations, and leading medical research
-        charities. This product also includes an API developed by Learning Health Solutions.
+        charities. This product also includes an API developed by LIFETIME SOFTWARE SOLUTIONS.
       </p>
       <p>
         Ordnance Survey AddressBase Premium is used by the algorithm as the source of Unique Property Reference Numbers (UPRNs), made available to the

@@ -4,6 +4,7 @@ import { flushPromises } from "@vue/test-utils";
 import { afterAll, it, expect, beforeEach, describe } from "vitest";
 import { User } from "@/interfaces";
 import { uniqueId } from "lodash-es";
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes } from "@/enums";
 
 describe("state", () => {
   beforeEach(() => {
@@ -28,14 +29,21 @@ describe("getters", () => {
     const userStore = useUserStore();
     const testUser: User = {
       username: "testUser",
-      firstName: "John",
-      lastName: "Doe",
+      displayName: "John Doe",
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/003-man.png",
       roles: [],
       id: uniqueId(),
-      mfaStatus: ["TOTP"]
+      theme: PrimeVuePresetThemes.AURA,
+      primaryColor: PrimeVueColors.EMERALD,
+      surfaceColor: PrimeVueColors.SLATE,
+      fontSize: FontSize.MEDIUM,
+      darkMode: true,
+      organisations: [],
+      recentActivity: [],
+      favourites: [],
+      namespaces:[]
     };
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);
@@ -66,14 +74,21 @@ describe("mutations", () => {
 
     const testUser: User = {
       username: "testUser",
-      firstName: "John",
-      lastName: "Doe",
+      displayName: "John Doe",
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/003-man.png",
       roles: [],
       id: uniqueId(),
-      mfaStatus: ["TOTP"]
+      theme: PrimeVuePresetThemes.AURA,
+      primaryColor: PrimeVueColors.EMERALD,
+      surfaceColor: PrimeVueColors.SLATE,
+      fontSize: FontSize.MEDIUM,
+      darkMode: true,
+      organisations: [],
+      recentActivity: [],
+      favourites: [],
+      namespaces:[]
     };
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);

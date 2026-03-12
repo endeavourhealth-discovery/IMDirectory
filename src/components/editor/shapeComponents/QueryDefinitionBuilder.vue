@@ -16,7 +16,7 @@
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
     <div v-if="!loading">
-      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" :sourceQuery="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
     </div>
     <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <SQLDisplay :sql="sql" />
@@ -44,8 +44,8 @@ import { IM } from "@/vocabulary";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
 import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
@@ -89,8 +89,7 @@ const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
 const queryTestResults: Ref<string[]> = ref([]);
 const showTestQueryResults = ref(false);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
-
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(sql);
 const key = props.shape.path.iri;
 
 onMounted(async () => {
@@ -105,6 +104,7 @@ function cancelEditor() {
 }
 
 function updateQuery(query: Query) {
+  queryDefinition.value = query;
   originalDefinition.value = cloneDeep(queryDefinition.value);
   showEditor.value = false;
 }
@@ -118,7 +118,6 @@ async function init() {
   } else {
     queryDefinition.value = await generateDefaultQuery();
     originalDefinition.value = cloneDeep(queryDefinition.value);
-    showEditor.value = true;
   }
 }
 
@@ -129,7 +128,7 @@ async function generateDefaultQuery(): Promise<Query> {
     typeOf: defaultBaseType.typeOf,
     and: [
       {
-        instanceOf: [{ iri: defaultIris[0] }]
+        is: [{ iri: defaultIris[0] }]
       }
     ]
   };

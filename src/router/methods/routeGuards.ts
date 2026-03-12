@@ -1,4 +1,4 @@
-import { EntityService } from "@/services";
+import { SecurityService, EntityService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";

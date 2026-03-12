@@ -1,4 +1,5 @@
 <template>
+  <MembersPreview v-if="showMembersDialog" :query="eclQuery.query" @closeMemberDialog="showMembersDialog = false" />
   <div class="set-definition-container">
     <div class="ecl-container" id="ecl-text-editor">
       <div class="text-copy-container">
@@ -36,7 +37,7 @@
                 </div>
               </TabPanel>
               <TabPanel value="1">
-                <QueryDisplay :definition="value" :eclQuery="true" />
+                <QueryDisplay :queryDefinition="eclQuery.query" :eclQuery="true" />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -47,6 +48,7 @@
         <Menu id="import_menu" ref="importMenu" :model="buttonOptions" :popup="true" />
         <Button label="Set builder" @click="showBuilder" severity="help" data-testid="builder-button" :loading="loading" />
         <Button label="Validate model" severity="info" @click="validateModel(false)" data-testid="ecl-validate-button" />
+        <Button label="Preview expansion" severity="info" @click="previewExpansion()" data-testid="expansion-preview-button" />
         <Button
           icon="fa-solid fa-copy"
           label="Copy to clipboard"
@@ -61,7 +63,7 @@
     <ECLBuilder
       v-if="showDialog"
       :showDialog="showDialog"
-      :eclString="lastValidEcl"
+      :query="eclQuery.query"
       :showNames="showNames"
       @eclSubmitted="updatefromBuilder"
       @closeDialog="() => (showDialog = false)"
@@ -78,7 +80,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, inject, nextTick, onMounted, ref, Ref, watch } from "vue";
-import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 import { EditorMode } from "@/enums";
 import { EclService } from "@/services";
@@ -88,10 +90,12 @@ import { ECLQueryRequest, PropertyShape, SearchResultSummary } from "@/interface
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { showVerificationDialog, showValidationMessage } from "@/composables/eclValidator";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useEclValidator } from "@/composables/useEclValidator";
 import { useDialog } from "primevue/usedialog";
 import { IM } from "@/vocabulary";
+import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
+import Swal from "sweetalert2";
 
 interface Props {
   shape: PropertyShape;
@@ -101,10 +105,11 @@ interface Props {
 
 const props = defineProps<Props>();
 const validationDialog = useDialog();
-const eclQuery: Ref<ECLQueryRequest> = ref({ ecl: props.value, query: {}, status: { valid: true } });
+const eclQuery: Ref<ECLQueryRequest> = ref({ status: { valid: true } } as ECLQueryRequest);
 const importMenu = ref();
 const ecl: Ref<string> = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(ecl);
+const { showValidationMessage, showVerificationDialog } = useEclValidator();
 const showDialog = ref(false);
 const showAddByCodeListDialog = ref(false);
 const showAddByFileDialog = ref(false);
@@ -124,6 +129,8 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const highlightDiv = ref<HTMLDivElement | null>(null);
 const lastValidEcl: Ref<string> = ref("");
+const showMembersDialog = ref(false);
+const initialised = ref(false);
 
 const key = props.shape.path.iri;
 const buttonOptions = [
@@ -133,17 +140,20 @@ const buttonOptions = [
 
 const debounceTimer = ref(0);
 const highlightedText = computed(() => {
-  const lines = ecl.value.split("\n");
-  if (eclQuery.value && eclQuery.value.status && !eclQuery.value.status.valid) {
-    const eclStatus = eclQuery.value.status;
-    const lineIndex = eclStatus.line! - 1;
-    const offset = eclStatus.offset!;
-    if (lines[lineIndex] && offset < lines[lineIndex].length) {
-      const line = lines[lineIndex];
-      lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
+  if (ecl.value) {
+    const lines = ecl.value.split("\n");
+    if (eclQuery.value && eclQuery.value.status && !eclQuery.value.status.valid) {
+      const eclStatus = eclQuery.value.status;
+      const lineIndex = eclStatus.line! - 1;
+      const offset = eclStatus.offset!;
+      if (lines[lineIndex] && offset < lines[lineIndex].length) {
+        const line = lines[lineIndex];
+        lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
+      }
     }
+    return lines.map(line => line || "&nbsp;").join("<br/>");
   }
-  return lines.map(line => line || "&nbsp;").join("<br/>");
+  return "";
 });
 
 if (forceValidation) {
@@ -171,6 +181,13 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 }
 
 watch(ecl, newValue => {
+  if (!ecl.value) {
+    eclQuery.value.query = {};
+  }
+  if (!initialised.value) {
+    initialised.value = true;
+    return;
+  }
   clearTimeout(debounceTimer.value);
   debounceTimer.value = window.setTimeout(async (): Promise<void> => {
     eclQuery.value = await EclService.validateECL(newValue, showNames.value);
@@ -209,7 +226,13 @@ async function showOrHideNames() {
   eclQuery.value = await EclService.getEclFromEcl(ecl.value, showNames.value);
   if (eclQuery.value.status && eclQuery.value.status.valid) {
     ecl.value = eclQuery.value.ecl!;
+    lastValidEcl.value = ecl.value;
   } else showNames.value = !showNames.value;
+}
+
+function previewExpansion() {
+  if (eclQuery.value.query && eclQuery.value.query.invalid) showInvalidAlert();
+  else showMembersDialog.value = !showMembersDialog.value;
 }
 
 function updateEntity() {
@@ -228,6 +251,8 @@ async function processProps() {
     eclQuery.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
     ecl.value = eclQuery.value.ecl!;
     lastValidEcl.value = ecl.value;
+  } else {
+    initialised.value = true;
   }
 }
 
@@ -236,7 +261,18 @@ function toggleMenuOptions(event: MouseEvent) {
 }
 
 function showBuilder(): void {
-  showDialog.value = true;
+  if (eclQuery.value.query && eclQuery.value.query.invalid) showInvalidAlert();
+  else showDialog.value = true;
+}
+
+async function showInvalidAlert() {
+  await Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "Invalid ECL . Please fix or remove ecl before using builder.",
+    confirmButtonText: "Close",
+    confirmButtonColor: "#689F38"
+  });
 }
 
 function showAddByCodeList(): void {
@@ -269,6 +305,9 @@ function processCodeList(data: SearchResultSummary[]) {
 async function updatefromBuilder(builderQuery: ECLQueryRequest): Promise<void> {
   eclQuery.value = await EclService.getECLFromQuery(builderQuery.query!, showNames.value);
   ecl.value = eclQuery.value.ecl!;
+  if (!ecl.value) {
+    eclQuery.value.query = {};
+  }
   lastValidEcl.value = ecl.value;
   showDialog.value = false;
 }

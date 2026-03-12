@@ -8,6 +8,7 @@
       v-model:selected="selectedResult"
       :im-query="queryRequest"
       :root-entities="rootEntities"
+      :validEntityQuery="isValidEntity"
       @dragenter.prevent
       @dragover.prevent
       @drop="dropReceived"
@@ -109,6 +110,7 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
+const isValidEntity: Ref<QueryRequest | undefined> = ref(undefined);
 const rootEntities: Ref<string[]> = ref([]);
 
 watch(selectedResult, async (newValue, oldValue) => {
@@ -127,6 +129,12 @@ async function init() {
       else queryRequest.value.argument.push(arg);
     }
     queryRequest.value.argument = props.shape.argument;
+  }
+  if (props.shape.isValidEntity) {
+    isValidEntity.value = { query: { iri: props.shape.isValidEntity.iri } };
+    if (props.shape.isValidArguments) {
+      isValidEntity.value.argument = props.shape.isValidArguments;
+    } else isValidEntity.value.argument = props.shape.isValidArguments;
   }
   if (props.value && isObjectHasKeys(props.value)) {
     await updateSelectedResult(props.value);

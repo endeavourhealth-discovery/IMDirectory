@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 
 interface Props {
   label: string;
@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   id: "text-with-label"
 });
 
-const { onCopy, onCopyError } = setupCopyToClipboard(undefined, props.label + " copied to clipboard", props.label + " failed to copy to clipboard");
+const { onCopy, onCopyError } = useCopyToClipboard(undefined, props.label + " copied to clipboard", props.label + " failed to copy to clipboard");
 </script>
 
 <style scoped>

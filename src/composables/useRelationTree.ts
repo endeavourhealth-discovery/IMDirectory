@@ -1,0 +1,117 @@
+import type { TreeNode } from "primevue/treenode";
+import { Match, NodeShape, Where, Query } from "@/interfaces/AutoGen";
+import { Ref, ref } from "vue";
+import { IM } from "@/vocabulary";
+import { DataModelService } from "@/services";
+import { getTypeFromClause } from "@/helpers/QueryEditorMethods";
+import { useQueryStore } from "@/stores/queryStore";
+
+export function useRelationTree() {
+  const expandedKeys: Ref<any> = ref({});
+  const loading: Ref<boolean> = ref(false);
+  const queryStore = useQueryStore();
+
+  function createReturnTree(match: Match, nodes: TreeNode[], shapes: NodeShape[]): void {
+    for (const as of queryStore.returnMap.keys()) {
+      const match = queryStore.returnMap.get(as) as Match;
+      const node = createNode(as, as, null, as, undefined, match, "nodeShape", false);
+      nodes.push(node);
+      const matchType = getTypeFromClause(match);
+      if (matchType) {
+        shapes
+          .find(shape => shape.iri === matchType)
+          ?.property?.forEach(property => {
+            node.children!.push(
+              createNode(
+                property.path.iri,
+                node.label + " (" + property.path.name + ")",
+                null,
+                node.data.nodeRef,
+                property.path.iri,
+                match,
+                "propertyShape",
+                true
+              )
+            );
+          });
+      }
+    }
+  }
+
+  async function getPotentialTargetsInQuery(query: Query, valueType: string): Promise<NodeShape[]> {
+    const potentialTargetIris = [] as string[];
+    potentialTargetIris.push(query.typeOf!.iri!);
+    for (const as of queryStore.returnMap.keys()) {
+      const match = queryStore.returnMap.get(as) as Match;
+      const matchType = getTypeFromClause(match);
+      if (matchType) potentialTargetIris.push(matchType);
+    }
+    return await DataModelService.getDataModelPropertiesWithValueType(potentialTargetIris, valueType);
+  }
+
+  async function createRelationTree(match: Match, dataType: string): Promise<TreeNode[]> {
+    const nodes: TreeNode[] = [];
+    if (dataType === IM.DATE) {
+      nodes.push(createNode("0", "Search date", "$searchDate", null, undefined, null, "parameter", true));
+      nodes.push(createNode("1", "Achievement date", "$achievementDate", null, undefined, null, "parameter", true));
+    }
+    const potentialTargets = await getPotentialTargetsInQuery(match, dataType);
+    createReturnTree(match, nodes, potentialTargets);
+    return nodes;
+  }
+
+  function createNode(
+    key: string,
+    label: string | undefined,
+    parameter: string | null,
+    nodeRef: string | null,
+    iri: string | undefined,
+    match: Match | null,
+    type: "parameter" | "nodeShape" | "propertyShape",
+    leaf: boolean
+  ): TreeNode {
+    return {
+      key: key,
+      label: label,
+      expanded: false,
+      leaf: leaf,
+      data: {
+        parameter: parameter,
+        match: match,
+        nodeRef: nodeRef,
+        type: type,
+        iri: iri
+      },
+      loading: false,
+      children: [] as TreeNode[]
+    } as TreeNode;
+  }
+
+  function collapseNode(node: TreeNode) {
+    expandedKeys.value = { ...expandedKeys.value, [node.key]: false };
+    for (const key of Object.keys(expandedKeys.value)) {
+      if (key.toString().startsWith(node.key!)) {
+        delete expandedKeys.value[key];
+      }
+    }
+  }
+  function getDefaultTarget(where: Where, tree: TreeNode[]): string {
+    if (where.compare && where.compare.right) {
+      for (const node in tree) {
+        if (where.compare.right.parameter) {
+          if (tree[node].data) {
+            if (tree[node].data.parameter === where.compare.right.parameter) return tree[node].key;
+          }
+        } else if (where.compare.right.nodeRef) if (tree[node].data.nodeRef && tree[node].data.nodeRef === where.compare.right.nodeRef) return tree[node].key;
+      }
+    }
+    return tree[0].key;
+  }
+  return {
+    collapseNode,
+    expandedKeys,
+    loading,
+    createRelationTree,
+    getDefaultTarget
+  };
+}

@@ -55,15 +55,14 @@ import { byKey } from "@/helpers/Sorters";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import setupTree from "@/composables/setupTree";
+import { useTree } from "@/composables/useTree";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
-import createNew from "@/composables/createNew";
+import { useCreateNew } from "@/composables/useCreateNew";
 import { TTIriRef, UserRole } from "@/interfaces/AutoGen";
-import setupOverlay from "@/composables/setupOverlay";
+import { useOverlay } from "@/composables/useOverlay";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
-import { checkExists } from "@/composables/createNew";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -98,9 +97,8 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
 const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
-  setupTree(emit, props.childLength ? props.childLength : 40);
-const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<MenuItem[]> } =
-  createNew();
+  useTree(emit, props.childLength ? props.childLength : 40);
+const { getCreateOptions, checkExists } = useCreateNew();
 
 const loading = ref(true);
 const overlayLocation: Ref<MouseEvent | undefined> = ref();
@@ -114,7 +112,7 @@ const newFolderIcon = computed(() => {
 });
 
 const menu = ref();
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 watch(
   () => props.findInTree,
@@ -204,8 +202,9 @@ async function addRootEntitiesToTree() {
 async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
+  const hasPermission = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
 
-  if (!currentUser.value || !currentUser.value.roles.includes(UserRole.ADMIN)) return;
+  if (!currentUser.value || !hasPermission) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
   selectedNode.value = node;

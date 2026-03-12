@@ -6,7 +6,7 @@
         <ArrayObjectNamesToStringWithLabel v-if="subsetOf" :data="subsetOf" label="Subset of" />
         <ArrayObjectNamesToStringWithLabel v-if="subclassOf" :data="subclassOf" label="Subclass of" />
         <div class="buttons-container">
-          <template v-if="checkAuthorization()">
+          <template v-if="hasPermissionSetPublish">
             <Button :loading="isPublishing" data-testid="publishButton" label="Publish" type="button" @click="publish"></Button>
           </template>
           <Button
@@ -83,6 +83,7 @@
   <DownloadByQueryOptionsDialog
     :show-definition="hasDefinition"
     :showDialog="showOptions"
+    :showSubsumedBy="showSubsumedBy"
     @download="download"
     @downloadIMV1="downloadIMV1"
     @close-dialog="showOptions = false"
@@ -95,7 +96,7 @@ import CompareSetDialog from "./CompareSetDialog.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
-import { computed, ComputedRef, markRaw, onMounted, Ref, ref } from "vue";
+import { computed, ComputedRef, markRaw, onMounted, Ref, ref, watch } from "vue";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
@@ -106,9 +107,9 @@ import { ToastSeverity } from "@/enums";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import setupDownloadFile from "@/composables/downloadFile";
+import { useDownloadFile } from "@/composables/useDownloadFile";
 import { useUserStore } from "@/stores/userStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
 import { SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
@@ -128,9 +129,9 @@ const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
 const showCompareSetDialog = ref(false);
 const showMembers = ref(false);
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 const userStore = useUserStore();
-
+const showSubsumedBy = ref(true);
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
@@ -138,14 +139,27 @@ const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
 const entity: Ref<TTEntity> = ref({});
+const hasPermissionSetPublish = ref(false);
 
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 
 const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
 
+watch(currentUser, async () => {
+  if (isLoggedIn.value) {
+    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+  } else hasPermissionSetPublish.value = false;
+});
+
 onMounted(async () => {
   active.value = ["0", "1", "2"];
-  entity.value = await EntityService.getPartialEntity(props.entityIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.DEFINITION]);
+  entity.value = await EntityService.getPartialEntity(props.entityIri, [
+    IM.IS_SUBSET_OF,
+    IM.IS_CONTAINED_IN,
+    RDFS.SUBCLASS_OF,
+    IM.DEFINITION,
+    IM.AVOID_REPLACED_BY
+  ]);
   if (entity.value[IM.IS_SUBSET_OF]) {
     subsetOf.value = entity.value[IM.IS_SUBSET_OF];
   }
@@ -155,7 +169,13 @@ onMounted(async () => {
   if (entity.value[RDFS.SUBCLASS_OF]) {
     subclassOf.value = entity.value[RDFS.SUBCLASS_OF];
   }
+  if (entity.value[IM.AVOID_REPLACED_BY]) {
+    showSubsumedBy.value = false;
+  }
   if (!hasDefinition.value) showMembers.value = true;
+  if (isLoggedIn.value) {
+    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+  }
 });
 
 async function onCopy(event: MouseEvent) {
@@ -177,6 +197,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   const core = downloadSettings.selectedContents.includes("Core");
   const legacy = downloadSettings.selectedContents.includes("Legacy");
   const im1id = downloadSettings.selectedContents.includes("IM1Id");
+  const replacedBy = downloadSettings.selectedContents.includes("+ Probably subsumed concepts") ? [IM.SUBSUMED_BY] : ([] as string[]);
   showOptions.value = false;
 
   const schemes = [] as string[];
@@ -192,7 +213,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     includeSubsets: downloadSettings.includeSubsets,
     schemes: schemes,
     includeIM1id: im1id,
-    subsumptions: []
+    subsumptions: replacedBy
   };
   const setRequest: SetExportRequest = {
     ownRow: downloadSettings.legacyInline,
@@ -248,12 +269,6 @@ function getFileName(label: string, format: string) {
     label = label.substring(0, 100);
   }
   return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + format;
-}
-
-function checkAuthorization() {
-  if (isLoggedIn.value && currentUser.value) {
-    return currentUser.value.roles.includes(UserRole.PUBLISHER);
-  } else return false;
 }
 
 function publish() {

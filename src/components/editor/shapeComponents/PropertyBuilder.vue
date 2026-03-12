@@ -19,7 +19,7 @@
                   <AutocompleteSearchBar
                     v-model:selected="row.path"
                     :class="row.error === 'Property must have a path' && invalid && showValidation ? 'error-message-container-highlight' : ''"
-                    :im-query="pSuggestions"
+                    :imQuery="pSuggestions"
                     :root-entities="['http://endhealth.info/im#Properties']"
                     :search-placeholder="'Select property'"
                     class="search-bar"
@@ -28,10 +28,32 @@
                   <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
                 </td>
                 <td :class="[hover === row ? 'table-row-hover' : 'table-row']" class="td-50">
+                  <div class="flex items-center gap-2">
+                    <span>range type</span>
+                    <Select
+                      style="width: 10rem; min-height: 2.3rem"
+                      v-model="rangeType"
+                      :options="propertyRangeTypes"
+                      option-label="label"
+                      option-value="value"
+                      @change="updateRangeType"
+                    >
+                      <template #value="slotProps">
+                        <div v-if="slotProps.value" class="flex items-center">
+                          <div>{{ rangeType }}</div>
+                        </div>
+                      </template>
+                      <template #option="slotProps">
+                        <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+                          <div>{{ slotProps.option.label }}</div>
+                        </div>
+                      </template>
+                    </Select>
+                  </div>
                   <AutocompleteSearchBar
                     v-model:selected="row.range"
                     :class="row.error === 'Property must have a range' && invalid && showValidation ? 'error-message-container-highlight' : ''"
-                    :im-query="rSuggestions"
+                    :imQuery="rSuggestions"
                     :search-placeholder="'Select range'"
                     data-testid="range-autocomplete"
                   />
@@ -143,6 +165,7 @@ import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { propertyRangeTypes } from "@/helpers/EditorMethods";
 import { IM, RDF, RDFS, SHACL, SNOMED, XSD } from "@/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -150,6 +173,7 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { Namespace } from "@/vocabulary/Namespace";
+import { updateRangeQuery } from "@/helpers/EditorMethods";
 
 interface Props {
   shape: PropertyShape;
@@ -170,7 +194,7 @@ interface SimpleProp {
 
 const props = defineProps<Props>();
 const directService = new DirectService();
-
+const rangeType: Ref<string> = ref("concept");
 const showValidation = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
@@ -196,35 +220,39 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 const dmProperties: Ref<SimpleProp[]> = ref([]);
 const dmPropertiesInherited: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
-const pSuggestions: Ref<QueryRequest | undefined> = ref({
+const pSuggestions: Ref<QueryRequest> = ref({
   query: {
-    activeOnly: true,
-    match: [
+    and: [
       {
         typeOf: {
           iri: RDF.PROPERTY
+        },
+        where: {
+          iri: IM.HAS_STATUS,
+          is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
         }
       }
     ]
   }
 });
-const rSuggestions: Ref<QueryRequest | undefined> = ref({
+const rSuggestions: Ref<QueryRequest> = ref({
   query: {
-    activeOnly: true,
-    match: [
-      {
-        where: [
-          {
-            iri: RDF.TYPE,
-            is: [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT }, { iri: SHACL.NODESHAPE }, { iri: RDFS.DATATYPE }]
-          },
-          {
-            iri: IM.HAS_SCHEME,
-            is: [{ iri: Namespace.SNOMED }, { iri: Namespace.IM }, { iri: Namespace.XSD }]
-          }
-        ]
-      }
-    ]
+    where: {
+      and: [
+        {
+          iri: RDF.TYPE,
+          is: [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT }]
+        },
+        {
+          iri: IM.HAS_SCHEME,
+          is: [{ iri: Namespace.SNOMED }, { iri: Namespace.IM }, { iri: Namespace.XSD }]
+        },
+        {
+          iri: IM.HAS_STATUS,
+          is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
+        }
+      ]
+    }
   }
 });
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -272,6 +300,10 @@ const hover: Ref<boolean | SimpleProp | undefined> = ref();
 function mouseover(event: Event, row: boolean | SimpleProp) {
   event.stopPropagation();
   hover.value = row;
+}
+function updateRangeType(e: { value: string }) {
+  rangeType.value = e.value;
+  updateRangeQuery(rSuggestions.value, rangeType.value);
 }
 
 function mouseout(event: Event) {
@@ -585,7 +617,6 @@ td {
 td:last-child {
   border-radius: 0 5px 5px 0;
   border-style: solid solid solid none;
-  align-self: right;
 }
 
 td:first-child {

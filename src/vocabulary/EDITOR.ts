@@ -12,4 +12,5 @@ export class EDITOR {
   public static readonly DATA_MODEL_SHAPE = Namespace.IM_EDITOR + "DataModelShape"
   public static readonly COHORT_QUERY_SHAPE = Namespace.IM_EDITOR + "CohortQueryShape"
   public static readonly PROPERTY_SHAPE = Namespace.IM_EDITOR + "PropertyShape"
+  public static readonly INDICATOR_SHAPE = Namespace.IM_EDITOR + "IndicatorShape"
 }
