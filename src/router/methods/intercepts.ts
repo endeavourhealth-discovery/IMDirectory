@@ -17,7 +17,7 @@ export async function directToLogin(router: Router) {
       window.location.href = sharedStore.signinUrl;
     } else {
       console.log("redirecting to landing page");
-      await router.push({ name: "LandingPage" });
+      await router.push("/directory");
     }
   });
 }

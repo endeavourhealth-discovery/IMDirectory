@@ -262,7 +262,7 @@ onMounted(async () => {
 });
 
 async function toLandingPage() {
-  await router.push("/");
+  await router.push("/directory");
 }
 
 function getItems(): MenuItem[] {
@@ -286,12 +286,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: async() => (window.location.href = await SecurityService.getLoginUrl())
+      command: async () => (window.location.href = await SecurityService.getLoginUrl())
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: async() => (window.location.href =await SecurityService.getRegisterUrl())
+      command: async () => (window.location.href = await SecurityService.getRegisterUrl())
     },
     {
       separator: true
@@ -460,7 +460,7 @@ async function generateAndDownload() {
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => router.push({ name: "LandingPage" }), color: "var(--p-blue-500)", size: 2 },
+    { label: "Directory", icon: "fa-duotone fa-folder-open", command: () => router.push({ name: "Directory" }), color: "var(--p-blue-500)", size: 2 },
     { label: "Creator", icon: "fa-duotone fa-circle-plus", command: () => directService.create(), color: "var(--p-orange-500)", size: 2 },
     { label: "ASSIGN UPRN", icon: "fa-duotone fa-map-location-dot", command: () => directService.uprn(), color: "var(--p-red-500)", size: 2 },
     // { label: "Workflow", icon: "fa-duotone fa-list-check", command: () => directService.workflow(), color: "var(--p-green-500)", size: 2 }

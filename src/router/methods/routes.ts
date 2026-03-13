@@ -14,6 +14,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "Main",
     path: "/",
     component: () => import("@/InformationManager.vue"),
+    redirect: "/directory",
     children: [
       {
         path: "/directory",
@@ -23,7 +24,7 @@ const routes: Array<RouteRecordRaw> = [
         redirect: { name: "LandingPage" },
         children: [
           {
-            alias: "/",
+            alias: "/directory",
             path: "landingPage",
             name: "LandingPage",
             component: () => import("@/components/directory/LandingPage.vue"),
