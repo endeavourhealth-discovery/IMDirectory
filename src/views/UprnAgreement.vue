@@ -12,14 +12,14 @@
       <h1>UPRN License Agreement</h1>
       <h3>Attribution statement</h3>
       <p>
-        This code is available to use under the AGPL-3.0 License (see LICENSE file) and may not be used unless in compliance with the License, and
-        with the following attribution against any outputs created from the use of this code including the assignment of UPRNs, geo-coordinates or any
-        pseudonymised or other data based on these.
+        This code is available to use under the AGPL-3.0 License (see LICENSE file) and may not be used unless in compliance with the License, and with the
+        following attribution against any outputs created from the use of this code including the assignment of UPRNs, geo-coordinates or any pseudonymised or
+        other data based on these.
       </p>
       <p>
         This service/work/research acknowledges the use of the Open Access Discovery Programme UPRN-match Address Matching Algorithm (current version 6.0) which
-        is licensed under AGPL-3.0 License and can be accessed <Button link as="a" href="https://github.com/endeavourhealth-discovery/uprn-match">here</Button>. The
-        current version number can be found
+        is licensed under AGPL-3.0 License and can be accessed <Button link as="a" href="https://github.com/endeavourhealth-discovery/uprn-match">here</Button>.
+        The current version number can be found
         <Button link as="a" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking">here</Button>.
       </p>
       <p>
@@ -75,7 +75,7 @@ const router = useRouter();
 
 async function goBack() {
   if (window.history.length > 2) router.back();
-  else await router.push({ name: "LandingPage" });
+  else await router.push("/directory");
 }
 </script>
 

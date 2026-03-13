@@ -84,7 +84,7 @@ async function routeToSelected(selected: TreeNode) {
 }
 
 async function navigateTo(iri: string) {
-  if (iri === "home") await router.push("/");
+  if (iri === "home") await router.push("/directory");
   else await directService.select(iri);
 }
 

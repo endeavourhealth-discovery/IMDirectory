@@ -34,7 +34,7 @@ function goBack() {
 }
 
 async function goHome() {
-  await router.push({ name: "Directory" });
+  await router.push("/directory");
 }
 </script>
 

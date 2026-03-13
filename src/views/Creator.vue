@@ -429,7 +429,7 @@ async function closeCreator() {
     customClass: { confirmButton: "swal-reset-button" }
   }).then(async (result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      await router.push({ name: "LandingPage" });
+      await router.push("/directory");
     }
   });
 }

@@ -57,7 +57,7 @@ const userCookiesData: Ref<{ cookie: string; name: string; purpose: string }[]> 
 
 async function goBack() {
   if (window.history.length > 2) router.back();
-  else await router.push({ name: "LandingPage" });
+  else await router.push("/directory");
 }
 </script>
 
