@@ -2,7 +2,7 @@
   <div id="landing-page-container">
     <div id="landing-content">
       <div id="shortcuts-container">
-        <span class="title"> Quick Links </span>
+        <h2 class="title">Quick links</h2>
         <div class="shortcuts">
           <template v-for="(shortcut, index) of shortcuts" v-bind:key="index">
             <Shortcut
