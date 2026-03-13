@@ -2,7 +2,7 @@
   <div id="landing-page-container">
     <div id="landing-content">
       <div id="shortcuts-container">
-        <h2>Quick links</h2>
+        <span class="title"> Quick Links </span>
         <div class="shortcuts">
           <template v-for="(shortcut, index) of shortcuts" v-bind:key="index">
             <Shortcut
@@ -134,5 +134,12 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
   flex-flow: row wrap;
   padding: 0.5rem;
   gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
 }
 </style>
