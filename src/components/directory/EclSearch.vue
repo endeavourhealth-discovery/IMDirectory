@@ -1,38 +1,40 @@
 <template>
   <div id="ecl-search-container">
     <h3 class="title">Expression constraints language search</h3>
-    <h5 class="info">ECL expression:</h5>
-    <div class="text-copy-container">
-      <div class="ecl-panel">
-        <div class="ecl-container">
-          <div class="html-preview" v-html="highlightedText" ref="highlightDiv" />
-          <Textarea
-            v-model="eclQueryString"
-            id="query-string-container"
-            placeholder="Enter expression here or use the ECL builder to generate your search..."
-            data-testid="query-string"
-            class="transparent-textarea"
-            @keydown="onKeyDown"
-            @keyup="onKeyUp"
-          />
-          <Button
-            class="copy-button self-start"
-            :disabled="!eclQueryString.length"
-            icon="fa-solid fa-copy"
-            v-tooltip.left="'Copy to clipboard'"
-            v-clipboard:copy="copyToClipboard()"
-            v-clipboard:success="onCopy"
-            v-clipboard:error="onCopyError"
-            data-testid="copy-to-clipboard-button"
-          />
-        </div>
+    <div class="input-container">
+      <h5 class="info">ECL expression:</h5>
+      <div class="text-copy-container">
+        <div class="ecl-panel">
+          <div class="ecl-container">
+            <div class="html-preview" v-html="highlightedText" ref="highlightDiv" />
+            <Textarea
+              v-model="eclQueryString"
+              id="query-string-container"
+              placeholder="Enter expression here or use the ECL builder to generate your search..."
+              data-testid="query-string"
+              class="transparent-textarea"
+              @keydown="onKeyDown"
+              @keyup="onKeyUp"
+            />
+            <Button
+              class="copy-button self-start"
+              :disabled="!eclQueryString.length"
+              icon="fa-solid fa-copy"
+              v-tooltip.left="'Copy to clipboard'"
+              v-clipboard:copy="copyToClipboard()"
+              v-clipboard:success="onCopy"
+              v-clipboard:error="onCopyError"
+              data-testid="copy-to-clipboard-button"
+            />
+          </div>
 
-        <div v-if="setDefinition.status!.valid">
-          <label for="">Show names</label>
-          <Checkbox v-model="showNames" :binary="true" />
-        </div>
-        <div class="error-message" v-if="!setDefinition.status!.valid">
-          Invalid ECL : line {{ setDefinition.status!.line }}, offset {{ setDefinition.status!.offset }} -> {{ setDefinition.status!.message }}
+          <div v-if="setDefinition.status!.valid">
+            <label for="">Show names </label>
+            <Checkbox v-model="showNames" :binary="true" />
+          </div>
+          <div class="error-message" v-if="!setDefinition.status!.valid">
+            Invalid ECL : line {{ setDefinition.status!.line }}, offset {{ setDefinition.status!.offset }} -> {{ setDefinition.status!.message }}
+          </div>
         </div>
       </div>
     </div>
@@ -225,6 +227,7 @@ function setFilterDefaults() {
   height: 10rem;
   overflow: auto;
   flex-grow: 100;
+  margin-right: 1rem;
 }
 
 .info {
@@ -312,5 +315,17 @@ function setFilterDefaults() {
 }
 .transparent-textarea {
   min-height: 15rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.input-container {
+  width: 98%;
+  flex: 0 1 auto;
 }
 </style>
