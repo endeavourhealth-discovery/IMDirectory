@@ -50,6 +50,6 @@ This specification describes the homepage functionality of IMDirectory.
 ## Quicklinks - ASSIGN UPRN
 
 * Open IMDirectory
-* Click shortcut "ASSIGN UPRN" and switch tabs
+* Click shortcut "ASSIGN UPRN"
 * Login required message appears
 * Close tab
