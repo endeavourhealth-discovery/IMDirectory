@@ -14,6 +14,7 @@
         <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
           <ProgressSpinner />
         </div>
+        <div>clause index={{ clauseIndex }}</div>
         <Splitter class="h-full w-full" layout="horizontal">
           <SplitterPanel :size="25" class="column-selector">
             <div class="tree-scroll-container" @click.stop>
@@ -97,10 +98,14 @@
               </TabList>
               <TabPanels>
                 <TabPanel value="filter">
-                  <div v-if="editMatch.nodeRef">
+                  <div v-if="from && editMatch.nodeRef">
                     <span>From: </span>
-                    <MatchContentDisplay :match="from!" :depth="0" :clauseIndex="0" :parentOperator="Bool.step" />
+                    <MatchContentDisplay :match="from" :depth="0" :clauseIndex="0" :parentOperator="Bool.and" />
                     <div>Test for the following:</div>
+                  </div>
+                  <div v-else-if="from">
+                    <span>Linked to: </span>
+                    <MatchContentDisplay :match="from" :depth="0" :clauseIndex="0" :parentOperator="Bool.and" />
                   </div>
                   <div v-else>With the following conditions:</div>
                   <div>
@@ -112,9 +117,9 @@
                       :depth="0"
                       :index="0"
                       @deleteMatch="deleteMatch"
-                      @addTest="addThen"
+                      @addTest="onAddTest"
                       @updateMatch="onUpdate"
-                      @addLinked="addLinked"
+                      @addLinked="onAddLinked"
                     />
                   </div>
                 </TabPanel>
@@ -177,8 +182,8 @@ const emit = defineEmits<{
   (event: "saveChanges", match: Match): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
-  (event: "addTest"): void;
-  (event: "addLinked"): void;
+  (event: "addTest", match: Match): void;
+  (event: "addLinked", match: Match): void;
 }>();
 const activeTab = ref("filter");
 const expandedKeys = ref<Record<string, boolean>>({});
@@ -219,6 +224,10 @@ async function onNodeSelect(node: any) {
   editMatch.value.invalid = false;
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
   edited.value = true;
+  await setupTrees();
+}
+
+async function setupTrees() {
   typeNodes.value = await findNodesFromMatch(editMatch.value, rootNodes.value);
   expandedKeys.value = { [typeNodes.value[0].key]: true };
   returnNodes.value = await findReturnNodesFromMatch(editMatch.value, rootNodes.value);
@@ -227,6 +236,19 @@ async function onNodeSelect(node: any) {
 }
 function onUpdate() {
   edited.value = true;
+}
+async function onAddTest() {
+  const valid = await saveChanges();
+  if (valid) {
+    if (!editMatch.value.node) {
+      editMatch.value.invalid = true;
+      editMatch.value.errorMessage = "Please select a name to this clause  to test on";
+      await showInvalid(editMatch.value);
+      return;
+    }
+    showMatchEditor.value = false;
+    emit("addTest", editMatch.value);
+  }
 }
 
 async function onReturnNodeSelect(node: any) {
@@ -245,12 +267,17 @@ function deleteMatch() {
   emit("deleteMatch");
 }
 
-function addThen() {
-  emit("addTest");
-}
-
-function addLinked() {
-  emit("addLinked");
+async function onAddLinked() {
+  const valid = await saveChanges();
+  if (valid) {
+    if (!editMatch.value.node) {
+      editMatch.value.invalid = true;
+      editMatch.value.errorMessage = "Please select a name to this clause  to line to";
+      await showInvalid(editMatch.value);
+      return;
+    }
+    emit("addLinked", editMatch.value);
+  }
 }
 
 async function getFunctionTemplates() {
@@ -265,24 +292,36 @@ async function getFunctionTemplates() {
 }
 
 async function onSave() {
-  const matchCheck = await QueryService.validateQuery(editMatch.value);
-  if (matchCheck.invalid) {
-    await Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: matchCheck.errorMessage,
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
-    });
-  } else {
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  const valid = await saveChanges();
+  if (valid) {
     showMatchEditor.value = false;
     emit("saveChanges", editMatch.value);
   }
 }
+
+async function showInvalid(match: Match) {
+  await Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: match.errorMessage,
+    confirmButtonText: "Close",
+    confirmButtonColor: "#689F38"
+  });
+}
+
+async function saveChanges(): Promise<boolean> {
+  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  if (matchCheck.invalid) {
+    await showInvalid(editMatch.value);
+    return false;
+  } else {
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    return true;
+  }
+}
 function onCancel() {
-  emit("cancel");
   showMatchEditor.value = false;
+  emit("cancel");
 }
 
 function onAddFunctionProperty(args: { property: string; value: any }) {

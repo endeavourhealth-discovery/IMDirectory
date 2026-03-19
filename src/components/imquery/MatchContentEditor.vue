@@ -1,4 +1,5 @@
 <template>
+  <span>{{ from }}</span>
   <div class="match-container">
     <div>Select features and properties from left</div>
     <div v-if="match.where">
@@ -99,26 +100,12 @@ const nodeShape: Ref<NodeShape> = ref({} as NodeShape);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
 
-watch(
-  () => match.value.path,
-  async newValue => {
-    if (!initialized.value) return;
-    if (match.value.path) {
-      nodeShape.value = await getNodeShape(match.value, props.baseType);
-      orderables.value = getOrderOptions(getOrderables(nodeShape.value));
-      if (match.value.orderBy) {
-        orderable.value = getOrderable(match.value, orderables.value);
-      }
-    }
-  },
-  { deep: true, immediate: false }
-);
-
 onMounted(async () => {
   await init();
 });
 function onUpdate() {
   edited.value = true;
+  setOrderables();
   emit("updateMatch");
 }
 function onDeleteWhere() {
@@ -131,12 +118,23 @@ async function init() {
   match.value = cloneDeep(match.value);
   nodeShape.value = await getNodeShape(match.value, props.baseType);
   expandedKeys.value["0"] = true;
+  await setOrderables();
   loading.value = false;
   initialized.value = true;
 }
 
 function isDefined(): boolean {
   return !!(match.value.is || match.value.where);
+}
+
+async function setOrderables() {
+  if (match.value.path) {
+    nodeShape.value = await getNodeShape(match.value, props.baseType);
+    orderables.value = getOrderOptions(getOrderables(nodeShape.value));
+    if (match.value.orderBy) {
+      orderable.value = getOrderable(match.value, orderables.value);
+    }
+  }
 }
 
 function updateOrderable(value: any) {

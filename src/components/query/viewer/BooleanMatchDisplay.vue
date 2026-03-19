@@ -3,12 +3,7 @@
   <template v-if="parentOperator === Bool.rule">
     <span class="rule">Rule {{ clauseIndex }}</span>
   </template>
-  <span v-else-if="parentOperator && clauseIndex > 0 && parentOperator != Bool.union && parentOperator != Bool.step" :class="parentOperator">{{
-    parentOperator
-  }}</span>
-  <template v-if="parentMatch?.union">
-    <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
-  </template>
+  <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
   <span v-if="boolGroup.length > 1" :class="operator">
     {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }}
   </span>
@@ -18,9 +13,10 @@
         :match="nestedQuery"
         :clause-index="index"
         :parentOperator="operator as Bool"
-        :depth="depth + (operator === Bool.step && index > 0 ? 2 : 1)"
+        :depth="depth + 1"
         :parent-match="match"
         :eclQuery="eclQuery"
+        :baseType="baseType"
       />
     </div>
   </template>
@@ -33,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool } from "@/interfaces/AutoGen";
+import { Match, Bool, Node } from "@/interfaces/AutoGen";
 import { Ref, ref, inject, computed } from "vue";
 import { getBooleanLabel } from "@/helpers/buildQuery";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
@@ -47,19 +43,13 @@ interface Props {
   depth: number;
   clauseIndex: number;
   eclQuery?: boolean;
+  baseType: Node;
 }
 
 const props = defineProps<Props>();
 
 function getMarginDepth(index: number) {
-  if (props.operator === Bool.step && index > 0) {
-    return props.depth + 1;
-  }
   return props.depth;
-}
-
-function getSubrule(index: number): string {
-  return index + String.fromCharCode(96 + index);
 }
 </script>
 

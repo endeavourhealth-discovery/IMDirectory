@@ -9,29 +9,31 @@
     :expanded-keys="expandedKeys"
     selection-mode="single"
     @node-select="onNodeSelect"
+    @nodeExpand="onNodeExpand"
   >
   </TreeSelect>
 </template>
 
 <script setup lang="ts">
-import { Where, Query } from "@/interfaces/AutoGen";
+import { Where, Query,Match } from "@/interfaces/AutoGen";
 import type { TreeNode } from "primevue/treenode";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRelationTree } from "@/composables/useRelationTree";
+import {NodePropertyFilter} from "@/composables/useRelationTree";
 import { UIProperty } from "@/interfaces";
 import { updateRelativeTo } from "@/helpers/buildQuery";
 interface Props {
   propertyIri: string;
   uiProperty: UIProperty;
+  from?: Match;
 }
 
 const props = defineProps<Props>();
-const { createRelationTree, collapseNode, getDefaultTarget, expandedKeys, loading } = useRelationTree();
+const { createRelationTree, collapseNode, expandNode,getDefaultTarget, expandedKeys, loading } = useRelationTree();
 const property = defineModel<Where>("property", { default: {} });
 const emit = defineEmits(["updateCompare"]);
 const showTreeSearch: Ref<boolean> = ref(false);
 const variableOptions: Ref<TreeNode[]> = ref([]);
-const query = inject("query") as Ref<Query>;
 const nodes: Ref<TreeNode[] | undefined> = ref();
 const selectedTarget = ref<Record<string, boolean>>({});
 
@@ -55,8 +57,17 @@ function onNodeSelect(node: any) {
   }
 }
 
+async function onNodeExpand(node: TreeNode) {
+  await expandNode(node,{rangeType:props.uiProperty.valueType,rangeTypeName :props.uiProperty.valueLabel});
+}
+
 async function initValues() {
-  nodes.value = await createRelationTree(query.value, props.uiProperty.valueType);
+  const nodeFilter={
+    skipProperty: props.uiProperty.iri,
+    rangeType:props.uiProperty.valueType,
+    rangeTypeName :props.uiProperty.valueLabel
+  } as NodePropertyFilter;
+  nodes.value = await createRelationTree(props.from &&props.from.typeOf ?props.from.typeOf.iri : undefined,nodeFilter);
   const key = getDefaultTarget(property.value!, nodes.value);
   selectedTarget.value = { [key]: true };
 }
