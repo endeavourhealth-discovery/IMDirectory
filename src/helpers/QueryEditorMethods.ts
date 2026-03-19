@@ -1,6 +1,5 @@
-import { Node, Order, Where, Match, Path, Operator, TTIriRef, Compare } from "@/interfaces/AutoGen";
+import { Node, Order, Where, Match, Operator, TTIriRef, Compare } from "@/interfaces/AutoGen";
 import { Orderable } from "@/models/orderable";
-import { useQueryStore } from "@/stores/queryStore";
 
 export type RelativeTo = {
   nodeRef?: string;
@@ -180,48 +179,6 @@ export function getRelativeTo(where: Where): RelativeTo | undefined {
   return undefined;
 }
 
-export function getTypeFromClause(match: Match): string | undefined {
-  const queryStore = useQueryStore();
-  if (!match.path) {
-    if (match.nodeRef) {
-      return getTypeFromClause(queryStore.returnMap.get(match.nodeRef)!);
-    } else return undefined;
-  }
-  if (match.return) {
-    for (const property of match.return) {
-      if (property.nodeRef) return getTypeFromMatchNodeRef(match, property.nodeRef);
-    }
-  }
-  if (match.where) {
-    const where = match.where;
-    if (where.nodeRef) return getTypeFromMatchNodeRef(match, where.nodeRef);
-    for (const op of ["and", "or"] as const) {
-      if (where[op] && where[op][0].nodeRef) {
-        return getTypeFromMatchNodeRef(match, where[op][0].nodeRef);
-      }
-    }
-  }
-  return undefined;
-}
-
-function getTypeFromPathNodeRef(aPath: Path, nodeRef: string): string | undefined {
-  if (aPath.path) {
-    const subPath = aPath.path[0];
-    if (subPath.node === nodeRef) return subPath.typeOf!.iri!;
-    if (subPath.path) return getTypeFromPathNodeRef(subPath, nodeRef);
-  }
-  return undefined;
-}
-
-function getTypeFromMatchNodeRef(match: Match, nodeRef: string): string | undefined {
-  if (match.path) {
-    const subPath = match.path[0];
-    if (subPath.node === nodeRef) return subPath.typeOf!.iri!;
-    if (subPath.path) return getTypeFromPathNodeRef(subPath, nodeRef);
-  }
-  return undefined;
-}
-
 export function getOrderable(match: Match, orderables: any[]): Orderable | undefined {
   if (match.orderBy) {
     const orderProperty = match.orderBy.property![0];
@@ -340,16 +297,24 @@ function addReference(parts: SentencePart[], compare: Compare) {
       type: "parameter",
       value: source.name
     });
-  } else if (source.name) {
-    parts.push({
-      type: "field",
-      value: source.name
-    });
+  } else {
+    if (source.name) {
+      parts.push({
+        type: "field",
+        value: source.name
+      });
+    }
     parts.push({ type: "text", value: " of " });
-    parts.push({
-      type: "nodeRef",
-      value: source.nodeRef
-    });
+    if (source.keepRef) {
+      parts.push({
+        type: "nodeRef",
+        value: source.keepRef
+      });
+    } else
+      parts.push({
+        type: "nodeRef",
+        value: source.nodeRef
+      });
   }
 }
 function getOperatorTerm(operator: Operator): string {

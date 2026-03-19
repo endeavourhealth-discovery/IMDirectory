@@ -243,6 +243,7 @@ export function usePropertyTree() {
     findNodeFromFlatPath,
     findNodesFromMatch,
     findReturnNodesFromMatch,
+    createNode,
     loading
   };
 }

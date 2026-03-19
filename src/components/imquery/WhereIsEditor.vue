@@ -120,6 +120,7 @@ interface Props {
 const props = defineProps<Props>();
 const searchBar = ref<{ searchText: string } | null>(null);
 const property = defineModel<Where>("property", { default: {} });
+const emit = defineEmits(["updateProperty"]);
 const node: Ref<Node> = ref({} as Node);
 const filterStore = useFilterStore();
 const coreSchemes = computed(() => filterStore.coreSchemes);
@@ -185,11 +186,12 @@ function updateIsIri(node: Node) {
     node.iri = selected.value.iri;
     node.name = selected.value.name;
     node.type = selected.value.type[0].iri;
-    property.value.invalid= false;
+    property.value.invalid = false;
     setConstraintOperator(node, node.type === IM.CONCEPT ? "descendantsOrSelfOf" : "memberOf");
     if (!property.value.is) property.value.is = [];
     selected.value = {} as SearchResultSummary;
     showAddConcept.value = false;
+    emit("updateProperty", property.value);
   }
 }
 </script>

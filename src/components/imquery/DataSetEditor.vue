@@ -20,7 +20,15 @@
       @cancel="onCancelEdit(index)"
     />
     <template v-else>
-      <ColumnGroupDisplay :match="item" :key="`columnGroupQuery-${index}`" :matchExpanded="false" :returnExpanded="true" :index="index" :parentQuery="query" />
+      <ColumnGroupDisplay
+        :match="item"
+        :key="`columnGroupQuery-${index}`"
+        :matchExpanded="false"
+        :returnExpanded="true"
+        :index="index"
+        :parentQuery="query"
+        :baseType="query.typeOf!"
+      />
       <div class="flex-1"></div>
       <div class="edit-button">
         <Button

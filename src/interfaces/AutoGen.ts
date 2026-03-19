@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-03-10 15:10:09.
+// Generated using typescript-generator version 3.2.1263 on 2026-03-18 17:45:57.
 
 export interface ConceptContextMap {
     id?: string;
@@ -316,11 +316,11 @@ export interface ArgumentReference {
 export interface Assignable {
     value?: string;
     invalid?: boolean;
-    description?: string;
-    compare?: Compare;
     operator?: Operator;
-    valueTerm?: string;
+    compare?: Compare;
     valueLabel?: string;
+    valueTerm?: string;
+    description?: string;
 }
 
 export interface Case {
@@ -432,6 +432,8 @@ export interface Match extends IriLD, HasPaths, Returnable {
     union?: Match[];
     linkedTarget?: boolean;
     errorMessage?: string;
+    draft?: boolean;
+    keepAs?: string;
 }
 
 export interface Node extends Element {
@@ -449,8 +451,8 @@ export interface Node extends Element {
     code?: string;
     inverse?: boolean;
     node?: string;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface OrderDirection extends IriLD {
@@ -479,8 +481,8 @@ export interface Path extends Element, HasPaths {
     pathVariable?: string;
     typeOf?: Node;
     qualifier?: TTIriRef;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface PathDocument {
@@ -567,6 +569,7 @@ export interface ValueSource {
     iri?: string;
     name?: string;
     nodeRef?: string;
+    keepRef?: string;
 }
 
 export interface When {
@@ -607,8 +610,8 @@ export interface Where extends Element, Assignable {
     notNull?: boolean;
     units?: TTIriRef;
     isInvalid?: boolean;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface DBEntry {
@@ -924,15 +927,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    type?: TTArray;
-    status?: TTIriRef;
     name?: string;
+    type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
-    description?: string;
     code?: string;
-    prefixes?: TTPrefix[];
     types?: TTIriRef[];
+    prefixes?: TTPrefix[];
+    status?: TTIriRef;
+    description?: string;
 }
 
 export interface BugReport extends Task {

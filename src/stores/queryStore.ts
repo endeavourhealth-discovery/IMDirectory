@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { SelectedMatch } from "@/interfaces";
-import { QueryRequest, Match } from "@/interfaces/AutoGen";
+import { QueryRequest} from "@/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import { RDFS } from "@/vocabulary";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
@@ -10,7 +10,6 @@ export const useQueryStore = defineStore("query", () => {
   const queryIri = ref<string>("");
   const selectedMatches = ref<SelectedMatch[]>([]);
   const variableMap = ref<Map<string, any>>(new Map<string, any>());
-  const returnMap = ref<Map<string, Match>>(new Map<string, Match>());
   const returnType = ref<string>("");
   const validationQueryRequest = ref<QueryRequest>({
     query: {
@@ -50,33 +49,16 @@ export const useQueryStore = defineStore("query", () => {
     return "";
   }
 
-  function createReturnMap(match: Match) {
-    if (match.return) {
-      for (const ret of match.return) {
-        if (ret.as) returnMap.value.set(ret.as, match);
-      }
-    }
-    for (const key of ["rule", "and", "or"] as const) {
-      if (match[key]) {
-        for (const subMatch of match[key]) {
-          createReturnMap(subMatch);
-        }
-      }
-    }
-  }
-
   return {
     queryIri,
     selectedMatches,
     variableMap,
     returnType,
-    returnMap,
     validationQueryRequest,
     updateQueryIri,
     updateReturnType,
     updateVariableMap,
     clearSelectedMatches,
-    createReturnMap,
     getQueryName
   };
 });

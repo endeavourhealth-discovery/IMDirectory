@@ -37,7 +37,7 @@
     <span class="property-label">{{ pathPropertyName }}</span>
     <div class="property-value-container">
       <div v-if="selectedWhere?.propertyType === 'class'">
-        <WhereIsEditor :key="refreshCounter" v-model:property="where" :uiProperty="selectedWhere" />
+        <WhereIsEditor :key="refreshCounter" v-model:property="where" :uiProperty="selectedWhere" @updateProperty="updateProperty" />
         <Popover ref="dropdown">
           <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
             <span v-for="is of where.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
@@ -50,6 +50,7 @@
           :ui-property="selectedWhere"
           v-model:where="where!"
           :refresh="refreshCounter"
+          :from="from"
           @updateProperty="updateProperty"
         />
       </div>

@@ -10,48 +10,42 @@
         @dragend="onDragEnd()"
       />
     </div>
-    <div v-if="(clause as Match).step" class="step-boolean">
-      <span class="step">{{ parentOperator }}</span>
-      <span class="step">the following linked steps are true</span>
+    <div v-if="operator">
+      <Select
+        :class="'operator-selector'"
+        :modelValue="operator"
+        :options="getBooleanOptions(clauseType, index, false, true)"
+        option-label="label"
+        option-value="value"
+        @update:modelValue="updateOperator"
+      >
+        <template #option="slotProps">
+          <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip">
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </Select>
     </div>
-    <template v-else>
-      <div v-if="operator">
-        <Select
-          :class="'operator-selector'"
-          :modelValue="operator"
-          :options="getBooleanOptions(clauseType, index, false, true)"
-          option-label="label"
-          option-value="value"
-          @update:modelValue="val => updateOperator(val as string)"
-        >
-          <template #option="slotProps">
-            <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip">
-              <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </Select>
-      </div>
-      <div v-if="!rootBool && parent" class="sub-group-button flex items-center">
-        <Button
-          type="button"
-          icon="fa-solid fa-xmark-circle"
-          :label="removeLabel"
-          data-testid="add-bool-concept-button"
-          :severity="'secondary'"
-          @click.stop="onRemoveSubgroup()"
-        />
-      </div>
-      <div v-if="clauseType === 'Where' && boolGroup">
-        <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:where="clause as Where" v-model:isRoleGroup="isRoleGroup" />
-      </div>
-      <div v-if="group.length > 1" class="sub-group-button flex items-center">
-        <Button type="button" icon="fa-solid fa-plus" label="Create boolean subgroup" data-testid="add-bool-concept-button" @click.stop="onCreateSubgroup()" />
-      </div>
-      <div v-if="boolGroup!.length > 2" class="check-help">
-        <i class="fas fa-info-circle text-blue-500" />
-        <span> (click check boxes to build {{ operator === Bool.or ? "'AND' " : "'OR' " }}subgroup)</span>
-      </div>
-    </template>
+    <div v-if="!rootBool && parent" class="sub-group-button flex items-center">
+      <Button
+        type="button"
+        icon="fa-solid fa-xmark-circle"
+        :label="removeLabel"
+        data-testid="add-bool-concept-button"
+        :severity="'secondary'"
+        @click.stop="onRemoveSubgroup()"
+      />
+    </div>
+    <div v-if="clauseType === 'Where' && boolGroup">
+      <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:where="clause as Where" v-model:isRoleGroup="isRoleGroup" />
+    </div>
+    <div v-if="group.length > 1" class="sub-group-button flex items-center">
+      <Button type="button" icon="fa-solid fa-plus" label="Create boolean subgroup" data-testid="add-bool-concept-button" @click.stop="onCreateSubgroup()" />
+    </div>
+    <div v-if="boolGroup!.length > 2" class="check-help">
+      <i class="fas fa-info-circle text-blue-500" />
+      <span> (click check boxes to build {{ operator === Bool.or ? "'AND' " : "'OR' " }}subgroup)</span>
+    </div>
   </div>
 </template>
 <script setup lang="ts">

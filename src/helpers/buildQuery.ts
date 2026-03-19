@@ -74,6 +74,7 @@ function focusChildren(children: Match[] | undefined): string[] {
   }
   return focusConcepts;
 }
+
 export function removeSubgroup(clause: Match | Where, parent: Match | Where, index: number) {
   if (parent.or) {
     parent.or.splice(index, 1);
@@ -91,7 +92,7 @@ export function removeSubgroup(clause: Match | Where, parent: Match | Where, ind
 
 export function createNewBoolGroup(clause: Match | Where, group: number[]) {
   group.sort((a, b) => a - b);
-  const newClause: Match | Where = {};
+  const newClause: Where = {};
   if (clause.and) {
     newClause.or = [];
     group.forEach(index => {
@@ -132,48 +133,37 @@ export function addConceptToGroup(match: Match) {
 export function updateBooleans(clause: Match | Where, from: Bool, to: Bool) {
   if (from === to) return;
   if (from === Bool.and) {
-    clause.or = clause.and;
-    delete clause.and;
+    clause.or = (clause as Where).and;
+    delete (clause as Where).and;
   } else if (from === Bool.or) {
     clause.and = clause.or;
     delete clause.or;
   }
 }
 
-export function hasExpandableGroups(clause: Match) {
-  return !!clause.step;
-}
 export function getDisplayOperator(parentOperator: Bool | undefined, clauseIndex: number): string | undefined {
   if (!parentOperator) return undefined;
-  if (parentOperator !== Bool.union) {
+  if (parentOperator !== Bool.or) {
     if (clauseIndex > 0) {
       return parentOperator as string;
-    }
-    if (parentOperator === Bool.or) return "Either";
-  }
-  return undefined;
+    } else return parentOperator as string;
+  } else if (clauseIndex === 0) return "Either";
+  else return parentOperator as string;
 }
 
 export function getBooleanOperator(clauseType: string, clause: Match | Where | undefined): Bool | undefined {
   if (!clause) return undefined;
   if (clause.and) return Bool.and;
   if (clause.or) return Bool.or;
-  if (clauseType === "Match") {
-    if ((clause as Match).union) return Bool.union;
-    else if ((clause as Match).rule) return Bool.rule;
-    else if ((clause as Match).step) return Bool.step;
-    else return undefined;
-  } else return undefined;
+  else if ((clause as Match).rule) return Bool.rule;
+  else return undefined;
 }
 export function getBoolGroup(clauseType: string, clause: Match | Where | undefined): Match[] | Where[] | undefined {
   if (!clause) return undefined;
-  if (clause.and) return clause.and;
   if (clause.or) return clause.or;
-  if (clauseType === "Match") {
-    if ((clause as Match).union) return (clause as Match).union;
-    else if ((clause as Match).rule) return (clause as Match).rule;
-    else if ((clause as Match).step) return (clause as Match).step;
-  } else return undefined;
+  if (clause.and) return clause.and;
+  if ((clause as Match).rule) return (clause as Match).rule;
+  else return undefined;
 }
 
 export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean): string {
@@ -184,17 +174,13 @@ export function getBooleanLabel(clauseType: string, operator: Bool, index: numbe
   if (operator === Bool.and) {
     if (hasSubgroups) return isFirst ? "all of the following" : parentPrefix + "all of the following";
     else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
-  }
-  if (operator === Bool.union) return "merge results from the following";
-  else if (operator === Bool.or) {
+  } else if (operator === Bool.or) {
     if (hasSubgroups) {
       if (standardQuery) {
         return isFirst ? "at least one of the following" : parentPrefix + "at least one of the following";
       } else return isFirst ? "any of the following" : parentPrefix + " any of the following";
     }
     return "Or";
-  } else if (operator === Bool.step) {
-    return isFirst ? "if the following steps are true" : "if these steps are true";
   }
   return "";
 }
@@ -707,18 +693,10 @@ export function removeUndefined(obj: any) {
   });
 }
 
-export function getMatchFromNodeRef(nodeRef: string, parent: Match | undefined): Match | undefined {
-  if (!parent) return undefined;
-  if (parent.step) {
-    for (const step of parent.step) {
-      if (step.node && step.node === nodeRef) return step;
-    }
-  }
-  return undefined;
-}
 export function getResults(nodeRef: string, parentMatch: Match): string | undefined {
-  if (!parentMatch.step) return undefined;
-  for (const step of parentMatch.step) {
+  if (!parentMatch.and) return undefined;
+  const matches = parentMatch.and || parentMatch.or;
+  for (const step of matches) {
     if (step.node && step.node === nodeRef && step.return) return getReturnFields(step.return);
   }
   return undefined;

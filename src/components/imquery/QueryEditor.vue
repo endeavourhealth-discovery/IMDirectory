@@ -127,7 +127,6 @@ function toggle(event: any) {
 }
 
 async function init() {
-  queryStore.createReturnMap(query.value);
   if (query.value.typeOf) {
     rootNodes.value = await createFeatureTree(query.value.typeOf);
   }
