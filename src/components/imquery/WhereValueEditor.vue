@@ -38,6 +38,7 @@
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
+        :from="from"
         @updateAssignable="updateWhereDisplay(where)"
       />
     </div>
@@ -49,6 +50,7 @@
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
+        :from="from"
         :fromOrTo="'from'"
         @updateAssignable="updateWhereDisplay(where.range.from)"
       />
@@ -60,6 +62,7 @@
         :qualifier="where.qualifier"
         :refresh="refresh"
         :fromOrTo="'to'"
+        :from="from"
         @updateAssignable="updateWhereDisplay(where.range.to)"
       />
     </div>
@@ -86,7 +89,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch, computed } from "vue";
 import { IM, XSD } from "@/vocabulary";
-import { Range, Where, Operator, Assignable } from "@/interfaces/AutoGen";
+import { Match, Where, Operator, Assignable } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { buildValueSentence, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
@@ -94,6 +97,7 @@ import { cloneDeep } from "lodash-es";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 interface Props {
   uiProperty: UIProperty;
+  from?: Match;
 }
 
 const refresh = defineModel<number>("refresh", { default: 0 });

@@ -18,6 +18,7 @@
           :operator="Bool.and"
           :expanded="false"
           :parent-match="dataSet"
+          :baseType="baseType"
         />
       </div>
       <span v-if="dataSet.orderBy">{{ dataSet.orderBy.description }}</span>
@@ -29,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, DisplayMode, Match, Query } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, Query, Node} from "@/interfaces/AutoGen";
 import { onMounted, watch, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
@@ -42,6 +43,7 @@ interface Props {
   index: number;
   editMode?: boolean;
   match: Match;
+  baseType: Node;
 }
 
 const props = defineProps<Props>();

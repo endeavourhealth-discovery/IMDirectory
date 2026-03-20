@@ -8,25 +8,18 @@
       :parentOperator="parentOperator"
       :depth="depth"
       :clauseIndex="clauseIndex"
+      :baseType="baseType"
     />
   </template>
   <template v-else>
     <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
       <span class="rule">Rule {{ clauseIndex }}</span>
     </span>
-    <span v-else-if="parentOperator && clauseIndex > 0 && parentOperator != Bool.union && parentOperator != Bool.step" :class="parentOperator">{{
-      parentOperator
-    }}</span>
-    <template v-if="parentMatch?.union">
-      <span class="number">{{ getSubrule(clauseIndex + 1) }}</span>
-    </template>
+    <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
 
     <span v-if="match.notExists" class="not">Exclude if </span>
     <template v-if="match.nodeRef">
       <span class="node-ref">then with the {{ keepFields }} of the above</span>
-    </template>
-    <template v-else-if="parentMatch && parentMatch.step && clauseIndex > 0">
-      <span class="node-ref">then check:</span>
     </template>
     <template v-if="match.is">
       <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
@@ -40,6 +33,7 @@
             :depth="depth + 1"
             :parent-match="match"
             :eclQuery="eclQuery"
+            :baseType="baseType"
           />
         </template>
         <template v-else>
@@ -58,7 +52,7 @@
     <span v-if="!matchExpanded && match.description" class="match-description">{{ match.description }}</span>
     <template v-if="matchExpanded">
       <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
-      <span v-if="match.path" class="field">{{ getFormattedPath(match) }}</span>
+      <span v-if="match.typeOf && match.typeOf.iri != baseType.iri" class="field">{{ match.typeOf.name }}</span>
       <template v-if="match.where">
         <span class="where">where</span>
         <RecursiveWhereDisplay
@@ -74,9 +68,9 @@
           :step="step"
         />
       </template>
-      <span v-if="match.linkedTarget">
+      <span v-if="match.keepAs">
         <span class="as">save</span>
-        <span class="node-ref">as {{ match.node }}</span>
+        <span class="node-ref">as {{ match.keepAs }}</span>
       </span>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
         <span class="field">if true</span>
@@ -89,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, DisplayMode } from "@/interfaces/AutoGen";
+import { Match, Bool, Node, DisplayMode } from "@/interfaces/AutoGen";
 import { Ref, ref, computed, inject } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -107,6 +101,7 @@ interface Props {
   eclQuery?: boolean;
   parentOperator?: Bool;
   step?: boolean;
+  baseType: Node;
 }
 
 const props = defineProps<Props>();
@@ -129,25 +124,8 @@ const boolGroup = computed(() => {
 const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.clauseIndex);
 });
-const indentStyle = computed(() => {
-  if (props.parentOperator === Bool.step && props.clauseIndex === 0) {
-    return {
-      paddingLeft: "1rem"
-    };
-  }
-
-  return {
-    paddingLeft: "2.5rem"
-  };
-});
 const keepFields = computed(() => {
   if (match.value.nodeRef) return getResults(match.value.nodeRef, parentMatch.value);
-});
-const step2 = computed(() => {
-  if (props.parentOperator === Bool.step && props.clauseIndex > 0) {
-    return true;
-  }
-  return false;
 });
 
 function getFormattedPath(path: any): string {

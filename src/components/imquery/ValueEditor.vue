@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { RangeOrValue, operatorOptions, compareOptions, Relativity } from "@/helpers/QueryEditorMethods";
-import { Assignable, Operator, Where, TTIriRef } from "@/interfaces/AutoGen";
+import { Assignable, Operator, Where, TTIriRef,Match } from "@/interfaces/AutoGen";
 import { UIProperty } from "@/interfaces";
 import { IM, XSD } from "@/vocabulary";
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
@@ -79,6 +79,7 @@ const props = defineProps<{
   uiProperty: UIProperty;
   fromOrTo?: "from" | "to";
   qualifier?: TTIriRef;
+  from?: Match;
 }>();
 const refresh = defineModel<number>("refresh", { default: 0 });
 const assignable = defineModel<Assignable>("assignable", { default: {} });

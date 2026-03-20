@@ -66,7 +66,7 @@ export default class DirectService {
   }
 
   public async uprn() {
-    await this.directTo({ appRoute: "uprn", newTab: true });
+    await this.directTo({ appRoute: "uprn", newTab: false });
   }
 
   public async workflow() {

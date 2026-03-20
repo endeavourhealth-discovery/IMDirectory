@@ -7,7 +7,14 @@
       <template v-if="!eclQuery">
         <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
       </template>
-      <template v-if="query && (selectedDisplayOption == DisplayOptions.RuleView || selectedDisplayOption == DisplayOptions.LogicalView)">
+      <template
+        v-if="
+          query &&
+          (selectedDisplayOption == DisplayOptions.RuleView ||
+            selectedDisplayOption == DisplayOptions.LogicalView ||
+            selectedDisplayOption == DisplayOptions.Original)
+        "
+      >
         <div class="query-display-content rec-query-display">
           <span v-if="query.name" v-html="query.name"> </span>
           <div v-if="query.typeOf">
@@ -28,6 +35,7 @@
                   :depth="1"
                   :parent-match="query"
                   :eclQuery="eclQuery"
+                  :baseType="baseType"
                 />
               </div>
             </div>
@@ -41,6 +49,7 @@
                 :parent-match="rootQuery"
                 :eclQuery="eclQuery"
                 :expanded="query.name === undefined"
+                :baseType="baseType"
               />
             </div>
           </template>
@@ -61,6 +70,7 @@
             :returnExpanded="true"
             :index="index"
             :parentQuery="query"
+            :baseType="baseType"
           />
         </div>
       </div>
@@ -73,17 +83,13 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { Env, QueryService } from "@/services";
-import { Argument, ArgumentReference, Bool, DisplayMode, IMLLanguage, Query, QueryRequest, UserRole } from "@/interfaces/AutoGen";
+import { QueryService } from "@/services";
+import { Argument, Bool, DisplayMode, Node, Query, QueryRequest } from "@/interfaces/AutoGen";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
-import IMLDisplay from "./IMLDisplay.vue";
-import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
-import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
-import ArgumentDisplayDialog from "@/components/directory/viewer/queryDisplay/ArgumentDisplayDialog.vue";
 import { cloneDeep } from "lodash-es";
 import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
@@ -91,6 +97,7 @@ import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 enum DisplayOptions {
   RuleView = "Rule view",
   LogicalView = "Logical view",
+  Original = "Original view",
   MySQL = "MySQL",
   PostreSQL = "PostgreSQL"
 }
@@ -113,20 +120,14 @@ const showColumns = ref(false);
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({} as Query);
 const sql: Ref<string> = ref("");
-const iml: Ref<IMLLanguage | undefined> = ref();
 const loading = ref(true);
-const showTestResults = ref(false);
-const testResults: Ref<string[]> = ref([]);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
 const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
-const showArgumentSelector = ref(false);
-const checkingArguments = ref(false);
-const missingArguments: Ref<ArgumentReference[]> = ref([]);
 const requestArguments: Ref<Argument[]> = ref([]);
-const runOnConfirm = ref(false);
-const hasPermissionQueryExecute = ref(false);
+const baseType: Ref<Node> = ref({});
 const deepQuery: Ref<Query | undefined> = ref();
+const originalDisplay: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const operator = computed(() => {
   return getBooleanOperator("Match", query.value);
 });
@@ -168,6 +169,10 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
       if (displayMode.value != DisplayMode.LOGICAL) query.value = await getQueryDisplay(DisplayMode.LOGICAL);
       displayMode.value = DisplayMode.LOGICAL;
       break;
+    case DisplayOptions.Original:
+      if (displayMode.value != DisplayMode.ORIGINAL) query.value = await getQueryDisplay(DisplayMode.ORIGINAL);
+      displayMode.value = DisplayMode.ORIGINAL;
+      break;
     case DisplayOptions.MySQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
       break;
@@ -188,11 +193,15 @@ async function init() {
   if (!query.value?.typeOf) {
     if (props.entityIri) query.value = await QueryService.getDisplayFromQueryIri(props.entityIri, DisplayMode.ORIGINAL);
   }
+  if (query.value && query.value.rule) {
+    originalDisplay.value = DisplayMode.RULES;
+  } else originalDisplay.value = DisplayMode.ORIGINAL;
+  baseType.value = query!.value!.typeOf!;
   deepQuery.value = cloneDeep(query.value);
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();
-  if (query.value?.rule) selectedDisplayOption.value = DisplayOptions.RuleView;
-  else selectedDisplayOption.value = DisplayOptions.LogicalView;
+  if (originalDisplay.value === DisplayMode.RULES) selectedDisplayOption.value = DisplayOptions.RuleView;
+  else selectedDisplayOption.value = DisplayOptions.Original;
   // if (isLoggedIn.value) {
   // hasPermissionQueryExecute.value = await CasbinService.hasPermission(Resource.QUERY, Action.EXECUTE);
   //}
@@ -200,11 +209,16 @@ async function init() {
 }
 
 function setDisplayOptions() {
-  displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
+  if (originalDisplay.value == DisplayMode.RULES) {
+    displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
+  } else {
+    displayOptions.value = [DisplayOptions.Original, DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
+  }
 }
 
 async function getQueryDisplay(displayMode: DisplayMode) {
-  if (query.value?.typeOf) {
+  if (query.value?.iri) return await QueryService.getDisplayFromQueryIri(query.value.iri, displayMode);
+  else if (query.value?.typeOf) {
     return await QueryService.getQueryDisplayFromQuery(query.value, displayMode);
   } else if (props.entityIri) return await QueryService.getDisplayFromQueryIri(props.entityIri, displayMode);
   return undefined;
