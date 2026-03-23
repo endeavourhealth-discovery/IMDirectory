@@ -18,9 +18,6 @@
     <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
 
     <span v-if="match.notExists" class="not">Exclude if </span>
-    <template v-if="match.nodeRef">
-      <span class="node-ref">then with the {{ keepFields }} of the above</span>
-    </template>
     <template v-if="match.is">
       <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
         <Button v-if="!eclQuery" text :icon="!cohorts.has(index) ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="expandCohort(index)" />
@@ -65,12 +62,25 @@
           :inline="!match.where.and && !match.where.or"
           :eclQuery="eclQuery"
           :editMode="editMode"
-          :step="step"
         />
       </template>
-      <span v-if="match.keepAs">
+      <div v-if="match.then">
+        <span class="node-ref">then with the {{ testFields }} of the above</span>
+        <RecursiveWhereDisplay
+          :where="match.then"
+          :depth="depth + 1"
+          :key="0"
+          :index="0"
+          :root="true"
+          :expandedSet="expandSet"
+          :inline="false"
+          :eclQuery="eclQuery"
+          :editMode="editMode"
+        />
+      </div>
+      <span v-if="match.node">
         <span class="as">save</span>
-        <span class="node-ref">as {{ match.keepAs }}</span>
+        <span class="node-ref">as {{ match.node }}</span>
       </span>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
         <span class="field">if true</span>
@@ -88,7 +98,7 @@ import { Ref, ref, computed, inject } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { QueryService } from "@/services";
-import { getBooleanOperator, getDisplayOperator, getBoolGroup, getResults } from "@/helpers/buildQuery";
+import { getBooleanOperator, getDisplayOperator, getBoolGroup, getTestFields } from "@/helpers/buildQuery";
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 
 interface Props {
@@ -124,8 +134,9 @@ const boolGroup = computed(() => {
 const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.clauseIndex);
 });
-const keepFields = computed(() => {
-  if (match.value.nodeRef) return getResults(match.value.nodeRef, parentMatch.value);
+
+const testFields = computed(() => {
+  if (match.value.then) return getTestFields(match.value.then);
 });
 
 function getFormattedPath(path: any): string {

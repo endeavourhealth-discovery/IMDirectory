@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-03-18 17:45:57.
+// Generated using typescript-generator version 3.2.1263 on 2026-03-23 14:52:33.
 
 export interface ConceptContextMap {
     id?: string;
@@ -316,10 +316,10 @@ export interface ArgumentReference {
 export interface Assignable {
     value?: string;
     invalid?: boolean;
-    operator?: Operator;
     compare?: Compare;
-    valueLabel?: string;
+    operator?: Operator;
     valueTerm?: string;
+    valueLabel?: string;
     description?: string;
 }
 
@@ -370,10 +370,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    memberOf?: boolean;
-    descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    memberOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -412,6 +412,7 @@ export interface Match extends IriLD, HasPaths, Returnable {
     and?: Match[];
     or?: Match[];
     where?: Where;
+    then?: Where;
     graph?: Node;
     optional?: boolean;
     aggregate?: FunctionClause;
@@ -430,10 +431,8 @@ export interface Match extends IriLD, HasPaths, Returnable {
     orderBy?: OrderLimit;
     asDescription?: string;
     union?: Match[];
-    linkedTarget?: boolean;
     errorMessage?: string;
     draft?: boolean;
-    keepAs?: string;
 }
 
 export interface Node extends Element {
@@ -451,8 +450,8 @@ export interface Node extends Element {
     code?: string;
     inverse?: boolean;
     node?: string;
-    isResultSet?: boolean;
     isCohort?: boolean;
+    isResultSet?: boolean;
 }
 
 export interface OrderDirection extends IriLD {
@@ -481,8 +480,8 @@ export interface Path extends Element, HasPaths {
     pathVariable?: string;
     typeOf?: Node;
     qualifier?: TTIriRef;
-    isResultSet?: boolean;
     isCohort?: boolean;
+    isResultSet?: boolean;
 }
 
 export interface PathDocument {
@@ -569,7 +568,6 @@ export interface ValueSource {
     iri?: string;
     name?: string;
     nodeRef?: string;
-    keepRef?: string;
 }
 
 export interface When {
@@ -610,8 +608,8 @@ export interface Where extends Element, Assignable {
     notNull?: boolean;
     units?: TTIriRef;
     isInvalid?: boolean;
-    isResultSet?: boolean;
     isCohort?: boolean;
+    isResultSet?: boolean;
 }
 
 export interface DBEntry {
@@ -932,10 +930,10 @@ export interface TTEntity extends TTNode, Serializable {
     scheme?: TTIriRef;
     version?: number;
     code?: string;
-    types?: TTIriRef[];
     prefixes?: TTPrefix[];
-    status?: TTIriRef;
+    types?: TTIriRef[];
     description?: string;
+    status?: TTIriRef;
 }
 
 export interface BugReport extends Task {
@@ -1686,6 +1684,7 @@ export const enum IM {
     VALUE_IRI_LIST = "http://endhealth.info/im#valueIriList",
     VALUE_DATA_LIST = "http://endhealth.info/im#valueDataList",
     IM_1_ID = "http://endhealth.info/im#im1Id",
+    IM_1_DBID = "http://endhealth.info/im#im1DbId",
     PROV_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",
     FOLDER_VALUESETS = "http://endhealth.info/im#ValueSets",
     FOLDER_SETS = "http://endhealth.info/im#Sets",
@@ -1767,6 +1766,7 @@ export const enum ImportType {
     SKIP_SEARCH = "search",
     FHIR = "fhir",
     SMARTLIFE = "smartlifequery",
+    SMARTLIFEINDICATOR = "smartlifeindicators",
     QOF = "qof",
     CORE = "core",
     SINGLE_FILE = "singlefile",

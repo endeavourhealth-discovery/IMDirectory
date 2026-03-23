@@ -240,6 +240,7 @@ export class IM {
   public static readonly VALUE_IRI_LIST = Namespace.IM + "valueIriList"
   public static readonly VALUE_DATA_LIST = Namespace.IM + "valueDataList"
   public static readonly IM_1_ID = Namespace.IM + "im1Id"
+  public static readonly IM_1_DBID = Namespace.IM + "im1DbId"
   public static readonly PROV_ACTIVITY_TYPE = Namespace.IM + "provenanceActivityType"
   public static readonly FOLDER_VALUESETS = Namespace.IM + "ValueSets"
   public static readonly FOLDER_SETS = Namespace.IM + "Sets"

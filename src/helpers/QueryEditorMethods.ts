@@ -305,16 +305,10 @@ function addReference(parts: SentencePart[], compare: Compare) {
       });
     }
     parts.push({ type: "text", value: " of " });
-    if (source.keepRef) {
-      parts.push({
-        type: "nodeRef",
-        value: source.keepRef
-      });
-    } else
-      parts.push({
-        type: "nodeRef",
-        value: source.nodeRef
-      });
+    parts.push({
+      type: "nodeRef",
+      value: source.nodeRef
+    });
   }
 }
 function getOperatorTerm(operator: Operator): string {
