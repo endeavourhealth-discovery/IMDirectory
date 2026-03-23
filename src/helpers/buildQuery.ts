@@ -696,8 +696,58 @@ export function removeUndefined(obj: any) {
 export function getResults(nodeRef: string, parentMatch: Match): string | undefined {
   if (!parentMatch.and) return undefined;
   const matches = parentMatch.and || parentMatch.or;
+  if (!matches) return undefined;
+  return getFromMatches(nodeRef, matches, false);
+}
+
+export function getTestFields(then: Where): string | undefined {
+  if (!then) return undefined;
+  if (then.iri) return then.name;
+  const wheres = then.and || then.or;
+  if (wheres) {
+    const display: string[] = [];
+    for (const where of wheres) {
+      addTestFields(where, display);
+    }
+    return display.join(",");
+  }
+}
+
+function addTestFields(where: Where, display: string[]) {
+  if (where.name && !display.includes(where.name)) display.push(where.name);
+  else {
+    const wheres = where.and || where.or;
+    if (wheres) {
+      for (const where of wheres) {
+        addTestFields(where, display);
+      }
+    }
+  }
+}
+
+function getFromMatches(nodeRef: string, matches: Match[], matched: boolean): string | undefined {
+  if (!matches) return undefined;
   for (const step of matches) {
+    if (matched && step.return) return getReturnFields(step.return);
+    else if (matched) {
+      const subMatches = step.and || step.or;
+      if (subMatches && subMatches.length > 0) {
+        return getFromMatches(nodeRef, subMatches, true);
+      }
+    }
     if (step.node && step.node === nodeRef && step.return) return getReturnFields(step.return);
+    else if (step.node && step.node === nodeRef) {
+      const subMatches = step.and || step.or;
+      if (subMatches && subMatches.length > 0) {
+        return getFromMatches(nodeRef, subMatches, true);
+      }
+    } else {
+      const subMatches = step.and || step.or;
+      if (subMatches && subMatches.length > 0) {
+        const fields = getFromMatches(nodeRef, subMatches, false);
+        if (fields) return fields;
+      }
+    }
   }
   return undefined;
 }

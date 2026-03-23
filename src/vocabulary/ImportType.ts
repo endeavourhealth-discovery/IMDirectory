@@ -9,6 +9,7 @@ export class ImportType {
   public static readonly SKIP_SEARCH = "search"
   public static readonly FHIR = "fhir"
   public static readonly SMARTLIFE = "smartlifequery"
+  public static readonly SMARTLIFEINDICATOR = "smartlifeindicators"
   public static readonly QOF = "qof"
   public static readonly CORE = "core"
   public static readonly SINGLE_FILE = "singlefile"
