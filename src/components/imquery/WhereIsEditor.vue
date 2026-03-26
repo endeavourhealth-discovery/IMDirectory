@@ -9,7 +9,7 @@
             :options="nodeInclusionOptions"
             option-label="label"
             option-value="value"
-            @update:model-value="val => updateNodeInclusion(node, val)"
+            @update:model-value="(val: string) => updateNodeInclusion(node, val)"
           >
             <template #value="slotProps">
               <div v-if="slotProps.value" class="flex items-center">
@@ -46,7 +46,7 @@
             :options="plainConstraintOperatorOptions"
             option-label="label"
             option-value="value"
-            @update:modelValue="val => setConstraintOperator(node, val)"
+            @update:modelValue="(val: string) => setConstraintOperator(node, val)"
           >
             <template #value="slotProps">
               <div v-if="slotProps.value" class="flex items-center">
@@ -98,7 +98,7 @@
 import { Ref, ref, onMounted, watch, computed } from "vue";
 import { IM } from "@/vocabulary";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node, Where, Pageable } from "@/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, Node, Where, UIProperty } from "@/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
@@ -110,7 +110,6 @@ import {
 } from "@/helpers/QueryEditorMethods";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
-import { UIProperty } from "@/interfaces";
 import SetService from "@/services/SetService";
 import Button from "primevue/button";
 interface Props {
@@ -152,7 +151,14 @@ function isConstraintEditable(node: Node): boolean {
 
 async function init() {
   buildIMQueryForConceptSearch();
-  if (props.uiProperty && props.uiProperty.setMemberCount > 0 && props.uiProperty.setMemberCount < 11) {
+
+  if (
+    props.uiProperty &&
+    props.uiProperty.setMemberCount &&
+    props.uiProperty.setMemberCount > 0 &&
+    props.uiProperty.setMemberCount < 11 &&
+    props.uiProperty.valueType
+  ) {
     const pagedMembers = await SetService.getMembers(props.uiProperty.valueType, false, 1, 11);
   }
 }

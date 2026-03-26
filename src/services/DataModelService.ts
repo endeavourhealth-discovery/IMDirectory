@@ -1,7 +1,7 @@
 import Env from "./Env";
 import axios from "axios";
-import { TTIriRef, NodeShape } from "@/interfaces/AutoGen";
-import { PropertyDisplay, UIProperty } from "@/interfaces";
+import { TTIriRef, NodeShape, UIProperty } from "@/interfaces/AutoGen";
+import { PropertyDisplay } from "@/interfaces";
 const API_URL = Env.API + "api/dataModel/protected";
 
 const DataModelService = {

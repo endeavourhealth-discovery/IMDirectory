@@ -100,6 +100,9 @@ export function usePropertyTree() {
     if (property.group) {
       return createGroupNode(key, property, path, parentKey);
     }
+    if (property.inversePath) {
+      return createTypeNode(key, property, path, parentKey);
+    }
     let rangeType;
     let typeOf;
     if (property.clazz) {
@@ -134,6 +137,38 @@ export function usePropertyTree() {
       propertyNode.selectable = false;
       propertyNode.leaf = false;
     } else propertyNode.selectable = true;
+    return propertyNode;
+  }
+
+  function createTypeNode(key: string, property: PropertyShape, path: string, parentKey: string): TreeNode {
+    let rangeType;
+    let typeOf;
+    let name = "";
+    if (property.clazz) {
+      rangeType = property.clazz.type!.iri;
+    } else if (property.node) {
+      typeOf = property.node.iri;
+      rangeType = property.node.type!.iri;
+      name = property.node.name!;
+    }
+
+    const propertyNode = createNode(
+      key,
+      name!,
+      property.path.iri,
+      "type",
+      SHACL.NODESHAPE,
+      typeOf,
+      rangeType,
+      path,
+      parentKey,
+      property.highCardinality,
+      property.ascending,
+      property.descending,
+      property.definingProperty
+    ) as TreeNode;
+    propertyNode.selectable = false;
+    propertyNode.leaf = false;
     return propertyNode;
   }
 
@@ -193,9 +228,22 @@ export function usePropertyTree() {
     }
     return undefined;
   }
+
+  async function getTypeNode(type: string, nodes: TreeNode[]): Promise<TreeNode | undefined> {
+    for (const node of nodes) {
+      if (node.data.typeOf === type) {
+        await expandNode(node);
+        return node;
+      } else if (node.children && node.children.length > 0) {
+        const foundNode = await getTypeNode(type, node.children);
+        if (foundNode) return foundNode;
+      }
+    }
+    return undefined;
+  }
   async function findNodesFromMatch(match: Match, nodes: TreeNode[]): Promise<TreeNode[]> {
-    if (match.path) {
-      const pathNode = await getPathNode(match.path[0]!.iri!, nodes);
+    if (match.typeOf) {
+      const pathNode = await getTypeNode(match.typeOf.iri!, nodes);
       if (pathNode) return [pathNode];
       else return nodes;
     } else {

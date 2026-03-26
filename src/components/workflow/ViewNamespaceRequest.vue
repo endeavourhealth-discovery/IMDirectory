@@ -77,7 +77,7 @@ onMounted(async () => {
   loading.value = false;
 });
 
-const selectedNamespace: Ref<Namespace | undefined> = ref();
+const selectedNamespace: Ref<string | undefined> = ref();
 const namespaceErrorMessage = ref("");
 const namespaceOptions: Ref<Namespace[]> = ref([]);
 watch(selectedNamespace, newValue => {

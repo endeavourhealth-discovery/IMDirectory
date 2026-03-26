@@ -1,5 +1,16 @@
 <template>
   <div v-if="boolGroup">
+    <div v-if="canCheck" class="group-checkbox">
+      <Checkbox
+        :inputId="'group' + index"
+        name="Group"
+        binary
+        v-model="subgroupCheck"
+        data-testid="group-checkbox"
+        @update:modelValue="onCheckGroupChange"
+        v-tooltip="'Select to build boolean subgroup'"
+      />
+    </div>
     <BooleanEditor
       v-model:clause="where"
       v-model:parent="parent"
@@ -25,6 +36,8 @@
           :rootBool="false"
           :parentOperator="operator as Bool"
           :show-delete="showDelete"
+          :canCheck="boolGroup!.length > 2"
+          v-model:parentGroup="group"
           @deleteWhere="onDeleteBooleanWhere(subIndex)"
           @addProperty="emit('addProperty')"
           @updateBool="updateBool"
@@ -34,7 +47,20 @@
     </div>
   </div>
   <div v-else :class="where.invalid ? 'property-container-invalid' : 'property-container'">
-    <span class="property-label">{{ pathPropertyName }}</span>
+    <span class="property-label">
+      <span v-if="canCheck" class="group-checkbox">
+        <Checkbox
+          :inputId="'group' + index"
+          name="Group"
+          binary
+          v-model="subgroupCheck"
+          data-testid="group-checkbox"
+          @update:modelValue="onCheckGroupChange"
+          v-tooltip="'Select to build boolean subgroup'"
+        />
+      </span>
+      <span>{{ pathPropertyName }}</span>
+    </span>
     <div class="property-value-container">
       <div v-if="selectedWhere?.propertyType === 'class'">
         <WhereIsEditor :key="refreshCounter" v-model:property="where" :uiProperty="selectedWhere" @updateProperty="updateProperty" />
@@ -63,8 +89,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Where, Bool } from "@/interfaces/AutoGen";
-import { UIProperty } from "@/interfaces";
+import { Match, Node, Where, Bool, UIProperty } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";
@@ -77,12 +102,14 @@ import {
   updateBooleans,
   getTypeIriFromMatch,
   updateFocusConcepts,
-  getPathPropertyNames
+  getPathPropertyNames,
+  checkGroupChange
 } from "@/helpers/buildQuery";
 import { cloneDeep } from "lodash-es";
 import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -93,6 +120,7 @@ const props = withDefaults(
     rootBool: boolean;
     parentOperator?: Bool;
     parentIndex: number;
+    canCheck?: boolean;
     from?: Match;
   }>(),
   { showDelete: true }
@@ -101,7 +129,9 @@ const props = withDefaults(
 const where = defineModel<Where>("where", { default: {} });
 const parent = defineModel<Where | Match>("parent", { default: {} });
 const selectedWhere: Ref<UIProperty | undefined> = ref();
+const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);
+const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
 const group: Ref<number[]> = ref([]);
 const loading = ref(true);
 const dropdown = ref();
@@ -140,6 +170,10 @@ async function init() {
 
 function deleteProperty() {
   emit("deleteWhere");
+}
+
+function onCheckGroupChange(e: any) {
+  checkGroupChange(e, parentGroup.value, props.index);
 }
 
 function onDeleteBooleanWhere(index: number) {
@@ -242,5 +276,9 @@ add-button,
   margin: 0.5rem;
   font-size: 1rem;
   background-color: #488bc210;
+}
+
+.group-checkbox {
+  padding-right: 0.5rem;
 }
 </style>

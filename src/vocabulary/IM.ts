@@ -39,7 +39,6 @@ export class IM {
   public static readonly IS = Namespace.IM + "is"
   public static readonly RETURN_TYPE = Namespace.IM + "returnType"
   public static readonly UPDATE_PROCEDURE = Namespace.IM + "updateProcedure"
-  public static readonly INVERSE_PATH = Namespace.IM + "inversePath"
   public static readonly CONCEPT = Namespace.IM + "Concept"
   public static readonly CODEABLE = Namespace.IM + "Codeable"
   public static readonly CONCEPT_PROPERTY = Namespace.IM + "concept"

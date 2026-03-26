@@ -43,6 +43,10 @@
         </div>
       </template>
     </template>
+    <div v-if="match.then">
+      <span class="node-ref">then with the {{ testFields }} of the above</span>
+      <WhereContentDisplay :where="match.then" :depth="depth + 1" :parentOperator="whereOperator" :key="0" :index="0" :root="false" />
+    </div>
     <span v-if="match.node">
       <span class="field">(as</span>
       <span class="as">{{ match.node }})</span>
@@ -55,7 +59,7 @@ import { Bool, Match } from "@/interfaces/AutoGen";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import DirectService from "@/services/DirectService";
-import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+import { getBooleanOperator, getBoolGroup, getTestFields } from "@/helpers/buildQuery";
 import { computed } from "vue";
 interface Props {
   match: Match;
@@ -75,6 +79,9 @@ const boolWhereGroup = computed(() => {
   return getBoolGroup("Where", props.match.where);
 });
 
+const testFields = computed(() => {
+  if (props.match.then) return getTestFields(props.match.then);
+});
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
