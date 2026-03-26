@@ -89,8 +89,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch, computed } from "vue";
 import { IM, XSD } from "@/vocabulary";
-import { Match, Where, Operator, Assignable } from "@/interfaces/AutoGen";
-import { UIProperty } from "@/interfaces";
+import { Match, Where, Operator, Assignable, UIProperty } from "@/interfaces/AutoGen";
 import { buildValueSentence, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import { cloneDeep } from "lodash-es";
@@ -114,12 +113,14 @@ const rangeOrValue: Ref<RangeOrValue> = ref(where.value.range ? RangeOrValue.Ran
 const qualifierOptions = computed(() => {
   const options = [];
   options.push({ iri: undefined, displayName: "no qualifier" });
-  options.push(
-    ...props.uiProperty.qualifierOptions.map(opt => ({
-      ...opt,
-      displayName: `${opt.name} of ${where.value.name}`
-    }))
-  );
+  if (props.uiProperty.qualifierOptions) {
+    options.push(
+      ...props.uiProperty.qualifierOptions.map(opt => ({
+        ...opt,
+        displayName: `${opt.name} of ${where.value.name}`
+      }))
+    );
+  }
   return options;
 });
 const qualifierIri: Ref<string | undefined> = ref(undefined);
@@ -201,7 +202,7 @@ function updateRangeOrValue() {
 }
 
 function updateQualifier() {
-  if (qualifierIri.value) {
+  if (qualifierIri.value &&props.uiProperty.qualifierOptions) {
     where.value.qualifier = props.uiProperty.qualifierOptions.find(opt => opt.iri === qualifierIri.value);
   } else {
     delete where.value.qualifier;

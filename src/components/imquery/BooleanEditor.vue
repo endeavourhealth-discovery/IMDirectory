@@ -40,11 +40,17 @@
       <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:where="clause as Where" v-model:isRoleGroup="isRoleGroup" />
     </div>
     <div v-if="group.length > 1" class="sub-group-button flex items-center">
-      <Button type="button" icon="fa-solid fa-plus" label="Create boolean subgroup" data-testid="add-bool-concept-button" @click.stop="onCreateSubgroup()" />
+      <Button
+        type="button"
+        icon="fa-solid fa-plus"
+        :label="`Create boolean ${subOperator} subgroup`"
+        data-testid="add-bool-concept-button"
+        @click.stop="onCreateSubgroup()"
+      />
     </div>
     <div v-if="boolGroup!.length > 2" class="check-help">
       <i class="fas fa-info-circle text-blue-500" />
-      <span> (click check boxes to build {{ operator === Bool.or ? "'AND' " : "'OR' " }}subgroup)</span>
+      <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
     </div>
   </div>
 </template>
@@ -88,7 +94,10 @@ const removeLabel = computed(() => {
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const hover = ref();
 const checkUngroup: Ref<boolean> = ref(false);
-
+const subOperator = computed(() => {
+  if (props.parentOperator === Bool.or) return "AND";
+  else return "OR";
+});
 const isRoleGroup = computed(() => getIsRoleGroup(clause.value));
 
 function onRemoveSubgroup() {
@@ -141,9 +150,6 @@ function mouseout(event: any) {
   padding-right: 0.5rem;
 }
 
-.group-checkbox {
-  padding-right: 0.5rem;
-}
 .group-checkbox label {
   font-size: 1rem;
   line-height: 1.25rem;

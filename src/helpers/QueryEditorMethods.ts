@@ -17,7 +17,7 @@ export type Relativity = (typeof Relativity)[keyof typeof Relativity];
 
 export const compareOptions = [
   { label: "Compare to another value", value: Relativity.Compare },
-  { label: "Compare to relative value", value: Relativity.Relative },
+  { label: "Compare with offset from another value", value: Relativity.Relative },
   { label: "Compare to fixed value", value: Relativity.Absolute }
 ] satisfies { label: string; value: Relativity }[];
 

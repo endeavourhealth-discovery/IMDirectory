@@ -14,12 +14,11 @@
         <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
           <ProgressSpinner />
         </div>
-        <div>clause index={{ clauseIndex }}</div>
         <Splitter class="h-full w-full" layout="horizontal">
           <SplitterPanel :size="25" class="column-selector">
             <div class="tree-scroll-container" @click.stop>
               <Tree
-                v-if="activeTab === 'filter'"
+                v-if="activeTab === 'filter' || activeTab === 'test'"
                 v-model:expandedKeys="expandedKeys"
                 v-model:selectionKeys="selectedNodeKey"
                 :loading="loading"
@@ -93,21 +92,12 @@
           <SplitterPanel class="column-selector">
             <Tabs v-model:value="activeTab" class="match-editor-tabs">
               <TabList>
-                <Tab value="filter">Filter</Tab>
+                <Tab value="filter">Conditions</Tab>
+                <Tab v-if="editMatch.then" value="test">Post ordering tests</Tab>
                 <Tab value="columns">Return columns</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel value="filter">
-                  <div v-if="from && editMatch.nodeRef">
-                    <span>From: </span>
-                    <MatchContentDisplay :match="from" :depth="0" :clauseIndex="0" :parentOperator="Bool.and" />
-                    <div>Test for the following:</div>
-                  </div>
-                  <div v-else-if="from">
-                    <span>Linked to: </span>
-                    <MatchContentDisplay :match="from" :depth="0" :clauseIndex="0" :parentOperator="Bool.and" />
-                  </div>
-                  <div v-else>With the following conditions:</div>
                   <div>
                     <MatchContentEditor
                       v-if="!editMatch.invalid"
@@ -116,11 +106,32 @@
                       :from="from"
                       :depth="0"
                       :index="0"
+                      :key="'main'"
                       @deleteMatch="deleteMatch"
-                      @addTest="onAddTest"
                       @updateMatch="onUpdate"
+                      @add-test="activeTab = 'test'"
                       @addLinked="onAddLinked"
                     />
+                  </div>
+                </TabPanel>
+                <TabPanel value="test">
+                  <div v-if="editMatch.then">
+                    <div>
+                      <MatchContentEditor
+                        v-if="!editMatch.invalid"
+                        :base-type="baseType"
+                        v-model:match="editMatch"
+                        v-model:then="editMatch.then"
+                        :from="from"
+                        :depth="0"
+                        :index="0"
+                        :key="'then'"
+                        @deleteMatch="deleteMatch"
+                        @updateMatch="onUpdate"
+                        @addLinked="onAddLinked"
+                        @edit-main="onEditMain"
+                      />
+                    </div>
                   </div>
                 </TabPanel>
                 <TabPanel value="columns">
@@ -166,6 +177,7 @@ import { findNodeByKey } from "@/helpers/TreeHelper";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import Swal from "sweetalert2";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
+import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 interface Props {
   baseType: Node;
   match: Match;
@@ -199,6 +211,7 @@ const edited = ref(false);
 const initialized = ref(false);
 const typeNodes: Ref<TreeNode[]> = ref(rootNodes.value);
 const returnNodes: Ref<TreeNode[]> = ref(rootNodes.value);
+const keepAs = inject("keepAs") as Ref<Match[]>;
 
 onMounted(async () => {
   await init();
@@ -237,20 +250,9 @@ async function setupTrees() {
 function onUpdate() {
   edited.value = true;
 }
-async function onAddTest() {
-  const valid = await saveChanges();
-  if (valid) {
-    if (!editMatch.value.node) {
-      editMatch.value.invalid = true;
-      editMatch.value.errorMessage = "Please select a name to this clause  to test on";
-      await showInvalid(editMatch.value);
-      return;
-    }
-    showMatchEditor.value = false;
-    emit("addTest", editMatch.value);
-  }
+function onDeleteThen() {
+  delete editMatch.value.then;
 }
-
 async function onReturnNodeSelect(node: any) {
   edited.value = true;
   if (node.data.iri) {
@@ -310,7 +312,9 @@ async function showInvalid(match: Match) {
 }
 
 async function saveChanges(): Promise<boolean> {
+  editMatch.value.keepClauses = keepAs.value;
   const matchCheck = await QueryService.validateQuery(editMatch.value);
+  delete editMatch.value.keepClauses;
   if (matchCheck.invalid) {
     await showInvalid(editMatch.value);
     return false;
@@ -322,6 +326,9 @@ async function saveChanges(): Promise<boolean> {
 function onCancel() {
   showMatchEditor.value = false;
   emit("cancel");
+}
+function onEditMain() {
+  activeTab.value = "filter";
 }
 
 function onAddFunctionProperty(args: { property: string; value: any }) {

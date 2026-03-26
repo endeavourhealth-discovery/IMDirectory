@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-03-23 14:52:33.
+// Generated using typescript-generator version 3.2.1263 on 2026-03-26 05:25:01.
 
 export interface ConceptContextMap {
     id?: string;
@@ -271,6 +271,7 @@ export interface PropertyShape {
     isValidEntity?: TTIriRef;
     highCardinality?: boolean;
     isValidArguments?: Argument[];
+    inversePath?: TTIriRef;
 }
 
 export interface SetContent {
@@ -281,6 +282,24 @@ export interface SetContent {
     setDefinition?: string;
     subsets?: string[];
     concepts?: Concept[];
+}
+
+export interface UIProperty {
+    iri?: string;
+    name?: string;
+    propertyType?: string;
+    valueType?: string;
+    valueTypeName?: string;
+    maxCount?: number;
+    number?: number;
+    intervalUnitIri?: string;
+    intervalUnitOptions?: TTIriRef[];
+    unitIri?: string;
+    unitOptions?: TTIriRef[];
+    operatorIri?: string;
+    operatorOptions?: string[];
+    qualifierOptions?: TTIriRef[];
+    setMemberCount?: number;
 }
 
 export interface ValueTemplate extends Entity {
@@ -316,11 +335,11 @@ export interface ArgumentReference {
 export interface Assignable {
     value?: string;
     invalid?: boolean;
-    compare?: Compare;
     operator?: Operator;
     valueTerm?: string;
     valueLabel?: string;
     description?: string;
+    compare?: Compare;
 }
 
 export interface Case {
@@ -370,10 +389,10 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    memberOf?: boolean;
     ancestorsOf?: boolean;
+    memberOf?: boolean;
     descendantsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends IriLD {
@@ -424,15 +443,14 @@ export interface Match extends IriLD, HasPaths, Returnable {
     inverse?: boolean;
     activeOnly?: boolean;
     rule?: Match[];
-    step?: Match[];
     libraryItem?: string;
     invalid?: boolean;
     groupBy?: GroupBy[];
     orderBy?: OrderLimit;
     asDescription?: string;
-    union?: Match[];
     errorMessage?: string;
     draft?: boolean;
+    keepClauses?: Match[];
 }
 
 export interface Node extends Element {
@@ -637,7 +655,7 @@ export interface CognitoGroupRequest {
 export interface EditRequest {
     entity?: TTEntity;
     hostUrl?: string;
-    namespace?: Namespace;
+    namespace?: string;
     crud?: string;
 }
 
@@ -649,7 +667,7 @@ export interface EntityValidationRequest {
 
 export interface FileDocumentRequest {
     document?: TTDocument;
-    insertNamespace?: Namespace;
+    insertNamespace?: string;
 }
 
 export interface FunctionRequest {
@@ -929,11 +947,11 @@ export interface TTEntity extends TTNode, Serializable {
     type?: TTArray;
     scheme?: TTIriRef;
     version?: number;
+    types?: TTIriRef[];
+    status?: TTIriRef;
+    description?: string;
     code?: string;
     prefixes?: TTPrefix[];
-    types?: TTIriRef[];
-    description?: string;
-    status?: TTIriRef;
 }
 
 export interface BugReport extends Task {
@@ -1018,8 +1036,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1095,7 +1113,7 @@ export interface TTNode extends TTValue, Serializable {
 }
 
 export interface NamespacePermission {
-    iri?: Namespace;
+    iri?: string;
     read?: boolean;
     write?: boolean;
 }
@@ -1180,8 +1198,6 @@ export const enum Bool {
     and = "and",
     or = "or",
     rule = "rule",
-    union = "union",
-    step = "step",
 }
 
 export const enum DatabaseOption {
@@ -1483,7 +1499,6 @@ export const enum IM {
     IS = "http://endhealth.info/im#is",
     RETURN_TYPE = "http://endhealth.info/im#returnType",
     UPDATE_PROCEDURE = "http://endhealth.info/im#updateProcedure",
-    INVERSE_PATH = "http://endhealth.info/im#inversePath",
     CONCEPT = "http://endhealth.info/im#Concept",
     CODEABLE = "http://endhealth.info/im#Codeable",
     CONCEPT_PROPERTY = "http://endhealth.info/im#concept",

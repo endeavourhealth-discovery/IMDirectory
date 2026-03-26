@@ -36,7 +36,7 @@ import { AliasEntity } from "./AliasEntity";
 import { PropertyDisplay } from "./PropertyDisplay";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
-import { TTProperty, UIProperty } from "./TTProperty";
+import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { SelectedMatch } from "./SelectedMatch";
 import { MailOptions } from "./MailOptions";
@@ -88,7 +88,6 @@ export {
   type AliasEntity,
   type PropertyDisplay,
   type TTProperty,
-  type UIProperty,
   type TreeNode,
   type SelectedMatch,
   type MailOptions,

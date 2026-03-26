@@ -143,10 +143,10 @@ export function updateBooleans(clause: Match | Where, from: Bool, to: Bool) {
 
 export function getDisplayOperator(parentOperator: Bool | undefined, clauseIndex: number): string | undefined {
   if (!parentOperator) return undefined;
-  if (parentOperator !== Bool.or) {
+  if (parentOperator != Bool.or) {
     if (clauseIndex > 0) {
       return parentOperator as string;
-    } else return parentOperator as string;
+    } else return "";
   } else if (clauseIndex === 0) return "Either";
   else return parentOperator as string;
 }
@@ -523,7 +523,7 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
 }
 
 export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef: string | undefined, parent?: Match): string {
-  if ((!nodeRef || nodeRef === "") && !match.nodeRef) return baseType.iri!;
+  if ((!nodeRef || nodeRef === "") && match.typeOf) return match.typeOf.iri!;
   if (match.path && nodeRef) {
     for (const path of match.path) {
       const type = getTypeIriFromPath(path, nodeRef);
@@ -634,8 +634,8 @@ export function getFormattedPath(path: any): string {
 }
 
 export async function getNodeShape(match: Match, baseType: Node): Promise<NodeShape> {
-  if (!match.path && !match.where) await DataModelService.getDataModelProperties(baseType.iri!, false);
-  const typeIri = match.path ? match.path[0].typeOf!.iri : baseType.iri;
+  if (!match.typeOf && !match.where) await DataModelService.getDataModelProperties(baseType.iri!, false);
+  const typeIri = match.typeOf ? match.typeOf!.iri : baseType.iri;
   return await DataModelService.getDataModelProperties(typeIri!, false);
 }
 
@@ -669,20 +669,6 @@ function getAcronym(iri: string | null | undefined): string {
 
 function findPath(paths: Path[], pathIri: string): Path | undefined {
   return paths.find(item => item.iri === pathIri);
-}
-
-export function updateRelativeTo(property: Where, node: TreeNode) {
-  if (!property.compare) property.compare = {};
-  if (!property.compare.right) property.compare.right = {};
-  if (node.data.parameter) {
-    property.compare.right.parameter = node.data.parameter;
-    delete property.compare.right.nodeRef;
-  }
-  if (node.data.nodeRef) {
-    property.compare.right.nodeRef = node.data.nodeRef;
-    property.compare.right.iri = node.data.iri;
-    delete property.compare.right.parameter;
-  }
 }
 
 export function removeUndefined(obj: any) {
@@ -761,3 +747,50 @@ function getReturnFields(returnFields: Return[]): string {
   }
   return "";
 }
+export function getRelativeToOptions(keepAs: Match[]): any[] {
+  const options = [
+    {
+      label: "Search date",
+      value: "$searchDate",
+      tooltip: "relative to the search date"
+    },
+    {
+      label: "Achievement date",
+      value: "$achievementDate",
+      tooltip: "relative to the achievement date"
+    }
+  ];
+  if (keepAs.length > 0) {
+    for (const keepAsMatch of keepAs) {
+      if (keepAsMatch.node) {
+        options.push({
+          label: keepAsMatch.node,
+          value: keepAsMatch.node,
+          tooltip: "relative to a property of the entries found in this  clause"
+        });
+      }
+    }
+  }
+  return options;
+}
+
+export async function getRelativePropertyOptions(keepAs: Match[], nodeRef: string, valueType?: string): Promise<any[]> {
+  const options: any[] | PromiseLike<any[]> = [];
+  if (!valueType) return options;
+  const match = keepAs.find(item => item.node === nodeRef);
+  if (!match) return options;
+  const dataModel = await DataModelService.getDataModelProperties(match.typeOf!.iri!, false);
+  if (!dataModel) return options;
+  if (dataModel.property) {
+    for (const propertyShape of dataModel.property) {
+      if (propertyShape.datatype && propertyShape.datatype.iri === valueType) {
+        options.push({
+          label: propertyShape.path.name,
+          value: propertyShape.path.iri
+        });
+      }
+    }
+  }
+  return options;
+}
+
