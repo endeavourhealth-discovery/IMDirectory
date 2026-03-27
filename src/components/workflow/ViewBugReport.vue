@@ -129,7 +129,7 @@ import { Browser, OperatingSystem, TaskModule } from "vue-library/enums";
 import WorkflowService from "@/services/WorkflowService";
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
 

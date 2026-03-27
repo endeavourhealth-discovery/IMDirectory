@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import router from "@/router";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { MenuItem } from "primevue/menuitem";
 import { computed, onMounted, Ref, ref } from "vue";
 

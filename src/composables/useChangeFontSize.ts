@@ -1,5 +1,6 @@
+import { UserService } from "@/services";
 import { FontSize } from "vue-library/enums";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 
 export function useChangeFontSize() {
   const userStore = useUserStore();
@@ -8,7 +9,7 @@ export function useChangeFontSize() {
     const currentFontSize = document.documentElement.style.fontSize || "14px";
     if (newFontSize !== currentFontSize) {
       document.documentElement.style.fontSize = newFontSize;
-      await userStore.updateCurrentFontSize(newFontSize);
+      await userStore.updateCurrentFontSize(newFontSize, UserService);
     }
   }
 

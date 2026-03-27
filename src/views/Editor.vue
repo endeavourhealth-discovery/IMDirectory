@@ -66,7 +66,7 @@ import { useValidity } from "@/composables/useValidity";
 import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 
 export default defineComponent({
   components: {

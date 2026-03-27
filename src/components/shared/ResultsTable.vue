@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { DirectService, EclService, EntityService, QueryService } from "@/services";
+import { DirectService, EclService, EntityService, QueryService, UserService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -102,7 +102,7 @@ import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog
 import BatteryBar from "./BatteryBar.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
 import { useDownloadFile } from "@/composables/useDownloadFile";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { cloneDeep } from "lodash-es";
 import { useOverlay } from "@/composables/useOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
@@ -284,7 +284,7 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
 
 async function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
-  await userStore.updateFavourites(selected.value.iri);
+  await userStore.updateFavourites(selected.value.iri, UserService);
 }
 function getNameDisplay(data: ExtendedSearchResultSummary): string {
   const name = data.bestMatch ? data.bestMatch : data.name;

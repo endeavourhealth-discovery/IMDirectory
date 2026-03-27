@@ -5,7 +5,7 @@ import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { computed, ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 
 export function useTree(emit?: any, customPageSize?: number) {
   const toast = useToast();

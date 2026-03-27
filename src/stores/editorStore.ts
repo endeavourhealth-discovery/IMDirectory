@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { EntityService } from "@/services";
 import { RDFS } from "vue-library/enums";
 import { isObjectHasKeys } from "vue-library/helpers";

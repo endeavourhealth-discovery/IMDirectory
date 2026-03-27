@@ -154,7 +154,7 @@ import { useToast } from "primevue/usetoast";
 import { DirectService, FilerService, CodeGenService, SecurityService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
 import { useChangeFontSize } from "@/composables/useChangeFontSize";

@@ -55,7 +55,7 @@ import { EntityService, FilerService } from "@/services";
 import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { useTree } from "@/composables/useTree";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";
 import { useCreateNew } from "@/composables/useCreateNew";
 import { TTIriRef } from "vue-library/interfaces";

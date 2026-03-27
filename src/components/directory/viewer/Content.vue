@@ -62,12 +62,12 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { cloneDeep } from "lodash-es";
 import { ExtendedEntityReferenceNode, TTIriRef } from "vue-library/interfaces";
 import { IM, RDF, RDFS } from "vue-library/enums";
-import { EntityService, DirectService } from "@/services";
+import { EntityService, DirectService, UserService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getNamesAsStringFromTypes, getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useOverlay } from "@/composables/useOverlay";
 import { MenuItem } from "primevue/menuitem";
 
@@ -185,7 +185,7 @@ function onRowContextMenu(event: MouseEvent, data: { data: ExtendedEntityReferen
 }
 
 async function updateFavourites(iri: string) {
-  await userStore.updateFavourites(iri);
+  await userStore.updateFavourites(iri, UserService);
 }
 
 function onRowSelect(event: { data: ExtendedEntityReferenceNode }) {

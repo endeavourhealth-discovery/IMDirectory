@@ -107,7 +107,7 @@ import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import { useDownloadFile } from "@/composables/useDownloadFile";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
 import { ExtendedTTEntity, SetExportRequest, SetOptions } from "vue-library/interfaces";

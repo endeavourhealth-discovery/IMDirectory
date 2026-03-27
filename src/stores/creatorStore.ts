@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { localStorageWithExpiry } from "vue-library/helpers";
 import { ExtendedTTEntity } from "vue-library/interfaces";
 import { ref } from "vue";

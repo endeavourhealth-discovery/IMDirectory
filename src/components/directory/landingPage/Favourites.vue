@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
@@ -63,7 +63,7 @@ import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-libra
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { ExtendedSearchResultSummary, TTIriRef } from "vue-library/interfaces";
-import { DirectService, EntityService } from "@/services";
+import { DirectService, EntityService, UserService } from "@/services";
 import { useOverlay } from "@/composables/useOverlay";
 import { RDF, RDFS } from "vue-library/enums";
 import { useDirectoryStore } from "@/stores/directoryStore";
@@ -144,7 +144,7 @@ function confirmClearFavourites() {
 }
 
 async function clearFavourites() {
-  await userStore.clearFavourites();
+  await userStore.clearFavourites(UserService);
 }
 </script>
 

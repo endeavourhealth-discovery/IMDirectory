@@ -88,9 +88,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { DirectService, EntityService } from "@/services";
+import { DirectService, EntityService, UserService } from "@/services";
 import { isArrayHasLength } from "vue-library/helpers";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useDialog } from "primevue/usedialog";
 import { useConfirm } from "primevue/useconfirm";
 import { useDownloadFile } from "@/composables/useDownloadFile";
@@ -162,7 +162,7 @@ function isFavourite(iri: string) {
 async function updateFavourites(event: MouseEvent, iri: string) {
   event.stopPropagation();
   loadingFavourites.value = true;
-  await userStore.updateFavourites(iri);
+  await userStore.updateFavourites(iri, UserService);
   loadingFavourites.value = false;
 }
 

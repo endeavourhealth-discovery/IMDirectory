@@ -1,11 +1,12 @@
 import { PrimeVueColors, PrimeVuePresetThemes } from "vue-library/enums";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { usePreset, updatePrimaryPalette, updateSurfacePalette, palette } from "@primeuix/themes";
 import Aura from "@primeuix/themes/aura";
 import Lara from "@primeuix/themes/lara";
 import Nora from "@primeuix/themes/nora";
 import Material from "@primeuix/themes/material";
 import { PaletteDesignToken } from "@primeuix/themes/types";
+import { UserService } from "@/services";
 
 export function useChangeThemeOptions() {
   const userStore = useUserStore();
@@ -31,26 +32,26 @@ export function useChangeThemeOptions() {
     if (userStore.currentPrimaryColor) await changePrimaryColor(userStore.currentPrimaryColor);
     if (userStore.currentSurfaceColor) await changeSurfaceColor(userStore.currentSurfaceColor);
     if (userStore.darkMode) await changeDarkMode(userStore.darkMode);
-    if (preset !== userStore.currentPreset) await userStore.updatePreset(preset);
+    if (preset !== userStore.currentPreset) await userStore.updatePreset(preset, UserService);
   }
 
   async function changePrimaryColor(color: PrimeVueColors) {
     const colorPalette = palette(`{${color}}`);
     updatePrimaryPalette(colorPalette as PaletteDesignToken);
-    if (color !== userStore.currentPrimaryColor) await userStore.updatePrimaryColor(color);
+    if (color !== userStore.currentPrimaryColor) await userStore.updatePrimaryColor(color, UserService);
   }
 
   async function changeSurfaceColor(color: PrimeVueColors) {
     const colorPalette = palette(`{${color}}`);
     updateSurfacePalette(colorPalette as PaletteDesignToken);
-    if (color !== userStore.currentSurfaceColor) await userStore.updateSurfaceColor(color);
+    if (color !== userStore.currentSurfaceColor) await userStore.updateSurfaceColor(color, UserService);
   }
 
   async function changeDarkMode(bool: boolean) {
     const element = document.querySelector("html");
     const darkMode = element?.classList.contains("my-app-dark");
     if (element && bool !== darkMode) element.classList.toggle("my-app-dark");
-    if (userStore.darkMode !== bool) await userStore.updateDarkMode(bool);
+    if (userStore.darkMode !== bool) await userStore.updateDarkMode(bool, UserService);
   }
 
   return { changePreset, changePrimaryColor, changeSurfaceColor, changeDarkMode };

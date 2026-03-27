@@ -34,7 +34,7 @@ import { SecurityService, Env, GithubService } from "@/services";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import semver from "semver";
 import { GithubRelease } from "./interfaces";
-import { useUserStore } from "./stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useChangeFontSize } from "@/composables/useChangeFontSize";

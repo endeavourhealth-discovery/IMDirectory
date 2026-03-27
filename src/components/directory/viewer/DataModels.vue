@@ -50,7 +50,7 @@ import { DataModelService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useOverlay } from "@/composables/useOverlay";
 import { getColourFromType } from "vue-library/helpers";
 import { DataTableRowSelectEvent } from "primevue/datatable";

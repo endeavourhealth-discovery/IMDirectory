@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { Namespace, NamespaceRequest, Task } from "vue-library/interfaces";
 import WorkflowService from "@/services/WorkflowService";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
 import { computed, onMounted, ref, Ref, watch } from "vue";

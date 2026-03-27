@@ -1,6 +1,6 @@
 import { RouteLocationNormalized, Router } from "vue-router";
 import { directToLogin } from "./intercepts";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useSharedStore } from "@/stores/sharedStore";
 import { UserRole } from "vue-library/enums";
 import { computed } from "vue";
