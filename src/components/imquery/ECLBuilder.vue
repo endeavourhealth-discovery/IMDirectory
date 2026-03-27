@@ -75,7 +75,7 @@ import { isObjectHasKeys } from "vue-library/helpers";
 import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import { Match, ECLQueryRequest, Query, Node } from "vue-library/interfaces";
 import { useEclValidator } from "@/composables/useEclValidator";
 interface Props {

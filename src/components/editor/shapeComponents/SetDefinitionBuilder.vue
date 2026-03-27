@@ -89,7 +89,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "vue-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import { useEclValidator } from "@/composables/useEclValidator";
 import { useDialog } from "primevue/usedialog";
 import { IM } from "vue-library/enums";

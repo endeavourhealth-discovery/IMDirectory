@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 
 interface Props {
   label: string;

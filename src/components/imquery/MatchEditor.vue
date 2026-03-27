@@ -164,7 +164,7 @@ import { isArrayHasLength } from "vue-library/helpers";
 import { Match, Node, TTIriRef, Return } from "vue-library/interfaces";
 import { DisplayMode } from "vue-library/enums";
 import { onMounted, Ref, ref, watch, inject } from "vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import { EntityService, QueryService } from "@/services";
 import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";

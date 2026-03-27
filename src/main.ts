@@ -37,6 +37,8 @@ import { VueShowdownPlugin } from "vue-showdown";
 
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
+import { injectionKeysVueLibrary } from "vue-library";
+import { UserService } from "./services";
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
@@ -64,7 +66,8 @@ const app = createApp(App)
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
   .directive("ripple", Ripple)
-  .component("IMFontAwesomeIcon", IMFontAwesomeIcon);
+  .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
+  .provide(injectionKeysVueLibrary.userService, UserService);
 
 const sharedStore = useSharedStore();
 

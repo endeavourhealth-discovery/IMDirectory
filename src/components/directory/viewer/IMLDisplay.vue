@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { IMLLanguage } from "vue-library/interfaces";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 
 interface Props {
   iml: IMLLanguage;

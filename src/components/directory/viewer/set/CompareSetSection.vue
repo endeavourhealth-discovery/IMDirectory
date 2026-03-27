@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import { useOverlay } from "@/composables/useOverlay";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { DirectService, EntityService } from "@/services";

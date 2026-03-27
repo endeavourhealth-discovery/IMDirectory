@@ -40,7 +40,7 @@ import { ToastOptions } from "vue-library/models";
 import { ToastSeverity } from "vue-library/enums";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import ResultsTable from "../shared/ResultsTable.vue";
 
 const emit = defineEmits<{

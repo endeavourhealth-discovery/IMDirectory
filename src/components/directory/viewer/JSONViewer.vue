@@ -12,7 +12,7 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { IM } from "vue-library/enums";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 
 const props = defineProps<{
   entityIri: string;

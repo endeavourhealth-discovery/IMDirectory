@@ -89,7 +89,7 @@ import { byName } from "vue-library/helpers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 
 const emit = defineEmits<{
   locateInTree: [payload: string];

@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "vue-library/helpers";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import { onMounted, ref } from "vue";
 import { IM, RDFS } from "vue-library/enums";
 import { EntityService } from "@/services";

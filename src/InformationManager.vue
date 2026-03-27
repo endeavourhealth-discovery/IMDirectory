@@ -37,10 +37,9 @@ import { GithubRelease } from "./interfaces";
 import { useUserStore } from "vue-library/stores";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import { useChangeFontSize } from "@/composables/useChangeFontSize";
+import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
 import { useLoadingStore } from "./stores/loadingStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { useChangeThemeOptions } from "./composables/useChangeThemeOptions";
 import { setModes } from "./router/methods/setModes";
 import { useCookies } from "@vueuse/integrations";
 

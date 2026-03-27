@@ -46,7 +46,7 @@ import { IM } from "vue-library/enums";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EntityService, QueryService } from "@/services";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
 import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
