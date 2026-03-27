@@ -84,7 +84,7 @@ import { FilterOptions } from "vue-library/interfaces";
 import { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
 import { TextSearchStyle } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
-import { useSpeechToText } from "@/composables/useSpeechToText";
+import { useSpeechToText } from "vue-library/composables";
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 import { useOverlay } from "vue-library/composables";
 import { EntityService, QueryService } from "@/services";
