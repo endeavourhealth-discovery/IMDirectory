@@ -10,10 +10,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { TTIriRef } from "vue-library/interfaces";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { getLogger } from "@/logger/LogConfig";
-import { TagSeverity } from "@/enums";
+import { TagSeverity } from "vue-library/enums";
 import { useSharedStore } from "@/stores/sharedStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameTagWithLabel");

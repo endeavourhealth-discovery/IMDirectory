@@ -1,7 +1,7 @@
 import { SimpleMap, TermCode } from "@/interfaces";
 import Env from "./Env";
 import axios from "axios";
-import { ConceptContextMap } from "@/interfaces/AutoGen";
+import { ConceptContextMap } from "vue-library/interfaces";
 const API_URL = Env.API + "api/concept/protected";
 
 const ConceptService = {

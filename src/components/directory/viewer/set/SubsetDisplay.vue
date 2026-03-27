@@ -25,7 +25,7 @@
 import { onMounted, Ref, ref } from "vue";
 import { SetService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef } from "vue-library/interfaces";
 
 const props = defineProps<{
   entityIri: string;

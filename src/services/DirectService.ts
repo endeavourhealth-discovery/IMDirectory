@@ -1,5 +1,5 @@
 import { LocationQuery, Router, useRouter } from "vue-router";
-import { RecentActivityItemDto } from "@/interfaces/AutoGen";
+import { RecentActivityItemDto } from "vue-library/interfaces";
 import Env from "./Env";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";

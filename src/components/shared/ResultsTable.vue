@@ -100,17 +100,24 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
 import BatteryBar from "./BatteryBar.vue";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
 import { useDownloadFile } from "@/composables/useDownloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { cloneDeep } from "lodash-es";
 import { useOverlay } from "@/composables/useOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { DownloadByQueryOptions, ECLQueryRequest, QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
-import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import {
+  DownloadByQueryOptions,
+  ECLQueryRequest,
+  ExtendedSearchResultSummary,
+  QueryRequest,
+  SearchResponse,
+  SearchResultSummary
+} from "vue-library/interfaces";
+import { TextSearchStyle } from "vue-library/enums";
+import { DownloadSettings, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
+import { isArrayHasLength } from "vue-library/helpers";
 import { useFilterStore } from "@/stores/filterStore";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { MenuItem } from "primevue/menuitem";

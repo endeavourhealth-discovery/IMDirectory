@@ -1,7 +1,7 @@
 import { getLogger } from "../logger/LogConfig";
 import { Logger } from "typescript-logging-log4ts-style";
-import { toTitleCase } from "../helpers/StringManipulators";
-import { ToastSeverity } from "../enums/ToastSeverity";
+import { toTitleCase } from "vue-library/helpers";
+import { ToastSeverity } from "vue-library/enums";
 
 export default class ToastOptions {
   severity: ToastSeverity;

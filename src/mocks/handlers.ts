@@ -1,8 +1,8 @@
 import { http, HttpResponse } from "msw";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import { fakerFactory } from "@/mocks/fakerFactory";
 import { isArray } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { ExtendedTTEntity } from "vue-library/interfaces";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 
@@ -61,7 +61,7 @@ export const handlersFaker = [
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
     if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = null;
-    const entity = fakerFactory.entity.create(entityValue) as TTEntity;
+    const entity = fakerFactory.entity.create(entityValue) as ExtendedTTEntity;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });

@@ -1,4 +1,4 @@
-import { Page, SearchBinding, TTIriRef } from "./AutoGen";
+import { Page, SearchBinding, TTIriRef } from "vue-library/interfaces";
 import { FilterOptions } from "./FilterOptions";
 
 export interface SearchOptions extends FilterOptions {

@@ -29,10 +29,9 @@ export default defineComponent({
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys, TypeGuards } from "vue-library/helpers";
 import { processComponentType } from "@/helpers/EditorMethods";
-import { isPropertyShape } from "@/helpers/TypeGuards";
-import { PropertyShape } from "@/interfaces/AutoGen";
+import { PropertyShape } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {
@@ -65,10 +64,10 @@ onMounted(() => {
 });
 
 function processEntityValue(property: PropertyShape) {
-  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path.iri])) {
+  if (props.value && isObjectHasKeys(props.value) && TypeGuards.isPropertyShape(property) && isObjectHasKeys(props.value, [property.path.iri])) {
     return props.value[property.path.iri];
   }
-  if (editorEntity && isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path.iri])) {
+  if (editorEntity && TypeGuards.isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path.iri])) {
     return editorEntity[property.path.iri];
   }
   return undefined;

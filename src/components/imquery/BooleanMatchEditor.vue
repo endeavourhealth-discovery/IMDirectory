@@ -124,7 +124,8 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Match, Node } from "@/interfaces/AutoGen";
+import { Match, Node } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import { computed, Ref, ref, onMounted, inject } from "vue";
 import { addMatchToParent, checkGroupChange, getBooleanOperator, getBoolGroup, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
 import Button from "primevue/button";
@@ -191,10 +192,8 @@ function init() {
 
 function updateKeepAs(match: Match) {
   keepAs.value = keepAs.value.filter(m => m !== match);
-  if (match.node)
-    keepAs.value.push(match);
+  if (match.node) keepAs.value.push(match);
 }
-
 
 function onDeleteMatchList() {
   emit("deleteMatch");

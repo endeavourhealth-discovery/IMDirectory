@@ -1,5 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, IM_FUNCTION, COMPONENT, QUERY, VALIDATION } from "@/vocabulary";
+import { FormGenerator } from "vue-library/interfaces";
+import { IM, RDF, RDFS, XSD, EDITOR, IM_FUNCTION, COMPONENT, QUERY, VALIDATION } from "vue-library/enums";
 
 const PropertyShape: FormGenerator = {
   iri: EDITOR.PROPERTY_SHAPE,

@@ -37,10 +37,10 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
-import { RDF, RDFS } from "@/vocabulary";
+import { RDF, RDFS } from "vue-library/enums";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
 import { useOverlay } from "@/composables/useOverlay";
 import { DirectService } from "@/services";
 import { DataTableRowSelectEvent } from "primevue/datatable";

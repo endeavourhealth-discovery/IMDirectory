@@ -35,10 +35,10 @@
 </template>
 
 <script setup lang="ts">
-import { Argument, ArgumentReference } from "@/interfaces/AutoGen";
+import { Argument, ArgumentReference } from "vue-library/interfaces";
 import { computed, ComputedRef, onMounted, ref, watch } from "vue";
 import Column from "primevue/column";
-import { IM, XSD } from "@/vocabulary";
+import { IM, XSD } from "vue-library/enums";
 import { cloneDeep } from "lodash-es";
 
 interface Props {

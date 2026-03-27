@@ -80,8 +80,8 @@ import { FilterOptions } from "@/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep } from "lodash-es";
-import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
+import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { IM } from "vue-library/enums";
 
 interface Props {
   searchTerm: string;

@@ -22,16 +22,13 @@
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { byName, isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";
-import { byName } from "@/helpers/Sorters";
-import { isTTIriRef } from "@/helpers/TypeGuards";
 import { FunctionService, QueryService } from "@/services";
-import { RDFS } from "@/vocabulary";
+import { RDFS } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@/interfaces/AutoGen";
+import { ExtendedTTEntity, PropertyShape, TTIriRef, QueryRequest, Query } from "vue-library/interfaces";
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -98,7 +95,7 @@ let key = props.shape.path.iri;
 
 let selectedEntity: Ref<TTIriRef | undefined> = ref();
 watch(selectedEntity, async newValue => {
-  if (isTTIriRef(newValue)) {
+  if (TypeGuards.isTTIriRef(newValue)) {
     updateEntity(newValue);
     updateValueVariableMap(newValue);
     if (updateValidity) {
@@ -124,7 +121,7 @@ function setSelectedEntity() {
     const found = dropdownOptions.value.find(o => o.iri === props.shape.isIri!.iri);
     if (found) return found;
   }
-  if (props.value && isTTIriRef(props.value)) return props.value;
+  if (props.value && TypeGuards.isTTIriRef(props.value)) return props.value;
   else if (props.value && isArrayHasLength(props.value)) return props.value[0];
   else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!.iri) {
     const found = dropdownOptions.value.find(o => o.iri === props.shape.isIri!.iri);
@@ -151,7 +148,7 @@ async function getDropdownOptions() {
 }
 
 function updateEntity(data: TTIriRef) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

@@ -23,14 +23,13 @@
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { cloneDeep, isEqual } from "lodash-es";
-import { TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
-import { EditorMode, ToastSeverity } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { isTTIriRef } from "@/helpers/TypeGuards";
+import { TTIriRef, SearchResultSummary } from "vue-library/interfaces";
+import { EditorMode } from "@/enums";
+import { isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpers";
 import { QueryService, EntityService } from "@/services";
-import { RDFS } from "@/vocabulary";
+import { RDFS, ToastSeverity } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
+import { PropertyShape, QueryRequest } from "vue-library/interfaces";
 import { useToast } from "primevue/usetoast";
 import { GenericObject } from "@/interfaces/GenericObject";
 
@@ -154,7 +153,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
     const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
-  } else if (isTTIriRef(data)) {
+  } else if (TypeGuards.isTTIriRef(data)) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {

@@ -38,12 +38,11 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { SearchResponse } from "@/interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { ExtendedTTEntity, SearchResponse } from "vue-library/interfaces";
 
 interface Props {
   selectedIri: string;
@@ -66,7 +65,7 @@ watch(
   async () => await init()
 );
 
-const entity: Ref<TTEntity> = ref({});
+const entity: Ref<ExtendedTTEntity> = ref({});
 const loading = ref(true);
 
 onMounted(async () => await init());

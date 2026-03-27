@@ -50,7 +50,7 @@
 import Filters from "@/components/shared/Filters.vue";
 import { ref, watch, onMounted } from "vue";
 import { FilterOptions } from "@/interfaces";
-import { SearchResultSummary } from "@/interfaces/AutoGen";
+import { SearchResultSummary } from "vue-library/interfaces";
 import { useSpeechToText } from "@/composables/useSpeechToText";
 import { Ref } from "vue";
 import InputGroupAddon from "primevue/inputgroupaddon";

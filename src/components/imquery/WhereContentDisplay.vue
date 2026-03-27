@@ -49,13 +49,12 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Where, Bool, Node } from "@/interfaces/AutoGen";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import { Where, Node } from "vue-library/interfaces";
+import { Bool, IM } from "vue-library/enums";
 import { computed, ref } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM } from "@/vocabulary/IM";
 import { buildValueSentence, getIsOperator } from "@/helpers/QueryEditorMethods";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
 import { getRelativeTo } from "@/helpers/QueryEditorMethods";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";

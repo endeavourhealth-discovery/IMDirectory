@@ -115,8 +115,8 @@
 import TopBar from "@/components/shared/TopBar.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import { Ref, computed, onMounted, ref, watch } from "vue";
-import { BugReport } from "@/interfaces/AutoGen";
-import { TaskModule, TaskState, TaskType, Browser, OperatingSystem, Status } from "@/enums";
+import { BugReport } from "vue-library/interfaces";
+import { TaskModule, TaskState, TaskType, Browser, OperatingSystem, Status } from "vue-library/enums";
 import { useUserStore } from "@/stores/userStore";
 import WorkflowService from "@/services/WorkflowService";
 import Swal from "sweetalert2";

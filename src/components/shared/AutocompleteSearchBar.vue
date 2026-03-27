@@ -81,8 +81,9 @@ import { onMounted, Ref, ref, watch, nextTick, computed, onBeforeUnmount } from 
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { FilterOptions } from "@/interfaces";
-import { QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
+import { TextSearchStyle } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
 import { useSpeechToText } from "@/composables/useSpeechToText";
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 import { useOverlay } from "@/composables/useOverlay";

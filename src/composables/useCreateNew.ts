@@ -1,11 +1,10 @@
-import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
 import { DirectService, EntityService } from "@/services";
-import { IM, RDFS, SHACL } from "@/vocabulary";
+import { IM, RDFS, SHACL } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { MenuItem } from "primevue/menuitem";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { TTIriRef } from "vue-library/interfaces";
 import Swal from "sweetalert2";
 
 export function useCreateNew() {

@@ -1,9 +1,8 @@
 import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Node, PropertyShape, Where } from "@/interfaces/AutoGen";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
+import { Match, Node, PropertyShape, Where } from "vue-library/interfaces";
 import { Ref, ref } from "vue";
 import { addWhereToMatch, setPathGetNodeRef } from "@/helpers/buildQuery";
 const codeable = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];

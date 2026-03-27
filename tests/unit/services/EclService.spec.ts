@@ -2,7 +2,7 @@ import { describe, beforeEach, it, expect, vi } from "vitest";
 import { EclService, Env } from "@/services";
 import axios from "axios";
 import { fakerFactory } from "@/mocks/fakerFactory";
-import { ECLQueryRequest, Query } from "@/interfaces/AutoGen";
+import { ECLQueryRequest, Query } from "vue-library/interfaces";
 
 describe("EclService ___ axios success", () => {
   beforeEach(() => {

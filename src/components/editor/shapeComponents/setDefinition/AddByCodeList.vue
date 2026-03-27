@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, Ref, ref } from "vue";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "vue-library/helpers";
 import { EntityService } from "@/services";
 import * as d3 from "d3";
 import { DSVRowArray } from "d3";

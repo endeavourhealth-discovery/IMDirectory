@@ -1,4 +1,4 @@
-import { FontSize } from "@/enums";
+import { FontSize } from "vue-library/enums";
 import { useUserStore } from "@/stores/userStore";
 
 export function useChangeFontSize() {

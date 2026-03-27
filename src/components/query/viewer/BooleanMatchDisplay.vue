@@ -29,7 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node } from "@/interfaces/AutoGen";
+import { Match, Node } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import { Ref, ref, inject, computed } from "vue";
 import { getBooleanLabel } from "@/helpers/buildQuery";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";

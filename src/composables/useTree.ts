@@ -1,8 +1,7 @@
 import { DirectService, EntityService } from "@/services";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TTEntity, TTIriRef } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
+import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-library/helpers";
+import { TTEntity, TTIriRef } from "vue-library/interfaces";
+import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { computed, ref, Ref } from "vue";
 import { useToast } from "primevue/usetoast";

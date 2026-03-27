@@ -27,16 +27,14 @@
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { cloneDeep, isEqual } from "lodash-es";
-import { TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
-import { EditorMode, ToastSeverity } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { isTTIriRef } from "@/helpers/TypeGuards";
+import { TTIriRef, SearchResultSummary } from "vue-library/interfaces";
+import { EditorMode } from "@/enums";
+import { isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpers";
 import { QueryService, EntityService } from "@/services";
-import { RDFS } from "@/vocabulary";
+import { RDFS, ToastSeverity } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
+import { ExtendedTTEntity, PropertyShape, QueryRequest } from "vue-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const toast = useToast();
 
@@ -146,7 +144,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
     const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
-  } else if (isTTIriRef(data)) {
+  } else if (TypeGuards.isTTIriRef(data)) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {
@@ -170,7 +168,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 
 function updateEntity() {
   if (selectedResult.value) {
-    const result = {} as TTEntity;
+    const result = {} as ExtendedTTEntity;
     result[key.value] = convertToTTIriRef(selectedResult.value);
     if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
     else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);

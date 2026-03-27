@@ -37,7 +37,7 @@
 <script lang="ts" setup>
 import { nextTick, onMounted, Ref, ref, watch } from "vue";
 import type { TreeNode } from "primevue/treenode";
-import { Node, Match, Path } from "@/interfaces/AutoGen";
+import { Node, Match, Path } from "vue-library/interfaces";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TreeSelectionKeys } from "primevue/tree";
 import { useReturnTrees } from "@/composables/useReturnTrees";

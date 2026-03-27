@@ -5,34 +5,6 @@ import { EditorMode } from "./EditorMode";
 import { PasswordStrength } from "./PasswordStrength";
 import { QueryComponentType } from "./QueryComponentType";
 import { SortDirection } from "./SortDirection";
-import { ToastSeverity } from "./ToastSeverity";
-import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
-import { TaskState, TaskType, TaskModule, Browser, OperatingSystem, Severity, Status, UserRole } from "../interfaces/AutoGen";
-import PrimeVueColors from "./PrimeVueColors";
-import PrimeVuePresetThemes from "./PrimeVuePresetThemes";
-import FontSize from "./FontSize";
 
-export {
-  BuilderType,
-  ComponentType,
-  ECLComponent,
-  EditorMode,
-  PasswordStrength,
-  QueryComponentType,
-  SortDirection,
-  ToastSeverity,
-  TagSeverity,
-  ErrorType,
-  TaskModule,
-  TaskState,
-  TaskType,
-  Browser,
-  OperatingSystem,
-  Severity,
-  Status,
-  UserRole,
-  PrimeVueColors,
-  PrimeVuePresetThemes,
-  FontSize
-};
+export { BuilderType, ComponentType, ECLComponent, EditorMode, PasswordStrength, QueryComponentType, SortDirection, ErrorType };

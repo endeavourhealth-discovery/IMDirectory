@@ -1,8 +1,8 @@
 import { ComponentType } from "@/enums";
 import { getTreeQueryIri, processArguments, processComponentType } from "@/helpers/EditorMethods";
-import { PropertyShape } from "@/interfaces/AutoGen";
+import { PropertyShape } from "vue-library/interfaces";
 import { fakerFactory } from "@/mocks/fakerFactory";
-import { COMPONENT } from "@/vocabulary";
+import { COMPONENT } from "vue-library/enums";
 import { describe, it, expect } from "vitest";
 
 describe("EditorMethods", () => {

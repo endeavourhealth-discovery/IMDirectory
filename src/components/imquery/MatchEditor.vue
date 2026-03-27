@@ -160,12 +160,13 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Bool, DisplayMode, Match, Node, TTIriRef, Return } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "vue-library/helpers";
+import { Match, Node, TTIriRef, Return } from "vue-library/interfaces";
+import { DisplayMode } from "vue-library/enums";
 import { onMounted, Ref, ref, watch, inject } from "vue";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { EntityService, QueryService } from "@/services";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { setDefiningProperty, setPathGetNodeRef } from "@/helpers/buildQuery";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";

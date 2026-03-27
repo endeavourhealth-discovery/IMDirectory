@@ -56,19 +56,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useUserStore } from "@/stores/userStore";
-import { ExtendedSearchResultSummary } from "@/interfaces";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-library/helpers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { ExtendedSearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { DirectService, EntityService } from "@/services";
 import { useOverlay } from "@/composables/useOverlay";
-import { RDF, RDFS } from "@/vocabulary";
+import { RDF, RDFS } from "vue-library/enums";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { useConfirm } from "primevue/useconfirm";
 
 const { OS, showOverlay, hideOverlay } = useOverlay();

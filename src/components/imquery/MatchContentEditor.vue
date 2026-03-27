@@ -88,12 +88,12 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Match, Node, TTIriRef, NodeShape, PropertyShape, Return, Where } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "vue-library/helpers";
+import { Match, Node, TTIriRef, NodeShape, PropertyShape, Return, Where } from "vue-library/interfaces";
 import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import { getNodeShape, getOrderables, createNodeVariable, getBooleanOperator } from "@/helpers/buildQuery";
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import { cloneDeep, isEqual } from "lodash-es";

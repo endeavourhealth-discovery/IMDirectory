@@ -39,8 +39,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { TermCode } from "@/interfaces";
-import { DataTypeCheckers } from "@/helpers";
-const { isArrayHasLength } = DataTypeCheckers;
+import { isArrayHasLength } from "vue-library/helpers";
 
 interface Props {
   label?: string;

@@ -47,8 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
+import { getNamesAsStringFromTypes } from "vue-library/helpers";
+import { TTIriRef, SearchResultSummary } from "vue-library/interfaces";
 import { EntityService } from "@/services";
 import { ref, Ref } from "vue";
 

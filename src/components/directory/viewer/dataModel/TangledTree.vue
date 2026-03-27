@@ -20,8 +20,8 @@ import { onMounted, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@/interfaces";
 import { cloneDeep } from "lodash-es";
 import { DataModelService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "vue-library/helpers";
+import { TTIriRef } from "vue-library/interfaces";
 
 const props = defineProps<{
   data: Array<TangledTreeData[]>;

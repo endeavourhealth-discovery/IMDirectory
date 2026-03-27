@@ -1,4 +1,4 @@
-import { TTIriRef } from "./AutoGen";
+import { TTIriRef } from "vue-library/interfaces";
 
 export default interface AllowableChildProperty {
   iri: string;

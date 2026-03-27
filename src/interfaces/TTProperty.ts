@@ -1,4 +1,4 @@
-import { TTIriRef } from "./AutoGen";
+import { TTIriRef } from "vue-library/interfaces";
 import { GenericObject } from "./GenericObject";
 
 export interface TTProperty extends GenericObject {

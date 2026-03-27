@@ -1,8 +1,8 @@
 import { Ref, ref } from "vue";
-import { FormGenerator, PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
+import { FormGenerator, PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS } from "@/vocabulary";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import { IM, RDF, RDFS } from "vue-library/enums";
 import editorShapes from "@/constants/editorShapes";
 
 export function useEditorShape() {

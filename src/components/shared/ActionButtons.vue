@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { DirectService, EntityService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "vue-library/helpers";
 import { useUserStore } from "@/stores/userStore";
 import { useDialog } from "primevue/usedialog";
 import { useConfirm } from "primevue/useconfirm";

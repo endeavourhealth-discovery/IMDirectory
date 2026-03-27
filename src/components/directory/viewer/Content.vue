@@ -60,19 +60,16 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS } from "@/vocabulary";
+import { ExtendedEntityReferenceNode, TTIriRef } from "vue-library/interfaces";
+import { IM, RDF, RDFS } from "vue-library/enums";
 import { EntityService, DirectService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { getNamesAsStringFromTypes, getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import { useOverlay } from "@/composables/useOverlay";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { MenuItem } from "primevue/menuitem";
-import { ExtendedEntityReferenceNode } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   entityIri: string;

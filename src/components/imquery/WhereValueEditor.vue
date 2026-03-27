@@ -88,8 +88,9 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch, computed } from "vue";
-import { IM, XSD } from "@/vocabulary";
-import { Match, Where, Operator, Assignable, UIProperty } from "@/interfaces/AutoGen";
+import { IM, XSD } from "vue-library/enums";
+import { Match, Where, Assignable, UIProperty } from "vue-library/interfaces";
+import { Operator } from "vue-library/enums";
 import { buildValueSentence, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import { cloneDeep } from "lodash-es";
@@ -202,7 +203,7 @@ function updateRangeOrValue() {
 }
 
 function updateQualifier() {
-  if (qualifierIri.value &&props.uiProperty.qualifierOptions) {
+  if (qualifierIri.value && props.uiProperty.qualifierOptions) {
     where.value.qualifier = props.uiProperty.qualifierOptions.find(opt => opt.iri === qualifierIri.value);
   } else {
     delete where.value.qualifier;

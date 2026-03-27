@@ -1,14 +1,11 @@
 import { defineStore } from "pinia";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys, localStorageWithExpiry } from "vue-library/helpers";
 import { SecurityService, UserService } from "@/services";
-import { HistoryItem, RecentActivityItem, User } from "@/interfaces";
-import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
-import PrimeVueColors from "@/enums/PrimeVueColors";
-import FontSize from "@/enums/FontSize";
-import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
-import { UserRole } from "@/enums";
+import { HistoryItem } from "@/interfaces";
 import { computed, ref } from "vue";
-import { NamespacePermission, RecentActivityItemDto } from "@/interfaces/AutoGen";
+import { RecentActivityItemDto } from "vue-library/interfaces";
+import { NamespacePermission, RecentActivityItem, User } from "vue-library/models";
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "vue-library/enums";
 
 export const useUserStore = defineStore("user", () => {
   const cookiesEssentialAccepted = ref<boolean>(localStorageWithExpiry.getItem("cookiesEssentialAccepted") === true ? true : false);
@@ -235,7 +232,7 @@ export const useUserStore = defineStore("user", () => {
     } else organisations.value = orgs;
   }
 
-    async function updateNamespaces(ns: NamespacePermission[]) {
+  async function updateNamespaces(ns: NamespacePermission[]) {
     if (isLoggedIn.value) {
       const updatedUser = await UserService.updateUserNamespaces(ns);
       currentUser.value = updatedUser;

@@ -47,12 +47,12 @@ import { ref, Ref, watch, computed, onMounted, inject, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep, isEqual } from "lodash-es";
 import { ComponentDetails } from "@/interfaces";
-import { PropertyShape } from "@/interfaces/AutoGen";
+import { PropertyShape } from "vue-library/interfaces";
 import { ComponentType, EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { processComponentType } from "@/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@/helpers/EditorBuilderJsonMethods";
-import { SHACL } from "@/vocabulary";
+import { SHACL } from "vue-library/enums";
 
 interface Props {
   shape: PropertyShape;

@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { Entailment } from "@/interfaces/AutoGen";
+import { Entailment } from "vue-library/interfaces";
 import { Ref, onMounted, ref } from "vue";
 
 const props = defineProps<{

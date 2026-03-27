@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { DirectService } from "@/services";
 import { computed, onMounted, ref, Ref } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { getLogger } from "@/logger/LogConfig";
 import { useDirectoryStore } from "@/stores/directoryStore";
 

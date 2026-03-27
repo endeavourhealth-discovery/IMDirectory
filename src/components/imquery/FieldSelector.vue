@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue";
 import type { TreeNode } from "primevue/treenode";
-import { Node } from "@/interfaces/AutoGen";
+import { Node } from "vue-library/interfaces";
 import { TreeSelectionKeys } from "primevue/tree";
 
 const props = defineProps<{

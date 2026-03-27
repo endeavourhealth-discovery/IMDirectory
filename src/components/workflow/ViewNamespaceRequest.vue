@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { Namespace, NamespaceRequest, Task } from "@/interfaces/AutoGen";
+import { Namespace, NamespaceRequest, Task } from "vue-library/interfaces";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
@@ -47,6 +47,7 @@ import Swal from "sweetalert2";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
 import ConfigService from "@/services/ConfigService";
+import { NAMESPACE } from "vue-library/enums";
 
 interface Props {
   id: string;
@@ -77,7 +78,7 @@ onMounted(async () => {
   loading.value = false;
 });
 
-const selectedNamespace: Ref<string | undefined> = ref();
+const selectedNamespace: Ref<NAMESPACE | undefined> = ref();
 const namespaceErrorMessage = ref("");
 const namespaceOptions: Ref<Namespace[]> = ref([]);
 watch(selectedNamespace, newValue => {

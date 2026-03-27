@@ -1,6 +1,6 @@
 import Env from "./Env";
 import axios from "axios";
-import { TTIriRef, NodeShape, UIProperty } from "@/interfaces/AutoGen";
+import { TTIriRef, NodeShape, UIProperty } from "vue-library/interfaces";
 import { PropertyDisplay } from "@/interfaces";
 const API_URL = Env.API + "api/dataModel/protected";
 

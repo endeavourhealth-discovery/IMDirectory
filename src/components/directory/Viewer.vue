@@ -169,9 +169,9 @@ import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import { DirectService, EntityService } from "@/services";
 
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
 import {
+  isObjectHasKeys,
   isConcept,
   isFeature,
   isIndicator,
@@ -182,13 +182,12 @@ import {
   isQuery,
   isRecordModel,
   isValueSet
-} from "@/helpers/ConceptTypeMethods";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
+} from "vue-library/helpers";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
 import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
@@ -197,7 +196,7 @@ import ModelChart from "@/components/directory/viewer/ModelChart.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
 
 interface Props {
-  entity: TTEntity;
+  entity: ExtendedTTEntity;
 }
 
 const props = defineProps<Props>();
@@ -211,7 +210,7 @@ const directService = new DirectService();
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const concept: Ref<TTEntity> = ref({});
+const concept: Ref<ExtendedTTEntity> = ref({});
 
 const entityIri = ref("");
 const activeTab = ref("0");

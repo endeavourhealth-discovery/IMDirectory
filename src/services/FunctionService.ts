@@ -1,7 +1,7 @@
 import axios from "axios";
 import Env from "./Env";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Argument } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "vue-library/helpers";
+import { Argument } from "vue-library/interfaces";
 
 const API_URL = Env.API + "api/function/protected";
 

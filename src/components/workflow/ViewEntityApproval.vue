@@ -37,17 +37,14 @@
 </template>
 
 <script setup lang="ts">
-import { enumToArray } from "@/helpers/Converters";
-import { ApprovalType, EntityApproval, RoleRequest, Task, UserRole } from "@/interfaces/AutoGen";
+import { EntityApproval, Task } from "vue-library/interfaces";
+import { ApprovalType } from "vue-library/enums";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
-import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
 import EntityDiffDialog from "./EntityDiffDialog.vue";

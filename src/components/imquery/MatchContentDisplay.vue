@@ -55,7 +55,8 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Match } from "@/interfaces/AutoGen";
+import { Match } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import DirectService from "@/services/DirectService";

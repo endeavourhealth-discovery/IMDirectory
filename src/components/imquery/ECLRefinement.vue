@@ -130,10 +130,10 @@
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EclService, QueryService } from "@/services";
-import { IM, QUERY } from "@/vocabulary";
+import { IM, QUERY } from "vue-library/enums";
 import { useToast } from "primevue/usetoast";
-import { ToastSeverity } from "@/enums";
-import { Bool, Where, Match, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
+import { Where, Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import { useFilterStore } from "@/stores/filterStore";
 import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";
 import {

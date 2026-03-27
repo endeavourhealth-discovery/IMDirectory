@@ -10,10 +10,10 @@
 </template>
 <script setup lang="ts">
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { SearchResultSummary, QueryRequest, Query } from "@/interfaces/AutoGen";
+import { SearchResultSummary, QueryRequest, Query } from "vue-library/interfaces";
 import { ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "vue-library/helpers";
 import { FilterOptions } from "@/interfaces";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 

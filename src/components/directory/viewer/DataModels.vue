@@ -44,15 +44,15 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { IM, SHACL } from "@/vocabulary";
+import { TTIriRef } from "vue-library/interfaces";
+import { IM, SHACL } from "vue-library/enums";
 import { DataModelService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import { useOverlay } from "@/composables/useOverlay";
-import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
+import { getColourFromType } from "vue-library/helpers";
 import { DataTableRowSelectEvent } from "primevue/datatable";
 interface UIDataModel extends TTIriRef {
   type?: TTIriRef[];

@@ -1,7 +1,6 @@
-import { IM, RDF, RDFS } from "../vocabulary";
-import { isObjectHasKeys } from "./DataTypeCheckers";
-import { Argument } from "../interfaces/AutoGen";
-import { TTEntity, SearchResultSummary } from "@/interfaces/ExtendedAutoGen";
+import { IM, RDF, RDFS } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import { Argument } from "vue-library/interfaces";
 import { GenericObject } from "@/interfaces/GenericObject";
 
 export function mapToObject(args: Argument[]) {
@@ -12,7 +11,7 @@ export function mapToObject(args: Argument[]) {
   return argsAsObject;
 }
 
-export function entityToAliasEntity(ttEntity: TTEntity | SearchResultSummary) {
+export function entityToAliasEntity(ttEntity: GenericObject) {
   if (isObjectHasKeys(ttEntity, [RDFS.LABEL])) {
     ttEntity.name = ttEntity[RDFS.LABEL];
     delete ttEntity[RDFS.LABEL];

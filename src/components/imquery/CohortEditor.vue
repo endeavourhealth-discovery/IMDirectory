@@ -13,9 +13,8 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
-import { IM } from "@/vocabulary";
-import { Namespace } from "@/vocabulary/Namespace";
-import { Match, Node, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
+import { IM, NAMESPACE } from "vue-library/enums";
+import { Match, Node, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";
@@ -55,7 +54,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  rootEntities.value = [Namespace.IM + "Q_Queries"];
+  rootEntities.value = [NAMESPACE.IM + "Q_Queries"];
   cohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
   if (match.value.is) {
     cohort.value.iri = match.value.is[0].iri!;

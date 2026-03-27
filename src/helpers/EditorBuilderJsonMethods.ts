@@ -1,7 +1,7 @@
 import { ComponentType } from "../enums/ComponentType";
 import { NextComponentSummary, ComponentDetails } from "../interfaces";
 import { EditorMode } from "../enums";
-import { PropertyShape } from "../interfaces/AutoGen";
+import { PropertyShape } from "vue-library/interfaces";
 
 export function generateNewComponent(
   type: ComponentType,

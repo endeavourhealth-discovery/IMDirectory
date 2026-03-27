@@ -1,4 +1,4 @@
-import { TTIriRef } from "./AutoGen";
+import { TTIriRef } from "vue-library/interfaces";
 import { ValueSetMember } from "./ValueSetMember";
 
 export interface ExportValueSet {

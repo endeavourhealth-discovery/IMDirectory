@@ -125,15 +125,12 @@
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
 import { ChartMapNode, ChartTableNode, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@/interfaces";
-import { DataTypeCheckers, Sorters } from "@/helpers";
+import { byPriority, byScheme, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { ConceptService, EntityService } from "@/services";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import { Context } from "@/interfaces/Context";
-import { ConceptContextMap } from "@/interfaces/AutoGen";
+import { ConceptContextMap } from "vue-library/interfaces";
 import { GenericObject } from "@/interfaces/GenericObject";
-
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
-const { byPriority, byScheme } = Sorters;
 
 interface Props {
   entityIri: string;

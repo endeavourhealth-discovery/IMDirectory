@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Node } from "@/interfaces/AutoGen";
+import { Node } from "vue-library/interfaces";
 
 defineProps<{
   list: Node[];

@@ -1,20 +1,22 @@
-import { IM, RDFS } from "@/vocabulary";
+import { IM, RDFS } from "vue-library/enums";
 import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
 import {
+  ExtendedEntityReferenceNode,
+  ExtendedTTEntity,
+  TTBundle,
   TTIriRef,
   SearchResultSummary,
   DownloadByQueryOptions,
   Pageable,
   EntityValidationRequest,
   EditRequest
-} from "@/interfaces/AutoGen";
+} from "vue-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
 import type { TreeNode } from "primevue/treenode";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 import { buildDetails } from "@/helpers/DetailsBuilder";
 import { OrganizationChartNode } from "primevue/organizationchart";
-import { ExtendedEntityReferenceNode, TTBundle, TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const API_URL = Env.API + "api/entity";
 
@@ -38,7 +40,7 @@ const EntityService = {
 
   // ============================ PROTECTED ============================
 
-  async getPartialEntity(iri: string, predicates: string[]): Promise<TTEntity> {
+  async getPartialEntity(iri: string, predicates: string[]): Promise<ExtendedTTEntity> {
     return await axios.get(API_URL + "/protected/partial", {
       params: {
         iri: iri,
@@ -47,11 +49,11 @@ const EntityService = {
     });
   },
 
-  async getPartialEntities(typeIris: string[], predicates: string[]): Promise<TTEntity[]> {
+  async getPartialEntities(typeIris: string[], predicates: string[]): Promise<ExtendedTTEntity[]> {
     return await axios.post(API_URL + "/protected/partials", { iris: [...new Set(typeIris)].join(","), predicates: [...new Set(predicates)].join(",") });
   },
 
-  async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<TTEntity> {
+  async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<ExtendedTTEntity> {
     return await axios.get(API_URL + "/protected/fullEntity", {
       params: {
         iri: iri,
@@ -99,7 +101,7 @@ const EntityService = {
     filters?: FiltersAsIris,
     controller?: AbortController,
     typeFilter?: string[]
-  ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: TTEntity[] }> {
+  ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: ExtendedTTEntity[] }> {
     return await axios.get(API_URL + "/protected/childrenPaged", {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(","), typeFilter: typeFilter?.join(",") },
       signal: controller?.signal
@@ -130,7 +132,7 @@ const EntityService = {
     });
   },
 
-  async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTEntity[]> {
+  async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<ExtendedTTEntity[]> {
     return await axios.get(API_URL + "/protected/usages", {
       params: {
         iri: iri,
@@ -178,7 +180,7 @@ const EntityService = {
     });
   },
 
-  async getEntityByPredicateExclusions(iri: string, predicates: string[]): Promise<TTEntity> {
+  async getEntityByPredicateExclusions(iri: string, predicates: string[]): Promise<ExtendedTTEntity> {
     return await axios.get(API_URL + "/protected/entityByPredicateExclusions", {
       params: { iri: iri, predicates: predicates.join(",") }
     });
@@ -214,13 +216,13 @@ const EntityService = {
     return await axios.get(API_URL + "/protected/graph", { params: { iri: iri } });
   },
 
-  async getProvHistory(iri: string): Promise<TTEntity[]> {
+  async getProvHistory(iri: string): Promise<ExtendedTTEntity[]> {
     return await axios.get(API_URL + "/protected/history", {
       params: { iri: iri }
     });
   },
 
-  async getAllowableChildTypes(iri: string): Promise<TTEntity[]> {
+  async getAllowableChildTypes(iri: string): Promise<ExtendedTTEntity[]> {
     return await axios.get(API_URL + "/protected/allowableChildTypes", { params: { iri: iri } });
   },
 
@@ -232,11 +234,11 @@ const EntityService = {
 
   // ========================== PRIVATE ==========================
 
-  async createEntity(editRequest: EditRequest): Promise<TTEntity> {
+  async createEntity(editRequest: EditRequest): Promise<ExtendedTTEntity> {
     return await axios.post(API_URL + "/private/create", editRequest);
   },
 
-  async updateEntity(editRequest: EditRequest): Promise<TTEntity> {
+  async updateEntity(editRequest: EditRequest): Promise<ExtendedTTEntity> {
     return await axios.post(API_URL + "/private/update", editRequest);
   },
   // ========================== HELPERS ==========================

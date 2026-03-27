@@ -41,11 +41,11 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
-import { Node, Query } from "@/interfaces/AutoGen";
+import { Node, Query } from "vue-library/interfaces";
 import { EntityService, SetService } from "@/services";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 
 const props = defineProps<{
   entityIri?: string;

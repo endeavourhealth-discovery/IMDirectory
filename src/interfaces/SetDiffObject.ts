@@ -1,4 +1,4 @@
-import { Concept } from "./AutoGen";
+import { Concept } from "vue-library/interfaces";
 
 export interface SetDiffObject {
   membersA: Concept[];

@@ -1,18 +1,16 @@
-import { IM, SNOMED } from "../vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { TTIriRef } from "../interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
 import { GenericObject } from "@/interfaces/GenericObject";
-import { Namespace } from "@/vocabulary/Namespace";
+import { NAMESPACE } from "vue-library/enums";
 
-export function transformTT(ttEntity: TTEntity, map?: GenericObject) {
-  if (!isObjectHasKeys(ttEntity)) return {} as TTEntity;
+export function transformTT(ttEntity: ExtendedTTEntity, map?: GenericObject) {
+  if (!isObjectHasKeys(ttEntity)) return {} as ExtendedTTEntity;
   ttEntity = transformIris(ttEntity);
   transformObjectRecursively(ttEntity, map);
   return ttEntity;
 }
 
-function transformObjectRecursively(ttEntity: TTEntity, map?: GenericObject) {
+function transformObjectRecursively(ttEntity: ExtendedTTEntity, map?: GenericObject) {
   for (const key of Object.keys(ttEntity)) {
     if (key.startsWith("http")) {
       const property = isObjectHasKeys(map, [key]) ? map?.[key] : getNameFromIri(key);
@@ -30,7 +28,7 @@ function transformObjectRecursively(ttEntity: TTEntity, map?: GenericObject) {
   }
 }
 
-function transformIris(ttEntity: TTEntity) {
+function transformIris(ttEntity: ExtendedTTEntity) {
   const regex = /iri/gm;
   const stringEntity = JSON.stringify(ttEntity);
   return JSON.parse(stringEntity.replace(regex, "iri"));
@@ -66,7 +64,7 @@ export function getNameFromRef(ref: GenericObject): string {
 
 export function resolveIri(iri: string) {
   if (!iri) return undefined;
-  const prefixes: GenericObject = { im: Namespace.IM, sn: Namespace.SNOMED };
+  const prefixes: GenericObject = { im: NAMESPACE.IM, sn: NAMESPACE.SNOMED };
   if (iri.includes("#") || iri.includes("urn:uuid:")) {
     return iri;
   } else if (iri.includes(":")) {

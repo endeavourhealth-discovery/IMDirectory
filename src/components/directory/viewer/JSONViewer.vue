@@ -10,8 +10,8 @@ import { onMounted, ref } from "vue";
 import { EntityService } from "@/services";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM } from "@/vocabulary";
+import { isObjectHasKeys } from "vue-library/helpers";
+import { IM } from "vue-library/enums";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 
 const props = defineProps<{

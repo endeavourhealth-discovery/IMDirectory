@@ -1,9 +1,8 @@
 import type { TreeNode } from "primevue/treenode";
 import { DataModelService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { PropertyShape, Node } from "@/interfaces/AutoGen";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
+import { PropertyShape, Node } from "vue-library/interfaces";
 import { Ref, ref } from "vue";
 
 export function useReturnTrees() {

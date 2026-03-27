@@ -92,7 +92,7 @@
 import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@/interfaces";
 import { DataModelService, DirectService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { DataTableExpandedRows } from "primevue/datatable";
 
 const props = defineProps<{

@@ -42,20 +42,13 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
-import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { QueryService } from "@/services";
-import { Argument, ArgumentReference, IMLLanguage, Bool, DisplayMode, Query, Indicator } from "@/interfaces/AutoGen";
+import { Indicator } from "vue-library/interfaces";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
-import SQLDisplay from "./SQLDisplay.vue";
-import IMLDisplay from "./IMLDisplay.vue";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
-import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
-import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 interface Props {

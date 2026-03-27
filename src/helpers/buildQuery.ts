@@ -1,8 +1,9 @@
-import { Bool, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, NodeShape, Return } from "@/interfaces/AutoGen";
-import { IM, RDF, SHACL } from "@/vocabulary";
+import { Match, Node, Query, QueryRequest, SearchBinding, Where, Path, NodeShape, Return } from "vue-library/interfaces";
+import { Bool, RuleAction } from "vue-library/enums";
+import { IM, RDF, SHACL } from "vue-library/enums";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "vue-library/helpers";
 import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
 import { Orderable } from "@/models/orderable";
@@ -793,4 +794,3 @@ export async function getRelativePropertyOptions(keepAs: Match[], nodeRef: strin
   }
   return options;
 }
-

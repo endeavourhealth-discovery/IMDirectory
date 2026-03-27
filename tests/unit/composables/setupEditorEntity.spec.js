@@ -1,6 +1,6 @@
 import { expect, vi } from "vitest";
 import { EntityService } from "@/services";
-import { IM, SHACL } from "@/vocabulary";
+import { IM, SHACL } from "vue-library/enums";
 import { fakerFactory } from "@/mocks/fakerFactory";
 import { mountComposable } from "../TestMethods";
 import { EditorMode } from "@/enums";

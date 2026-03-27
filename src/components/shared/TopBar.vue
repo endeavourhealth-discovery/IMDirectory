@@ -159,10 +159,8 @@ import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
 import { useChangeFontSize } from "@/composables/useChangeFontSize";
 import { useChangeThemeOptions } from "@/composables/useChangeThemeOptions";
-import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
-import PrimeVueColors from "@/enums/PrimeVueColors";
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "vue-library/enums";
 import Button from "primevue/button";
-import { FontSize, UserRole } from "@/enums";
 import { useCookies } from "@vueuse/integrations";
 import Swal from "sweetalert2";
 

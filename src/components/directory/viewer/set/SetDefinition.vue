@@ -98,12 +98,11 @@ import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadBy
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import { computed, ComputedRef, markRaw, onMounted, Ref, ref, watch } from "vue";
 import { EntityService, SetService } from "@/services";
-import { IM, RDFS } from "@/vocabulary";
+import { IM, RDFS } from "vue-library/enums";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@/models";
-import { ToastSeverity } from "@/enums";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
@@ -111,8 +110,8 @@ import { useDownloadFile } from "@/composables/useDownloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
-import { SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { ExtendedTTEntity, SetExportRequest, SetOptions } from "vue-library/interfaces";
+import { UserRole, ToastSeverity } from "vue-library/enums";
 
 const props = defineProps<{
   entityIri: string;
@@ -138,7 +137,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const entity: Ref<TTEntity> = ref({});
+const entity: Ref<ExtendedTTEntity> = ref({});
 const hasPermissionSetPublish = ref(false);
 
 const { copyObjectToClipboard } = useCopyToClipboard();

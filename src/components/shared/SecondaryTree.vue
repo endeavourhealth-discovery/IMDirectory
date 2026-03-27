@@ -75,16 +75,15 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { ConceptAggregate, TreeParent } from "@/interfaces";
-import { RDF, RDFS } from "@/vocabulary";
+import { RDF, RDFS } from "vue-library/enums";
 import { EntityService } from "@/services";
 import { useTree } from "@/composables/useTree";
 import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
 import { useOverlay } from "@/composables/useOverlay";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
 
 interface Props {
   entityIri: string;
@@ -160,7 +159,12 @@ async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = false;
 }
 
-function createTree(concept: TTEntity, parentHierarchy: ExtendedEntityReferenceNode[], children: ExtendedEntityReferenceNode[], parentPosition: number) {
+function createTree(
+  concept: ExtendedTTEntity,
+  parentHierarchy: ExtendedEntityReferenceNode[],
+  children: ExtendedEntityReferenceNode[],
+  parentPosition: number
+) {
   loading.value = true;
   const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
   children.forEach(child => {

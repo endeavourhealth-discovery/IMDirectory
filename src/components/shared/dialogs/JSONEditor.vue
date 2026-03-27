@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match } from "@/interfaces/AutoGen";
+import { Match } from "vue-library/interfaces";
 import { isEqual } from "lodash-es";
 import { onMounted, ref, watch } from "vue";
 

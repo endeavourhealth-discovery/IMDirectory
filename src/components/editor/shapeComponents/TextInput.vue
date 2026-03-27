@@ -21,10 +21,9 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, inject, Ref, computed, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape } from "@/interfaces/AutoGen";
+import { ExtendedTTEntity, PropertyShape } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -115,7 +114,7 @@ watch(userInput, async newValue => {
 });
 
 function updateEntity(data: string) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

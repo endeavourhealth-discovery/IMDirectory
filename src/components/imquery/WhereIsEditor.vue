@@ -96,9 +96,9 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, computed } from "vue";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node, Where, UIProperty } from "@/interfaces/AutoGen";
+import { QueryRequest, SearchResultSummary, Node, Where, UIProperty } from "vue-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
@@ -109,7 +109,7 @@ import {
   getPlainConstraintOperatorValue
 } from "@/helpers/QueryEditorMethods";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
+import { getTypeIcon, getIconColor } from "vue-library/helpers";
 import SetService from "@/services/SetService";
 import Button from "primevue/button";
 interface Props {

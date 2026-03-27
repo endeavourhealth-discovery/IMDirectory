@@ -31,8 +31,8 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { watch, onMounted, ref, inject } from "vue";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { PropertyShape, TTIriRef } from "vue-library/interfaces";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { processComponentType } from "@/helpers/EditorMethods";
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";

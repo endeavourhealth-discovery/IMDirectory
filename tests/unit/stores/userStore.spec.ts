@@ -2,9 +2,9 @@ import { createTestingPinia } from "@pinia/testing";
 import { useUserStore } from "@/stores/userStore";
 import { flushPromises } from "@vue/test-utils";
 import { afterAll, it, expect, beforeEach, describe } from "vitest";
-import { User } from "@/interfaces";
+import { User, UserSchema } from "vue-library/models";
 import { uniqueId } from "lodash-es";
-import { FontSize, PrimeVueColors, PrimeVuePresetThemes } from "@/enums";
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes } from "vue-library/enums";
 
 describe("state", () => {
   beforeEach(() => {
@@ -27,13 +27,13 @@ describe("state", () => {
 describe("getters", () => {
   it("can get isLoggedIn ___ true", async () => {
     const userStore = useUserStore();
-    const testUser: User = {
+    const testUser = UserSchema.parse({
       username: "testUser",
       displayName: "John Doe",
       email: "john.doe@ergosoft.co.uk",
-      password: "",
       avatar: "colour/003-man.png",
       roles: [],
+      type: "",
       id: uniqueId(),
       theme: PrimeVuePresetThemes.AURA,
       primaryColor: PrimeVueColors.EMERALD,
@@ -43,8 +43,8 @@ describe("getters", () => {
       organisations: [],
       recentActivity: [],
       favourites: [],
-      namespaces:[]
-    };
+      namespaces: []
+    });
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);
     await flushPromises();
@@ -72,13 +72,13 @@ describe("mutations", () => {
   it("can updateCurrentUser", async () => {
     const userStore = useUserStore();
 
-    const testUser: User = {
+    const testUser = UserSchema.parse({
       username: "testUser",
       displayName: "John Doe",
       email: "john.doe@ergosoft.co.uk",
-      password: "",
       avatar: "colour/003-man.png",
       roles: [],
+      type: "",
       id: uniqueId(),
       theme: PrimeVuePresetThemes.AURA,
       primaryColor: PrimeVueColors.EMERALD,
@@ -88,8 +88,8 @@ describe("mutations", () => {
       organisations: [],
       recentActivity: [],
       favourites: [],
-      namespaces:[]
-    };
+      namespaces: []
+    });
     userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);
     await flushPromises();

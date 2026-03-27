@@ -71,12 +71,12 @@ import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
 import { cloneDeep } from "lodash-es";
 import EclService from "@/services/EclService";
 import QueryService from "@/services/QueryService";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { Match, ECLQueryRequest, Query, Node } from "@/interfaces/AutoGen";
+import { Match, ECLQueryRequest, Query, Node } from "vue-library/interfaces";
 import { useEclValidator } from "@/composables/useEclValidator";
 interface Props {
   showDialog?: boolean;

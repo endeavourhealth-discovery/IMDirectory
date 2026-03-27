@@ -19,12 +19,12 @@
 import { onMounted, Ref, ref, watch } from "vue";
 import GraphComponent from "./GraphComponent.vue";
 import { TTGraphData } from "@/interfaces";
-import { GraphTranslator, DataTypeCheckers } from "@/helpers";
+import { GraphTranslator } from "@/helpers";
+import { isObjectHasKeys } from "vue-library/helpers";
 import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
-import { TTBundle } from "@/interfaces/ExtendedAutoGen";
+import { IM } from "vue-library/enums";
+import { TTBundle } from "vue-library/interfaces";
 const { translateFromEntityBundle } = GraphTranslator;
-const { isObjectHasKeys } = DataTypeCheckers;
 
 const props = defineProps<{
   entityIri: string;

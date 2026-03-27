@@ -16,7 +16,7 @@ import { MatchPattern } from "./MatchPattern";
 import { Namespace } from "./Namespace";
 import { NextComponentSummary } from "./NextComponentSummary";
 import { Property } from "./Property";
-import { RecentActivityItem } from "./RecentActivityItem";
+import { ExtendedRecentActivityItem } from "./ExtendedRecentActivityItem";
 import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import { TermCode } from "./TermCode";
@@ -34,7 +34,6 @@ import AllowableChildProperty from "./AllowableChildProperty";
 import { FilterOptions } from "./FilterOptions";
 import { AliasEntity } from "./AliasEntity";
 import { PropertyDisplay } from "./PropertyDisplay";
-import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
@@ -43,7 +42,6 @@ import { MailOptions } from "./MailOptions";
 import { QueryResponse } from "./QueryResponse";
 import { SetDiffObject } from "./SetDiffObject";
 import { CodeTemplate } from "./CodeTemplate";
-import { ExtendedSearchResultSummary } from "./ExtendedSearchResultSummary";
 import { SearchOptions } from "./SearchOptions";
 import { ValidatedEntity } from "./ValidatedEntity";
 import { DownloadSettings } from "./DownloadSettings";
@@ -67,7 +65,7 @@ export {
   type Namespace,
   type NextComponentSummary,
   type Property,
-  type RecentActivityItem,
+  type ExtendedRecentActivityItem,
   type SimpleMap,
   type SimpleMapIri,
   type TermCode,
@@ -83,7 +81,6 @@ export {
   type TangledTreeData,
   type AllowableChildProperty,
   type FilterOptions,
-  type User,
   type CustomAlert,
   type AliasEntity,
   type PropertyDisplay,
@@ -94,7 +91,6 @@ export {
   type QueryResponse,
   type SetDiffObject,
   type CodeTemplate,
-  type ExtendedSearchResultSummary,
   type SearchOptions,
   type ValidatedEntity,
   type DownloadSettings

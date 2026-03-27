@@ -61,7 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { DisplayMode, Match, Query } from "@/interfaces/AutoGen";
+import { Match, Query } from "vue-library/interfaces";
+import { DisplayMode } from "vue-library/enums";
 import { onMounted, ref, Ref } from "vue";
 import Button from "primevue/button";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
