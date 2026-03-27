@@ -101,7 +101,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
 import BatteryBar from "./BatteryBar.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
-import { useDownloadFile } from "@/composables/useDownloadFile";
+import { useDownloadFile } from "vue-library/composables";
 import { useUserStore } from "vue-library/stores";
 import { cloneDeep } from "lodash-es";
 import { useOverlay } from "@/composables/useOverlay";

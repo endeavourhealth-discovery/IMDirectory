@@ -93,7 +93,7 @@ import { isArrayHasLength } from "vue-library/helpers";
 import { useUserStore } from "vue-library/stores";
 import { useDialog } from "primevue/usedialog";
 import { useConfirm } from "primevue/useconfirm";
-import { useDownloadFile } from "@/composables/useDownloadFile";
+import { useDownloadFile } from "vue-library/composables";
 import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
 const directService = new DirectService();

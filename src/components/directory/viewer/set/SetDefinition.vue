@@ -106,7 +106,7 @@ import { ToastOptions } from "vue-library/models";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
-import { useDownloadFile } from "@/composables/useDownloadFile";
+import { useDownloadFile } from "vue-library/composables";
 import { useUserStore } from "vue-library/stores";
 import { useCopyToClipboard } from "vue-library/composables";
 import { DownloadSettings } from "@/interfaces";
