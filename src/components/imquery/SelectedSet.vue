@@ -38,7 +38,7 @@ import { onMounted, ref, Ref, watch } from "vue";
 import { IM, RDF, RDFS } from "vue-library/enums";
 import { ExtendedTTEntity, Match, Node, TTIriRef } from "vue-library/interfaces";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { getColourFromType, getFAIconFromType, isArrayHasLength, isConcept, isValueSet } from "vue-library/helpers";

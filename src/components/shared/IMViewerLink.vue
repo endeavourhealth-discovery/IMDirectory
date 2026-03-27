@@ -23,10 +23,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch,onUnmounted } from "vue";
+import { ref, watch, onUnmounted } from "vue";
 import { DirectService } from "../../services";
 import OverlaySummary from "./OverlaySummary.vue";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { cloneDeep } from "lodash-es";
 
 interface Props {
@@ -46,8 +46,8 @@ const emit = defineEmits<{
 }>();
 
 onUnmounted(() => {
-  hideOverlay()
-})
+  hideOverlay();
+});
 
 const vLinkMenu = ref();
 const items = ref([

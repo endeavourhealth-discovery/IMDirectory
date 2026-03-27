@@ -60,7 +60,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useCreateNew } from "@/composables/useCreateNew";
 import { TTIriRef } from "vue-library/interfaces";
 import { UserRole } from "vue-library/enums";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
 

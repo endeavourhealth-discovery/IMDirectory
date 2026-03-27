@@ -82,7 +82,7 @@ import { EntityService } from "@/services";
 import { useTree } from "@/composables/useTree";
 import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
 
 interface Props {

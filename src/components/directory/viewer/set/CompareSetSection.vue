@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { useCopyToClipboard } from "vue-library/composables";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { DirectService, EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";

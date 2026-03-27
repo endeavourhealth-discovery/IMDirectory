@@ -41,7 +41,7 @@ import { RDF, RDFS } from "vue-library/enums";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { DirectService } from "@/services";
 import { DataTableRowSelectEvent } from "primevue/datatable";
 

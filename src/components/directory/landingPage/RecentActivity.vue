@@ -65,7 +65,7 @@ import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep, isArray } from "lodash-es";
 import { TTIriRef } from "vue-library/interfaces";
 import { DirectService, EntityService, UserService } from "@/services";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { RDF, RDFS } from "vue-library/enums";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useConfirm } from "primevue/useconfirm";

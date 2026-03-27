@@ -104,7 +104,7 @@ import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from 
 import { useDownloadFile } from "vue-library/composables";
 import { useUserStore } from "vue-library/stores";
 import { cloneDeep } from "lodash-es";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
 import {

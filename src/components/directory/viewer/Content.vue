@@ -68,7 +68,7 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getNamesAsStringFromTypes, getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "vue-library/stores";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { MenuItem } from "primevue/menuitem";
 
 const props = defineProps<{

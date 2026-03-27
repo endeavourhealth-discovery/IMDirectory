@@ -86,7 +86,7 @@ import { TextSearchStyle } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
 import { useSpeechToText } from "@/composables/useSpeechToText";
 import { cloneDeep, debounce, isEqual } from "lodash-es";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { EntityService, QueryService } from "@/services";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 interface Props {
