@@ -49,8 +49,8 @@ import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
-import { FilterOptions, TreeNode } from "@/interfaces";
-import { SearchResponse } from "vue-library/interfaces";
+import { TreeNode } from "@/interfaces";
+import { FilterOptions, SearchResponse } from "vue-library/interfaces";
 import { SplitterResizeEndEvent } from "primevue/splitter";
 
 defineProps<{

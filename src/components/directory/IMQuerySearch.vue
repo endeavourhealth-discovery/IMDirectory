@@ -36,7 +36,7 @@
 import { Ref, ref } from "vue";
 import { QueryRequest, SearchResultSummary } from "vue-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@/models";
+import { ToastOptions } from "vue-library/models";
 import { ToastSeverity } from "vue-library/enums";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";

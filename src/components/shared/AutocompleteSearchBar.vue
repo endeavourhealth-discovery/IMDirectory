@@ -80,7 +80,7 @@
 import { onMounted, Ref, ref, watch, nextTick, computed, onBeforeUnmount } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { FilterOptions } from "@/interfaces";
+import { FilterOptions } from "vue-library/interfaces";
 import { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
 import { TextSearchStyle } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";

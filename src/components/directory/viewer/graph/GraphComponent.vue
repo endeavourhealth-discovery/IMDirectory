@@ -30,7 +30,7 @@ import { EntityService } from "@/services";
 import { IM, ToastSeverity } from "vue-library/enums";
 import ContextMenu from "primevue/contextmenu";
 import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@/models";
+import { ToastOptions } from "vue-library/models";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;

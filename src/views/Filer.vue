@@ -29,10 +29,9 @@
 import TopBar from "@/components/shared/TopBar.vue";
 import FileUpload, { FileUploadUploadEvent } from "primevue/fileupload";
 import { useToast } from "primevue/usetoast";
-import { IM } from "vue-library/enums";
 import * as d3 from "d3";
-import { ToastOptions } from "@/models";
-import { ToastSeverity } from "vue-library/enums";
+import { ToastOptions } from "vue-library/models";
+import { IM, ToastSeverity } from "vue-library/enums";
 import { FilerService } from "@/services";
 import { Ref, ref } from "vue";
 import { isObjectHasKeys } from "vue-library/helpers";

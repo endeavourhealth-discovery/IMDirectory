@@ -1,6 +1,5 @@
-import { Node, Where, Match, TTIriRef, Compare } from "vue-library/interfaces";
+import { Node, Where, Match, Orderable, TTIriRef, Compare } from "vue-library/interfaces";
 import { Order, Operator } from "vue-library/enums";
-import { Orderable } from "@/models/orderable";
 
 export type RelativeTo = {
   nodeRef?: string;

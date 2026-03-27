@@ -116,8 +116,9 @@ import {
   SearchResultSummary
 } from "vue-library/interfaces";
 import { TextSearchStyle } from "vue-library/enums";
-import { DownloadSettings, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
+import { DownloadSettings, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "vue-library/helpers";
+import { FilterOptions, Namespace } from "vue-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { MenuItem } from "primevue/menuitem";

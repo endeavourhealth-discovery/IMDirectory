@@ -29,9 +29,8 @@ import { isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpe
 import { QueryService, EntityService } from "@/services";
 import { RDFS, ToastSeverity } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, QueryRequest } from "vue-library/interfaces";
+import { GenericObject, PropertyShape, QueryRequest } from "vue-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { GenericObject } from "@/interfaces/GenericObject";
 
 const toast = useToast();
 

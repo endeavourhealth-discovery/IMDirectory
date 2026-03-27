@@ -63,8 +63,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { FilterOptions } from "@/interfaces";
-import { TTIriRef } from "vue-library/interfaces";
+import { FilterOptions, TTIriRef } from "vue-library/interfaces";
 import { GRAPH, NAMESPACE } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
 import { useFilterStore } from "@/stores/filterStore";

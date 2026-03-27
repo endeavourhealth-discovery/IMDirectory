@@ -102,7 +102,7 @@ import { IM, RDFS } from "vue-library/enums";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@/models";
+import { ToastOptions } from "vue-library/models";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";

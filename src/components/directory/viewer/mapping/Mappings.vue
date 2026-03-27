@@ -124,13 +124,12 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { ChartMapNode, ChartTableNode, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@/interfaces";
+import { ChartMapNode, ChartTableNode, MapItem, SimpleMap, SimpleMapIri } from "@/interfaces";
 import { byPriority, byScheme, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { ConceptService, EntityService } from "@/services";
 import { IM } from "vue-library/enums";
 import { Context } from "@/interfaces/Context";
-import { ConceptContextMap } from "vue-library/interfaces";
-import { GenericObject } from "@/interfaces/GenericObject";
+import { ConceptContextMap, GenericObject, Namespace } from "vue-library/interfaces";
 
 interface Props {
   entityIri: string;

@@ -62,9 +62,8 @@ import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-libr
 import type { TreeNode } from "primevue/treenode";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, RDFS, RDF } from "vue-library/enums";
-import { PropertyShape, TTIriRef, PropertyRange } from "vue-library/interfaces";
+import { GenericObject, PropertyShape, TTIriRef, PropertyRange } from "vue-library/interfaces";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { GenericObject } from "@/interfaces/GenericObject";
 
 const props = defineProps<{
   entityIri: string;

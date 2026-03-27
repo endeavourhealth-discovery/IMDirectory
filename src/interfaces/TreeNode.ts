@@ -1,5 +1,4 @@
-import { TTIriRef } from "vue-library/interfaces";
-import { GenericObject } from "./GenericObject";
+import { GenericObject, TTIriRef } from "vue-library/interfaces";
 
 export interface TreeNode extends GenericObject {
   key: string;

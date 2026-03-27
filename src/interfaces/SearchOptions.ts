@@ -1,5 +1,4 @@
-import { Page, SearchBinding, TTIriRef } from "vue-library/interfaces";
-import { FilterOptions } from "./FilterOptions";
+import { FilterOptions, Page, SearchBinding, TTIriRef } from "vue-library/interfaces";
 
 export interface SearchOptions extends FilterOptions {
   isA?: TTIriRef[];

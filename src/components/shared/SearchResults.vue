@@ -76,11 +76,10 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { FilterOptions } from "@/interfaces";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep } from "lodash-es";
-import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { IM } from "vue-library/enums";
 
 interface Props {

@@ -1,12 +1,10 @@
-import { Match, Node, Query, QueryRequest, SearchBinding, Where, Path, NodeShape, Return } from "vue-library/interfaces";
-import { Bool, RuleAction } from "vue-library/enums";
-import { IM, RDF, SHACL } from "vue-library/enums";
+import { Match, Node, Orderable, Query, QueryRequest, SearchBinding, Where, Path, NodeShape, Return } from "vue-library/interfaces";
+import { Bool, RuleAction, IM, RDF, SHACL } from "vue-library/enums";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength } from "vue-library/helpers";
 import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
-import { Orderable } from "@/models/orderable";
 import { v4 } from "uuid";
 import { DataModelService } from "@/services";
 

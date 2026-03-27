@@ -1,4 +1,4 @@
-import { GenericObject } from "./GenericObject";
+import { GenericObject } from "vue-library/interfaces";
 
 export interface EntityReference {
   iri: string;

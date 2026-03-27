@@ -1,5 +1,4 @@
-import { ExtendedTTEntity, FormGenerator, PropertyShape } from "vue-library/interfaces";
-import { GenericObject } from "@/interfaces/GenericObject";
+import { ExtendedTTEntity, FormGenerator, GenericObject, PropertyShape } from "vue-library/interfaces";
 import type { InjectionKey, Ref } from "vue";
 
 const editorValidity = Symbol("editorValidity") as InjectionKey<{

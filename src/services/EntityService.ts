@@ -1,15 +1,18 @@
 import { IM, RDFS } from "vue-library/enums";
-import { FiltersAsIris, Namespace, FilterOptions, ValidatedEntity } from "@/interfaces";
+import { ValidatedEntity } from "@/interfaces";
 import {
   ExtendedEntityReferenceNode,
   ExtendedTTEntity,
+  FilterOptions,
+  FiltersAsIris,
   TTBundle,
   TTIriRef,
   SearchResultSummary,
   DownloadByQueryOptions,
   Pageable,
   EntityValidationRequest,
-  EditRequest
+  EditRequest,
+  Namespace
 } from "vue-library/interfaces";
 import Env from "./Env";
 import axios from "axios";

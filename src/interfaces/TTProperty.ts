@@ -1,5 +1,4 @@
-import { TTIriRef } from "vue-library/interfaces";
-import { GenericObject } from "./GenericObject";
+import { GenericObject, TTIriRef } from "vue-library/interfaces";
 
 export interface TTProperty extends GenericObject {
   "http://www.w3.org/ns/shacl#order": number;
