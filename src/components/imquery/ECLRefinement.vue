@@ -79,7 +79,7 @@
         <Select
           style="width: 4.5rem; min-height: 2.3rem"
           v-model="propertyConstraintOperator"
-          :options="constraintOperatorOptions"
+          :options="ConstraintOperatorOptions"
           option-label="label"
           option-value="value"
           @change="updatePropertyConstraint"
@@ -146,11 +146,11 @@ import {
   getBoolGroup
 } from "@/helpers/buildQuery";
 import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/helpers/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/imquery/ECLRefinementValue.vue";
 import { v4 } from "uuid";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import { ConstraintOperatorOptions } from "@/constants";
 
 interface Props {
   index: number;

@@ -1,6 +1,7 @@
 import { Node, Where, Match, Orderable, Compare } from "vue-library/interfaces";
 import { Order, Operator } from "vue-library/enums";
 import { RelativeTo } from "@/interfaces/RelativeTo";
+import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
@@ -11,48 +12,8 @@ export function getPlainConstraintOperatorValue(node: Node): string {
 export function getPlainConstraintOperatorLabel(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
   if (key === undefined) return "concept only";
-  return constraintOperatorMap[key];
+  return ConstraintOperatorMap[key];
 }
-
-export type ConstraintOperatorKey = keyof typeof constraintOperatorMap;
-
-export const constraintOperatorMap = {
-  descendantsOrSelfOf: "+ children",
-  descendantsOf: "children only",
-  memberOf: "member of",
-  conceptOnly: "concept only"
-};
-
-export const plainConstraintOperatorOptions = [
-  {
-    label: "concept only",
-    value: "conceptOnly",
-    tooltip: "This concept only, not including descendants"
-  },
-  {
-    label: "+children",
-    value: "descendantsOrSelfOf",
-    tooltip: "This concept and all descendants"
-  },
-  {
-    label: "children only",
-    value: "descendantsOf",
-    tooltip: "Descendants of this concept but not this concept"
-  }
-];
-
-export const nodeInclusionOptions = [
-  {
-    label: "Include",
-    value: "Include",
-    tooltip: "Include concept (default)"
-  },
-  {
-    label: "Exclude",
-    value: "Exclude",
-    tooltip: "Exclude this from set"
-  }
-];
 
 export function getDateFromString(date: string): Date {
   if (date) {
@@ -69,34 +30,6 @@ export function getDateFromString(date: string): Date {
   }
   return new Date();
 }
-
-export const operatorOptions = [
-  {
-    label: "equal to",
-    value: Operator.eq,
-    tooltip: "exactly equal to value"
-  },
-  {
-    label: "greater or equal to",
-    value: Operator.gte,
-    tooltip: "inclusive of value"
-  },
-  {
-    label: "less than or equal to",
-    value: Operator.lte,
-    tooltip: "inclusive of value"
-  },
-  {
-    label: "greater than",
-    value: Operator.gt,
-    tooltip: "exclusive of value"
-  },
-  {
-    label: "less than",
-    value: Operator.lt,
-    tooltip: "exclusive of value"
-  }
-] satisfies { label: string; value: Operator; tooltip: string }[];
 
 export function getRelativeTo(where: Where): RelativeTo | undefined {
   if (where.compare && where.compare.right) {
