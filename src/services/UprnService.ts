@@ -2,25 +2,31 @@ import { UprnSearchResponse } from "@/interfaces";
 import Env from "./Env";
 import axios from "axios";
 
-const API_URL = Env.UPRN_API + "/api2";
+const API_URL = Env.API + "api/uprn/private";
 
 const UprnService = {
   async search(address: string, ncommercial: string): Promise<UprnSearchResponse> {
     return await axios.get(API_URL + "/getinfo", {
-      params: { adrec: address, commercial: ncommercial }
+      params: { adrec: address, commercial: ncommercial },
+      headers: {
+        Accept: "application/json"
+      }
     });
   },
 
   async activity(user: string): Promise<any> {
     return await axios.get(API_URL + "/activity", {
-      params: { u: user }
+      params: { u: user },
+      headers: {
+        Accept: "application/json"
+      }
     });
   },
 
   async download(file: string): Promise<any> {
     return await axios.get(API_URL + "/download3", {
       responseType: "blob",
-      params: { filename: file }
+      params: { file: file }
     });
   },
 
