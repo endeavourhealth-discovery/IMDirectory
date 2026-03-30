@@ -3,7 +3,7 @@
     <Select
       style="width: 5.5rem; min-height: 2.3rem"
       v-model="constraintOperator"
-      :options="constraintOperatorOptions"
+      :options="ConstraintOperatorOptions"
       option-label="label"
       option-value="value"
       @change="updateConstraintOperator"
@@ -53,7 +53,7 @@ import { cloneDeep, isEqual } from "lodash-es";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
+import { ConstraintOperatorOptions } from "@/constants";
 interface Props {
   parent?: any;
 }

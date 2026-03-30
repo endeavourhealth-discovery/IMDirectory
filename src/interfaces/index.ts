@@ -41,6 +41,7 @@ import { CodeTemplate } from "./CodeTemplate";
 import { SearchOptions } from "./SearchOptions";
 import { ValidatedEntity } from "./ValidatedEntity";
 import { DownloadSettings } from "./DownloadSettings";
+import { RelativeTo } from "./RelativeTo";
 
 export {
   type Address,
@@ -85,5 +86,6 @@ export {
   type CodeTemplate,
   type SearchOptions,
   type ValidatedEntity,
-  type DownloadSettings
+  type DownloadSettings,
+  type RelativeTo
 };

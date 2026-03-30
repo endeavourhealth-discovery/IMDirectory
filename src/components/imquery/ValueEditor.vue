@@ -2,7 +2,7 @@
   <div>
     <div class="relative-buttons">
       <span class="field">
-        <span v-for="opt in compareOptions" :key="opt.value" class="gap-1">
+        <span v-for="opt in CompareOptions" :key="opt.value" class="gap-1">
           <RadioButton v-model="relativity" :value="opt.value" :inputId="opt.value" @update:modelValue="onChangeRelativeTo" />
           <label :for="opt.value" class="field">{{ opt.label }}</label>
         </span>
@@ -59,11 +59,13 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch, computed } from "vue";
-import { RangeOrValue, operatorOptions, compareOptions, Relativity } from "@/helpers/QueryEditorMethods";
+import { operatorOptions } from "@/helpers/QueryEditorMethods";
 import { Assignable, Where, TTIriRef, Match, UIProperty } from "vue-library/interfaces";
 import { Operator } from "vue-library/enums";
 import { IM, XSD } from "vue-library/enums";
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
+import { RangeOrValue, Relativity } from "@/enums";
+import { CompareOptions } from "@/constants";
 
 enum ValueType {
   date,

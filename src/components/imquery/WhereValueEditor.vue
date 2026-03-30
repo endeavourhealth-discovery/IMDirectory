@@ -24,7 +24,7 @@
     <div v-else class="where-relative-container">
       <div class="relative-buttons">
         <span class="field">
-          <span v-for="opt in rangeValueOptions" :key="opt.value" class="gap-1">
+          <span v-for="opt in RangeValueOptions" :key="opt.value" class="gap-1">
             <RadioButton v-model="rangeOrValue" :value="opt.value" :inputId="opt.value" @update:modelValue="updateRangeOrValue" />
             <label :for="opt.value" class="field">{{ opt.label }}</label>
           </span>
@@ -91,10 +91,12 @@ import { Ref, onMounted, ref, watch, computed } from "vue";
 import { IM, XSD } from "vue-library/enums";
 import { Match, Where, Assignable, UIProperty } from "vue-library/interfaces";
 import { Operator } from "vue-library/enums";
-import { buildValueSentence, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
+import { buildValueSentence } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import { cloneDeep } from "lodash-es";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
+import { RangeOrValue } from "@/enums";
+import { RangeValueOptions } from "@/constants";
 interface Props {
   uiProperty: UIProperty;
   from?: Match;

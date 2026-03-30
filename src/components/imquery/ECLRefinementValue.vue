@@ -3,7 +3,7 @@
     <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="valueConstraintOperator"
-      :options="constraintOperatorOptions"
+      :options="ConstraintOperatorOptions"
       option-label="label"
       option-value="value"
       @change="updateValueConstraint"
@@ -60,7 +60,6 @@
 
 <script setup lang="ts">
 import { getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { computed, inject, onMounted, ref, Ref, watch } from "vue";
@@ -69,6 +68,7 @@ import { IM, QUERY, SNOMED, ToastSeverity } from "vue-library/enums";
 import { isEqual } from "lodash-es";
 import { EclService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
+import { ConstraintOperatorOptions } from "@/constants";
 interface Props {
   index: number;
 }
