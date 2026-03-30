@@ -42,6 +42,7 @@ import { SearchOptions } from "./SearchOptions";
 import { ValidatedEntity } from "./ValidatedEntity";
 import { DownloadSettings } from "./DownloadSettings";
 import { RelativeTo } from "./RelativeTo";
+import { SentencePart } from "./SentencePart";
 
 export {
   type Address,
@@ -87,5 +88,6 @@ export {
   type SearchOptions,
   type ValidatedEntity,
   type DownloadSettings,
-  type RelativeTo
+  type RelativeTo,
+  type SentencePart
 };

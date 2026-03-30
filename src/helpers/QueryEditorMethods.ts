@@ -2,6 +2,7 @@ import { Node, Where, Match, Orderable, Compare } from "vue-library/interfaces";
 import { Order, Operator } from "vue-library/enums";
 import { RelativeTo } from "@/interfaces/RelativeTo";
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
+import { SentencePart } from "@/interfaces";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
@@ -78,11 +79,6 @@ export function isTimeInRange(time: string, start: string, end: string): boolean
   const t = toMinutes(time);
   return t >= toMinutes(start) && t <= toMinutes(end);
 }
-export type SentencePart =
-  | { type: "text"; value?: string }
-  | { type: "field"; value?: string }
-  | { type: "parameter"; value?: string }
-  | { type: "nodeRef"; value?: string };
 
 export function buildValueSentence(where: Where): SentencePart[] | undefined {
   if (where.range) return buildRangeSentence(where);
