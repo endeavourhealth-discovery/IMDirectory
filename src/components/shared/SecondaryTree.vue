@@ -73,17 +73,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
+import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount, computed } from "vue";
 import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { ConceptAggregate, TreeParent } from "@/interfaces";
 import { RDF, RDFS } from "vue-library/enums";
 import { EntityService } from "@/services";
-import { useTree } from "@/composables/useTree";
+import { useTree } from "vue-library/composables";
 import OverlaySummary from "./OverlaySummary.vue";
 import type { TreeNode } from "primevue/treenode";
 import { useOverlay } from "vue-library/composables";
 import { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+import { useUserStore } from "vue-library";
 
 interface Props {
   entityIri: string;
@@ -99,7 +100,14 @@ const emit = defineEmits<{
   rowSelected: [payload: TreeNode | undefined];
 }>();
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = useTree(emit, 20);
+const userStore = useUserStore();
+const favourites = computed(() => userStore.favourites);
+
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = useTree(
+  favourites,
+  emit,
+  20
+);
 const { showOverlay, hideOverlay, OS } = useOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);

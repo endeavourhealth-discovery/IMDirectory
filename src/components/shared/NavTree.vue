@@ -54,7 +54,7 @@ import { byKey, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
-import { useTree } from "@/composables/useTree";
+import { useTree } from "vue-library/composables";
 import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";
 import { useCreateNew } from "@/composables/useCreateNew";
@@ -97,7 +97,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
 const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
-  useTree(emit, props.childLength ? props.childLength : 40);
+  useTree(favourites, emit, props.childLength ? props.childLength : 40);
 const { getCreateOptions, checkExists } = useCreateNew();
 
 const loading = ref(true);

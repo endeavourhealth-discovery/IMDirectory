@@ -63,16 +63,17 @@ import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-libra
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import { cloneDeep } from "lodash-es";
 import { ExtendedSearchResultSummary, TTIriRef } from "vue-library/interfaces";
-import { DirectService, EntityService, UserService } from "@/services";
+import { EntityService, UserService } from "@/services";
 import { useOverlay } from "vue-library/composables";
 import { RDF, RDFS } from "vue-library/enums";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useConfirm } from "primevue/useconfirm";
+import { useDirectService } from "@/composables/useDirectService";
 
 const { OS, showOverlay, hideOverlay } = useOverlay();
 
 const confirm = useConfirm();
-const directService = new DirectService();
+const directService = useDirectService();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const userFavourites = computed(() => userStore.favourites);

@@ -167,7 +167,7 @@ import JSONViewer from "./viewer/JSONViewer.vue";
 import Provenance from "./viewer/Provenance.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 
 import { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
 import {
@@ -194,6 +194,7 @@ import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjec
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import ModelChart from "@/components/directory/viewer/ModelChart.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
+import { useDirectService } from "@/composables/useDirectService";
 
 interface Props {
   entity: ExtendedTTEntity;
@@ -205,7 +206,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const directService = new DirectService();
+const directService = useDirectService();
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);

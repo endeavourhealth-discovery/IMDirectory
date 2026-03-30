@@ -39,11 +39,11 @@
 </template>
 
 <script setup lang="ts">
-import { DirectService } from "@/services";
 import { computed, onMounted, ref, Ref } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { getLogger } from "@/logger/LogConfig";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import { useDirectService } from "@/composables/useDirectService";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabel");
 interface Props {
@@ -60,7 +60,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const directoryStore = useDirectoryStore();
-const directService = new DirectService();
+const directService = useDirectService();
 const arrayObjectNameListboxWithLabelStartExpanded = computed(() => directoryStore.arrayObjectNameListboxWithLabelStartExpanded);
 
 const selected: Ref = ref({});

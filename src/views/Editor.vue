@@ -67,6 +67,7 @@ import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
 import { useUserStore } from "vue-library/stores";
+import { useDirectService } from "@/composables/useDirectService";
 
 export default defineComponent({
   components: {
@@ -104,7 +105,7 @@ import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@/enums";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { IM, RDF } from "vue-library/enums";
-import { DirectService, EntityService, SetService } from "@/services";
+import { EntityService, SetService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@/helpers/EditorMethods";
@@ -117,7 +118,7 @@ const filterStore = useFilterStore();
 const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
-const directService = new DirectService();
+const directService = useDirectService();
 const { fetchEntity, editorEntity, editorEntityOriginal, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
   useEditorEntity(EditorMode.EDIT, updateType);
 const { shape, getShapesCombined, groups, processShape } = useEditorShape();

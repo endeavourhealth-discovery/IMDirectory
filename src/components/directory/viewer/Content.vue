@@ -62,7 +62,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { cloneDeep } from "lodash-es";
 import { ExtendedEntityReferenceNode, TTIriRef } from "vue-library/interfaces";
 import { IM, RDF, RDFS } from "vue-library/enums";
-import { EntityService, DirectService, UserService } from "@/services";
+import { EntityService, UserService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getNamesAsStringFromTypes, getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
@@ -70,6 +70,7 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "vue-library/stores";
 import { useOverlay } from "vue-library/composables";
 import { MenuItem } from "primevue/menuitem";
+import { useDirectService } from "@/composables/useDirectService";
 
 const props = defineProps<{
   entityIri: string;
@@ -84,7 +85,7 @@ const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const { OS, showOverlay, hideOverlay } = useOverlay();
-const directService = new DirectService();
+const directService = useDirectService();
 
 watch(
   () => props.entityIri,

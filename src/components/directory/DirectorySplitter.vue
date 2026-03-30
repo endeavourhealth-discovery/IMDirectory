@@ -44,7 +44,6 @@
 <script setup lang="ts">
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { DirectService } from "@/services";
 import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { useRouter } from "vue-router";
@@ -52,6 +51,7 @@ import { useLoadingStore } from "@/stores/loadingStore";
 import { TreeNode } from "@/interfaces";
 import { FilterOptions, SearchResponse } from "vue-library/interfaces";
 import { SplitterResizeEndEvent } from "primevue/splitter";
+import { useDirectService } from "@/composables/useDirectService";
 
 defineProps<{
   searchTerm: string;
@@ -64,7 +64,7 @@ const emit = defineEmits<{ selectedFiltersUpdated: [payload: FilterOptions] }>()
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const directoryStore = useDirectoryStore();
-const directService = new DirectService();
+const directService = useDirectService();
 
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
 const findInTreeBoolean = computed(() => directoryStore.findInTreeBoolean);

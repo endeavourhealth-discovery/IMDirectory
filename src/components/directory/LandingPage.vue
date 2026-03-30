@@ -26,13 +26,13 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
-import { DirectService } from "@/services";
 import { IM, SHACL, NAMESPACE } from "vue-library/enums";
 import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
 import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
 import Favourites from "@/components/directory/landingPage/Favourites.vue";
+import { useDirectService } from "@/composables/useDirectService";
 
-const directService = new DirectService();
+const directService = useDirectService();
 
 const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: () => void; color: string; size: number; newTab?: boolean }[]> = ref([
   {

@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { DirectService, EclService, EntityService, QueryService, UserService } from "@/services";
+import { EclService, EntityService, QueryService, UserService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -125,6 +125,7 @@ import { MenuItem } from "primevue/menuitem";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import { nextTick } from "vue";
 import DataTable from "primevue/datatable";
+import { useDirectService } from "@/composables/useDirectService";
 
 interface Props {
   searchTerm?: string;
@@ -165,7 +166,7 @@ const searchLoading: Ref<boolean> = ref(false);
 const { downloadFile } = useDownloadFile(window, document);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const schemes: Ref<Namespace[]> = ref([]);
-const directService = new DirectService();
+const directService = useDirectService();
 
 const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
 const pageCache = ref<Record<number, ExtendedSearchResultSummary[] | undefined>>({});

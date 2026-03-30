@@ -125,7 +125,7 @@ const EntityService = {
     });
   },
 
-  async downloadEntity(iri: string) {
+  async downloadEntity(iri: string): Promise<Blob> {
     return await axios.get(API_URL + "/protected/downloadEntity", { params: { iri: iri }, responseType: "blob", raw: true });
   },
 
@@ -167,7 +167,7 @@ const EntityService = {
     });
   },
 
-  async downloadSearchResults(downloadSettings: DownloadByQueryOptions) {
+  async downloadSearchResults(downloadSettings: DownloadByQueryOptions): Promise<Blob> {
     return await axios.post(API_URL + "/protected/downloadSearchResults", downloadSettings, { responseType: "blob", raw: true });
   },
 

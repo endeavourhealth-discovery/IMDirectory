@@ -167,11 +167,12 @@ import { EditorMode } from "@/enums";
 import { isArrayHasLength } from "vue-library/helpers";
 import { propertyRangeTypes } from "@/helpers/EditorMethods";
 import { IM, RDF, RDFS, SHACL, SNOMED, XSD, NAMESPACE } from "vue-library/enums";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { updateRangeQuery } from "@/helpers/EditorMethods";
+import { useDirectService } from "@/composables/useDirectService";
 
 interface Props {
   shape: PropertyShape;
@@ -191,7 +192,7 @@ interface SimpleProp {
 }
 
 const props = defineProps<Props>();
-const directService = new DirectService();
+const directService = useDirectService();
 const rangeType: Ref<string> = ref("concept");
 const showValidation = ref(false);
 

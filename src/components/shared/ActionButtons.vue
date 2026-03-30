@@ -88,15 +88,16 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { DirectService, EntityService, UserService } from "@/services";
+import { EntityService, UserService } from "@/services";
 import { isArrayHasLength } from "vue-library/helpers";
 import { useUserStore } from "vue-library/stores";
 import { useDialog } from "primevue/usedialog";
 import { useConfirm } from "primevue/useconfirm";
 import { useDownloadFile } from "vue-library/composables";
 import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
+import { useDirectService } from "@/composables/useDirectService";
 
-const directService = new DirectService();
+const directService = useDirectService();
 const confirmDlg = useConfirm();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);

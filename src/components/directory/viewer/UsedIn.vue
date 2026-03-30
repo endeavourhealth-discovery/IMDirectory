@@ -42,8 +42,8 @@ import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
 import { useOverlay } from "vue-library/composables";
-import { DirectService } from "@/services";
 import { DataTableRowSelectEvent } from "primevue/datatable";
+import { useDirectService } from "@/composables/useDirectService";
 
 interface Usage {
   iri: string;
@@ -60,7 +60,7 @@ defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const directService = new DirectService();
+const directService = useDirectService();
 
 const usages: Ref<Usage[]> = ref([]);
 const loading = ref(false);
