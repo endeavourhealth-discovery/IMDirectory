@@ -74,10 +74,11 @@ import QueryService from "@/services/QueryService";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ExpressionConstraint from "@/components/directory/topbar/eclSearch/builder/ExpressionConstraint.vue";
 import { useDialog } from "primevue/usedialog";
-import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { Match, ECLQueryRequest, Query, Node } from "@/interfaces/AutoGen";
 import { useEclValidator } from "@/composables/useEclValidator";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 interface Props {
   showDialog?: boolean;
   showNames?: boolean;
@@ -89,6 +90,8 @@ const emit = defineEmits<{
   eclConversionError: [payload: { error: boolean; message: string }];
   closeDialog: [];
 }>();
+
+const dialogStore = useDialogStore();
 
 const checkIncludeSubtypes = ref(false);
 const dynamicDialog = useDialog();
@@ -219,22 +222,18 @@ async function validateBuild() {
 
 async function displayValidationMessage(invalid: boolean | undefined, message?: string) {
   if (!invalid) {
-    await Swal.fire({
+    await dialogStore.open(GenericDialog, {
       icon: "success",
       title: "Success",
-      backdrop: true,
-      showClass: { popup: "swal-popup" },
       text: "All entities are valid.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+      confirmButtonText: "Close"
     });
   } else {
-    await Swal.fire({
+    await dialogStore.open(GenericDialog, {
       icon: "warning",
       title: "Warning",
       text: message ? message : "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+      confirmButtonText: "Close"
     });
   }
 }
@@ -274,9 +273,6 @@ function stripValidation(build: any) {
 </script>
 
 <style scoped>
-.swal2-container {
-  z-index: 3000 !important;
-}
 #ecl-builder-dialog {
   display: flex;
   flex-direction: column;
