@@ -51,7 +51,6 @@
 <script setup lang="ts">
 import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
 import QueryService from "@/services/QueryService";
-import Swal from "sweetalert2";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
 import { Bool, Match, Query } from "@/interfaces/AutoGen";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";

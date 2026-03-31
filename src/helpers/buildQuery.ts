@@ -3,7 +3,6 @@ import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
 import { isFolder, isFunction, isProperty, isRecordModel } from "@/helpers/ConceptTypeMethods";
 import { v4 } from "uuid";

@@ -119,7 +119,6 @@ import { BugReport } from "@/interfaces/AutoGen";
 import { TaskModule, TaskState, TaskType, Browser, OperatingSystem, Status } from "@/enums";
 import { useUserStore } from "@/stores/userStore";
 import WorkflowService from "@/services/WorkflowService";
-import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import GithubService from "@/services/GithubService";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";

@@ -42,7 +42,6 @@ import { ApprovalType, EntityApproval, RoleRequest, Task, UserRole } from "@/int
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
 import { EntityService } from "@/services";

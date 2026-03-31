@@ -164,7 +164,6 @@ import PrimeVueColors from "@/enums/PrimeVueColors";
 import Button from "primevue/button";
 import { FontSize, UserRole } from "@/enums";
 import { useCookies } from "@vueuse/integrations";
-import Swal from "sweetalert2";
 import { useDialog } from "primevue/usedialog";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { DialogProps } from "primevue";

@@ -1,5 +1,4 @@
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import Swal from "sweetalert2";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { useDialogStore } from "@/stores/dialogStore";
 

@@ -31,17 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import { enumToArray } from "@/helpers/Converters";
 import { RoleRequest, Task, UserRole } from "@/interfaces/AutoGen";
 import SecurityService from "@/services/SecurityService";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "@/stores/userStore";
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskViewer from "./TaskViewer.vue";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
-import { useDialog } from "primevue/usedialog";
 import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {

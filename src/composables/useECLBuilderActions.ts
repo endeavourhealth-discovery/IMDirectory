@@ -1,6 +1,5 @@
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { Ref, toRaw } from "vue";
-import Swal from "sweetalert2";
 import { useToast } from "primevue/usetoast";
 import { cloneDeep } from "lodash-es";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";

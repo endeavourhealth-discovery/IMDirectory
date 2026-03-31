@@ -95,7 +95,8 @@ import { useEclValidator } from "@/composables/useEclValidator";
 import { useDialog } from "primevue/usedialog";
 import { IM } from "@/vocabulary";
 import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
-import Swal from "sweetalert2";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   shape: PropertyShape;
@@ -103,7 +104,7 @@ interface Props {
   value?: string;
 }
 
-const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
 
 const props = defineProps<Props>();
 const validationDialog = useDialog();
@@ -268,12 +269,11 @@ function showBuilder(): void {
 }
 
 async function showInvalidAlert() {
-  await Swal.fire({
+  await dialogStore.open(GenericDialog, {
     icon: "warning",
     title: "Warning",
-    text: "Invalid ECL . Please fix or remove ecl before using builder.",
-    confirmButtonText: "Close",
-    confirmButtonColor: "#689F38"
+    text: "Invalid ECL. Please fix or remove ecl before using builder.",
+    confirmButtonText: "Close"
   });
 }
 

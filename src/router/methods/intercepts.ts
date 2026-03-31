@@ -1,10 +1,6 @@
 import { useSharedStore } from "@/stores/sharedStore";
-import Swal, { SweetAlertResult } from "sweetalert2";
 import { Router } from "vue-router";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { toRaw } from "vue";
-import { getDialog } from "@/services/DialogService";
 import { useDialogStore } from "@/stores/dialogStore";
 
 export async function directToLogin(router: Router) {

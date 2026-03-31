@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import { GithubService } from "@/services";
-import Swal from "sweetalert2";
 import { ref } from "vue";
 import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
 import { useDialogStore } from "@/stores/dialogStore";
