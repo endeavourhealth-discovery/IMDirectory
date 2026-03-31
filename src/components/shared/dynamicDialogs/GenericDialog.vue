@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -48,7 +48,8 @@ const cancelButtonText = ref("");
 const reverseButtons = ref(false);
 const showCancelButton = ref(false);
 
-const emit = defineEmits(["cancel", "confirm", "deny"]);
+const isLoading = computed(() => dialogStore.isLoading);
+const error = computed(() => dialogStore.error);
 
 onMounted(() => {
   if (dialogRef.value) {
@@ -66,15 +67,15 @@ onMounted(() => {
 });
 
 function buttonClick() {
-  dialogStore.resolve({ confirm: false });
+  dialogStore.cancel();
 }
 
 function confirmButtonClick() {
-  dialogStore.resolve({ confirm: true });
+  dialogStore.confirm();
 }
 
 function denyButtonClick() {
-  dialogStore.resolve({ deny: true });
+  dialogStore.deny();
 }
 </script>
 
