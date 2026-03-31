@@ -223,14 +223,14 @@ async function validateBuild() {
 async function displayValidationMessage(invalid: boolean | undefined, message?: string) {
   if (!invalid) {
     await dialogStore.open(GenericDialog, {
-      icon: "success",
+      icon: "fa-regular fa-circle-check",
       title: "Success",
       text: "All entities are valid.",
       confirmButtonText: "Close"
     });
   } else {
     await dialogStore.open(GenericDialog, {
-      icon: "warning",
+      icon: "fa-regular fa-circle-exclamation",
       title: "Warning",
       text: message ? message : "Invalid values found. Please review your entries.",
       confirmButtonText: "Close"

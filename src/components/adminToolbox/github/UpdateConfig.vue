@@ -32,7 +32,7 @@ async function updateGithubConfig() {
       await dialogStore.open(GenericDialog, {
         props: { modal: true, style: { width: "30vw" } },
         data: {
-          icon: "error",
+          icon: "fa-regular fa-circle-exclamation",
           title: "Error",
           text: "Failed to update github config. Check the console to see the error."
         }

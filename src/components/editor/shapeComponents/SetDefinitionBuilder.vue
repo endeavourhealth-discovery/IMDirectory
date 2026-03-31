@@ -270,7 +270,7 @@ function showBuilder(): void {
 
 async function showInvalidAlert() {
   await dialogStore.open(GenericDialog, {
-    icon: "warning",
+    icon: "fa-regular fa-circle-exclamation",
     title: "Warning",
     text: "Invalid ECL. Please fix or remove ecl before using builder.",
     confirmButtonText: "Close"
