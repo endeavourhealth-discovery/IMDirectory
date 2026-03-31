@@ -46,8 +46,8 @@ export const useDialogStore = defineStore("dialog", () => {
         return;
       }
       resolve({ confirm: true, value: result });
-    } catch (err) {
-      error = err instanceof Error ? err.message : "Something went wrong";
+    } catch (err: any) {
+      error = err.message ? err.message : "Something went wrong";
       isLoading = false;
     }
   }
