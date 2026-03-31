@@ -24,7 +24,7 @@ export const useDialogStore = defineStore("dialog", () => {
     return new Promise(resolve => {
       resolver = resolve;
       preConfirm = data?.preConfirm ?? null;
-      dialogRef = dialogService!.open(component, { data });
+      dialogRef = dialogService!.open(component, data);
     });
   }
 
