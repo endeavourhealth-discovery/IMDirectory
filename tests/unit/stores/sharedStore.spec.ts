@@ -34,6 +34,10 @@ describe("state", () => {
 });
 
 describe("mutations", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    createTestingPinia({ stubActions: false });
+  });
   it("can updateSnomedLicenseAccepted", () => {
     const userStore = useUserStore();
     const testBool = true;

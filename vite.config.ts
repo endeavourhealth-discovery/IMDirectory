@@ -21,14 +21,15 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
-    outDir: '.output',
+    outDir: ".output",
     emptyOutDir: true
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "./runtimeConfig": "./runtimeConfig.browser"
-    }
+    },
+    dedupe: ["vue", "primevue", "@primeuix/themes", "pinia"]
   },
   test: {
     globals: true,

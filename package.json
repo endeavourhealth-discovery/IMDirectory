@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.1.1",
+    "@msw/data": "1.1.2",
     "@primeuix/themes": "1.0.3",
     "@primevue/auto-import-resolver": "4.3.3",
     "@sass-collective/strip-unit": "3.1.2",
@@ -66,7 +67,8 @@
     "vue-showdown": "4.2.0",
     "vue3-clipboard": "1.0.0",
     "vuedraggable": "2.24.3",
-    "yup": "1.6.1"
+    "yup": "1.6.1",
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@eslint/css": "0.7.0",
@@ -74,7 +76,6 @@
     "@eslint/js": "9.25.1",
     "@faker-js/faker": "9.7.0",
     "@getgauge/cli": "1.6.22",
-    "@mswjs/data": "0.16.2",
     "@originjs/vite-plugin-commonjs": "1.0.3",
     "@pinia/testing": "1.0.1",
     "@playwright/test": "^1.57.0",

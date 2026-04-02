@@ -1,7 +1,7 @@
 import { expect, vi } from "vitest";
 import { EntityService } from "@/services";
 import { IM, SHACL } from "vue-library/enums";
-import { fakerFactory } from "@/mocks/fakerFactory";
+import * as fakerFactory from "@/mocks/fakerFactory";
 import { mountComposable } from "../TestMethods";
 import { EditorMode } from "@/enums";
 
@@ -30,7 +30,7 @@ describe("fetchEntity", () => {
   });
 
   it("gets full entity by iri and process entity", async () => {
-    const testEntity = fakerFactory.entity.create();
+    const testEntity = await fakerFactory.entityRandom();
     getFullEntitySpy.mockResolvedValue(testEntity);
     getEntityTypesSpy.mockResolvedValue([]);
     const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: "testIri" } });
@@ -49,8 +49,8 @@ describe("processEntity", () => {
     vi.resetAllMocks();
     mockUpdateType = vi.fn();
   });
-  it("changes iri to full iri and removes im1id and im1scheme", () => {
-    const testEntity = fakerFactory.entity.create();
+  it("changes iri to full iri and removes im1id and im1scheme", async () => {
+    const testEntity = await fakerFactory.entityRandom();
     testEntity[IM.IM_1_ID] = "testIri";
     testEntity[IM.IM_1_SCHEME] = [{ iri: "testScheme" }];
     const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
