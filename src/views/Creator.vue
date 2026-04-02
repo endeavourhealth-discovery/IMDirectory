@@ -111,7 +111,7 @@ import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { EditorMode } from "@/enums";
 import { IM, RDF, RDFS } from "@/vocabulary";
-import { DirectService, EntityService, SetService } from "@/services";
+import { DirectService, EntityService, SecurityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
@@ -413,22 +413,23 @@ async function submit(): Promise<void> {
 }
 
 async function closeCreator() {
-  await dialogStore.open(GenericDialog, {
-    props: { modal: true, style: { width: "30vw" }, closable: false },
-    data: {
-      icon: "fa-regular fa-circle-exclamation",
-      title: "Warning",
-      text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
-      showCancelButton: true,
-      confirmButtonText: "Close",
-      reverseButtons: true
-    },
-    onClose: async (result: any) => {
-      if (result?.data.confirm) {
-        await router.push({ name: "LandingPage" });
+  await dialogStore
+    .open(GenericDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+        showCancelButton: true,
+        confirmButtonText: "Close",
+        reverseButtons: true
       }
-    }
-  });
+    })
+    .then(async result => {
+      if (result.confirm) {
+        await router.push("/directory");
+      }
+    });
 }
 
 function processEntityValue(property: PropertyShape) {

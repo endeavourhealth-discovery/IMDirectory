@@ -1,30 +1,32 @@
 import { defineStore } from "pinia";
 import { useDialog } from "primevue/usedialog";
 import { DynamicDialogInstance } from "primevue/dynamicdialogoptions";
+import { ref } from "vue";
 
 type PrimeDialog = ReturnType<typeof useDialog>;
-type PreConfirm<T = any> = () => T | false | Promise<T | false>;
 
 export const useDialogStore = defineStore("dialog", () => {
-  let dialogService: PrimeDialog | null;
-  let dialogRef: DynamicDialogInstance | null;
+  const dialogService = ref<PrimeDialog | null>();
+  let dialogRef = ref<DynamicDialogInstance | null>();
   let resolver: ((v: any) => void) | null;
 
-  let preConfirm: PreConfirm | null;
-  let isLoading = false;
-  let error: string | null;
+  let dialogData = ref({});
+  let isLoading = ref(false);
+  let error = ref<string | null>();
 
   function register(service: PrimeDialog) {
-    dialogService = service;
+    dialogService.value = service;
   }
 
   function open(component: any, data?: any): Promise<any> {
     if (!dialogService) throw new Error("Dialog service not registered correctly.");
 
+    error.value = null;
+    dialogData = data;
+
     return new Promise(resolve => {
       resolver = resolve;
-      preConfirm = data?.preConfirm ?? null;
-      dialogRef = dialogService!.open(component, data);
+      dialogRef.value = dialogService.value!.open(component, data);
     });
   }
 
@@ -33,23 +35,20 @@ export const useDialogStore = defineStore("dialog", () => {
     cleanup();
   }
 
-  async function confirm() {
-    if (isLoading) return;
+  async function confirm(preConfirm: any) {
+    if (isLoading.value) return;
 
-    error = null;
-    isLoading = true;
+    error.value = null;
+    isLoading.value = true;
 
-    try {
-      const result = await preConfirm?.();
-      if (result === false) {
-        isLoading = false;
+    if (preConfirm) {
+      const result = await preConfirm();
+      if (!result) {
+        isLoading.value = false;
         return;
       }
-      resolve({ confirm: true, value: result });
-    } catch (err: any) {
-      error = err.message ? err.message : "Something went wrong";
-      isLoading = false;
     }
+    resolve({ confirm: true });
   }
 
   function cancel() {
@@ -62,11 +61,14 @@ export const useDialogStore = defineStore("dialog", () => {
 
   function cleanup() {
     resolver = null;
-    preConfirm = null;
-    dialogRef?.close();
-    dialogRef = null;
-    isLoading = false;
-    error = null;
+    dialogRef.value?.close();
+    dialogRef.value = null;
+    isLoading.value = false;
+    error.value = null;
+  }
+
+  function setError(err: any) {
+    error.value = err;
   }
 
   return {
@@ -75,11 +77,10 @@ export const useDialogStore = defineStore("dialog", () => {
     confirm,
     cancel,
     deny,
+    setError,
+    error,
     get isLoading() {
       return isLoading;
-    },
-    get error() {
-      return error;
     }
   };
 });

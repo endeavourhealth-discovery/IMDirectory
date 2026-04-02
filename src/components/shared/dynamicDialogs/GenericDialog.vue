@@ -1,11 +1,12 @@
 <template>
-  <div class="dynamic-loading-container">
+  <div class="dynamic-loading-container generic-dialog">
     <IMFontAwesomeIcon :icon="icon" size="4x" class="m-4" />
     <h2 v-if="title">{{ title }}</h2>
     <p v-if="text">{{ text }}</p>
     <div v-if="html" v-html="html"></div>
+    <p v-if="error" class="mt-2 text-red-500">{{ error }}</p>
     <div v-if="!reverseButtons" class="m-6 flex flex-row flex-nowrap items-center gap-4">
-      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" />
+      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" :loading="isLoading" />
       <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex" :label="denyButtonText" />
       <Button
         v-if="cancelButtonText || showCancelButton"
@@ -24,13 +25,13 @@
         :label="cancelButtonText ? cancelButtonText : 'Cancel'"
       />
       <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex" :label="denyButtonText" />
-      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" />
+      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" :loading="isLoading" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, Ref, ref } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -47,6 +48,7 @@ const denyButtonText = ref("");
 const cancelButtonText = ref("");
 const reverseButtons = ref(false);
 const showCancelButton = ref(false);
+const preConfirm = ref();
 
 const isLoading = computed(() => dialogStore.isLoading);
 const error = computed(() => dialogStore.error);
@@ -63,6 +65,7 @@ onMounted(() => {
     if (params.cancelButtonText) cancelButtonText.value = params.cancelButtonText;
     if (params.reverseButtons) reverseButtons.value = params.reverseButtons;
     if (params.showCancelButton) showCancelButton.value = params.showCancelButton;
+    if (params.preConfirm) preConfirm.value = params.preConfirm;
   }
 });
 
@@ -71,7 +74,7 @@ function buttonClick() {
 }
 
 function confirmButtonClick() {
-  dialogStore.confirm();
+  dialogStore.confirm(preConfirm.value);
 }
 
 function denyButtonClick() {
