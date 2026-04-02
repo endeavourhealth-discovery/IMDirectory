@@ -97,7 +97,6 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRoute, useRouter } from "vue-router";
 import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
 import { cloneDeep } from "lodash-es";
-import Swal, { SweetAlertResult } from "sweetalert2";
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
 import "vue-json-pretty/lib/styles.css";
@@ -109,9 +108,12 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@/helpers/EditorMethods";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import GenericDialog from "@/components/shared/dynamicDialogs/GenericDialog.vue";
+import { useDialogStore } from "@/stores/dialogStore";
 
 const router = useRouter();
 const route = useRoute();
+const dialogStore = useDialogStore();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const userStore = useUserStore();
@@ -252,79 +254,88 @@ function submit(): void {
         forceValidation.value = false;
         verificationDialog.close();
         if (isValidEntity(editorEntity.value)) {
-          await Swal.fire({
-            icon: "info",
-            title: "Confirm save",
-            text: "Are you sure you want to save your changes?",
-            showCancelButton: true,
-            confirmButtonText: "Save",
-            reverseButtons: true,
-            confirmButtonColor: "#2196F3",
-            cancelButtonColor: "#607D8B",
-            showLoaderOnConfirm: true,
-            allowOutsideClick: () => !Swal.isLoading(),
-            backdrop: true,
-            preConfirm: async () => {
-              if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET]) || isObjectHasKeys(editorEntityOriginal.value, [IM.HAS_SUBSET])) {
-                await SetService.updateSubsetsFromSuper(editorEntity.value);
-                delete editorEntity.value[IM.HAS_SUBSET];
-              }
-              const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
-              if (res) {
-                editorStore.updateEditorSavedEntity(undefined);
-                return res;
-              } else Swal.showValidationMessage("Error saving entity to server.");
-            }
-          }).then(async (result: SweetAlertResult) => {
-            if (result.isConfirmed) {
-              await Swal.fire({
-                title: "Success",
-                text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
-                icon: "success",
+          await dialogStore
+            .open(GenericDialog, {
+              props: { modal: true, style: { width: "30vw" }, closable: false },
+              data: {
+                icon: "fa-regular fa-circle-info",
+                title: "Confirm save",
+                text: "Are you sure you want to save your changes?",
                 showCancelButton: true,
+                confirmButtonText: "Save",
                 reverseButtons: true,
-                confirmButtonText: "Open in Viewer",
-                confirmButtonColor: "#2196F3",
-                cancelButtonColor: "#607D8B"
-              }).then(async (result: SweetAlertResult) => {
-                if (result.isConfirmed) {
-                  await directService.view(editorEntity.value[IM.ID]);
-                } else {
-                  await fetchEntity();
+                preConfirm: async () => {
+                  if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET]) || isObjectHasKeys(editorEntityOriginal.value, [IM.HAS_SUBSET])) {
+                    await SetService.updateSubsetsFromSuper(editorEntity.value);
+                    delete editorEntity.value[IM.HAS_SUBSET];
+                  }
+                  const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
+                  if (res) {
+                    editorStore.updateEditorSavedEntity(undefined);
+                    return res;
+                  } else dialogStore.setError("Error saving entity to server.");
                 }
-              });
-            }
-          });
+              }
+            })
+            .then(async (result: any) => {
+              if (result?.confirm) {
+                await dialogStore
+                  .open(GenericDialog, {
+                    props: { modal: true, style: { width: "30vw" }, closable: false },
+                    data: {
+                      title: "Success",
+                      text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
+                      icon: "fa-regular fa-circle-check",
+                      showCancelButton: true,
+                      reverseButtons: true,
+                      confirmButtonText: "Open in Viewer"
+                    }
+                  })
+                  .then(async result => {
+                    if (result.confirm) {
+                      await directService.view(editorEntity.value[IM.ID]);
+                    } else {
+                      await fetchEntity();
+                    }
+                  });
+              }
+            });
         } else {
-          await Swal.fire({
-            icon: "warning",
-            title: "Warning",
-            text: "Invalid values found. Please review your entries.",
-            confirmButtonText: "Close",
-            confirmButtonColor: "#689F38"
+          await dialogStore.open(GenericDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-exclamation",
+              title: "Warning",
+              text: "Invalid values found. Please review your entries.",
+              confirmButtonText: "Close"
+            }
           });
         }
       } else {
         forceValidation.value = false;
         verificationDialog.close();
-        await Swal.fire({
-          icon: "error",
-          title: "Timeout",
-          text: "Validation timed out. Please contact an admin for support.",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#689F38"
+        await dialogStore.open(GenericDialog, {
+          props: { modal: true, style: { width: "30vw" }, closable: false },
+          data: {
+            icon: "fa-regular fa-circle-exclamation",
+            title: "Warning",
+            text: "Invalid values found. Please review your entries.",
+            confirmButtonText: "Close"
+          }
         });
       }
     })
     .catch(async () => {
       forceValidation.value = false;
       verificationDialog.close();
-      await Swal.fire({
-        icon: "error",
-        title: "Timeout",
-        text: "Validation timed out. Please contact an admin for support.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(GenericDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-xmark",
+          title: "Timeout",
+          text: "Validation timed out. Please contact an admin for support",
+          confirmButtonText: "Close"
+        }
       });
     });
 }
@@ -337,22 +348,24 @@ function processEntityValue(property: PropertyShape) {
 }
 
 async function closeEditor() {
-  await Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
-    showCancelButton: true,
-    confirmButtonText: "Close",
-    reverseButtons: true,
-    confirmButtonColor: "#D32F2F",
-    cancelButtonColor: "#607D8B",
-    customClass: { confirmButton: "swal-reset-button" }
-  }).then(async (result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      if (window.history.state.back === null) await router.push({ name: "Folder", params: { selectedIri: editorIri } });
-      else router.go(-1);
-    }
-  });
+  await dialogStore
+    .open(GenericDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+        showCancelButton: true,
+        confirmButtonText: "Close",
+        reverseButtons: true
+      }
+    })
+    .then(async result => {
+      if (result.confirm) {
+        if (window.history.state.back === null) await router.push({ name: "Folder", params: { selectedIri: editorIri } });
+        else router.go(-1);
+      }
+    });
 }
 </script>
 

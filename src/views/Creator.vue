@@ -102,7 +102,6 @@ import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { cloneDeep } from "lodash-es";
-import Swal, { SweetAlertResult } from "sweetalert2";
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
 import { useRoute, useRouter } from "vue-router";
@@ -258,45 +257,52 @@ function removeEndSlash(urlProp: string) {
 }
 
 async function showEntityFoundWarning() {
-  await Swal.fire({
-    title: "Unsaved creator entity found",
-    html:
-      "<span>Local saved entity found. Would you like to continue creating this entity?</span><br/><br/><span>iri: " +
-      creatorSavedEntity.value?.iri +
-      "</span><br/><span>name: " +
-      creatorSavedEntity.value?.[RDFS.LABEL] +
-      "</span>",
-    showCloseButton: false,
-    showCancelButton: true,
-    cancelButtonText: "No",
-    confirmButtonText: "Yes",
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    reverseButtons: true
-  }).then(async result => {
-    if (result.isConfirmed) {
-      editorEntityOriginal.value = {};
-      editorEntity.value = cloneDeep(processEntity(creatorSavedEntity.value));
-      currentStep.value = 1;
-    } else {
-      await Swal.fire({
-        title: "Delete saved entity",
-        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.iri + ". Are you sure you want to continue?",
+  await dialogStore
+    .open(GenericDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        title: "Unsaved creator entity found",
+        html:
+          "<span>Local saved entity found. Would you like to continue creating this entity?</span><br/><br/><span>iri: " +
+          creatorSavedEntity.value?.iri +
+          "</span><br/><span>name: " +
+          creatorSavedEntity.value?.[RDFS.LABEL] +
+          "</span>",
         showCloseButton: false,
         showCancelButton: true,
-        cancelButtonText: "Cancel",
-        confirmButtonText: "Delete local entity",
-        confirmButtonColor: "#EF4444"
-      }).then(async result => {
-        if (result.isConfirmed) {
-          editorEntityOriginal.value = {};
-          editorEntity.value = {};
-        } else {
-          await showEntityFoundWarning();
-        }
-      });
-    }
-  });
+        cancelButtonText: "No",
+        confirmButtonText: "Yes",
+        reverseButtons: true
+      }
+    })
+    .then(async (result: any) => {
+      if (result?.confirm) {
+        editorEntityOriginal.value = {};
+        editorEntity.value = cloneDeep(processEntity(creatorSavedEntity.value));
+        currentStep.value = 1;
+      } else {
+        await dialogStore
+          .open(GenericDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              title: "Delete saved entity",
+              text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.iri + ". Are you sure you want to continue?",
+              showCloseButton: false,
+              showCancelButton: true,
+              cancelButtonText: "Cancel",
+              confirmButtonText: "Delete local entity"
+            }
+          })
+          .then(async result => {
+            if (result.confirm) {
+              editorEntityOriginal.value = {};
+              editorEntity.value = {};
+            } else {
+              await showEntityFoundWarning();
+            }
+          });
+      }
+    });
 }
 
 watch(
@@ -342,51 +348,57 @@ async function submit(): Promise<void> {
       forceValidation.value = false;
       verificationDialog.close();
       if (isValidEntity(editorEntity.value)) {
-        await Swal.fire({
-          icon: "info",
-          title: "Confirm create",
-          text: "Are you sure you want to create this entity?",
-          showCancelButton: true,
-          confirmButtonText: "Create",
-          reverseButtons: true,
-          confirmButtonColor: "#689F38",
-          cancelButtonColor: "#607D8B",
-          showLoaderOnConfirm: true,
-          allowOutsideClick: () => !Swal.isLoading(),
-          preConfirm: async () => {
-            if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
-              await SetService.updateSubsetsFromSuper(editorEntity.value);
-              delete editorEntity.value[IM.HAS_SUBSET];
-            }
-            const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
-            if (res) {
-              creatorStore.updateCreatorSavedEntity(undefined);
-              return res;
-            } else Swal.showValidationMessage("Error creating entity from server.");
-          }
-        }).then(async (result: SweetAlertResult) => {
-          if (result.isConfirmed) {
-            await Swal.fire({
-              title: "Success",
-              text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
-              icon: "success",
-              showCloseButton: true,
+        await dialogStore
+          .open(GenericDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-info",
+              title: "Confirm create",
+              text: "Are you sure you want to create this entity?",
+              showCancelButton: true,
+              confirmButtonText: "Create",
               reverseButtons: true,
-              confirmButtonText: "Close creator",
-              confirmButtonColor: "#2196F3",
-              cancelButtonColor: "#607D8B"
-            }).then(async (result: SweetAlertResult) => {
-              if (result.isConfirmed) {
-                window.onbeforeunload = null;
-                // If added via addEventListener
-                window.removeEventListener("beforeunload", beforeWindowUnload);
-                setTimeout(() => {
-                  window.close();
-                }, 0);
+              preConfirm: async () => {
+                if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
+                  await SetService.updateSubsetsFromSuper(editorEntity.value);
+                  delete editorEntity.value[IM.HAS_SUBSET];
+                }
+                const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
+                console.log(res);
+                if (res) {
+                  creatorStore.updateCreatorSavedEntity(undefined);
+                  return res;
+                } else {
+                  dialogStore.setError("Error creating entity from server.");
+                }
               }
-            });
-          }
-        });
+            }
+          })
+          .then(async (result: any) => {
+            if (result?.confirm) {
+              await dialogStore
+                .open(GenericDialog, {
+                  props: { modal: true, style: { width: "30vw" }, closable: false },
+                  data: {
+                    title: "Success",
+                    text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
+                    icon: "fa-regular fa-circle-check",
+                    reverseButtons: true,
+                    confirmButtonText: "Close creator"
+                  }
+                })
+                .then(async result => {
+                  if (result.confirm) {
+                    window.onbeforeunload = null;
+                    // If added via addEventListener
+                    window.removeEventListener("beforeunload", beforeWindowUnload);
+                    setTimeout(() => {
+                      window.close();
+                    }, 0);
+                  }
+                });
+            }
+          });
       } else {
         await dialogStore.open(GenericDialog, {
           props: { modal: true, style: { width: "30vw" }, closable: false },
@@ -403,7 +415,7 @@ async function submit(): Promise<void> {
       await dialogStore.open(GenericDialog, {
         props: { modal: true, style: { width: "30vw" }, closable: false },
         data: {
-          icon: "fa-regular fa-circle-exclamation",
+          icon: "fa-regular fa-circle-xmark",
           title: "Timeout",
           text: "Validation timed out. Please contact an admin for support",
           confirmButtonText: "Close"
