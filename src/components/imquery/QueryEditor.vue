@@ -37,9 +37,26 @@
         @rationalise="rationaliseBooleans"
       />
     </template>
-    <div v-if="query.typeOf">
-      <DataSetEditor :query="query" />
-    </div>
+    <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
+      <div><strong>Dataset entries:</strong></div>
+      <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
+        <DataSetEditor
+          :index="index"
+          :query="query"
+          v-model:match="query.columnGroup[index]"
+          @delete-group="onDeleteGroup(index)"
+          @save-column-group="saveColumnGroup"
+        />
+      </template>
+    </template>
+    <Button
+      label="Add Dataset entry"
+      icon="fa-solid fa-plus"
+      severity="secondary"
+      class="addColumnGroup-btn"
+      @click="addColumnGroup"
+      data-testid="query-editor-add-column-button"
+    />
 
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
@@ -64,6 +81,9 @@ import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
 import { cloneDeep, isEqual } from "lodash-es";
 import { usePropertyTree } from "@/composables/usePropertyTree";
 import type { TreeNode } from "primevue/treenode";
+import Button from "primevue/button";
+import { v4 } from "uuid";
+import { value } from "jsonpath";
 interface Props {
   showDialog?: boolean;
   sourceQuery: Query;
@@ -89,22 +109,12 @@ const op = ref();
 const parentIndex = ref(0);
 const { createFeatureTree } = usePropertyTree();
 const rootNodes: Ref<TreeNode[]> = ref([]);
-const keepAs:Ref<Match[]> = ref([]);
-provide("keepAs",keepAs );
+const keepAs: Ref<Match[]> = ref([]);
+provide("keepAs", keepAs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
 provide("childLoadingState", childLoadingState);
-provide("featureTree", rootNodes);
-
-watch(
-  () => query.value.typeOf,
-  async newValue => {
-    if (query.value.typeOf) {
-      rootNodes.value = await createFeatureTree(query.value.typeOf);
-    }
-  }
-);
 
 watch(
   () => props.showDialog,
@@ -120,11 +130,21 @@ onMounted(async () => {
 function toggle(event: any) {
   op.value.toggle(event);
 }
+function onDeleteGroup(index: number) {
+  if (query.value.columnGroup && query.value.columnGroup.length > 0) query.value.columnGroup.splice(index, 1);
+}
+function addColumnGroup() {
+  if (!query.value.columnGroup) query.value.columnGroup = [];
+  const match = { uuid: v4(), draft: true } as Match;
+  query.value.columnGroup.push(match);
+}
+function saveColumnGroup(index: number, match: Match) {
+  query.value.columnGroup![index] = match;
+}
+
+function cancelEditGroup() {}
 
 async function init() {
-  if (query.value.typeOf) {
-    rootNodes.value = await createFeatureTree(query.value.typeOf);
-  }
   loading.value = false;
 }
 function createDefaultBuild() {

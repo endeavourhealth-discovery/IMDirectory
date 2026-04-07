@@ -1,7 +1,7 @@
 <template>
   <div v-if="!editMatch.is">
     <Dialog
-      v-model:visible="showMatchEditor"
+      :visible="showEditor"
       modal
       closable
       :draggable="false"
@@ -14,6 +14,7 @@
         <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
           <ProgressSpinner />
         </div>
+
         <Splitter class="h-full w-full" layout="horizontal">
           <SplitterPanel :size="25" class="column-selector">
             <div class="tree-scroll-container" @click.stop>
@@ -26,7 +27,7 @@
                 :lazy="true"
                 icon="loading"
                 selectionMode="single"
-                @node-expand="expandNode"
+                @node-expand="onMatchNodeExpand"
                 @node-select="onNodeSelect"
                 :propagateSelectionUp="false"
                 :propagateSelectionDown="false"
@@ -55,13 +56,13 @@
               <Tree
                 v-if="activeTab === 'columns'"
                 v-model:expandedKeys="expandedKeys"
-                v-model:selectionKeys="selectedReturnNodeKey"
+                v-model:selectionKeys="selectedNodeKey"
                 :loading="loading"
-                :value="returnNodes"
+                :value="typeNodes"
                 :lazy="true"
                 icon="loading"
                 selectionMode="single"
-                @node-expand="expandNode"
+                @node-expand="onReturnNodeExpand"
                 @node-select="onReturnNodeSelect"
                 :propagateSelectionUp="false"
                 :propagateSelectionDown="false"
@@ -92,16 +93,20 @@
           <SplitterPanel class="column-selector">
             <Tabs v-model:value="activeTab" class="match-editor-tabs">
               <TabList>
-                <Tab value="filter">Conditions</Tab>
+                <Tab value="filter">Filter</Tab>
                 <Tab v-if="editMatch.then" value="test">Post ordering tests</Tab>
-                <Tab value="columns">Return columns</Tab>
+                <Tab value="columns">
+                  <span v-if="!datasetEntry">Columns to keep</span>
+                  <span v-else>Dataset items</span>
+                </Tab>
               </TabList>
               <TabPanels>
                 <TabPanel value="filter">
                   <div>
                     <MatchContentEditor
-                      v-if="!editMatch.invalid"
+                      v-if="!editMatch.invalid && nodeShape"
                       :base-type="baseType"
+                      :nodeShape="nodeShape"
                       v-model:match="editMatch"
                       :from="from"
                       :depth="0"
@@ -118,8 +123,9 @@
                   <div v-if="editMatch.then">
                     <div>
                       <MatchContentEditor
-                        v-if="!editMatch.invalid"
+                        v-if="!editMatch.invalid && nodeShape"
                         :base-type="baseType"
+                        :nodeShape="nodeShape"
                         v-model:match="editMatch"
                         v-model:then="editMatch.then"
                         :from="from"
@@ -154,41 +160,40 @@
       </template>
     </Dialog>
   </div>
-  <div v-if="editMatch.is" class="where-container">
-    <CohortEditor v-model:match="editMatch" :editMode="editCohort" @updateCohort="onSave" @cancel="onCancel" />
+  <div v-if="editMatch.is">
+    <CohortEditor v-model:match="editMatch" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="onCancel" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Bool, DisplayMode, Match, Node, TTIriRef, Return } from "@/interfaces/AutoGen";
+import { Bool, DisplayMode, Match, Node, TTIriRef, NodeShape } from "@/interfaces/AutoGen";
 import { onMounted, Ref, ref, watch, inject } from "vue";
 import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { EntityService, QueryService } from "@/services";
+import { EntityService, QueryService, DataModelService } from "@/services";
 import { IM } from "@/vocabulary";
 import type { TreeNode } from "primevue/treenode";
-import { setDefiningProperty, setPathGetNodeRef } from "@/helpers/buildQuery";
+import { addReturn, addFilter, setDefiningProperty } from "@/helpers/buildQuery";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
-import { usePropertyTree } from "@/composables/usePropertyTree";
+import { usePropertyTree, Mode } from "@/composables/usePropertyTree";
 import { cloneDeep } from "lodash-es";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
-import { findNodeByKey } from "@/helpers/TreeHelper";
-import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import Swal from "sweetalert2";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
-import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
+
 interface Props {
   baseType: Node;
   match: Match;
   from?: Match;
   depth: number;
   clauseIndex: number;
+  showEditor: boolean;
   editCohort?: boolean;
+  datasetEntry?: boolean;
 }
 
 const props = defineProps<Props>();
-const showMatchEditor = defineModel<boolean>("showMatchEditor", { default: false });
 const editMatch: Ref<Match> = ref(cloneDeep(props.match));
 const emit = defineEmits<{
   (event: "saveChanges", match: Match): void;
@@ -201,51 +206,68 @@ const activeTab = ref("filter");
 const expandedKeys = ref<Record<string, boolean>>({});
 const expandedReturnKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const selectedReturnNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const { expandNode, addWhereFromTree, findNodesFromMatch, findReturnNodesFromMatch } = usePropertyTree();
+const { expandNode, createModeView, getTypeNode, createFeatureTree } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
-const rootNodes = inject("featureTree") as Ref<TreeNode[]>;
 const edited = ref(false);
 const initialized = ref(false);
-const typeNodes: Ref<TreeNode[]> = ref(rootNodes.value);
-const returnNodes: Ref<TreeNode[]> = ref(rootNodes.value);
+const typeNodes: Ref<TreeNode[]> = ref([]);
 const keepAs = inject("keepAs") as Ref<Match[]>;
+const nodeShape: Ref<NodeShape | undefined> = ref();
 
 onMounted(async () => {
   await init();
 });
 
+watch(activeTab, async () => {
+  if (!initialized.value) {
+    initialized.value = true;
+  } else {
+    setupTrees(activeTab.value === "columns" ? "return" : "match");
+    expandedKeys.value = { [typeNodes.value[0].key]: true };
+    selectedNodeKey.value = {};
+  }
+});
+
 async function init() {
   loading.value = true;
-  typeNodes.value = await findNodesFromMatch(editMatch.value, rootNodes.value);
+  nodeShape.value = await DataModelService.getDataModelProperties(
+    editMatch.value.typeOf ? editMatch.value.typeOf.iri! : props.baseType.iri!,
+    false,
+    !!editMatch.value.typeOf
+  );
+  typeNodes.value = await createFeatureTree(nodeShape.value, "match");
+  setupTrees(props.datasetEntry ? "return" : "match");
   expandedKeys.value = { [typeNodes.value[0].key]: true };
-  returnNodes.value = await findReturnNodesFromMatch(editMatch.value, rootNodes.value);
-  expandedReturnKeys.value = { [returnNodes.value[0].key]: true };
+  selectedNodeKey.value = {};
+  activeTab.value = props.datasetEntry ? "columns" : "filter";
   loading.value = false;
-  initialized.value = true;
 }
 
 async function onNodeSelect(node: any) {
-  if (node.data.path) {
-    setPathGetNodeRef(editMatch.value, node.data.path);
-    addWhereFromTree(editMatch.value, node);
-    const parentNode = findNodeByKey(rootNodes.value, node.data.parentKey);
-    if (parentNode) setDefiningProperty(editMatch.value, parentNode, node.data.path);
-  } else addWhereFromTree(editMatch.value, node);
-  editMatch.value.invalid = false;
+  if (!editMatch.value.typeOf) {
+    if (node.data.typeOf) {
+      editMatch.value.typeOf = { iri: node.data.typeOf };
+      nodeShape.value = await DataModelService.getDataModelProperties(editMatch.value.typeOf.iri!, false, true);
+      typeNodes.value = await createFeatureTree(nodeShape.value, "match");
+      setupTrees("match");
+      if (!expandedKeys.value[typeNodes.value[0].key]) {
+        expandedKeys.value[typeNodes.value[0].key] = true;
+      }
+      setDefiningProperty(editMatch.value, nodeShape.value);
+    }
+  }
+  if (node.type === "property") {
+    addFilter(editMatch.value, node);
+  }
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
   edited.value = true;
-  await setupTrees();
 }
 
-async function setupTrees() {
-  typeNodes.value = await findNodesFromMatch(editMatch.value, rootNodes.value);
-  expandedKeys.value = { [typeNodes.value[0].key]: true };
-  returnNodes.value = await findReturnNodesFromMatch(editMatch.value, rootNodes.value);
-  expandedReturnKeys.value = { [returnNodes.value[0].key]: true };
-  selectedNodeKey.value = {};
+function setupTrees(mode: Mode) {
+  createModeView(typeNodes.value, mode);
+  if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
 }
 function onUpdate() {
   edited.value = true;
@@ -255,14 +277,27 @@ function onDeleteThen() {
 }
 async function onReturnNodeSelect(node: any) {
   edited.value = true;
-  if (node.data.iri) {
-    const nodeRef = setPathGetNodeRef(editMatch.value, node.data.path, true);
-    const ret = { nodeRef: nodeRef, iri: node.data.iri, name: node.label, as: node.label } as Return;
-    if (!editMatch.value.return) editMatch.value.return = [];
-    editMatch.value.return.push(ret);
-    editMatch.value.invalid = false;
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  if (!editMatch.value.typeOf) {
+    if (node.data.typeOf) {
+      editMatch.value.typeOf = { iri: node.data.typeOf };
+      nodeShape.value = await DataModelService.getDataModelProperties(editMatch.value.typeOf.iri!, false, true);
+      typeNodes.value = await createFeatureTree(nodeShape.value, "return");
+      setupTrees("return");
+      if (!expandedKeys.value[typeNodes.value[0].key]) {
+        expandedKeys.value[typeNodes.value[0].key] = true;
+      }
+    }
   }
+  addReturn(editMatch.value, node);
+  setDefiningProperty(editMatch.value, nodeShape.value!);
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+}
+async function onReturnNodeExpand(node: any) {
+  await expandNode(node, "return");
+}
+
+async function onMatchNodeExpand(node: any) {
+  await expandNode(node, "match");
 }
 
 function deleteMatch() {
@@ -293,10 +328,14 @@ async function getFunctionTemplates() {
   }
 }
 
+async function onUpdateClauses(match: Match) {
+  editMatch.value = match;
+  await onSave();
+}
+
 async function onSave() {
   const valid = await saveChanges();
   if (valid) {
-    showMatchEditor.value = false;
     emit("saveChanges", editMatch.value);
   }
 }
@@ -305,7 +344,7 @@ async function showInvalid(match: Match) {
   await Swal.fire({
     icon: "warning",
     title: "Warning",
-    text: match.errorMessage,
+    text: match.errorMessage + ". Use filter tab to edit.",
     confirmButtonText: "Close",
     confirmButtonColor: "#689F38"
   });
@@ -316,7 +355,8 @@ async function saveChanges(): Promise<boolean> {
   const matchCheck = await QueryService.validateQuery(editMatch.value);
   delete editMatch.value.keepClauses;
   if (matchCheck.invalid) {
-    await showInvalid(editMatch.value);
+    editMatch.value.draft = true;
+    await showInvalid(matchCheck);
     return false;
   } else {
     editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
@@ -324,7 +364,6 @@ async function saveChanges(): Promise<boolean> {
   }
 }
 function onCancel() {
-  showMatchEditor.value = false;
   emit("cancel");
 }
 function onEditMain() {

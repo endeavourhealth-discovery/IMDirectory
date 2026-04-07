@@ -1,9 +1,14 @@
 <template>
+  <div v-if="match.description">
+    <span class="match-description">{{ match.description }} </span>
+    <span>defined as:</span>
+  </div>
   <span v-if="from">
     <span class="field">and if the above</span>
     <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
   </span>
   <span v-if="match.notExists" class="not">Exclude if </span>
+
   <template v-if="match.is">
     <ul>
       <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
@@ -109,5 +114,14 @@ function getFormattedPath(path: any): string {
 }
 .field {
   padding-right: 0.2rem;
+}
+
+.general-field {
+  padding-right: 1rem;
+}
+
+.match-description {
+  color: var(--p-blue-700);
+  padding-right: 1rem;
 }
 </style>

@@ -51,7 +51,7 @@
       </Select>
       <div v-if="relativity === Relativity.Relative || relativity === Relativity.Compare">
         <span class="field">Relative to</span>
-        <RelativeToSelect v-model:property="where" :uiProperty="uiProperty" :property-iri="where.iri!" @updateCompare="emit('updateAssignable')" />
+        <RelativeToSelect v-model:assignable="assignable" :uiProperty="uiProperty" :property-iri="where.iri!" @updateCompare="emit('updateAssignable')" />
       </div>
     </div>
   </div>

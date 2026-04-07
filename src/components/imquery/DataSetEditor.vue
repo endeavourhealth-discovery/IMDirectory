@@ -1,121 +1,84 @@
 <template>
-  <div>
-    <Button
-      label="Add Output columns"
-      icon="fa-solid fa-plus"
-      severity="secondary"
-      class="addColumnGroup-btn"
-      @click="addColumnGroup"
-      data-testid="query-editor-add-column-button"
-    />
-  </div>
-  <div class="column-group-display" v-for="(item, index) in query?.columnGroup">
-    <ColumnGroupEditor
-      v-if="editorGroups[index]"
-      :key="index"
+  <MatchEditor
+    v-if="showEditor"
+    :match="match"
+    :showEditor="showEditor"
+    :baseType="baseType"
+    :depth="0"
+    :datasetEntry="true"
+    :clauseIndex="0"
+    @cancel="cancelEditColumnGroup"
+    @saveChanges="saveEditColumnGroup"
+  />
+  <div v-else class="column-group-display">
+    <ColumnGroupDisplay
+      v-model:datasetEntry="match"
+      :matchExpanded="true"
+      :returnExpanded="true"
+      :index="index"
+      :parentQuery="query"
       :baseType="query.typeOf!"
-      :clauseIndex="index"
-      v-model:match="columnGroups[index]"
-      :show="true"
-      @cancel="onCancelEdit(index)"
     />
-    <template v-else>
-      <ColumnGroupDisplay
-        :match="item"
-        :key="`columnGroupQuery-${index}`"
-        :matchExpanded="false"
-        :returnExpanded="true"
-        :index="index"
-        :parentQuery="query"
-        :baseType="query.typeOf!"
-      />
-      <div class="flex-1"></div>
-      <div class="edit-button">
-        <Button
-          type="button"
-          icon="fa-solid fa-pen-to-square"
-          label="Edit group"
-          data-testid="edit-clause-button"
-          :severity="hoverEditClause[index] ? 'success' : 'secondary'"
-          :outlined="!hoverEditClause[index]"
-          :class="!hoverEditClause[index] && 'hover-button'"
-          @click="editGroup(index)"
-          @mouseover="hoverEditClause[index] = true"
-          @mouseout="hoverEditClause[index] = false"
-        />
-      </div>
-      <div class="delete-button">
-        <Button
-          @click.stop="deleteGroup(index)"
-          class="builder-button"
-          :severity="hoverDeleteClause[index] ? 'danger' : 'secondary'"
-          :outlined="!hoverDeleteClause[index]"
-          :class="!hoverDeleteClause[index] && 'hover-button'"
-          icon="fa-solid fa-trash"
-          @mouseover="hoverDeleteClause[index] = true"
-          @mouseout="hoverDeleteClause[index] = false"
-        />
-      </div>
-    </template>
+    <div class="button-group">
+      <Button text icon="fa-solid fa-pen-to-square" label="Edit entry" data-testid="edit-clause-button" class="edit-button" @click="editColumnGroup()" />
+      <Button @click.stop="deleteColumnGroup" class="delete-button p-button-text" icon="fa-solid fa-trash" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { DisplayMode, Match, Query } from "@/interfaces/AutoGen";
+import { Match, Node, Query } from "@/interfaces/AutoGen";
 import { onMounted, ref, Ref } from "vue";
 import Button from "primevue/button";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { deleteGroupFromQuery } from "@/helpers/buildQuery";
 import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
 import { QueryService } from "@/services";
+import MatchEditor from "@/components/imquery/MatchEditor.vue";
+import { v4 } from "uuid";
 
-const query = defineModel<Query>("query", { default: {} });
-const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo"]);
-const hoverEditClause = ref<boolean[]>([]);
-const hoverDeleteClause = ref<boolean[]>([]);
-const columnGroups = ref<Match[]>([]);
-const editorGroups = ref<boolean[]>([]);
+interface Props {
+  index: number;
+  query: Query;
+}
+
+const props = defineProps<Props>();
+const match = defineModel<Match>("match", { default: {} });
+const emit = defineEmits<{
+  (event: "saveColumnGroup", index:number,match: Match): void;
+  (event: "cancel"): void;
+  (event: "deleteGroup", index: number): void;
+}>();
+
 const showEditor = ref(false);
-const groupToEdit: Ref<Match | undefined> = ref();
-const groupIndex = ref(0);
+const baseType: Ref<Node> = ref(props.query.typeOf!);
 
-onMounted(async () => {
-  await init();
+onMounted(() => {
+  init();
 });
 
-function deleteGroup(index: number) {
-  editorGroups.value.splice(index, 1);
-  columnGroups.value.splice(index, 1);
-  hoverEditClause.value.splice(index, 1);
-  hoverDeleteClause.value.splice(index, 1);
-  deleteGroupFromQuery(query.value, index);
-}
 function init() {
-  if (query.value.columnGroup) {
-    for (const group of query.value.columnGroup) {
-      columnGroups.value.push(group);
-      editorGroups.value.push(false);
-      hoverEditClause.value.push(false);
-      hoverDeleteClause.value.push(false);
-    }
-  }
+  if (match.value.draft) editColumnGroup();
 }
-async function editGroup(index: number) {
-  columnGroups.value[index] = await QueryService.getQueryDisplayFromQuery(columnGroups.value[index], DisplayMode.ORIGINAL);
-  editorGroups.value[index] = true;
-}
-function addColumnGroup() {
-  if (!query.value.columnGroup) query.value.columnGroup = [];
-  groupToEdit.value = {};
-  query.value.columnGroup.push(groupToEdit.value);
-  groupIndex.value = query.value.columnGroup.length - 1;
+
+function editColumnGroup() {
   showEditor.value = true;
 }
-function onCancelEdit(index: number) {
-  editorGroups.value[index] = false;
-  hoverEditClause.value[index] = false;
+function saveEditColumnGroup(editedMatch: Match) {
+  showEditor.value = false;
+  editedMatch.draft = false;
+  emit("saveColumnGroup", props.index,editedMatch);
 }
-function mouseover(event: any) {}
+function cancelEditColumnGroup() {
+  showEditor.value = false;
+  if (match.value && match.value.draft) {
+    deleteColumnGroup();
+  }
+}
+function deleteColumnGroup() {
+  showEditor.value = false;
+  emit("deleteGroup", props.index);
+}
 </script>
 
 <style scoped>
@@ -143,6 +106,12 @@ function mouseover(event: any) {}
   margin: 0.5rem;
   font-size: 1rem;
 }
+.button-group {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
 .drag-drop {
   align-items: flex-start;
   justify-content: flex-start;
@@ -160,15 +129,21 @@ function mouseover(event: any) {}
 
 .edit-button {
   height: 100%;
-  width: 8%;
+  width: 20rem;
   display: flex;
   align-items: center;
+  color: black;
 }
 .delete-button {
   height: 100%;
-  width: 2%;
+  width: 4rem;
   display: flex;
+  color: black;
   align-items: center;
+}
+.delete-button:hover,
+.delete-button:focus {
+  background-color: red;
 }
 
 ::v-deep(.operator-selector .p-select-label) {
