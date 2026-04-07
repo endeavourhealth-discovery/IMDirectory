@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-03-26 05:25:01.
+// Generated using typescript-generator version 3.2.1263 on 2026-04-07 14:14:12.
 
 export interface ConceptContextMap {
     id?: string;
@@ -196,6 +196,8 @@ export interface ModelDocument {
 export interface NodeShape extends TTIriRef {
     property?: PropertyShape[];
     subType?: TTIriRef[];
+    definingProperty?: TTIriRef;
+    inverseProperty?: TTIriRef;
 }
 
 export interface Page {
@@ -272,6 +274,7 @@ export interface PropertyShape {
     highCardinality?: boolean;
     isValidArguments?: Argument[];
     inversePath?: TTIriRef;
+    generic?: boolean;
 }
 
 export interface SetContent {
@@ -333,13 +336,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    description?: string;
     value?: string;
     invalid?: boolean;
-    operator?: Operator;
-    valueTerm?: string;
-    valueLabel?: string;
-    description?: string;
     compare?: Compare;
+    operator?: Operator;
+    valueLabel?: string;
+    valueTerm?: string;
 }
 
 export interface Case {
@@ -389,8 +392,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
     memberOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
@@ -468,8 +471,8 @@ export interface Node extends Element {
     code?: string;
     inverse?: boolean;
     node?: string;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface OrderDirection extends IriLD {
@@ -498,8 +501,8 @@ export interface Path extends Element, HasPaths {
     pathVariable?: string;
     typeOf?: Node;
     qualifier?: TTIriRef;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface PathDocument {
@@ -581,11 +584,19 @@ export interface Value extends Assignable {
     isInvalid?: boolean;
 }
 
+export interface ValuePath extends IriLD {
+    nodeRef?: string;
+    typeOf?: Node;
+    path?: ValuePath;
+}
+
 export interface ValueSource {
     parameter?: string;
     iri?: string;
     name?: string;
     nodeRef?: string;
+    path?: ValuePath;
+    propertyRef?: string;
 }
 
 export interface When {
@@ -626,8 +637,8 @@ export interface Where extends Element, Assignable {
     notNull?: boolean;
     units?: TTIriRef;
     isInvalid?: boolean;
-    isCohort?: boolean;
     isResultSet?: boolean;
+    isCohort?: boolean;
 }
 
 export interface DBEntry {
@@ -943,15 +954,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    description?: string;
+    status?: TTIriRef;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
-    types?: TTIriRef[];
-    status?: TTIriRef;
-    description?: string;
     code?: string;
     prefixes?: TTPrefix[];
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -1036,8 +1047,8 @@ export interface TTArray extends Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
@@ -1354,6 +1365,7 @@ export const enum UserRole {
     AUTHORISER = "AUTHORISER",
     APPROVER = "APPROVER",
     EXECUTOR = "EXECUTOR",
+    UPRN = "UPRN",
 }
 
 export const enum TaskState {
