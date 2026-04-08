@@ -47,7 +47,7 @@ import { ref, Ref, watch, computed, onMounted, inject, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep, isEqual } from "lodash-es";
 import { ComponentDetails } from "@/interfaces";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 import { ComponentType, EditorMode } from "@/enums";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { processComponentType } from "@/helpers/EditorMethods";

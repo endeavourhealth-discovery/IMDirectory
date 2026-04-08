@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, inject, Ref, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ExtendedTTEntity, PropertyShape } from "vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { cloneDeep } from "lodash-es";
 

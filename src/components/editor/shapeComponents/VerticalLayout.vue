@@ -61,7 +61,7 @@ import { inject, ref, Ref, onMounted, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@/helpers/EditorMethods";
 import { isObjectHasKeys } from "vue-library/helpers";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 
 const props = defineProps<{
   shape: PropertyShape;

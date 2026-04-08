@@ -4,7 +4,7 @@ import { EntityService } from "@/services";
 import { RDFS } from "vue-library/enums";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { localStorageWithExpiry } from "vue-library/helpers";
-import { ExtendedTTEntity } from "vue-library/interfaces";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 import { ref } from "vue";
 
 export const useEditorStore = defineStore("editor", () => {

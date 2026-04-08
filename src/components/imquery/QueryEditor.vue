@@ -53,7 +53,7 @@ import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
 import QueryService from "@/services/QueryService";
 import Swal from "sweetalert2";
 import { useCopyToClipboard } from "vue-library/composables";
-import { Match, Query } from "vue-library/interfaces";
+import type { Match, Query } from "vue-library/interfaces";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import { useQueryStore } from "@/stores/queryStore";

@@ -98,7 +98,7 @@
 import { Ref, ref, onMounted, watch, computed } from "vue";
 import { IM } from "vue-library/enums";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node, Where, UIProperty } from "vue-library/interfaces";
+import type { QueryRequest, SearchResultSummary, Node, Where, UIProperty } from "vue-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";

@@ -10,7 +10,7 @@ import VueJsonPretty from "vue-json-pretty";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { IM } from "vue-library/enums";
 import { cloneDeep } from "lodash-es";
-import { ExtendedTTEntity } from "vue-library/interfaces";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 
 const props = defineProps<{
   editorEntity: ExtendedTTEntity;

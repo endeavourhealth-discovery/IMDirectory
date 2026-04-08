@@ -35,7 +35,7 @@
 <script lang="ts" setup>
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import { IM, RDF, RDFS, SHACL, NAMESPACE } from "vue-library/enums";
-import { Match, SearchResultSummary, QueryRequest } from "vue-library/interfaces";
+import type { Match, SearchResultSummary, QueryRequest } from "vue-library/interfaces";
 import { EntityService, QueryService } from "@/services";
 import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";

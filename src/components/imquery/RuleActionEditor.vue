@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { getRuleActionOptions, getRuleAction, setRuleAction, getRuleActionLabel } from "@/helpers/buildQuery";
-import { Match } from "vue-library/interfaces";
+import type { Match } from "vue-library/interfaces";
 import { onMounted, ref, Ref, watch } from "vue";
 
 const ruleAction: Ref<string> = ref("");

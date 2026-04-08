@@ -89,7 +89,7 @@
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "vue-library/helpers";
-import { Match, Node, TTIriRef, NodeShape, PropertyShape, Return, Where } from "vue-library/interfaces";
+import type { Match, Node, TTIriRef, NodeShape, PropertyShape, Return, Where } from "vue-library/interfaces";
 import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import { useCopyToClipboard } from "vue-library/composables";
 import { EntityService } from "@/services";

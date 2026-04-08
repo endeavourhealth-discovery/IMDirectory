@@ -1,4 +1,4 @@
-import { ExtendedTTEntity, TTDocument } from "vue-library/interfaces";
+import type { ExtendedTTEntity, TTDocument } from "vue-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
 import { NAMESPACE } from "vue-library/enums";

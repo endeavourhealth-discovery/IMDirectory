@@ -35,7 +35,7 @@ import { IM, ToastSeverity } from "vue-library/enums";
 import { FilerService } from "@/services";
 import { Ref, ref } from "vue";
 import { isObjectHasKeys } from "vue-library/helpers";
-import { TTDocument } from "vue-library/interfaces";
+import type { TTDocument } from "vue-library/interfaces";
 const toast = useToast();
 
 const progress = ref(); // Store the progress percentage

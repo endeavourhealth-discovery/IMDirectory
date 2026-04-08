@@ -160,7 +160,7 @@
 
 <script lang="ts" setup>
 import { Property } from "@/interfaces";
-import { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EditorMode } from "@/enums";
@@ -170,7 +170,7 @@ import { IM, RDF, RDFS, SHACL, SNOMED, XSD, NAMESPACE } from "vue-library/enums"
 import { EntityService } from "@/services";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { updateRangeQuery } from "@/helpers/EditorMethods";
 import { useDirectService } from "@/composables/useDirectService";
 

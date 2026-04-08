@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
-import { GenericObject, TTIriRef, SearchResultSummary, ECLQueryRequest } from "vue-library/interfaces";
+import type { GenericObject, TTIriRef, SearchResultSummary, ECLQueryRequest } from "vue-library/interfaces";
 import { IM } from "vue-library/enums";
 import { EclService } from "@/services";
 import { byName } from "vue-library/helpers";

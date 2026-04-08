@@ -1,8 +1,8 @@
 import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
-import { ECLQueryRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "vue-library/interfaces";
-import { ExtendedTTEntity } from "vue-library/interfaces";
+import type { ECLQueryRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 const API_URL = Env.API + "api/set";
 
 const SetService = {

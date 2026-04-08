@@ -47,8 +47,8 @@
 
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import OverlaySummary from "./OverlaySummary.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { OverlaySummary } from "vue-library/components";
 import { useToast } from "primevue/usetoast";
 import { byKey, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { EntityService, FilerService } from "@/services";
@@ -58,7 +58,7 @@ import { useTree } from "vue-library/composables";
 import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";
 import { useCreateNew } from "@/composables/useCreateNew";
-import { TTIriRef } from "vue-library/interfaces";
+import type { TTIriRef } from "vue-library/interfaces";
 import { UserRole } from "vue-library/enums";
 import { useOverlay } from "vue-library/composables";
 import { cloneDeep } from "lodash-es";

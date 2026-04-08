@@ -39,7 +39,7 @@
 <script lang="ts" setup>
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode } from "@/enums";
-import { PropertyShape, Query, QueryRequest } from "vue-library/interfaces";
+import type { PropertyShape, Query, QueryRequest } from "vue-library/interfaces";
 import { DisplayMode } from "vue-library/enums";
 import { IM } from "vue-library/enums";
 import { inject, onMounted, Ref, ref, watch } from "vue";

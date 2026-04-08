@@ -87,7 +87,7 @@ import { isObjectHasKeys } from "vue-library/helpers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { QueryService } from "@/services";
-import { Argument, Node, Query, QueryRequest } from "vue-library/interfaces";
+import type { Argument, Node, Query, QueryRequest } from "vue-library/interfaces";
 import { Bool, DisplayMode } from "vue-library/enums";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";

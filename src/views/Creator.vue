@@ -108,7 +108,7 @@ import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef } from "vue-library/interfaces";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { DisplayMode } from "vue-library/enums";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { EditorMode } from "@/enums";

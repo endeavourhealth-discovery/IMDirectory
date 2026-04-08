@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { OverlaySummary } from "vue-library/components";
 import { useCopyToClipboard } from "vue-library/composables";
 import { useOverlay } from "vue-library/composables";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
@@ -40,7 +40,7 @@ import { EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { isArrayHasLength } from "vue-library/helpers";
 import { SearchOptions } from "@/interfaces";
-import { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
 import { IM, NAMESPACE } from "vue-library/enums";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";

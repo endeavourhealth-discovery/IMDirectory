@@ -53,7 +53,7 @@ export default defineComponent({
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentDetails } from "@/interfaces";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 import { ComponentType, EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
 

@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { OrderLimit } from "vue-library/interfaces";
+import type { OrderLimit } from "vue-library/interfaces";
 import { Order } from "vue-library/enums";
 import { IM, RDFS, SHACL } from "vue-library/enums";
 

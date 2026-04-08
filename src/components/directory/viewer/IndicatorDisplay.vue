@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { QueryService } from "@/services";
-import { Indicator } from "vue-library/interfaces";
+import type { Indicator } from "vue-library/interfaces";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";

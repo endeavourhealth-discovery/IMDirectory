@@ -31,7 +31,7 @@ import { ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
 import { EditorMode } from "@/enums";
 import { isObjectHasKeys, TypeGuards } from "vue-library/helpers";
 import { processComponentType } from "@/helpers/EditorMethods";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {

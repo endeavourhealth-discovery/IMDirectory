@@ -44,7 +44,7 @@
 import { EntityService } from "@/services";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
-import { ExtendedTTEntity, PropertyShape, QueryRequest } from "vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "vue-library/interfaces";
 import { IM, NAMESPACE, RDFS, SNOMED } from "vue-library/enums";
 import { cloneDeep, isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";

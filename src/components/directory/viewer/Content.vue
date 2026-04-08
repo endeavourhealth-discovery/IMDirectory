@@ -58,12 +58,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { cloneDeep } from "lodash-es";
-import { ExtendedEntityReferenceNode, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedEntityReferenceNode, TTIriRef } from "vue-library/interfaces";
 import { IM, RDF, RDFS } from "vue-library/enums";
 import { EntityService, UserService } from "@/services";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { OverlaySummary } from "vue-library/components";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getNamesAsStringFromTypes, getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
 import { useDirectoryStore } from "@/stores/directoryStore";

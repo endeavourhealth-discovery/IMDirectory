@@ -10,11 +10,11 @@
 </template>
 <script setup lang="ts">
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
-import { PropertyShape, TTIriRef } from "vue-library/interfaces";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep } from "lodash-es";
-import { ExtendedTTEntity } from "vue-library/interfaces";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 
 interface Props {
   shape: PropertyShape;

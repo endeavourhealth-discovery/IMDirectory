@@ -129,7 +129,7 @@ import { byPriority, byScheme, isArrayHasLength, isObjectHasKeys } from "vue-lib
 import { ConceptService, EntityService } from "@/services";
 import { IM } from "vue-library/enums";
 import { Context } from "@/interfaces/Context";
-import { ConceptContextMap, GenericObject, Namespace } from "vue-library/interfaces";
+import type { ConceptContextMap, GenericObject, Namespace } from "vue-library/interfaces";
 
 interface Props {
   entityIri: string;

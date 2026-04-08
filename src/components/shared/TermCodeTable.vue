@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { useTerms } from "@/composables/useTerms";
-import { SearchTermCode } from "vue-library/interfaces";
+import type { SearchTermCode } from "vue-library/interfaces";
 import { onMounted, Ref, watch } from "vue";
 
 interface Props {

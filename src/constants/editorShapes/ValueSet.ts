@@ -1,4 +1,4 @@
-import { FormGenerator } from "vue-library/interfaces";
+import type { FormGenerator } from "vue-library/interfaces";
 import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "vue-library/enums";
 
 const ValueSetShape: FormGenerator = {

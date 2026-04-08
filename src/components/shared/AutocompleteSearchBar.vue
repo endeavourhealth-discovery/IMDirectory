@@ -79,9 +79,9 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch, nextTick, computed, onBeforeUnmount } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { FilterOptions } from "vue-library/interfaces";
-import { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
+import { OverlaySummary } from "vue-library/components";
+import type { FilterOptions } from "vue-library/interfaces";
+import type { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
 import { TextSearchStyle } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
 import { useSpeechToText } from "vue-library/composables";

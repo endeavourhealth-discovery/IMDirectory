@@ -76,7 +76,7 @@ import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstrain
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
 import { useCopyToClipboard } from "vue-library/composables";
-import { Match, ECLQueryRequest, Query, Node } from "vue-library/interfaces";
+import type { Match, ECLQueryRequest, Query, Node } from "vue-library/interfaces";
 import { useEclValidator } from "@/composables/useEclValidator";
 interface Props {
   showDialog?: boolean;

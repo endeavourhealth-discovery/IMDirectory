@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
-import { ExtendedTTEntity, TTIriRef, PropertyShape, QueryRequest, Query } from "vue-library/interfaces";
+import type { ExtendedTTEntity, TTIriRef, PropertyShape, QueryRequest, Query } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { byName, isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";

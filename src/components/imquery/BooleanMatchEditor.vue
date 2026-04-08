@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Node } from "vue-library/interfaces";
+import type { Match, Node } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
 import { computed, Ref, ref, onMounted, inject } from "vue";
 import { addMatchToParent, checkGroupChange, getBooleanOperator, getBoolGroup, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";

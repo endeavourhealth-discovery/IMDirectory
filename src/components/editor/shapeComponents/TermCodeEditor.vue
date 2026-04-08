@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { EditorMode } from "@/enums";
-import { PropertyShape, TTIriRef } from "vue-library/interfaces";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { IM, RDFS } from "vue-library/enums";

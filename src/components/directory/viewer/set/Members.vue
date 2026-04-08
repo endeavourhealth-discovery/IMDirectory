@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
-import { Node, Query } from "vue-library/interfaces";
+import type { Node, Query } from "vue-library/interfaces";
 import { EntityService, SetService } from "@/services";
 import { IM } from "vue-library/enums";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

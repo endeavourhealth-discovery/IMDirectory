@@ -17,7 +17,7 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { IM, QUERY, RDFS, SHACL } from "vue-library/enums";
 import { EntityService, QueryService } from "@/services";
 import { isArrayHasLength } from "vue-library/helpers";
-import { QueryRequest, TTIriRef } from "vue-library/interfaces";
+import type { QueryRequest, TTIriRef } from "vue-library/interfaces";
 
 interface SelectOption {
   id: string;

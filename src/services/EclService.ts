@@ -1,6 +1,6 @@
 import axios from "axios";
 import Env from "./Env";
-import { Query, SearchResponse, ECLQueryRequest } from "vue-library/interfaces";
+import type { Query, SearchResponse, ECLQueryRequest } from "vue-library/interfaces";
 
 const API_URL = Env.API + "api/ecl/protected";
 

@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref, watch } from "vue";
 import { IM, NAMESPACE } from "vue-library/enums";
-import { Match, Node, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import type { Match, Node, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import Button from "primevue/button";

@@ -29,7 +29,7 @@
 import { onMounted, ref, Ref, watch, computed } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "vue-library/enums";
-import { TTIriRef } from "vue-library/interfaces";
+import type { TTIriRef } from "vue-library/interfaces";
 import { MenuItem } from "primevue/menuitem";
 
 const props = defineProps<{

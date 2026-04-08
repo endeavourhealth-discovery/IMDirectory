@@ -63,7 +63,7 @@ import { getConstraintOperator, setConstraintOperator } from "@/helpers/buildQue
 import Button from "primevue/button";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { computed, inject, onMounted, ref, Ref, watch } from "vue";
-import { QueryRequest, SearchResultSummary, Where, Node, TTIriRef } from "vue-library/interfaces";
+import type { QueryRequest, SearchResultSummary, Where, Node, TTIriRef } from "vue-library/interfaces";
 import { IM, QUERY, SNOMED, ToastSeverity } from "vue-library/enums";
 import { isEqual } from "lodash-es";
 import { EclService, QueryService } from "@/services";

@@ -132,7 +132,7 @@ import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue
 import { EclService, QueryService } from "@/services";
 import { IM, QUERY } from "vue-library/enums";
 import { useToast } from "primevue/usetoast";
-import { Where, Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+import type { Where, Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
 import { useFilterStore } from "@/stores/filterStore";
 import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";

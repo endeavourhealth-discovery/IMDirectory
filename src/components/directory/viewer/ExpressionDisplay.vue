@@ -22,7 +22,7 @@ import { useCopyToClipboard } from "vue-library/composables";
 import { onMounted, ref } from "vue";
 import { IM, RDFS } from "vue-library/enums";
 import { EntityService } from "@/services";
-import { ExtendedTTEntity } from "vue-library/interfaces";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 
 interface Props {
   concept: ExtendedTTEntity;

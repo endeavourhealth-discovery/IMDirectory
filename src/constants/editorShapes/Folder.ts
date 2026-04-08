@@ -1,4 +1,4 @@
-import { FormGenerator } from "vue-library/interfaces";
+import type { FormGenerator } from "vue-library/interfaces";
 import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, VALIDATION, QUERY, IM_FUNCTION } from "vue-library/enums";
 
 const FolderShape: FormGenerator = {

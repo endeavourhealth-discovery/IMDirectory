@@ -1,4 +1,4 @@
-import { Node, Where, Match, Orderable, Compare } from "vue-library/interfaces";
+import type { Node, Where, Match, Orderable, Compare } from "vue-library/interfaces";
 import { Order, Operator } from "vue-library/enums";
 import { RelativeTo } from "@/interfaces/RelativeTo";
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";

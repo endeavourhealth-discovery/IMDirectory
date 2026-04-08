@@ -99,7 +99,7 @@ import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import { computed, ComputedRef, markRaw, onMounted, Ref, ref, watch } from "vue";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "vue-library/enums";
-import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
+import { ArrayObjectNamesToStringWithLabel } from "vue-library/components";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "vue-library/models";
@@ -110,7 +110,7 @@ import { useDownloadFile } from "vue-library/composables";
 import { useUserStore } from "vue-library/stores";
 import { useCopyToClipboard } from "vue-library/composables";
 import { DownloadSettings } from "@/interfaces";
-import { ExtendedTTEntity, SetExportRequest, SetOptions } from "vue-library/interfaces";
+import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "vue-library/interfaces";
 import { UserRole, ToastSeverity } from "vue-library/enums";
 
 const props = defineProps<{

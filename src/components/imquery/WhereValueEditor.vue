@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch, computed } from "vue";
 import { IM, XSD } from "vue-library/enums";
-import { Match, Where, Assignable, UIProperty } from "vue-library/interfaces";
+import type { Match, Where, Assignable, UIProperty } from "vue-library/interfaces";
 import { Operator } from "vue-library/enums";
 import { buildValueSentence } from "@/helpers/QueryEditorMethods";
 import ValueEditor from "@/components/imquery/ValueEditor.vue";

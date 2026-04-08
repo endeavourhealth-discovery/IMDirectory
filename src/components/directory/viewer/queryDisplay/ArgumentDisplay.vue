@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { Argument, ArgumentReference } from "vue-library/interfaces";
+import type { Argument, ArgumentReference } from "vue-library/interfaces";
 import { computed, ComputedRef, onMounted, ref, watch } from "vue";
 import Column from "primevue/column";
 import { IM, XSD } from "vue-library/enums";

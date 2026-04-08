@@ -25,8 +25,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { EntityReferenceNode, GenericObject, TTIriRef } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import type { EntityReferenceNode, GenericObject, TTIriRef } from "vue-library/interfaces";
 import { byKey, getColourFromType, getFAIconFromType, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { EntityService } from "@/services";
 import type { TreeNode } from "primevue/treenode";

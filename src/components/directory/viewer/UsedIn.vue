@@ -38,8 +38,8 @@
 import { onMounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { RDF, RDFS } from "vue-library/enums";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { OverlaySummary } from "vue-library/components";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
 import { useOverlay } from "vue-library/composables";
 import { DataTableRowSelectEvent } from "primevue/datatable";

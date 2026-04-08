@@ -23,7 +23,7 @@ import { GraphTranslator } from "@/helpers";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "vue-library/enums";
-import { TTBundle } from "vue-library/interfaces";
+import type { TTBundle } from "vue-library/interfaces";
 const { translateFromEntityBundle } = GraphTranslator;
 
 const props = defineProps<{

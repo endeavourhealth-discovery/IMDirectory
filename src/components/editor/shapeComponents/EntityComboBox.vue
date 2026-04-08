@@ -34,7 +34,7 @@ import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep, isEqual } from "lodash-es";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "vue-library/interfaces";
+import type { PropertyShape, TTIriRef, QueryRequest, Query } from "vue-library/interfaces";
 
 const props = defineProps<{
   shape: PropertyShape;

@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Node } from "vue-library/interfaces";
+import type { Match, Node } from "vue-library/interfaces";
 import { Bool, DisplayMode } from "vue-library/enums";
 import { Ref, ref, computed, inject } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";

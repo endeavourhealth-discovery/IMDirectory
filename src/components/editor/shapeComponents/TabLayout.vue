@@ -30,7 +30,7 @@ import { inject, ref, Ref, onMounted } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@/helpers/EditorMethods";
 import { isObjectHasKeys } from "vue-library/helpers";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 import { MenuItem } from "primevue/menuitem";
 import Tabs from "primevue/tabs";
 import TabPanel from "primevue/tabpanel";

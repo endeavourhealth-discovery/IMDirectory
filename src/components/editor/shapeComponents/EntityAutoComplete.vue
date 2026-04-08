@@ -77,7 +77,7 @@ import { byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObject
 import { processArguments } from "@/helpers/EditorMethods";
 import { DataModelService, QueryService } from "@/services";
 import { IM, QUERY, RDF, RDFS } from "vue-library/enums";
-import { ExtendedTTEntity, TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "vue-library/interfaces";
+import type { ExtendedTTEntity, TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 

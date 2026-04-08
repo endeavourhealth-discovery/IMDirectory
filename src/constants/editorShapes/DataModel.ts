@@ -1,4 +1,4 @@
-import { FormGenerator } from "vue-library/interfaces";
+import type { FormGenerator } from "vue-library/interfaces";
 import { IM, RDF, RDFS, SHACL, XSD, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "vue-library/enums";
 
 const DataModelShape: FormGenerator = {

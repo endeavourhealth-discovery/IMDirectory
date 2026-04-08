@@ -57,12 +57,12 @@
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useUserStore } from "vue-library/stores";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 
 import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-library/helpers";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { OverlaySummary } from "vue-library/components";
 import { cloneDeep } from "lodash-es";
-import { ExtendedSearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedSearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { EntityService, UserService } from "@/services";
 import { useOverlay } from "vue-library/composables";
 import { RDF, RDFS } from "vue-library/enums";

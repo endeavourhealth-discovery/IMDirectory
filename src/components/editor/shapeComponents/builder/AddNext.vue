@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted } from "vue";
 import { NextComponentSummary, ComponentDetails } from "@/interfaces";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 import { ComponentType, EditorMode } from "@/enums";
 import { stringAscending } from "vue-library/helpers";
 

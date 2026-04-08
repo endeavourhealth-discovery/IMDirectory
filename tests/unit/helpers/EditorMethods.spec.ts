@@ -1,6 +1,6 @@
 import { ComponentType } from "@/enums";
 import { getTreeQueryIri, processArguments, processComponentType } from "@/helpers/EditorMethods";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 import * as fakerFactory from "@/mocks/fakerFactory";
 import { COMPONENT } from "vue-library/enums";
 import { describe, it, expect } from "vitest";

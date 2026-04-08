@@ -1,5 +1,5 @@
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { ExtendedTTEntity, GenericObject, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedTTEntity, GenericObject, TTIriRef } from "vue-library/interfaces";
 import { NAMESPACE } from "vue-library/enums";
 
 export function transformTT(ttEntity: ExtendedTTEntity, map?: GenericObject) {

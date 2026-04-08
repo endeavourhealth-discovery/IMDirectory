@@ -20,7 +20,7 @@ import { processArguments } from "@/helpers/EditorMethods";
 import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ExtendedTTEntity, PropertyShape, QueryRequest, Query } from "vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest, Query } from "vue-library/interfaces";
 import { cloneDeep } from "lodash-es";
 
 const props = defineProps<{

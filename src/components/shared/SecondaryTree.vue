@@ -74,16 +74,16 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount, computed } from "vue";
-import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { ConceptAggregate, TreeParent } from "@/interfaces";
 import { RDF, RDFS } from "vue-library/enums";
 import { EntityService } from "@/services";
 import { useTree } from "vue-library/composables";
-import OverlaySummary from "./OverlaySummary.vue";
+import { OverlaySummary } from "vue-library/components";
 import type { TreeNode } from "primevue/treenode";
 import { useOverlay } from "vue-library/composables";
-import { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
 import { useUserStore } from "vue-library";
 
 interface Props {

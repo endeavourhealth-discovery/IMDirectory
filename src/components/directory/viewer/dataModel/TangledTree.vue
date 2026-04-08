@@ -21,7 +21,7 @@ import { PropertyDisplay, TangledTreeData } from "@/interfaces";
 import { cloneDeep } from "lodash-es";
 import { DataModelService } from "@/services";
 import { isArrayHasLength } from "vue-library/helpers";
-import { TTIriRef } from "vue-library/interfaces";
+import type { TTIriRef } from "vue-library/interfaces";
 
 const props = defineProps<{
   data: Array<TangledTreeData[]>;

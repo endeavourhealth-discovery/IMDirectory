@@ -96,7 +96,7 @@ import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRoute, useRouter } from "vue-router";
-import { PropertyShape, TTIriRef } from "vue-library/interfaces";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useEditorEntity } from "@/composables/useEditorEntity";

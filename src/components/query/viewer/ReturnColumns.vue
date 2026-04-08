@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "vue-library/helpers";
-import { Return, Query } from "vue-library/interfaces";
+import type { Return, Query } from "vue-library/interfaces";
 import { onMounted, Ref, ref } from "vue";
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 

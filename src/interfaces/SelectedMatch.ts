@@ -1,4 +1,4 @@
-import { Match } from "vue-library/interfaces";
+import type { Match } from "vue-library/interfaces";
 
 export interface SelectedMatch {
   selected: Match;

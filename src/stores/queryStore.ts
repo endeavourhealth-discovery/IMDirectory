@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { SelectedMatch } from "@/interfaces";
-import { QueryRequest } from "vue-library/interfaces";
+import type { QueryRequest } from "vue-library/interfaces";
 import { EntityService } from "@/services";
 import { RDFS } from "vue-library/enums";
 import { isObjectHasKeys } from "vue-library/helpers";

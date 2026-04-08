@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { Namespace, NamespaceRequest, Task } from "vue-library/interfaces";
+import type { Namespace, NamespaceRequest, Task } from "vue-library/interfaces";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";

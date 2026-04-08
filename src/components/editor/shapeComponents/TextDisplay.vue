@@ -22,7 +22,7 @@
 import { ref, watch, onMounted, inject, Ref } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep } from "lodash-es";
-import { ExtendedTTEntity, PropertyShape, Argument } from "vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, Argument } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";

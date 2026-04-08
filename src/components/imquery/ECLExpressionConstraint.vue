@@ -157,7 +157,7 @@
 import { inject, onMounted, Ref, ref, computed, watch } from "vue";
 import ConceptSelector from "./ConceptSelector.vue";
 import Button from "primevue/button";
-import { Match, Where, Node, QueryRequest, TTIriRef } from "vue-library/interfaces";
+import type { Match, Where, Node, QueryRequest, TTIriRef } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
 import ECLRefinement from "@/components/imquery/ECLRefinement.vue";
 import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";

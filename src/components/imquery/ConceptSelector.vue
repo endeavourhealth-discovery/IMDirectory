@@ -48,7 +48,7 @@
 import { Ref, ref, onMounted, watch, computed } from "vue";
 import { IM } from "vue-library/enums";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node } from "vue-library/interfaces";
+import type { QueryRequest, SearchResultSummary, Node } from "vue-library/interfaces";
 import { cloneDeep, isEqual } from "lodash-es";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";

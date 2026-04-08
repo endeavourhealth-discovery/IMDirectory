@@ -56,7 +56,7 @@
 </template>
 <script setup lang="ts">
 import { createNewBoolGroup, getBooleanOptions, getIsRoleGroup, removeSubgroup, getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
-import { Match, Where } from "vue-library/interfaces";
+import type { Match, Where } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
 import { computed, inject, onMounted, ref, Ref, watch } from "vue";
 import { defineComponent } from "vue";

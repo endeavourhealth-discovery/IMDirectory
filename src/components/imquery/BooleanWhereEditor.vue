@@ -89,7 +89,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Where, UIProperty } from "vue-library/interfaces";
+import type { Match, Node, Where, UIProperty } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";

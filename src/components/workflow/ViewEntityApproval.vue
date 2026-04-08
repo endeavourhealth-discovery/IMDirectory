@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { EntityApproval, Task } from "vue-library/interfaces";
+import type { EntityApproval, Task } from "vue-library/interfaces";
 import { ApprovalType } from "vue-library/enums";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "vue-library/stores";

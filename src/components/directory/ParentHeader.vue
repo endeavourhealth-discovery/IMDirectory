@@ -29,10 +29,10 @@
 
 <script setup lang="ts">
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { IM, RDF, RDFS } from "vue-library/enums";
 import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
-import { ExtendedTTEntity } from "vue-library/interfaces";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 
 defineProps<{
   entity: ExtendedTTEntity;

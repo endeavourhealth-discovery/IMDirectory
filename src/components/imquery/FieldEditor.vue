@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { Return } from "vue-library/interfaces";
+import type { Return } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";

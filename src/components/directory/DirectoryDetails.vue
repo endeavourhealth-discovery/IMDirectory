@@ -42,7 +42,7 @@ import { IM } from "vue-library/enums";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { ExtendedTTEntity, SearchResponse } from "vue-library/interfaces";
+import type { ExtendedTTEntity, SearchResponse } from "vue-library/interfaces";
 
 interface Props {
   selectedIri: string;

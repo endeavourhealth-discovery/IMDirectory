@@ -94,7 +94,7 @@
 <script lang="ts" setup>
 import { useFilterStore } from "@/stores/filterStore";
 import { DownloadSettings } from "@/interfaces";
-import { TTIriRef } from "vue-library/interfaces";
+import type { TTIriRef } from "vue-library/interfaces";
 import { IM, SNOMED } from "vue-library/enums";
 import { computed, Ref, ref, watch } from "vue";
 import { NAMESPACE } from "vue-library/enums";

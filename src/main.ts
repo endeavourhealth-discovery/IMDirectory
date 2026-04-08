@@ -24,7 +24,7 @@ declare module "vue-router" {
 
 import "./assets/tailwind.css";
 
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
@@ -70,7 +70,7 @@ const app = createApp(App)
   .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .provide(injectionKeysVueLibrary.userService, UserService)
   .provide(injectionKeysVueLibrary.useDirectService, useDirectService)
-  .provide(injectionKeysVueLibrary.entityService,EntityService);
+  .provide(injectionKeysVueLibrary.entityService, EntityService);
 
 const sharedStore = useSharedStore();
 

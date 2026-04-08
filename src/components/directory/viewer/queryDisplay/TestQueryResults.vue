@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { DBEntry } from "vue-library/interfaces";
+import type { DBEntry } from "vue-library/interfaces";
 import { QueryService } from "@/services";
 import { cloneDeep } from "lodash-es";
 import { Ref, ref } from "vue";

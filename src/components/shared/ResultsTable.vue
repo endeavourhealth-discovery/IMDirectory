@@ -95,11 +95,11 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { EclService, EntityService, QueryService, UserService } from "@/services";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { OverlaySummary } from "vue-library/components";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
-import BatteryBar from "./BatteryBar.vue";
+import { BatteryBar } from "vue-library/components";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
 import { useDownloadFile } from "vue-library/composables";
 import { useUserStore } from "vue-library/stores";
@@ -118,7 +118,7 @@ import {
 import { TextSearchStyle } from "vue-library/enums";
 import { DownloadSettings, SearchOptions } from "@/interfaces";
 import { isArrayHasLength } from "vue-library/helpers";
-import { FilterOptions, Namespace } from "vue-library/interfaces";
+import type { FilterOptions, Namespace } from "vue-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { MenuItem } from "primevue/menuitem";

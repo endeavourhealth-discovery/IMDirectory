@@ -1,4 +1,4 @@
-import { ExtendedTTEntity, GenericObject, TTBundle, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedTTEntity, GenericObject, TTBundle, TTIriRef } from "vue-library/interfaces";
 import { TTGraphData, TTProperty } from "../interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { NAMESPACE, IM, OWL, RDFS, SHACL } from "vue-library/enums";

@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { Task, TaskHistory } from "vue-library/interfaces";
+import type { Task, TaskHistory } from "vue-library/interfaces";
 import { TaskState, TaskType, UserRole } from "vue-library/enums";
 import WorkflowService from "@/services/WorkflowService";
 import { useUserStore } from "vue-library/stores";

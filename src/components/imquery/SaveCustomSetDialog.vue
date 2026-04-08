@@ -64,7 +64,7 @@
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { useForm } from "vee-validate";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { Node, TTIriRef, Match } from "vue-library/interfaces";
+import type { Node, TTIriRef, Match } from "vue-library/interfaces";
 import { EntityService, FilerService, FunctionService } from "@/services";
 import { IM, RDF, RDFS, IM_FUNCTION, NAMESPACE } from "vue-library/enums";
 import { useToast } from "primevue/usetoast";

@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match } from "vue-library/interfaces";
+import type { Match } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

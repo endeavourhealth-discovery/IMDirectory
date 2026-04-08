@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { ExtendedTTEntity, PropertyShape, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, TTIriRef } from "vue-library/interfaces";
 import ArrayBuilder from "../ArrayBuilder.vue";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { IM, QUERY, RDFS } from "vue-library/enums";

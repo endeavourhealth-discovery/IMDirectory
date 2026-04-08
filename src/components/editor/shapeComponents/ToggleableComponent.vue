@@ -31,7 +31,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { watch, onMounted, ref, inject } from "vue";
-import { PropertyShape, TTIriRef } from "vue-library/interfaces";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { processComponentType } from "@/helpers/EditorMethods";
 import { EditorMode } from "@/enums";

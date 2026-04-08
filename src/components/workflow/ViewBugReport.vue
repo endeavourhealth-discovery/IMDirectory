@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { BugReport, Task } from "vue-library/interfaces";
+import type { BugReport, Task } from "vue-library/interfaces";
 import { Browser, OperatingSystem, TaskModule } from "vue-library/enums";
 import WorkflowService from "@/services/WorkflowService";
 import { computed, onMounted, Ref, ref, watch } from "vue";

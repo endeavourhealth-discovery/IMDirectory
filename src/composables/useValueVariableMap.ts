@@ -1,5 +1,5 @@
 import { isArrayHasLength } from "vue-library/helpers";
-import { PropertyShape } from "vue-library/interfaces";
+import type { PropertyShape } from "vue-library/interfaces";
 import { Ref, ref } from "vue";
 
 export function useValueVariableMap() {

@@ -9,7 +9,7 @@
   />
 </template>
 <script setup lang="ts">
-import { SearchResultSummary, QueryRequest, Query } from "vue-library/interfaces";
+import type { SearchResultSummary, QueryRequest, Query } from "vue-library/interfaces";
 import { ref, watch } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 

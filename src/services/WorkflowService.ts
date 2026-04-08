@@ -1,4 +1,4 @@
-import { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "vue-library/interfaces";
+import type { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "vue-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
 

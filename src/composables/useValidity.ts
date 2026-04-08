@@ -1,6 +1,6 @@
 import { EntityService } from "@/services";
 import { deferred, isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
-import { FormGenerator, PropertyShape } from "vue-library/interfaces";
+import type { FormGenerator, PropertyShape } from "vue-library/interfaces";
 import { IM, COMPONENT } from "vue-library/enums";
 import { isArray } from "lodash-es";
 import { Ref, ref } from "vue";

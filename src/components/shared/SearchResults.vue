@@ -79,7 +79,7 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep } from "lodash-es";
-import { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { IM } from "vue-library/enums";
 
 interface Props {

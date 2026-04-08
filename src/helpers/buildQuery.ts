@@ -1,4 +1,4 @@
-import { Match, Node, Orderable, Query, QueryRequest, SearchBinding, Where, Path, NodeShape, Return } from "vue-library/interfaces";
+import type { Match, Node, Orderable, Query, QueryRequest, SearchBinding, Where, Path, NodeShape, Return } from "vue-library/interfaces";
 import { Bool, RuleAction, IM, RDF, SHACL } from "vue-library/enums";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";

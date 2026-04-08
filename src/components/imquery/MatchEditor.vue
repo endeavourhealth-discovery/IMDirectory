@@ -161,7 +161,7 @@
 
 <script lang="ts" setup>
 import { isArrayHasLength } from "vue-library/helpers";
-import { Match, Node, TTIriRef, Return } from "vue-library/interfaces";
+import type { Match, Node, TTIriRef, Return } from "vue-library/interfaces";
 import { DisplayMode } from "vue-library/enums";
 import { onMounted, Ref, ref, watch, inject } from "vue";
 import { useCopyToClipboard } from "vue-library/composables";
@@ -172,7 +172,7 @@ import { setDefiningProperty, setPathGetNodeRef } from "@/helpers/buildQuery";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import { usePropertyTree } from "@/composables/usePropertyTree";
 import { cloneDeep } from "lodash-es";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import { findNodeByKey } from "@/helpers/TreeHelper";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";

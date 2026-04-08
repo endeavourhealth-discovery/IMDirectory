@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
-import { SearchResponse } from "vue-library/interfaces";
+import type { SearchResponse } from "vue-library/interfaces";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { it } from "vitest";
 import { afterAll } from "vitest";

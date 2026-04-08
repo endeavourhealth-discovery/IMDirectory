@@ -20,7 +20,7 @@
 import { ref, Ref, onMounted, inject } from "vue";
 import { EntityService } from "@/services";
 import { RDF } from "vue-library/enums";
-import { ExtendedEntityReferenceNode, ExtendedTTEntity } from "vue-library/interfaces";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import editorShapes from "@/constants/editorShapes";
 

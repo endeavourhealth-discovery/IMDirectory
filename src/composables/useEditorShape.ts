@@ -1,5 +1,5 @@
 import { Ref, ref } from "vue";
-import { FormGenerator, PropertyShape, TTIriRef } from "vue-library/interfaces";
+import type { FormGenerator, PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { IM, RDF, RDFS } from "vue-library/enums";

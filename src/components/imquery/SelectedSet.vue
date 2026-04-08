@@ -36,10 +36,10 @@
 import { EntityService } from "@/services";
 import { onMounted, ref, Ref, watch } from "vue";
 import { IM, RDF, RDFS } from "vue-library/enums";
-import { ExtendedTTEntity, Match, Node, TTIriRef } from "vue-library/interfaces";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import type { ExtendedTTEntity, Match, Node, TTIriRef } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { useOverlay } from "vue-library/composables";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { OverlaySummary } from "vue-library/components";
 import { cloneDeep } from "lodash-es";
 import { getColourFromType, getFAIconFromType, isArrayHasLength, isConcept, isValueSet } from "vue-library/helpers";
 

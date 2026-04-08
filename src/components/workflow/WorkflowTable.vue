@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { formatDateTime } from "vue-library/helpers";
-import { Task, TaskHistory, WorkflowResponse } from "vue-library/interfaces";
+import type { Task, TaskHistory, WorkflowResponse } from "vue-library/interfaces";
 import { TaskType } from "vue-library/enums";
 import WorkflowService from "@/services/WorkflowService";
 import { onMounted, ref, Ref } from "vue";

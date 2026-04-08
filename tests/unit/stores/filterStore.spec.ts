@@ -1,7 +1,7 @@
 import { beforeEach, describe, vi, expect } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 import { useFilterStore } from "@/stores/filterStore";
-import { FilterOptions } from "vue-library/interfaces";
+import type { FilterOptions } from "vue-library/interfaces";
 import { IM, RDF, RDFS } from "vue-library/enums";
 
 describe("state", () => {

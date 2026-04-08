@@ -23,13 +23,13 @@
 import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { cloneDeep, isEqual } from "lodash-es";
-import { TTIriRef, SearchResultSummary } from "vue-library/interfaces";
+import type { TTIriRef, SearchResultSummary } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpers";
 import { QueryService, EntityService } from "@/services";
 import { RDFS, ToastSeverity } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { GenericObject, PropertyShape, QueryRequest } from "vue-library/interfaces";
+import type { GenericObject, PropertyShape, QueryRequest } from "vue-library/interfaces";
 import { useToast } from "primevue/usetoast";
 
 const toast = useToast();

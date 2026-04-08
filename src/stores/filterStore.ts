@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { FilterOptions, Namespace } from "vue-library/interfaces";
+import type { FilterOptions, Namespace } from "vue-library/interfaces";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { ref } from "vue";

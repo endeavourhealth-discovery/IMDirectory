@@ -4,7 +4,7 @@ import { IM, RDFS, SHACL } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { MenuItem } from "primevue/menuitem";
-import { TTIriRef } from "vue-library/interfaces";
+import type { TTIriRef } from "vue-library/interfaces";
 import Swal from "sweetalert2";
 import { useDirectService } from "./useDirectService";
 

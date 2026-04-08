@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import { Where, Node } from "vue-library/interfaces";
+import type { Where, Node } from "vue-library/interfaces";
 import { Bool, IM } from "vue-library/enums";
 import { computed, ref } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

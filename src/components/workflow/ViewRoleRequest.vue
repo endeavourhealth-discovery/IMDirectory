@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { RoleRequest, Task } from "vue-library/interfaces";
+import type { RoleRequest, Task } from "vue-library/interfaces";
 import { UserRole } from "vue-library/enums";
 import SecurityService from "@/services/SecurityService";
 import WorkflowService from "@/services/WorkflowService";

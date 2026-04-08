@@ -49,7 +49,7 @@ import { isObjectHasKeys } from "vue-library/helpers";
 import { useRouter } from "vue-router";
 import { useLoadingStore } from "@/stores/loadingStore";
 import { TreeNode } from "@/interfaces";
-import { FilterOptions, SearchResponse } from "vue-library/interfaces";
+import type { FilterOptions, SearchResponse } from "vue-library/interfaces";
 import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useDirectService } from "@/composables/useDirectService";
 

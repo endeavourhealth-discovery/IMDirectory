@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
-import { Argument, ArgumentReference } from "vue-library/interfaces";
+import type { Argument, ArgumentReference } from "vue-library/interfaces";
 
 interface Props {
   arguments: ArgumentReference[] | undefined;

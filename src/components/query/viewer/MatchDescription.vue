@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match } from "vue-library/interfaces";
+import type { Match } from "vue-library/interfaces";
 interface Props {
   match: Match;
   depth: number;

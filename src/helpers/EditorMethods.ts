@@ -1,5 +1,5 @@
 import { ComponentType } from "../enums";
-import { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "vue-library/interfaces";
+import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "vue-library/interfaces";
 import { enumToArray, isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
 import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 

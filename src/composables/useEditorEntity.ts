@@ -4,7 +4,7 @@ import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import { EntityService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
-import { TTIriRef } from "vue-library/interfaces";
+import type { TTIriRef } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { isEqual } from "lodash-es";
 

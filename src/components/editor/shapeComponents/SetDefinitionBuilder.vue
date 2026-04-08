@@ -86,7 +86,7 @@ import { EditorMode } from "@/enums";
 import { EclService } from "@/services";
 import { cloneDeep, isEqual, last } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "vue-library/interfaces";
+import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "vue-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import { useCopyToClipboard } from "vue-library/composables";

@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Query } from "vue-library/interfaces";
+import type { Match, Query } from "vue-library/interfaces";
 import { DisplayMode } from "vue-library/enums";
 import { onMounted, ref, Ref } from "vue";
 import Button from "primevue/button";
