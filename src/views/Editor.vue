@@ -90,7 +90,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide, ref, watch, Ref } from "vue";
+import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide, ref, watch } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -240,7 +240,8 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
 }
 
 function submit(): void {
-  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
+  let namespace = "";
+  if (isObjectHasKeys(editorEntity.value, [IM.ID])) namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }

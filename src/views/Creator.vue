@@ -338,12 +338,15 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
 }
 
 async function submit(): Promise<void> {
-  if (isObjectHasKeys(editorEntity.value, [IM.ID])) if (await checkExists(editorEntity.value[IM.ID])) return;
+  let namespace = "";
+  if (isObjectHasKeys(editorEntity.value, [IM.ID])) {
+    namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
+    if (await checkExists(editorEntity.value[IM.ID])) return;
+  }
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
   });
-  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
   constructValidationCheckStatus(shape.value);
   forceValidation.value = true;
   validationChecksCompleted()
