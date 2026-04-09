@@ -135,8 +135,8 @@ importers:
         specifier: 2.6.0
         version: 2.6.0(vue@3.5.32(typescript@6.0.2))
       vue-library:
-        specifier: link:..\VueLibrary
-        version: link:../VueLibrary
+        specifier: https://raw.githubusercontent.com/endeavourhealth-discovery/VueLibrary/main/vue-library-0.0.0.tgz
+        version: https://raw.githubusercontent.com/endeavourhealth-discovery/VueLibrary/main/vue-library-0.0.0.tgz(@primeuix/themes@2.0.3)(async-validator@4.2.5)(axios@1.14.0)(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
       vue-router:
         specifier: 5.0.4
         version: 5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
@@ -4298,6 +4298,16 @@ packages:
     engines: {node: '>= 10.0.0', npm: '>= 5.0.0'}
     peerDependencies:
       vue: '>=3.0.0'
+
+  vue-library@https://raw.githubusercontent.com/endeavourhealth-discovery/VueLibrary/main/vue-library-0.0.0.tgz:
+    resolution: {integrity: sha512-FeACxPbeiHkOBf+tmgfHdw8xgkIwJ4FndoZXyBJ/jD1WW+jKC19psqYL0wrUU1+OYYkeAme3pogiwKnLH7K/TA==, tarball: https://raw.githubusercontent.com/endeavourhealth-discovery/VueLibrary/main/vue-library-0.0.0.tgz}
+    version: 0.0.0
+    peerDependencies:
+      '@primeuix/themes': 2.0.3
+      pinia: 3.0.4
+      primevue: 4.5.5
+      vue: 3.5.32
+      vue-router: 5.0.4
 
   vue-router@5.0.4:
     resolution: {integrity: sha512-lCqDLCI2+fKVRl2OzXuzdSWmxXFLQRxQbmHugnRpTMyYiT+hNaycV0faqG5FBHDXoYrZ6MQcX87BvbY8mQ20Bg==}
@@ -8548,6 +8558,36 @@ snapshots:
   vue-json-pretty@2.6.0(vue@3.5.32(typescript@6.0.2)):
     dependencies:
       vue: 3.5.32(typescript@6.0.2)
+
+  vue-library@https://raw.githubusercontent.com/endeavourhealth-discovery/VueLibrary/main/vue-library-0.0.0.tgz(@primeuix/themes@2.0.3)(async-validator@4.2.5)(axios@1.14.0)(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2)):
+    dependencies:
+      '@primeuix/themes': 2.0.3
+      '@vueuse/core': 14.2.1(vue@3.5.32(typescript@6.0.2))
+      '@vueuse/integrations': 14.2.1(async-validator@4.2.5)(axios@1.14.0)(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))
+      google-palette: 1.1.1
+      lodash-es: 4.17.23
+      pinia: 3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
+      primevue: 4.5.5(vue@3.5.32(typescript@6.0.2))
+      sass: 1.99.0
+      typescript-logging-log4ts-style: 2.2.0(typescript-logging@2.2.0)
+      uuid: 13.0.0
+      vue: 3.5.32(typescript@6.0.2)
+      vue-router: 5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - async-validator
+      - axios
+      - change-case
+      - drauu
+      - focus-trap
+      - fuse.js
+      - idb-keyval
+      - jwt-decode
+      - nprogress
+      - qrcode
+      - sortablejs
+      - typescript-logging
+      - universal-cookie
 
   vue-router@5.0.4(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2)):
     dependencies:

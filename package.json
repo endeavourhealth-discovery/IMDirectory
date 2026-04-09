@@ -60,7 +60,7 @@
     "vite-plugin-prismjs": "0.0.11",
     "vue": "3.5.32",
     "vue-json-pretty": "2.6.0",
-    "vue-library": "link:..\\VueLibrary",
+    "vue-library": "https://raw.githubusercontent.com/endeavourhealth-discovery/VueLibrary/main/vue-library-0.0.0.tgz",
     "vue-router": "5.0.4",
     "vue-showdown": "4.2.0",
     "vue3-clipboard": "1.0.0",
