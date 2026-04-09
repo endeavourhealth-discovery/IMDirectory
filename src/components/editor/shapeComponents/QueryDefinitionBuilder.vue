@@ -105,6 +105,7 @@ function cancelEditor() {
 
 function updateQuery(query: Query) {
   queryDefinition.value = query;
+  editorEntity.value[IM.DEFINITION] = JSON.stringify(query);
   originalDefinition.value = cloneDeep(queryDefinition.value);
   showEditor.value = false;
 }
@@ -112,7 +113,7 @@ function updateQuery(query: Query) {
 async function init() {
   if (props.value) {
     const definition = JSON.parse(props.value);
-    const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.ORIGINAL);
+    const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.LOGICAL);
     queryDefinition.value = labeledQuery;
     originalDefinition.value = cloneDeep(labeledQuery);
   } else {

@@ -17,7 +17,7 @@ export type Relativity = (typeof Relativity)[keyof typeof Relativity];
 
 export const compareOptions = [
   { label: "Compare to another value", value: Relativity.Compare },
-  { label: "Compare to relative value", value: Relativity.Relative },
+  { label: "Compare with offset from another value", value: Relativity.Relative },
   { label: "Compare to fixed value", value: Relativity.Absolute }
 ] satisfies { label: string; value: Relativity }[];
 
@@ -305,16 +305,10 @@ function addReference(parts: SentencePart[], compare: Compare) {
       });
     }
     parts.push({ type: "text", value: " of " });
-    if (source.keepRef) {
-      parts.push({
-        type: "nodeRef",
-        value: source.keepRef
-      });
-    } else
-      parts.push({
-        type: "nodeRef",
-        value: source.nodeRef
-      });
+    parts.push({
+      type: "nodeRef",
+      value: source.nodeRef
+    });
   }
 }
 function getOperatorTerm(operator: Operator): string {

@@ -1,4 +1,4 @@
-import { Bool, Match, Node, Query, QueryRequest, RuleAction, SearchBinding, Where, Path, NodeShape, Return } from "@/interfaces/AutoGen";
+import { Bool, HasPaths, Match, Node, NodeShape, Path, Query, QueryRequest, Return, RuleAction, SearchBinding, Where } from "@/interfaces/AutoGen";
 import { IM, RDF, SHACL } from "@/vocabulary";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
@@ -143,10 +143,10 @@ export function updateBooleans(clause: Match | Where, from: Bool, to: Bool) {
 
 export function getDisplayOperator(parentOperator: Bool | undefined, clauseIndex: number): string | undefined {
   if (!parentOperator) return undefined;
-  if (parentOperator !== Bool.or) {
+  if (parentOperator != Bool.or) {
     if (clauseIndex > 0) {
       return parentOperator as string;
-    } else return parentOperator as string;
+    } else return "";
   } else if (clauseIndex === 0) return "Either";
   else return parentOperator as string;
 }
@@ -290,6 +290,13 @@ export function getRuleAction(match: Match): string {
 export function addMatchToParent(parent: Match, match: Match) {
   const matches = parent.rule || parent.and || parent.or;
   if (matches) matches.push(match);
+  else if (parent.is) {
+    parent.and = [];
+    const isMatch = { uuid: v4(), is: parent.is } as Match;
+    parent.and.push(isMatch);
+    parent.and.push(match);
+    delete parent.is;
+  }
 }
 export function setRuleAction(match: Match, ruleAction: string) {
   switch (ruleAction) {
@@ -502,16 +509,15 @@ export function createNodeVariable(match: Match, index: number): string {
   return nodeVariable + (index > 0 ? "_" + index : "");
 }
 
-export function setDefiningProperty(match: Match, typeNode: TreeNode, path: string): void {
-  if (typeNode.children)
-    for (const property of typeNode.children) {
-      if (property.data.definingProperty) {
-        if (!hasProperty(match.where, property.data!.iri)) {
-          const nodeRef = setPathGetNodeRef(match, path);
-          addWhereToMatch(match, { nodeRef: nodeRef, iri: property.data!.iri, invalid: true }, 0);
-        }
-      }
+export function setDefiningProperty(match: Match, nodeShape: NodeShape): void {
+  if (nodeShape.definingProperty) {
+    if (!hasProperty(match.where, nodeShape.definingProperty.iri)) {
+      const where = { iri: nodeShape.definingProperty.iri, invalid: true } as Where;
+      const propertyShape = nodeShape.property?.find(property => property.path.iri === nodeShape.definingProperty!.iri);
+      if (propertyShape && propertyShape.clazz) where.is = [{}];
+      addWhereToMatch(match, where);
     }
+  }
 }
 
 function hasProperty(where: Where | undefined, propertyIri: string): boolean {
@@ -523,7 +529,7 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
 }
 
 export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef: string | undefined, parent?: Match): string {
-  if ((!nodeRef || nodeRef === "") && !match.nodeRef) return baseType.iri!;
+  if ((!nodeRef || nodeRef === "") && match.typeOf) return match.typeOf.iri!;
   if (match.path && nodeRef) {
     for (const path of match.path) {
       const type = getTypeIriFromPath(path, nodeRef);
@@ -552,57 +558,70 @@ function getTypeIriFromPath(path: Path, nodeRef: string): string | undefined {
   }
   return undefined;
 }
-
-export function setPathGetNodeRef(match: Match, path: string, optional?: boolean): string {
-  acronyms.clear();
-  const fullPath = path.split("\t");
-  if (match.path) {
-    for (const path of match.path) {
-      if (path.node) acronyms.add(path.node);
+export function addReturn(match: Match, node: TreeNode) {
+  if (node.type === "property") {
+    const fullPath = node.data.path;
+    let nodeRef;
+    if (fullPath) {
+      nodeRef = setPathGetNodeRef(match, fullPath, true);
     }
-    const rootPath = findPath(match.path, fullPath[0]);
-    if (!rootPath) {
-      const path = { iri: fullPath[0], typeOf: { iri: fullPath[1] }, node: getAcronym(fullPath[0]) } as Path;
-      if (optional) path.optional = true;
-      match.path!.push(path);
-      return getPathOnPath(path, fullPath.splice(2).join("\t"));
-    } else if (fullPath.length > 2) {
-      return getPathOnPath(rootPath, fullPath.splice(2).join("\t"));
-    } else return rootPath.node!;
-  } else {
-    const nodeRef = getAcronym(fullPath[0]);
-    match.path = [{ iri: fullPath[0], typeOf: { iri: fullPath[1] }, node: nodeRef }];
-    if (optional) match.path[0].optional = true;
-    if (fullPath.length > 2) {
-      return getPathOnPath(match.path[0], fullPath.splice(1).join("\t"));
-    } else return nodeRef;
+    const ret = { iri: node.data.iri, name: node.label, as: node.label } as Return;
+    if (nodeRef) ret.nodeRef = nodeRef;
+    if (!match.return) match.return = [];
+    match.return.push(ret);
   }
+
+  match.invalid = false;
+}
+export function addFilter(match: Match, node: TreeNode): string | undefined {
+  let nodeRef;
+  if (node.type === "property") {
+    const fullPath = node.data.path;
+    if (fullPath) {
+      nodeRef = setPathGetNodeRef(match, fullPath, true);
+    }
+    if (node.data.rangeType != SHACL.NODESHAPE) {
+      const where = { iri: node.data.iri, invalid: true } as Where;
+      if (nodeRef) where.nodeRef = nodeRef;
+      if (node.data.rangeType === IM.VALUESET || node.data.rangeType === IM.CONCEPT) where.is = [{}];
+      addWhereToMatch(match, where);
+    }
+  }
+
+  match.invalid = false;
+  return nodeRef;
 }
 
-function getPathOnPath(pathTrunk: Path, path: string): string {
-  const remainingPath = path.split("\t");
-  if (pathTrunk.path) {
-    for (const path of pathTrunk.path) {
-      if (path.node) acronyms.add(path.node);
+export function setPathGetNodeRef(pathable: HasPaths, fullPath: string, optional?: boolean): string | undefined {
+  if (!fullPath) return undefined;
+  let i = 0;
+  const paths = fullPath.split("\t");
+  for (i = 0; i < paths.length; i = i + 2) {
+    if (pathable.path) {
+      const path = findPath(pathable.path, fullPath[i]);
+      if (path) {
+        pathable = path;
+        if (i === paths.length - 2) {
+          return path.node;
+        }
+      } else {
+        const newPath = { iri: paths[i], typeOf: { iri: paths[i + 1] }, node: getAcronym(paths[i]) + "_" + i + "_" + pathable.path.length } as Path;
+        if (optional) newPath.optional = true;
+        pathable.path!.push(newPath);
+        pathable = newPath;
+        if (i === paths.length - 2) {
+          return newPath.node;
+        }
+      }
+    } else {
+      const newPath = { iri: paths[i], typeOf: { iri: paths[i + 1] }, node: getAcronym(paths[i]) + "_" + i } as Path;
+      if (optional) newPath.optional = true;
+      pathable.path = [newPath];
+      pathable = newPath;
+      if (i === paths.length - 2) {
+        return newPath.node;
+      }
     }
-    const branchPath = findPath(pathTrunk.path, remainingPath[0]);
-    if (!branchPath) {
-      const nextPath = {
-        iri: remainingPath[0],
-        typeOf: { iri: remainingPath[1] },
-        node: getAcronym(remainingPath[0])
-      } as Path;
-      pathTrunk.path!.push(nextPath);
-      return getPathOnPath(nextPath, remainingPath.splice(1).join("\t"));
-    } else if (remainingPath.length > 2) {
-      return getPathOnPath(branchPath, remainingPath.splice(1).join("\t"));
-    } else return branchPath.node!;
-  } else {
-    const nodeRef = getAcronym(remainingPath[0]);
-    pathTrunk.path = [{ iri: remainingPath[0], typeOf: { iri: remainingPath[1] }, node: nodeRef }];
-    if (remainingPath.length > 2) {
-      return getPathOnPath(pathTrunk.path[0], remainingPath.splice(1).join("\t"));
-    } else return nodeRef;
   }
 }
 
@@ -633,56 +652,21 @@ export function getFormattedPath(path: any): string {
   return result;
 }
 
-export async function getNodeShape(match: Match, baseType: Node): Promise<NodeShape> {
-  if (!match.path && !match.where) await DataModelService.getDataModelProperties(baseType.iri!, false);
-  const typeIri = match.path ? match.path[0].typeOf!.iri : baseType.iri;
-  return await DataModelService.getDataModelProperties(typeIri!, false);
-}
-
-const acronyms = new Set<string>();
-
 function getAcronym(iri: string | null | undefined): string {
   if (!iri || iri.trim() === "") return "";
-
-  // Extract the local name after the last #
-  const hashIndex = iri.lastIndexOf("#");
-  const local = hashIndex !== -1 ? iri.substring(hashIndex + 1) : iri;
-  const parts = local.split(/(?<!^)(?=[A-Z0-9])/);
+  const local = iri.substring(iri.lastIndexOf("#") + 1);
+  const parts = local.split(/(?=[A-Z])/);
   let sb = "";
   for (const part of parts) {
     if (part.trim() === "") continue;
-    sb += part.charAt(0).toUpperCase();
+    sb += part.substring(0, Math.min(part.length, 3)).toUpperCase();
   }
 
-  let acronym = sb.toLowerCase();
-  if (acronyms.has(acronym)) {
-    let i = 1;
-    while (acronyms.has(`${acronym}${i}`)) {
-      i++;
-    }
-    acronym = `${acronym}${i}`;
-  }
-
-  acronyms.add(acronym);
-  return acronym;
+  return sb.toLowerCase();
 }
 
 function findPath(paths: Path[], pathIri: string): Path | undefined {
   return paths.find(item => item.iri === pathIri);
-}
-
-export function updateRelativeTo(property: Where, node: TreeNode) {
-  if (!property.compare) property.compare = {};
-  if (!property.compare.right) property.compare.right = {};
-  if (node.data.parameter) {
-    property.compare.right.parameter = node.data.parameter;
-    delete property.compare.right.nodeRef;
-  }
-  if (node.data.nodeRef) {
-    property.compare.right.nodeRef = node.data.nodeRef;
-    property.compare.right.iri = node.data.iri;
-    delete property.compare.right.parameter;
-  }
 }
 
 export function removeUndefined(obj: any) {
@@ -696,8 +680,58 @@ export function removeUndefined(obj: any) {
 export function getResults(nodeRef: string, parentMatch: Match): string | undefined {
   if (!parentMatch.and) return undefined;
   const matches = parentMatch.and || parentMatch.or;
+  if (!matches) return undefined;
+  return getFromMatches(nodeRef, matches, false);
+}
+
+export function getTestFields(then: Where): string | undefined {
+  if (!then) return undefined;
+  if (then.iri) return then.name;
+  const wheres = then.and || then.or;
+  if (wheres) {
+    const display: string[] = [];
+    for (const where of wheres) {
+      addTestFields(where, display);
+    }
+    return display.join(",");
+  }
+}
+
+function addTestFields(where: Where, display: string[]) {
+  if (where.name && !display.includes(where.name)) display.push(where.name);
+  else {
+    const wheres = where.and || where.or;
+    if (wheres) {
+      for (const where of wheres) {
+        addTestFields(where, display);
+      }
+    }
+  }
+}
+
+function getFromMatches(nodeRef: string, matches: Match[], matched: boolean): string | undefined {
+  if (!matches) return undefined;
   for (const step of matches) {
+    if (matched && step.return) return getReturnFields(step.return);
+    else if (matched) {
+      const subMatches = step.and || step.or;
+      if (subMatches && subMatches.length > 0) {
+        return getFromMatches(nodeRef, subMatches, true);
+      }
+    }
     if (step.node && step.node === nodeRef && step.return) return getReturnFields(step.return);
+    else if (step.node && step.node === nodeRef) {
+      const subMatches = step.and || step.or;
+      if (subMatches && subMatches.length > 0) {
+        return getFromMatches(nodeRef, subMatches, true);
+      }
+    } else {
+      const subMatches = step.and || step.or;
+      if (subMatches && subMatches.length > 0) {
+        const fields = getFromMatches(nodeRef, subMatches, false);
+        if (fields) return fields;
+      }
+    }
   }
   return undefined;
 }
@@ -710,4 +744,66 @@ function getReturnFields(returnFields: Return[]): string {
     return display;
   }
   return "";
+}
+export function getRelativeToOptions(keepAs: Match[]): any[] {
+  const options = [
+    {
+      label: "Search date",
+      value: "$searchDate",
+      tooltip: "relative to the search date"
+    },
+    {
+      label: "Achievement date",
+      value: "$achievementDate",
+      tooltip: "relative to the achievement date"
+    }
+  ];
+  if (keepAs.length > 0) {
+    for (const keepAsMatch of keepAs) {
+      if (keepAsMatch.node) {
+        options.push({
+          label: keepAsMatch.node,
+          value: keepAsMatch.node,
+          tooltip: "relative to a property of the entries found in this  clause"
+        });
+      }
+    }
+  }
+  return options;
+}
+
+export async function getRelativePropertyOptions(keepAs: Match[], nodeRef: string, valueType?: string): Promise<any[]> {
+  const options: any[] | PromiseLike<any[]> = [];
+  if (!valueType) return options;
+  const match = keepAs.find(item => item.node === nodeRef);
+  if (!match) return options;
+  const dataModel = await DataModelService.getDataModelProperties(match.typeOf!.iri!, false);
+  if (!dataModel) return options;
+  if (dataModel.property) {
+    for (const propertyShape of dataModel.property) {
+      if (propertyShape.datatype && propertyShape.datatype.iri === valueType) {
+        options.push({
+          label: propertyShape.path.name,
+          value: propertyShape.path.iri
+        });
+      }
+    }
+  }
+  return options;
+}
+
+export function clauseCheck(importClauses: Map<string, Match>, match: Match, checked: boolean) {
+  if (checked) {
+    importClauses.set(match.uuid!, match);
+    for (const subMatch of match.and || match.or || []) {
+      deleteChecks(importClauses, subMatch);
+    }
+  } else importClauses.delete(match.uuid!);
+}
+
+function deleteChecks(importClauses: Map<string, Match>, match: Match) {
+  importClauses.delete(match.uuid!);
+  for (const subMatch of match.and || match.or || []) {
+    deleteChecks(importClauses, subMatch);
+  }
 }

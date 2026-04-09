@@ -3,7 +3,7 @@
     <div class="relative-buttons">
       <span class="field">
         <span v-for="opt in compareOptions" :key="opt.value" class="gap-1">
-          <RadioButton v-model="relativeTo" :value="opt.value" :inputId="opt.value" @update:modelValue="onChangeRelativeTo" />
+          <RadioButton v-model="relativity" :value="opt.value" :inputId="opt.value" @update:modelValue="onChangeRelativeTo" />
           <label :for="opt.value" class="field">{{ opt.label }}</label>
         </span>
       </span>
@@ -25,7 +25,7 @@
         </template>
       </Select>
       <DatePicker
-        v-if="relativeTo === Relativity.Absolute && (valueType === ValueType.date || valueType === ValueType.time)"
+        v-if="relativity === Relativity.Absolute && (valueType === ValueType.date || valueType === ValueType.time)"
         v-model:model-value="date"
         dateFormat="dd/mm/yy"
         :timeOnly="valueType === ValueType.time"
@@ -49,12 +49,9 @@
           </div>
         </template>
       </Select>
-      <div v-if="relativeTo === Relativity.Relative">
+      <div v-if="relativity === Relativity.Relative || relativity === Relativity.Compare">
         <span class="field">Relative to</span>
-        <RelativeToSelect v-model:property="where" :uiProperty="uiProperty" :property-iri="where.iri!" @updateCompare="emit('updateAssignable')"/>
-      </div>
-      <div v-if="relativeTo === Relativity.Compare">
-        <RelativeToSelect v-model:property="where" :uiProperty="uiProperty" :property-iri="where.iri!" @updateCompare="emit('updateAssignable')"/> />
+        <RelativeToSelect v-model:assignable="assignable" :uiProperty="uiProperty" :property-iri="where.iri!" @updateCompare="emit('updateAssignable')" />
       </div>
     </div>
   </div>
@@ -63,8 +60,7 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { RangeOrValue, operatorOptions, compareOptions, Relativity } from "@/helpers/QueryEditorMethods";
-import { Assignable, Operator, Where, TTIriRef,Match } from "@/interfaces/AutoGen";
-import { UIProperty } from "@/interfaces";
+import { Assignable, Operator, Where, TTIriRef, Match, UIProperty } from "@/interfaces/AutoGen";
 import { IM, XSD } from "@/vocabulary";
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 
@@ -92,8 +88,7 @@ const rangeOrValue = computed(() => {
   if (where.value.range) return RangeOrValue.Range;
   else return RangeOrValue.SingleValue;
 });
-const relativeTo: Ref<Relativity> = ref(assignable.value.compare ? Relativity.Relative : Relativity.Absolute);
-const relativity: Ref<Relativity> = ref(Relativity.Relative);
+const relativity: Ref<Relativity> = ref(assignable.value.compare ? (assignable.value.value ? Relativity.Relative : Relativity.Compare) : Relativity.Absolute);
 const units: Ref<string | undefined> = ref();
 const emit = defineEmits<{
   (event: "updateAssignable"): void;
@@ -104,14 +99,14 @@ const showUnits: Ref<boolean> = computed(() => {
     !props.qualifier &&
     props.uiProperty.unitOptions &&
     (!assignable.value.operator || assignable.value.operator != Operator.eq || props.fromOrTo) &&
-    (valueType.value === ValueType.number || valueType.value === ValueType.integer || relativeTo.value === Relativity.Relative)
+    (valueType.value === ValueType.number || valueType.value === ValueType.integer || relativity.value === Relativity.Relative)
   )
     return true;
   else return false;
 });
 const showValue = computed(() => {
-  if (relativeTo.value === Relativity.Compare) return false;
-  if (relativeTo.value === Relativity.Relative && props.fromOrTo) return true;
+  if (relativity.value === Relativity.Compare) return false;
+  if (relativity.value === Relativity.Relative && props.fromOrTo) return true;
   return true;
 });
 const showInclusivity = computed(() => {
@@ -163,7 +158,7 @@ function init() {
 
 function onChangeRelativeTo(e: any) {
   if (e === Relativity.Relative || e === Relativity.Compare) {
-    relativeTo.value = e;
+    relativity.value = e;
     if (!assignable.value.compare) {
       assignable.value.compare = { left: {}, right: {} };
       units.value = undefined;
@@ -175,13 +170,9 @@ function onChangeRelativeTo(e: any) {
     }
   } else {
     delete assignable.value.compare;
-    relativeTo.value = Relativity.Absolute;
+    relativity.value = Relativity.Absolute;
   }
   emit("updateAssignable");
-}
-function relativeToAllowed(): boolean {
-  const valueType = props.uiProperty.valueType;
-  return !("date/time".includes(valueType) && relativity.value === Relativity.Absolute);
 }
 
 function handleOperator(e: any) {}
@@ -200,7 +191,7 @@ function updateNumericValue(e: any) {
 function updateAssignable() {
   switch (valueType.value) {
     case ValueType.date:
-      if (!relativeTo) assignable.value.value = date.value?.toLocaleString().slice(0, 10) ?? "";
+      if (!relativity) assignable.value.value = date.value?.toLocaleString().slice(0, 10) ?? "";
       else {
         if (!isNumeric(assignable.value.value)) delete assignable.value.value;
       }
@@ -209,7 +200,7 @@ function updateAssignable() {
       if (!isNumeric(assignable.value.value)) delete assignable.value.value;
       break;
     case ValueType.time:
-      if (!relativeTo) assignable.value.value = time.value?.toString();
+      if (!relativity) assignable.value.value = time.value?.toString();
       else {
         if (!isNumeric(assignable.value.value)) delete assignable.value.value;
       }
@@ -238,7 +229,7 @@ function updateOperator(value: Operator) {
 
 function updateUnits() {
   if (!assignable.value.compare) assignable.value.compare = { left: {}, right: {} };
-  assignable.value.compare.units = props.uiProperty.unitOptions.find(opt => opt.iri === units.value);
+  if (props.uiProperty.unitOptions) assignable.value.compare.units = props.uiProperty.unitOptions.find(opt => opt.iri === units.value);
   emit("updateAssignable");
 }
 </script>

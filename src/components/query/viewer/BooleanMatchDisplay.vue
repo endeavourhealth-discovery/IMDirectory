@@ -1,37 +1,51 @@
 <template>
-  <span style="padding-right: 0.5rem">...</span>
-  <template v-if="parentOperator === Bool.rule">
-    <span class="rule">Rule {{ clauseIndex }}</span>
-  </template>
-  <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
-  <span v-if="boolGroup.length > 1" :class="operator">
-    {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }}
-  </span>
-  <template v-for="(nestedQuery, index) in boolGroup" :key="`nestedQueryDisplay-${index}`">
-    <div :style="{ marginLeft: `${getMarginDepth(index) * 30}px` }">
+  <span :style="{ backgroundColor: selected || parentSelected ? '#e5e5e5' : '' }">
+    <span style="padding-right: 0.5rem">...</span>
+    <template v-if="parentOperator === Bool.rule">
+      <span class="rule">Rule {{ clauseIndex }}</span>
+    </template>
+    <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
+    <span v-if="boolGroup.length > 1" :class="operator">
+      {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }}
+    </span>
+    <span v-if="importClauses" class="clause-checkbox">
+      <Checkbox
+        :inputId="'clause' + clauseIndex"
+        name="Group"
+        binary
+        v-model="checked"
+        data-testid="group-checkbox"
+        @update:modelValue="onClauseCheckChange"
+        v-tooltip="'Check will add to import list'"
+      />
+      <span class="clause-label">Check to add to import list</span>
+    </span>
+    <template v-for="(nestedQuery, index) in boolGroup" :key="`nestedQueryDisplay-${index}`">
       <RecursiveMatchDisplay
         :match="nestedQuery"
         :clause-index="index"
+        :expanded="expanded"
         :parentOperator="operator as Bool"
         :depth="depth + 1"
         :parent-match="match"
         :eclQuery="eclQuery"
         :baseType="baseType"
+        :parentSelected="selected"
       />
+    </template>
+    <div v-if="parentOperator === Bool.rule" class="tree-node-line" style="margin-left: 1.5rem">
+      <span class="field">if true</span>
+      <span :class="match.ifTrue">{{ match.ifTrue }},</span>
+      <span class="field">if false</span>
+      <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
     </div>
-  </template>
-  <div v-if="parentOperator === Bool.rule" class="tree-node-line" style="margin-left: 1.5rem">
-    <span class="field">if true</span>
-    <span :class="match.ifTrue">{{ match.ifTrue }},</span>
-    <span class="field">if false</span>
-    <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
-  </div>
+  </span>
 </template>
 
 <script setup lang="ts">
 import { Match, Bool, Node } from "@/interfaces/AutoGen";
 import { Ref, ref, inject, computed } from "vue";
-import { getBooleanLabel } from "@/helpers/buildQuery";
+import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 
 interface Props {
@@ -44,12 +58,18 @@ interface Props {
   clauseIndex: number;
   eclQuery?: boolean;
   baseType: Node;
+  expanded?: boolean;
+  parentSelected?: boolean;
 }
 
 const props = defineProps<Props>();
+const importClauses: Map<string, Match> | undefined = inject("importClauses", undefined);
+const checked = ref(false);
+const selected = ref(props.parentSelected);
 
-function getMarginDepth(index: number) {
-  return props.depth;
+function onClauseCheckChange() {
+  if (importClauses) clauseCheck(importClauses, props.match, checked.value);
+  selected.value = checked.value;
 }
 </script>
 
@@ -136,5 +156,11 @@ function getMarginDepth(index: number) {
 .NEXT {
   color: var(--p-purple-500);
   padding-right: 1.2rem;
+}
+
+.clause-checkbox {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10rem;
 }
 </style>

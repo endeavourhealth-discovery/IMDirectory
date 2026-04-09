@@ -12,7 +12,6 @@
         :value="activities"
         v-model:selection="selected"
         selectionMode="single"
-        @row-click="hideOverlay"
         @rowSelect="onRowSelect"
         dataKey="dateTime"
         :scrollable="true"
@@ -24,7 +23,7 @@
           <template #body="{ data }: { data: RecentActivityItem }">
             <div class="activity-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon pr-2" :style="data.color" fixed-width />
-              <span class="activity-name flex-1 pl-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
+              <span class="activity-name flex-1 pl-1" @mouseover="overlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
@@ -53,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { computed, onMounted, ref, Ref, watch, onActivated } from "vue";
 import { useUserStore } from "@/stores/userStore";
 import { RecentActivityItem } from "@/interfaces";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
@@ -81,6 +80,7 @@ const recentLocalActivity = computed(() => userStore.recentLocalActivity);
 const selected: Ref<RecentActivityItem> = ref({} as RecentActivityItem);
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
+const selectedRecent: Ref<boolean> = ref(false);
 
 watch(
   () => cloneDeep(recentLocalActivity.value),
@@ -88,6 +88,9 @@ watch(
 );
 
 onMounted(async () => await init());
+onActivated(() => {
+  selectedRecent.value = false;
+});
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -95,7 +98,14 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
+function overlay(event: MouseEvent, data: any) {
+  if (selectedRecent.value) return;
+  showOverlay(event, data);
+}
+
 async function onRowSelect(event: { data: RecentActivityItem }) {
+  selectedRecent.value = true;
+  hideOverlay();
   await directService.select(event.data.iri);
 }
 

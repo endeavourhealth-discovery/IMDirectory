@@ -1,15 +1,16 @@
 import Env from "./Env";
 import axios from "axios";
-import { TTIriRef, NodeShape } from "@/interfaces/AutoGen";
-import { PropertyDisplay, UIProperty } from "@/interfaces";
+import { TTIriRef, NodeShape, UIProperty } from "@/interfaces/AutoGen";
+import { PropertyDisplay } from "@/interfaces";
 const API_URL = Env.API + "api/dataModel/protected";
 
 const DataModelService = {
-  async getDataModelProperties(iri: string, pathsOnly?: boolean): Promise<NodeShape> {
+  async getDataModelProperties(iri: string, pathsOnly?: boolean, excludeGeneric?: boolean): Promise<NodeShape> {
     return await axios.get(API_URL + "/dataModelProperties", {
       params: {
         iri: iri,
-        ...(pathsOnly !== undefined && { pathsOnly: pathsOnly })
+        ...(pathsOnly !== undefined && { pathsOnly: pathsOnly }),
+        excludeGeneric: excludeGeneric
       }
     });
   },
@@ -39,6 +40,14 @@ const DataModelService = {
   async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
     return await axios.get(API_URL + "/propertiesDisplay", {
       params: { iri: iri }
+    });
+  },
+  async getInversePath(source: string, target: string): Promise<TTIriRef> {
+    return await axios.get(API_URL + "/inversePath", {
+      params: {
+        source: source,
+        target: target
+      }
     });
   }
 };

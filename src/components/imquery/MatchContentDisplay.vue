@@ -1,9 +1,14 @@
 <template>
+  <div v-if="match.description">
+    <span class="match-description">{{ match.description }} </span>
+    <span>defined as:</span>
+  </div>
   <span v-if="from">
     <span class="field">and if the above</span>
     <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
   </span>
   <span v-if="match.notExists" class="not">Exclude if </span>
+
   <template v-if="match.is">
     <ul>
       <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
@@ -43,6 +48,10 @@
         </div>
       </template>
     </template>
+    <div v-if="match.then">
+      <span class="node-ref">then with the {{ testFields }} of the above</span>
+      <WhereContentDisplay :where="match.then" :depth="depth + 1" :parentOperator="whereOperator" :key="0" :index="0" :root="false" />
+    </div>
     <span v-if="match.node">
       <span class="field">(as</span>
       <span class="as">{{ match.node }})</span>
@@ -55,7 +64,7 @@ import { Bool, Match } from "@/interfaces/AutoGen";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import DirectService from "@/services/DirectService";
-import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+import { getBooleanOperator, getBoolGroup, getTestFields } from "@/helpers/buildQuery";
 import { computed } from "vue";
 interface Props {
   match: Match;
@@ -75,6 +84,9 @@ const boolWhereGroup = computed(() => {
   return getBoolGroup("Where", props.match.where);
 });
 
+const testFields = computed(() => {
+  if (props.match.then) return getTestFields(props.match.then);
+});
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {
@@ -102,5 +114,14 @@ function getFormattedPath(path: any): string {
 }
 .field {
   padding-right: 0.2rem;
+}
+
+.general-field {
+  padding-right: 1rem;
+}
+
+.match-description {
+  color: var(--p-blue-700);
+  padding-right: 1rem;
 }
 </style>

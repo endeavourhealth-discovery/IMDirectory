@@ -1,9 +1,9 @@
 <template>
   <template v-if="showEditor && editMatch">
     <MatchEditor
-      v-if="showEditor && editMatch"
+      v-if="showEditor"
       :match="editMatch"
-      v-model:showMatchEditor="showEditor"
+      :showEditor="showEditor"
       :baseType="baseType"
       :from="from"
       :depth="depth"
@@ -107,7 +107,6 @@
             @click="editMatchClause()"
           />
         </div>
-
         <div>
           <Button @click.stop="deleteMatch" class="delete-button" icon="fa-solid fa-trash" />
         </div>
@@ -125,7 +124,7 @@
 
 <script setup lang="ts">
 import { Bool, Match, Node } from "@/interfaces/AutoGen";
-import { computed, Ref, ref, onMounted } from "vue";
+import { computed, Ref, ref, onMounted, inject } from "vue";
 import { addMatchToParent, checkGroupChange, getBooleanOperator, getBoolGroup, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
 import Button from "primevue/button";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
@@ -137,6 +136,7 @@ import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDra
 import Menu from "primevue/menu";
 import { QueryService } from "@/services";
 import { v4 } from "uuid";
+import type { TreeNode } from "primevue/treenode";
 
 interface Props {
   isVariable?: boolean;
@@ -168,8 +168,9 @@ const definitionSelector = ref(false);
 const menu = ref();
 const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
-  { label: "Add cohort", icon: "pi pi-users", command: () => addCohort() }
+  { label: "Add query reference or import clause", icon: "pi pi-users", command: () => addCohort() }
 ];
+const keepAs = inject("keepAs") as Ref<Match[]>;
 
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
@@ -183,26 +184,35 @@ onMounted(() => {
 });
 
 function init() {
+  updateKeepAs(match.value);
   if (match.value.draft) editMatchClause();
 }
 
+function updateKeepAs(match: Match) {
+  keepAs.value = keepAs.value.filter(m => m !== match);
+  if (match.node) keepAs.value.push(match);
+}
+
 function onDeleteMatchList() {
+  showEditor.value = false;
   emit("deleteMatch");
 }
 
 function deleteMatch() {
+  updateKeepAs(match.value);
+  showEditor.value = false;
   emit("deleteMatch");
 }
 function onDeleteMatch(index: number) {
   if (match.value.or) {
     match.value.or.splice(index, 1);
     if (match.value.or.length === 1) {
-      match.value = match.value.or[0];
+      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.or[0];
     }
   } else if (match.value.and) {
     match.value.and.splice(index, 1);
     if (match.value.and.length === 1) {
-      match.value = match.value.and[0];
+      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.and[0];
     }
   } else emit("deleteMatch");
 }
@@ -211,7 +221,7 @@ function onCheckGroupChange(e: any) {
   checkGroupChange(e, parentGroup.value, props.index);
 }
 function addCohort() {
-  const match = { is: [{}] } as Match;
+  const match = { uuid: v4(), draft: true, is: [{}] } as Match;
   match.invalid = true;
   addMatchToParent(parent.value, match);
 }
@@ -227,6 +237,7 @@ function createNewMatch() {
 async function saveEditMatch(editedMatch: Match) {
   match.value = editedMatch;
   match.value.draft = false;
+  updateKeepAs(match.value);
   showEditor.value = false;
 }
 
@@ -269,15 +280,13 @@ function editMatchClause() {
 function mouseover(event: any) {
   event.stopPropagation();
 }
-function getSubrule(parentIndex: number, index: number): string {
-  return parentIndex + String.fromCharCode(96 + index);
-}
 
 function cancelEditMatch() {
   showEditor.value = false;
   if (editMatch.value && editMatch.value.draft) {
     emit("deleteMatch");
   }
+  showEditor.value = false;
 }
 
 function mouseout(event: any) {
@@ -397,5 +406,9 @@ button:active {
   color: #707824;
   font-style: italic;
   padding-right: 0.3rem;
+}
+
+.group-checkbox {
+  padding-right: 0.5rem;
 }
 </style>

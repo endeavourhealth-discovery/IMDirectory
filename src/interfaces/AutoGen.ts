@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-03-18 17:45:57.
+// Generated using typescript-generator version 3.2.1263 on 2026-04-07 14:14:12.
 
 export interface ConceptContextMap {
     id?: string;
@@ -196,6 +196,8 @@ export interface ModelDocument {
 export interface NodeShape extends TTIriRef {
     property?: PropertyShape[];
     subType?: TTIriRef[];
+    definingProperty?: TTIriRef;
+    inverseProperty?: TTIriRef;
 }
 
 export interface Page {
@@ -271,6 +273,8 @@ export interface PropertyShape {
     isValidEntity?: TTIriRef;
     highCardinality?: boolean;
     isValidArguments?: Argument[];
+    inversePath?: TTIriRef;
+    generic?: boolean;
 }
 
 export interface SetContent {
@@ -281,6 +285,24 @@ export interface SetContent {
     setDefinition?: string;
     subsets?: string[];
     concepts?: Concept[];
+}
+
+export interface UIProperty {
+    iri?: string;
+    name?: string;
+    propertyType?: string;
+    valueType?: string;
+    valueTypeName?: string;
+    maxCount?: number;
+    number?: number;
+    intervalUnitIri?: string;
+    intervalUnitOptions?: TTIriRef[];
+    unitIri?: string;
+    unitOptions?: TTIriRef[];
+    operatorIri?: string;
+    operatorOptions?: string[];
+    qualifierOptions?: TTIriRef[];
+    setMemberCount?: number;
 }
 
 export interface ValueTemplate extends Entity {
@@ -314,13 +336,13 @@ export interface ArgumentReference {
 }
 
 export interface Assignable {
+    description?: string;
     value?: string;
     invalid?: boolean;
-    operator?: Operator;
     compare?: Compare;
+    operator?: Operator;
     valueLabel?: string;
     valueTerm?: string;
-    description?: string;
 }
 
 export interface Case {
@@ -371,8 +393,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     memberOf?: boolean;
-    descendantsOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -412,6 +434,7 @@ export interface Match extends IriLD, HasPaths, Returnable {
     and?: Match[];
     or?: Match[];
     where?: Where;
+    then?: Where;
     graph?: Node;
     optional?: boolean;
     aggregate?: FunctionClause;
@@ -423,17 +446,14 @@ export interface Match extends IriLD, HasPaths, Returnable {
     inverse?: boolean;
     activeOnly?: boolean;
     rule?: Match[];
-    step?: Match[];
     libraryItem?: string;
     invalid?: boolean;
     groupBy?: GroupBy[];
     orderBy?: OrderLimit;
     asDescription?: string;
-    union?: Match[];
-    linkedTarget?: boolean;
     errorMessage?: string;
     draft?: boolean;
-    keepAs?: string;
+    keepClauses?: Match[];
 }
 
 export interface Node extends Element {
@@ -564,12 +584,19 @@ export interface Value extends Assignable {
     isInvalid?: boolean;
 }
 
+export interface ValuePath extends IriLD {
+    nodeRef?: string;
+    typeOf?: Node;
+    path?: ValuePath;
+}
+
 export interface ValueSource {
     parameter?: string;
     iri?: string;
     name?: string;
     nodeRef?: string;
-    keepRef?: string;
+    path?: ValuePath;
+    propertyRef?: string;
 }
 
 export interface When {
@@ -639,7 +666,7 @@ export interface CognitoGroupRequest {
 export interface EditRequest {
     entity?: TTEntity;
     hostUrl?: string;
-    namespace?: Namespace;
+    namespace?: string;
     crud?: string;
 }
 
@@ -651,7 +678,7 @@ export interface EntityValidationRequest {
 
 export interface FileDocumentRequest {
     document?: TTDocument;
-    insertNamespace?: Namespace;
+    insertNamespace?: string;
 }
 
 export interface FunctionRequest {
@@ -927,15 +954,15 @@ export interface TTDocument extends TTNode {
 export interface TTEntity extends TTNode, Serializable {
     context?: TTContext;
     crud?: TTIriRef;
-    name?: string;
     type?: TTArray;
+    description?: string;
+    status?: TTIriRef;
+    name?: string;
     scheme?: TTIriRef;
     version?: number;
     code?: string;
-    types?: TTIriRef[];
     prefixes?: TTPrefix[];
-    status?: TTIriRef;
-    description?: string;
+    types?: TTIriRef[];
 }
 
 export interface BugReport extends Task {
@@ -1097,7 +1124,7 @@ export interface TTNode extends TTValue, Serializable {
 }
 
 export interface NamespacePermission {
-    iri?: Namespace;
+    iri?: string;
     read?: boolean;
     write?: boolean;
 }
@@ -1182,8 +1209,6 @@ export const enum Bool {
     and = "and",
     or = "or",
     rule = "rule",
-    union = "union",
-    step = "step",
 }
 
 export const enum DatabaseOption {
@@ -1340,6 +1365,7 @@ export const enum UserRole {
     AUTHORISER = "AUTHORISER",
     APPROVER = "APPROVER",
     EXECUTOR = "EXECUTOR",
+    UPRN = "UPRN",
 }
 
 export const enum TaskState {
@@ -1485,7 +1511,6 @@ export const enum IM {
     IS = "http://endhealth.info/im#is",
     RETURN_TYPE = "http://endhealth.info/im#returnType",
     UPDATE_PROCEDURE = "http://endhealth.info/im#updateProcedure",
-    INVERSE_PATH = "http://endhealth.info/im#inversePath",
     CONCEPT = "http://endhealth.info/im#Concept",
     CODEABLE = "http://endhealth.info/im#Codeable",
     CONCEPT_PROPERTY = "http://endhealth.info/im#concept",
@@ -1686,6 +1711,7 @@ export const enum IM {
     VALUE_IRI_LIST = "http://endhealth.info/im#valueIriList",
     VALUE_DATA_LIST = "http://endhealth.info/im#valueDataList",
     IM_1_ID = "http://endhealth.info/im#im1Id",
+    IM_1_DBID = "http://endhealth.info/im#im1DbId",
     PROV_ACTIVITY_TYPE = "http://endhealth.info/im#provenanceActivityType",
     FOLDER_VALUESETS = "http://endhealth.info/im#ValueSets",
     FOLDER_SETS = "http://endhealth.info/im#Sets",
@@ -1767,6 +1793,7 @@ export const enum ImportType {
     SKIP_SEARCH = "search",
     FHIR = "fhir",
     SMARTLIFE = "smartlifequery",
+    SMARTLIFEINDICATOR = "smartlifeindicators",
     QOF = "qof",
     CORE = "core",
     SINGLE_FILE = "singlefile",

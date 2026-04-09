@@ -44,7 +44,6 @@
           :eclQuery="eclQuery"
           :editMode="editMode"
           :bracketed="!root && index === wheres!.length - 1"
-          :step="step"
         />
       </div>
     </template>
@@ -73,7 +72,6 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
-  step?: boolean;
 }
 
 const props = defineProps<Props>();

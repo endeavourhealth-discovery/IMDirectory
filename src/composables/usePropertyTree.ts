@@ -1,94 +1,126 @@
 import type { TreeNode } from "primevue/treenode";
-import { DataModelService } from "@/services";
 import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Node, PropertyShape, Where } from "@/interfaces/AutoGen";
+import { Match, Node, PropertyShape, TTIriRef, Where, NodeShape } from "@/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { Ref, ref } from "vue";
 import { addWhereToMatch, setPathGetNodeRef } from "@/helpers/buildQuery";
+import { DataModelService } from "@/services";
 const codeable = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
+export type Mode = "match" | "return";
+type PropertyTreeNode = {
+  key: string;
+  name: string | undefined;
+  iri: string;
+  type: string;
+  iconType: string;
+  typeOf?: string;
+  range?: string | undefined;
+  rangeType?: string | undefined;
+  path?: string | undefined;
+  parentKey?: string;
+  ascending?: string;
+  descending?: string;
+  definingProperty?: boolean;
+  returnType?: string;
+  inversePath?: TTIriRef;
+};
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const loading: Ref<boolean> = ref(false);
+  const mode: Ref<Mode> = ref("match");
 
-  async function createPropertyTree(iri: string, parent: TreeNode) {
+  async function createPropertyTree(iri: string, nodeShape: NodeShape | undefined, parent: TreeNode) {
     const parentKey = parent.key;
-    const entity = await DataModelService.getDataModelProperties(iri, false);
+    if (!nodeShape) nodeShape = await DataModelService.getDataModelProperties(iri, false);
     const propertyList = [] as TreeNode[];
-    const path = parent.data.path ? parent.data.path : "";
-    if (entity.property && isArrayHasLength(entity.property)) {
-      for (const [index, property] of entity.property.entries()) {
-        if (!isBase(property)) propertyList.push(createPropertyNode(parentKey + "_" + index.toString(), property, path, parentKey));
+    const path = parent.data.path ? parent.data.path : undefined;
+    if (nodeShape.property && isArrayHasLength(nodeShape.property)) {
+      for (const [index, property] of nodeShape.property.entries()) {
+        if (!isBase(property)) propertyList.push(createPropertyNode(parentKey + "_" + index.toString(), property, path, parentKey, nodeShape.iri));
       }
       if (propertyList.length > 0) parent.children = propertyList;
     }
   }
 
-  async function createFeatureTree(queryBaseType: Node): Promise<TreeNode[]> {
-    baseType.value = queryBaseType;
+  async function createFeatureTree(nodeShape: NodeShape, viewMode: Mode): Promise<TreeNode[]> {
+    mode.value = viewMode;
     const data = ref([] as TreeNode[]);
-    data.value.push(createNode("0", "Select features of  " + queryBaseType.name, "features", "folder", IM.FOLDER, undefined, "", "", "", false));
+    data.value.push(
+      createNode({
+        key: "0",
+        name: "Select features of  " + nodeShape.name,
+        iri: "features",
+        type: "folder",
+        iconType: IM.FOLDER,
+        typeOf: nodeShape.iri
+      })
+    );
     data.value[0].selectable = false;
-    await createPropertyTree(queryBaseType.iri!, data.value[0]);
+    await createPropertyTree(nodeShape.iri, nodeShape, data.value[0]);
     return data.value;
   }
 
-  function createNode(
-    key: string,
-    name: string | undefined,
-    iri: string,
-    type: string,
-    iconType: string,
-    typeOf: string | undefined,
-    rangeType: string | undefined,
-    path: string,
-    parentKey: string,
-    highCardinality?: boolean,
-    ascending?: string,
-    descending?: string,
-    definingProperty?: boolean
-  ): TreeNode {
-    if (typeOf) {
-      if (path === "") path = path + iri + "\t" + typeOf;
-      else path = path + "\t" + iri + "\t" + typeOf;
+  function createNode(pNode: PropertyTreeNode): TreeNode {
+    if (pNode.type === "property") {
+      if (pNode.range) {
+        if (pNode.path) pNode.path = pNode.path + "\t" + pNode.iri + "\t" + pNode.range;
+        else pNode.path = pNode.iri + "\t" + pNode.range;
+      } else if (pNode.returnType) {
+        if (pNode.path) pNode.path = pNode.path + "\t" + pNode.iri + "\t" + pNode.returnType;
+        else pNode.path = pNode.iri + "\t" + pNode.returnType;
+      }
     }
     const node = {
-      key: key,
-      label: name,
+      key: pNode.key,
+      label: pNode.name,
       expanded: false,
       data: {
-        typeIcon: getFAIconFromType([{ iri: iconType }]),
-        color: getColourFromType([{ iri: iconType }]),
-        iri: iri,
-        path: path,
-        typeOf: typeOf,
-        parentKey: parentKey,
-        definingProperty: definingProperty,
-        ascending: ascending,
-        descending: descending,
-        rangeType: rangeType,
-        highCardinality: highCardinality
+        typeIcon: getFAIconFromType([{ iri: pNode.iconType }]),
+        color: getColourFromType([{ iri: pNode.iconType }]),
+        iri: pNode.iri,
+        path: pNode.path,
+        range: pNode.range,
+        parentKey: pNode.parentKey,
+        definingProperty: pNode.definingProperty,
+        ascending: pNode.ascending,
+        descending: pNode.descending,
+        rangeType: pNode.rangeType,
+        returnType: pNode.returnType,
+        inversePath: pNode.inversePath,
+        typeOf: pNode.typeOf
       },
       loading: false,
       children: [] as TreeNode[],
-      type: type
+      type: pNode.type
     } as TreeNode;
-    if (rangeType) {
-      if (rangeType === SHACL.NODESHAPE) node.leaf = false;
-      node.data.rangeTypeIcon = getFAIconFromType([{ iri: rangeType }]);
-      node.data.rangeTypeColor = getColourFromType([{ iri: rangeType }]);
+    if (pNode.rangeType) {
+      if (pNode.rangeType === SHACL.NODESHAPE) node.leaf = false;
+      if (pNode.rangeType != pNode.iconType) {
+        node.data.rangeTypeIcon = getFAIconFromType([{ iri: pNode.rangeType }]);
+        node.data.rangeTypeColor = getColourFromType([{ iri: pNode.rangeType }]);
+      }
     }
     return node;
   }
 
-  function createGroupNode(key: string, property: PropertyShape, path: string, parentKey: string): TreeNode {
+  function createGroupNode(key: string, property: PropertyShape, path: string, parentKey: string, typeOf: string): TreeNode {
     const name = property.group!.name;
-    const groupNode = createNode(key, name, property.group!.iri, "folder", IM.FOLDER, undefined, "", path, parentKey, false) as TreeNode;
+    const groupNode = createNode({
+      key: key,
+      name: name,
+      iri: property.group!.iri,
+      type: "folder",
+      iconType: IM.FOLDER,
+      parentKey: parentKey,
+      path: path,
+      typeOf: typeOf
+    });
     if (property.property) {
       const propertyList = [] as TreeNode[];
       for (const [propertyIndex, groupedProperty] of property.property.entries()) {
-        propertyList.push(createPropertyNode(key + "_" + propertyIndex.toString(), groupedProperty, path, key));
+        propertyList.push(createPropertyNode(key + "_" + propertyIndex.toString(), groupedProperty, path, key, typeOf));
       }
       groupNode.children = propertyList;
     }
@@ -96,17 +128,25 @@ export function usePropertyTree() {
     return groupNode;
   }
 
-  function createPropertyNode(key: string, property: PropertyShape, path: string, parentKey: string): TreeNode {
+  function createPropertyNode(key: string, property: PropertyShape, path: string, parentKey: string, typeOf: string): TreeNode {
     if (property.group) {
-      return createGroupNode(key, property, path, parentKey);
+      return createGroupNode(key, property, path, parentKey, typeOf);
+    }
+    if (property.generic) {
+      return createGenericNode(key, property, path, parentKey);
     }
     let rangeType;
-    let typeOf;
+    let range;
+    let returnType;
     if (property.clazz) {
       rangeType = property.clazz.type!.iri;
+      if (mode.value === "return") {
+        if (codeable.includes(rangeType)) {
+          returnType = IM.CODEABLE;
+        }
+      }
     } else if (property.node) {
-      typeOf = property.node.iri;
-      rangeType = property.node.type!.iri;
+      range = property.node.iri;
     }
 
     let name = property.path.name;
@@ -114,26 +154,57 @@ export function usePropertyTree() {
       const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
       name += ` (${value})`;
     }
-    const propertyNode = createNode(
-      key,
-      name!,
-      property.path.iri,
-      "property",
-      RDF.PROPERTY,
-      typeOf,
-      rangeType,
-      path,
-      parentKey,
-      property.highCardinality,
-      property.ascending,
-      property.descending,
-      property.definingProperty
-    ) as TreeNode;
-
+    const propertyNode = createNode({
+      key: key,
+      name: name,
+      iri: property.path.iri,
+      type: "property",
+      iconType: RDF.PROPERTY,
+      range: range,
+      rangeType: rangeType,
+      path: path,
+      parentKey: parentKey,
+      ascending: property.ascending,
+      descending: property.descending,
+      definingProperty: property.definingProperty,
+      returnType: returnType,
+      inversePath: property.inversePath,
+      typeOf: typeOf
+    });
+    propertyNode.leaf = true;
     if (rangeType === SHACL.NODESHAPE) {
       propertyNode.selectable = false;
       propertyNode.leaf = false;
     } else propertyNode.selectable = true;
+    if (returnType) {
+      propertyNode.selectable = false;
+      propertyNode.leaf = false;
+    }
+    return propertyNode;
+  }
+
+  function createGenericNode(key: string, property: PropertyShape, path: string, parentKey: string): TreeNode {
+    const range = property.node!.iri;
+    const rangeType = property.node!.type!.iri;
+    const name = property.node!.name!;
+    const propertyNode = createNode({
+      key: key,
+      name: name!,
+      iri: property.path!.iri,
+      type: "type",
+      iconType: SHACL.NODESHAPE,
+      range: range,
+      rangeType: rangeType,
+      path: path,
+      parentKey: parentKey,
+      ascending: property.ascending,
+      descending: property.descending,
+      definingProperty: property.definingProperty,
+      inversePath: property.inversePath,
+      typeOf: property.node!.iri
+    });
+    propertyNode.selectable = true;
+    propertyNode.leaf = false;
     return propertyNode;
   }
 
@@ -143,19 +214,23 @@ export function usePropertyTree() {
     }
     return false;
   }
-  async function expandNode(node: TreeNode) {
+  async function expandNode(node: TreeNode, expandMode: Mode) {
+    mode.value = expandMode;
     node.loading = true;
     if (node.children && node.children.length > 0) {
       for (const child of node.children) {
         if (child.children && !child.children.length) {
-          if (child.data.typeOf) {
+          if (child.data.range) {
             child.leaf = false;
-          } else child.lead = false;
+          } else child.leaf = true;
         }
       }
-    } else if (node.data.typeOf) {
-      await createPropertyTree(node.data.typeOf, node);
+    } else if (node.data.returnType && expandMode === "return") {
+      await createPropertyTree(node.data.returnType, undefined, node);
+    } else if (node.data.range) {
+      await createPropertyTree(node.data.range, undefined, node);
     }
+    if (node.children) createModeView(node.children, expandMode);
     node.loading = false;
   }
 
@@ -181,58 +256,42 @@ export function usePropertyTree() {
     return undefined;
   }
 
-  async function getPathNode(path: string, nodes: TreeNode[]): Promise<TreeNode | undefined> {
+  function getTypeNode(type: string, nodes: TreeNode[]): TreeNode | undefined {
     for (const node of nodes) {
-      if (node.data.path.split("\t")[0] === path) {
-        await expandNode(node);
+      if (node.data.range === type) {
         return node;
-      } else if (node.data.path === "" && node.children && node.children.length > 0) {
-        const foundNode = await getPathNode(path, node.children);
+      } else if (node.children && node.children.length > 0) {
+        const foundNode = getTypeNode(type, node.children);
         if (foundNode) return foundNode;
       }
     }
     return undefined;
   }
-  async function findNodesFromMatch(match: Match, nodes: TreeNode[]): Promise<TreeNode[]> {
-    if (match.path) {
-      const pathNode = await getPathNode(match.path[0]!.iri!, nodes);
-      if (pathNode) return [pathNode];
-      else return nodes;
+  function findNodesFromMatch(match: Match, nodes: TreeNode[], viewMode: Mode): TreeNode[] {
+    mode.value = viewMode;
+    if (match.typeOf) {
+      const pathNode = getTypeNode(match.typeOf.iri!, nodes);
+      if (pathNode && pathNode.children) createModeView(pathNode.children, viewMode);
+      return pathNode ? [pathNode] : nodes;
     } else {
+      createModeView(nodes, viewMode);
       return nodes;
     }
   }
 
-  async function findReturnNodesFromMatch(match: Match, nodes: TreeNode[]): Promise<TreeNode[]> {
-    const newNodes: TreeNode[] = [];
-    if (match.path) {
-      const pathNode = await getPathNode(match.path[0]!.iri!, nodes);
-      if (!pathNode) return nodes;
-      newNodes.push(pathNode!);
-      pathNode.children = findReturnNodes(pathNode.children!);
-      return newNodes;
-    } else return findReturnNodes(nodes);
-  }
-
-  function findReturnNodes(nodes: TreeNode[]): TreeNode[] {
-    const newNodes: TreeNode[] = [];
-    for (const node of nodes) {
-      if (!node.data.highCardinality) {
-        const newNode = { ...node };
-        delete newNode.children;
-        if (node.data.rangeType) {
-          if (codeable.includes(node.data.rangeType)) {
-            newNode.leaf = false;
-            newNode.data.rangeType = IM.CODEABLE;
-          }
+  function createModeView(nodes: TreeNode[], viewMode: Mode) {
+    return nodes.map(node => {
+      if (node.data.returnType) {
+        if (viewMode === "return") {
+          node.leaf = false;
+        } else {
+          delete node.children;
+          delete node.data.path;
+          node.selectable = true;
+          node.leaf = true;
         }
-        if (node.type === "folder" && node.children && node.children.length > 0) {
-          newNode.children = findReturnNodes(node.children);
-          if (newNode.children.length > 0) newNodes.push(newNode);
-        } else newNodes.push(newNode);
       }
-    }
-    return newNodes;
+    });
   }
 
   return {
@@ -242,8 +301,8 @@ export function usePropertyTree() {
     addWhereFromTree,
     findNodeFromFlatPath,
     findNodesFromMatch,
-    findReturnNodesFromMatch,
-    createNode,
+    createModeView,
+    getTypeNode,
     loading
   };
 }
