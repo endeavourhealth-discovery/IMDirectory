@@ -1,4 +1,3 @@
-import { fetchAuthSession } from "aws-amplify/auth";
 import Env from "./Env";
 import axios from "axios";
 import { NamespacePermission, User } from "vue-library/models";

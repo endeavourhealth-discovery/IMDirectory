@@ -3,7 +3,6 @@ import { useUserStore } from "vue-library/stores";
 import { localStorageWithExpiry } from "vue-library/helpers";
 import type { ExtendedTTEntity } from "vue-library/interfaces";
 import { ref } from "vue";
-import { C } from "vitest/dist/chunks/reporters.d.79o4mouw.js";
 
 export const useCreatorStore = defineStore("creator", () => {
   const creatorSavedEntity = ref<any>(localStorageWithExpiry.getItem("creatorSavedEntity") ?? {});

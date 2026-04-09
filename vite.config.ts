@@ -15,7 +15,7 @@ export default defineConfig({
     prismjs({ languages: ["sql"], theme: "default", css: true, plugins: ["line-numbers", "normalize-whitespace"] })
   ],
   optimizeDeps: {
-    esbuildOptions: {
+    rolldownOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]
     }
   },
@@ -32,9 +32,11 @@ export default defineConfig({
     dedupe: ["vue", "primevue", "@primeuix/themes", "pinia"]
   },
   test: {
+    dir: "./tests",
     globals: true,
     environment: "happy-dom",
     coverage: {
+      include: ["./tests/**/*.{js,ts}"],
       provider: "v8",
       reporter: ["text", "lcov"]
     },
