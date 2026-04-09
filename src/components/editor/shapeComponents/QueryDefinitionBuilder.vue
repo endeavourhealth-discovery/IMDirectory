@@ -114,7 +114,7 @@ function updateQuery(query: Query) {
 async function init() {
   if (props.value) {
     const definition = JSON.parse(props.value);
-    const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.ORIGINAL);
+    const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.LOGICAL);
     queryDefinition.value = labeledQuery;
     originalDefinition.value = cloneDeep(labeledQuery);
   } else {

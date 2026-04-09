@@ -33,7 +33,6 @@
         </div>
       </template>
     </Tree>
-    <small class="p-1">CTRL+click to open in new tab</small>
     <OverlaySummary ref="OS" />
     <Dialog :closable="false" :modal="true" :visible="newFolder !== null" header="New folder">
       <InputText v-model="newFolderName" autofocus type="text" @keyup.enter="createFolder" />
@@ -42,6 +41,7 @@
         <Button :disabled="creating || !newFolderName" :icon="newFolderIcon" label="Create" @click="createFolder" />
       </template>
     </Dialog>
+    <small class="mt-auto">CTRL+click to open in new tab</small>
   </div>
 </template>
 
@@ -161,7 +161,7 @@ async function init() {
   loading.value = true;
   if (isArrayHasLength(props.rootEntities)) await addRootEntitiesToTree();
   else await addParentFoldersToRoot();
-  //if (props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+  if (props.selectedIri && props.findInTree) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
   loading.value = false;
 }
 

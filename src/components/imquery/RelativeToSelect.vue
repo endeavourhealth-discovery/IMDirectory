@@ -46,7 +46,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const property = defineModel<Where>("property", { default: {} });
+const assignable = defineModel<Where>("assignable", { default: {} });
 const emit = defineEmits(["updateCompare"]);
 const showTreeSearch: Ref<boolean> = ref(false);
 const variableOptions: Ref<TreeNode[]> = ref([]);
@@ -61,28 +61,28 @@ onMounted(() => {
 });
 
 watch(
-  () => property.value,
+  () => assignable.value,
   () => initValues()
 );
 
 async function updateRelativeTo(relativeTo: any) {
-  if (!property.value.compare) property.value.compare = {};
-  if (!property.value.compare.right) property.value.compare.right = {};
+  if (!assignable.value.compare) assignable.value.compare = {};
+  if (!assignable.value.compare.right) assignable.value.compare.right = {};
   const relativeMatch = keepAs.value.find(match => match.node === relativeTo.value);
   if (relativeMatch) {
-    property.value.compare.right.nodeRef = relativeMatch.node;
-    delete property.value.compare.right.parameter;
-    relativePropertyOptions.value = await getRelativePropertyOptions(keepAs.value, property.value.compare.right.nodeRef!, props.uiProperty.valueType);
+    assignable.value.compare.right.nodeRef = relativeMatch.node;
+    delete assignable.value.compare.right.parameter;
+    relativePropertyOptions.value = await getRelativePropertyOptions(keepAs.value, assignable.value.compare.right.nodeRef!, props.uiProperty.valueType);
   } else {
-    property.value.compare.right.parameter = relativeTo.value;
-    delete property.value.compare.right.nodeRef;
+    assignable.value.compare.right.parameter = relativeTo.value;
+    delete assignable.value.compare.right.nodeRef;
   }
   emit("updateCompare");
 }
 
 function updateRelativeProperty(relativeIri: any) {
-  if (property.value.compare && property.value.compare.right) {
-    property.value.compare.right.iri = relativeIri;
+  if (assignable.value.compare && assignable.value.compare.right) {
+    assignable.value.compare.right.iri = relativeIri;
     relativeProperty.value = relativeIri;
     emit("updateCompare");
   }
@@ -93,13 +93,13 @@ function cancel() {
 }
 
 async function initValues() {
-  if (property.value.compare && property.value.compare.right) {
-    if (property.value.compare.right.parameter) {
-      relativeTo.value = getRelativeToOptions(keepAs.value).find(opt => opt.value === property.value.compare!.right!.parameter!).value;
-    } else if (property.value.compare.right.nodeRef) {
-      relativeTo.value = getRelativeToOptions(keepAs.value).find(opt => opt.value === property.value.compare!.right!.nodeRef!).value;
-      if (property.value.compare.right.iri) relativeProperty.value = property.value.compare.right.iri;
-      relativePropertyOptions.value = await getRelativePropertyOptions(keepAs.value, property.value.compare.right.nodeRef, props.uiProperty.valueType);
+  if (assignable.value.compare && assignable.value.compare.right) {
+    if (assignable.value.compare.right.parameter) {
+      relativeTo.value = getRelativeToOptions(keepAs.value).find(opt => opt.value === assignable.value.compare!.right!.parameter!).value;
+    } else if (assignable.value.compare.right.nodeRef) {
+      relativeTo.value = getRelativeToOptions(keepAs.value).find(opt => opt.value === assignable.value.compare!.right!.nodeRef!).value;
+      if (assignable.value.compare.right.iri) relativeProperty.value = assignable.value.compare.right.iri;
+      relativePropertyOptions.value = await getRelativePropertyOptions(keepAs.value, assignable.value.compare.right.nodeRef, props.uiProperty.valueType);
     }
   }
 }

@@ -25,7 +25,7 @@
         </div>
         <div v-if="node.iri" class="auto-complete-container">
           <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
-          <span v-if="node.description" v-html="node.description"></span>
+
           <IMViewerLink v-if="node.iri" :iri="node.iri" :label="node.name" :action="'view'" />
           <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
         </div>

@@ -1,5 +1,9 @@
 <template>
   <div class="match-content-display">
+    <div>
+      <span>Description</span>
+      <InputText v-model="match.description" type="text" class="match-description" />
+    </div>
     <div v-if="!then">
       <div>
         <span class="field">With the following conditions:</span>
@@ -94,7 +98,7 @@ import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import { useCopyToClipboard } from "vue-library/composables";
 import { EntityService } from "@/services";
 import { IM } from "vue-library/enums";
-import { getNodeShape, getOrderables, createNodeVariable, getBooleanOperator } from "@/helpers/buildQuery";
+import {  getOrderables, createNodeVariable, getBooleanOperator } from "@/helpers/buildQuery";
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import { cloneDeep, isEqual } from "lodash-es";
 import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
@@ -106,6 +110,7 @@ interface Props {
   depth: number;
   index: number;
   isStep?: boolean;
+  nodeShape: NodeShape;
 }
 
 const props = defineProps<Props>();
@@ -128,7 +133,6 @@ const loading = ref(true);
 const orderables: Ref<any[] | undefined> = ref();
 const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
 const edited = ref(false);
-const nodeShape: Ref<NodeShape> = ref({} as NodeShape);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
 const keepAs = inject("keepAs") as Ref<Match[]>;
@@ -163,7 +167,6 @@ function updateKeepAs(oldVal: Match, newVal: Match) {
 async function init() {
   loading.value = true;
   match.value = cloneDeep(match.value);
-  nodeShape.value = await getNodeShape(match.value, props.baseType);
   expandedKeys.value["0"] = true;
   await setOrderables();
   loading.value = false;
@@ -180,8 +183,7 @@ function editMain() {
 
 async function setOrderables() {
   if (match.value.typeOf) {
-    nodeShape.value = await getNodeShape(match.value, props.baseType);
-    orderables.value = getOrderOptions(getOrderables(nodeShape.value));
+    orderables.value = getOrderOptions(getOrderables(props.nodeShape));
     if (match.value.orderBy) {
       orderable.value = getOrderable(match.value, orderables.value);
     }
@@ -271,6 +273,9 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 }
 .keep-as-reference {
   padding-right: 1rem;
+}
+.match-description {
+  width: 70rem;
 }
 .name-display {
   width: 100%;

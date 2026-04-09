@@ -1,9 +1,9 @@
 <template>
   <template v-if="showEditor && editMatch">
     <MatchEditor
-      v-if="showEditor && editMatch"
+      v-if="showEditor"
       :match="editMatch"
-      v-model:showMatchEditor="showEditor"
+      :showEditor="showEditor"
       :baseType="baseType"
       :from="from"
       :depth="depth"
@@ -107,7 +107,6 @@
             @click="editMatchClause()"
           />
         </div>
-
         <div>
           <Button @click.stop="deleteMatch" class="delete-button" icon="fa-solid fa-trash" />
         </div>
@@ -170,7 +169,7 @@ const definitionSelector = ref(false);
 const menu = ref();
 const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
-  { label: "Add cohort", icon: "pi pi-users", command: () => addCohort() }
+  { label: "Add query reference or import clause", icon: "pi pi-users", command: () => addCohort() }
 ];
 const keepAs = inject("keepAs") as Ref<Match[]>;
 
@@ -196,23 +195,25 @@ function updateKeepAs(match: Match) {
 }
 
 function onDeleteMatchList() {
+  showEditor.value = false;
   emit("deleteMatch");
 }
 
 function deleteMatch() {
   updateKeepAs(match.value);
+  showEditor.value = false;
   emit("deleteMatch");
 }
 function onDeleteMatch(index: number) {
   if (match.value.or) {
     match.value.or.splice(index, 1);
     if (match.value.or.length === 1) {
-      match.value = match.value.or[0];
+      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.or[0];
     }
   } else if (match.value.and) {
     match.value.and.splice(index, 1);
     if (match.value.and.length === 1) {
-      match.value = match.value.and[0];
+      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.and[0];
     }
   } else emit("deleteMatch");
 }
@@ -221,7 +222,7 @@ function onCheckGroupChange(e: any) {
   checkGroupChange(e, parentGroup.value, props.index);
 }
 function addCohort() {
-  const match = { is: [{}] } as Match;
+  const match = { uuid: v4(), draft: true, is: [{}] } as Match;
   match.invalid = true;
   addMatchToParent(parent.value, match);
 }
@@ -280,15 +281,13 @@ function editMatchClause() {
 function mouseover(event: any) {
   event.stopPropagation();
 }
-function getSubrule(parentIndex: number, index: number): string {
-  return parentIndex + String.fromCharCode(96 + index);
-}
 
 function cancelEditMatch() {
   showEditor.value = false;
   if (editMatch.value && editMatch.value.draft) {
     emit("deleteMatch");
   }
+  showEditor.value = false;
 }
 
 function mouseout(event: any) {

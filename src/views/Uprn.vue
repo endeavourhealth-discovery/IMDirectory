@@ -11,12 +11,8 @@
     <div id="uprn-content">
       <Tabs value="0" id="uprn-menu">
         <TabList>
-          <Tab :value="index.toString()" v-for="(item, index) in items" v-bind:key="index">
-            <router-link v-slot="routerProps" :to="item.route" custom>
-              <a :href="sanitizeUrl(routerProps.href)" @click="$event => routerProps.navigate($event)">
-                <span>{{ item.label }}</span>
-              </a>
-            </router-link>
+          <Tab :value="index.toString()" v-for="(item, index) in items" v-bind:key="index" @click="navigate(item.route)">
+            <span>{{ item.label }}</span>
           </Tab>
         </TabList>
       </Tabs>
@@ -32,9 +28,10 @@
 import TopBar from "@/components/shared/TopBar.vue";
 import { computed, ref } from "vue";
 import UprnConsent from "@/components/uprn/UprnConsent.vue";
-import { sanitizeUrl } from "@braintree/sanitize-url";
 import { useLoadingStore } from "@/stores/loadingStore";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const loadingStore = useLoadingStore();
 const uprnLoading = computed(() => loadingStore.uprnLoading);
 
@@ -52,6 +49,10 @@ const items = ref([
     route: "/uprn/addressFileDownload"
   }
 ]);
+
+function navigate(route: string) {
+  router.push(route);
+}
 </script>
 
 <style scoped>
