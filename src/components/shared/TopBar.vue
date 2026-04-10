@@ -495,7 +495,6 @@ async function openAdminToolbox() {
 </script>
 
 <style scoped>
-@reference "tailwindcss-primeui";
 .im-logo {
   cursor: pointer;
   margin: 0 0.5rem;
