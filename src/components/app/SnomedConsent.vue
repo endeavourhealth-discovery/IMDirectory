@@ -82,7 +82,7 @@
 import { computed } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useSharedStore } from "@/stores/sharedStore";
 
 const userStore = useUserStore();

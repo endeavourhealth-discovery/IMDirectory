@@ -1,8 +1,8 @@
 import axios from "axios";
 import Env from "./Env";
 import { SetDiffObject } from "@/interfaces";
-import { ECLQueryRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "@/interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import type { ECLQueryRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "vue-library/interfaces";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 const API_URL = Env.API + "api/set";
 
 const SetService = {
@@ -54,7 +54,7 @@ const SetService = {
       }
     });
   },
-  async updateSubsetsFromSuper(entity: TTEntity) {
+  async updateSubsetsFromSuper(entity: ExtendedTTEntity) {
     return await axios.post(API_URL + "/private/updateSubsetsFromSuper", entity);
   }
 };

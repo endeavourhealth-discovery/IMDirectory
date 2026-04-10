@@ -72,7 +72,8 @@ import { defineComponent } from "vue";
 import { useValidity } from "@/composables/useValidity";
 import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useDialog } from "primevue/usedialog";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
+import { useDirectService } from "@/composables/useDirectService";
 
 export default defineComponent({
   components: {
@@ -107,11 +108,12 @@ import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { DisplayMode, PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
+import { DisplayMode } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
 import { EditorMode } from "@/enums";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { DirectService, EntityService, SetService } from "@/services";
+import { IM, RDF, RDFS } from "vue-library/enums";
+import { EntityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
@@ -130,7 +132,6 @@ const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
 const userStore = useUserStore();
 const filterStore = useFilterStore();
-const directService = new DirectService();
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 const currentUser = computed(() => userStore.currentUser);

@@ -3,7 +3,7 @@
     <Select
       style="width: 5.5rem; min-height: 2.3rem"
       v-model="constraintOperator"
-      :options="constraintOperatorOptions"
+      :options="ConstraintOperatorOptions"
       option-label="label"
       option-value="value"
       @change="updateConstraintOperator"
@@ -46,14 +46,14 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, watch, computed } from "vue";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node } from "@/interfaces/AutoGen";
+import type { QueryRequest, SearchResultSummary, Node } from "vue-library/interfaces";
 import { cloneDeep, isEqual } from "lodash-es";
 import { useFilterStore } from "@/stores/filterStore";
 import { SearchOptions } from "@/interfaces";
 import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
+import { ConstraintOperatorOptions } from "@/constants";
 interface Props {
   parent?: any;
 }

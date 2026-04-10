@@ -166,18 +166,19 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Bool, DisplayMode, Match, Node, TTIriRef, NodeShape } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { Match, Node, TTIriRef, Return,NodeShape } from "vue-library/interfaces";
+import { DisplayMode,Bool } from "vue-library/enums";
 import { onMounted, Ref, ref, watch, inject } from "vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { EntityService, QueryService, DataModelService } from "@/services";
-import { IM } from "@/vocabulary";
+import { useCopyToClipboard } from "vue-library/composables";
+import { EntityService, QueryService,DataModelService } from "@/services";
+import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { addReturn, addFilter, setDefiningProperty } from "@/helpers/buildQuery";
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import { usePropertyTree, Mode } from "@/composables/usePropertyTree";
 import { cloneDeep } from "lodash-es";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import Swal from "sweetalert2";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";

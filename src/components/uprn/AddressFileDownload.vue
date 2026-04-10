@@ -31,7 +31,7 @@
 import { useToast } from "primevue/usetoast";
 import { ref, computed, onMounted, Ref } from "vue";
 import UprnService from "@/services/UprnService";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 
 const toast = useToast();
 const userStore = useUserStore();

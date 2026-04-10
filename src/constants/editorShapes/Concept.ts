@@ -1,6 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD } from "@/vocabulary";
-import { SCHEME } from "@/vocabulary/SCHEME";
+import type { FormGenerator } from "vue-library/interfaces";
+import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD, NAMESPACE } from "vue-library/enums";
 
 const ConceptShape: FormGenerator = {
   iri: EDITOR.CONCEPT_SHAPE,
@@ -220,7 +219,7 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                iri: SCHEME.IM1
+                iri: NAMESPACE.IM1
               },
               minCount: 0,
               componentType: {

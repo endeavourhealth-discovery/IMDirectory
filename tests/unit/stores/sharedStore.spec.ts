@@ -1,7 +1,7 @@
 import { beforeEach, describe, vi, expect } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 
 describe("state", () => {
   beforeEach(() => {
@@ -34,6 +34,10 @@ describe("state", () => {
 });
 
 describe("mutations", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    createTestingPinia({ stubActions: false });
+  });
   it("can updateSnomedLicenseAccepted", () => {
     const userStore = useUserStore();
     const testBool = true;

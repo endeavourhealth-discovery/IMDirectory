@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Node, Query } from "@/interfaces/AutoGen";
+import type { Match, Query,Node } from "vue-library/interfaces";
 import { onMounted, ref, Ref } from "vue";
 import Button from "primevue/button";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";

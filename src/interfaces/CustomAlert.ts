@@ -1,4 +1,4 @@
-import { User } from "./User";
+import { User } from "vue-library/models";
 
 export interface CustomAlert {
   status: number;

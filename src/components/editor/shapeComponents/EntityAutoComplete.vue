@@ -73,17 +73,13 @@ import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, Ref, ref, wa
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { cloneDeep, isEqual } from "lodash-es";
 import { EditorMode } from "@/enums";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";
-import { isTTIriRef } from "@/helpers/TypeGuards";
-import { byName } from "@/helpers/Sorters";
 import { DataModelService, QueryService } from "@/services";
-import { IM, QUERY, RDF, RDFS } from "@/vocabulary";
-import { TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "@/interfaces/AutoGen";
+import { IM, QUERY, RDF, RDFS } from "vue-library/enums";
+import type { ExtendedTTEntity, TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   shape: PropertyShape;
@@ -202,7 +198,7 @@ async function init() {
   if (autocompleteOptions.value.length === 0) {
     await getAutocompleteOptions();
   }
-  if (props.value && isTTIriRef(props.value)) {
+  if (props.value && TypeGuards.isTTIriRef(props.value)) {
     const found = autocompleteOptions.value.find(option => option.name === props.value?.name);
     if (found) selectedResult.value = found;
   }
@@ -358,7 +354,7 @@ function summaryToTTIriRef(summary: SearchResultSummary): TTIriRef {
 }
 
 function updateEntity(value: SearchResultSummary) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key.value] = summaryToTTIriRef(value);
   if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }

@@ -31,11 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { enumToArray } from "@/helpers/Converters";
-import { RoleRequest, Task, UserRole } from "@/interfaces/AutoGen";
+import type { RoleRequest, Task } from "vue-library/interfaces";
+import { UserRole } from "vue-library/enums";
 import SecurityService from "@/services/SecurityService";
 import WorkflowService from "@/services/WorkflowService";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
 import { computed, onMounted, ref, Ref, watch } from "vue";

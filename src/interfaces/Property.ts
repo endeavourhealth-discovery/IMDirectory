@@ -1,5 +1,4 @@
-import { TTIriRef } from "./AutoGen";
-import { GenericObject } from "./GenericObject";
+import type { GenericObject, TTIriRef } from "vue-library/interfaces";
 
 export interface Property extends GenericObject {
   "http://www.w3.org/ns/shacl#path": TTIriRef[];

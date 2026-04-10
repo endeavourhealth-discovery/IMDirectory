@@ -1,4 +1,4 @@
-import { RDF, IM, XSD, RDFS, EDITOR, COMPONENT, VALIDATION, IM_FUNCTION, QUERY } from "@/vocabulary";
+import { RDF, IM, XSD, RDFS, EDITOR, COMPONENT, VALIDATION, IM_FUNCTION, QUERY } from "vue-library/enums";
 import { expect } from "vitest";
 
 export default {

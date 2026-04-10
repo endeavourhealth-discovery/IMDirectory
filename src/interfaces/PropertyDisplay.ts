@@ -1,4 +1,4 @@
-import { TTIriRef } from "./AutoGen";
+import type { TTIriRef } from "vue-library/interfaces";
 
 export interface PropertyDisplay {
   order?: number;

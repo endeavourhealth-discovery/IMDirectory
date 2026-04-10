@@ -1,4 +1,4 @@
-import { XSD } from "@/vocabulary";
+import { XSD } from "vue-library/enums";
 
 export const OntologiesFolderTTEntity = {
   iri: "http://endhealth.info/im#HealthModelOntology",

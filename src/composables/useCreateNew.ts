@@ -1,15 +1,15 @@
-import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { DirectService, EntityService } from "@/services";
-import { IM, RDFS, SHACL } from "@/vocabulary";
+import { getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import { EntityService } from "@/services";
+import { IM, RDFS, SHACL } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
 import { MenuItem } from "primevue/menuitem";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import type { TTIriRef } from "vue-library/interfaces";
 import Swal from "sweetalert2";
+import { useDirectService } from "./useDirectService";
 
 export function useCreateNew() {
-  const directService = new DirectService();
+  const directService = useDirectService();
 
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [

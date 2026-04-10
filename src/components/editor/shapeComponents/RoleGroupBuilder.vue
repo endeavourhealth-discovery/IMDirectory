@@ -43,16 +43,13 @@
 <script lang="ts" setup>
 import { EntityService } from "@/services";
 import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isTTIriRef } from "@/helpers/TypeGuards";
-import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
-import { IM, RDFS, SNOMED } from "@/vocabulary";
+import { isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "vue-library/interfaces";
+import { IM, NAMESPACE, RDFS, SNOMED } from "vue-library/enums";
 import { cloneDeep, isArray } from "lodash-es";
 import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import { Namespace } from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -152,7 +149,7 @@ async function processRole(newData: any[], role: Role) {
   newData.push(grp);
   if (isObjectHasKeys(role, [IM.GROUP_NUMBER])) {
     for (const [key, value] of Object.entries(role)) {
-      if (key !== IM.GROUP_NUMBER && isArray(value) && value.every(item => isTTIriRef(item))) {
+      if (key !== IM.GROUP_NUMBER && isArray(value) && value.every(item => TypeGuards.isTTIriRef(item))) {
         const keyName = await EntityService.getPartialEntity(key, [RDFS.LABEL]);
         grp.push({ key: { iri: key, name: keyName[RDFS.LABEL] ?? "" }, value: value[0] });
       }
@@ -177,7 +174,7 @@ const valueRequest: QueryRequest = {
     activeOnly: true,
     where: {
       iri: IM.HAS_SCHEME,
-      is: [{ iri: Namespace.SNOMED }, { iri: Namespace.IM }]
+      is: [{ iri: NAMESPACE.SNOMED }, { iri: NAMESPACE.IM }]
     }
   }
 };
@@ -228,7 +225,7 @@ function isGroupValid(group: Role[]): boolean {
 }
 
 function updateEntity() {
-  const groups: TTEntity = {};
+  const groups: ExtendedTTEntity = {};
   groups[IM.ROLE_GROUP] = [];
 
   for (const rg in roleGroups.value) {

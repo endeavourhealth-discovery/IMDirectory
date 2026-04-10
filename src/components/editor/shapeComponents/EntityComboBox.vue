@@ -27,15 +27,14 @@
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
 import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { byName, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";
-import { byName } from "@/helpers/Sorters";
 import { mapToObject } from "@/helpers/Transforms";
 import { FunctionService, QueryService } from "@/services";
-import { RDFS } from "@/vocabulary";
+import { RDFS } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep, isEqual } from "lodash-es";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@/interfaces/AutoGen";
+import type { PropertyShape, TTIriRef, QueryRequest, Query } from "vue-library/interfaces";
 
 const props = defineProps<{
   shape: PropertyShape;

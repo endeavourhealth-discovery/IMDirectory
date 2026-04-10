@@ -48,10 +48,10 @@ import { EntityService } from "@/services";
 import type { TreeNode } from "primevue/treenode";
 import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM, SHACL } from "@/vocabulary";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { IM, SHACL } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
 import { isArray } from "lodash-es";
-import { GenericObject } from "@/interfaces/GenericObject";
+import type { GenericObject } from "vue-library/interfaces";
 
 const props = defineProps<{
   entityIri: string;

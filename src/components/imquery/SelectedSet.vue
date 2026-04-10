@@ -35,16 +35,13 @@
 <script lang="ts" setup>
 import { EntityService } from "@/services";
 import { onMounted, ref, Ref, watch } from "vue";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { Match, Node, TTIriRef } from "@/interfaces/AutoGen";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { useOverlay } from "@/composables/useOverlay";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { IM, RDF, RDFS } from "vue-library/enums";
+import type { ExtendedTTEntity, Match, Node, TTIriRef } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { useOverlay } from "vue-library/composables";
+import { OverlaySummary } from "vue-library/components";
 import { cloneDeep } from "lodash-es";
-import { isConcept, isValueSet } from "@/helpers/ConceptTypeMethods";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { getColourFromType, getFAIconFromType, isArrayHasLength, isConcept, isValueSet } from "vue-library/helpers";
 
 interface Props {
   propertyIri: string | undefined;
@@ -54,7 +51,7 @@ interface Props {
 const props = defineProps<Props>();
 const { OS, showOverlay, hideOverlay } = useOverlay();
 
-interface SelectedEntity extends TTEntity {
+interface SelectedEntity extends ExtendedTTEntity {
   icon: string[];
   include: boolean;
   entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";

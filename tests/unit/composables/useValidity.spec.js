@@ -2,7 +2,7 @@ import { useValidity } from "@/composables/useValidity";
 import testData from "./useValidity.testData";
 import { mountComposable } from "../TestMethods";
 import { flushPromises } from "@vue/test-utils";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import { ref } from "vue";
 import { EntityService } from "@/services";
 import { cloneDeep } from "lodash-es";

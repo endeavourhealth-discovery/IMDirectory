@@ -151,20 +151,18 @@
 import { computed, ref, Ref, onMounted, watch } from "vue";
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService, SecurityService } from "@/services";
+import { FilerService, CodeGenService, SecurityService } from "@/services";
 import type { MenuItem } from "primevue/menuitem";
 
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
-import { useChangeFontSize } from "@/composables/useChangeFontSize";
-import { useChangeThemeOptions } from "@/composables/useChangeThemeOptions";
-import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
-import PrimeVueColors from "@/enums/PrimeVueColors";
+import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "vue-library/enums";
 import Button from "primevue/button";
-import { FontSize, UserRole } from "@/enums";
 import { useCookies } from "@vueuse/integrations";
 import Swal from "sweetalert2";
+import { useDirectService } from "@/composables/useDirectService";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -227,7 +225,7 @@ const themesMenu = ref();
 const fontSizeMenu = ref();
 const userMenu = ref();
 const appsOP = ref();
-const directService = new DirectService();
+const directService = useDirectService();
 
 watch(preset, async newValue => {
   await changePreset(newValue);

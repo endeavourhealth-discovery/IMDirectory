@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { useSharedStore } from "@/stores/sharedStore";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { useRouter } from "vue-router";
 import { onMounted, ref, Ref } from "vue";
 import { GithubService } from "@/services";

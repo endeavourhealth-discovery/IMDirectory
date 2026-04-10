@@ -94,10 +94,10 @@
 <script lang="ts" setup>
 import { useFilterStore } from "@/stores/filterStore";
 import { DownloadSettings } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { IM, SNOMED } from "@/vocabulary";
+import type { TTIriRef } from "vue-library/interfaces";
+import { IM, SNOMED } from "vue-library/enums";
 import { computed, Ref, ref, watch } from "vue";
-import { Namespace } from "@/vocabulary/Namespace";
+import { NAMESPACE } from "vue-library/enums";
 
 interface DownloadOption {
   key: string;
@@ -170,7 +170,7 @@ const isOptionsSelected = computed(() => {
 const checkedLegacy = ref(false);
 const checked = ref(true);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
-const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== Namespace.IM && c.iri !== Namespace.SNOMED);
+const schemesOptions = filterOptions.value.schemes.filter(c => c.iri !== NAMESPACE.IM && c.iri !== NAMESPACE.SNOMED);
 
 watch(
   () => props.showSubsumedBy,

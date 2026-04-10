@@ -1,75 +1,8 @@
-import { Node, Order, Where, Match, Operator, TTIriRef, Compare } from "@/interfaces/AutoGen";
-import { Orderable } from "@/models/orderable";
-
-export type RelativeTo = {
-  nodeRef?: string;
-  parameter?: string;
-  qualifier?: TTIriRef;
-  iri?: string;
-  name?: string;
-};
-export const Relativity = {
-  Compare: "compare",
-  Relative: "relative",
-  Absolute: "absolute"
-} as const;
-export type Relativity = (typeof Relativity)[keyof typeof Relativity];
-
-export const compareOptions = [
-  { label: "Compare to another value", value: Relativity.Compare },
-  { label: "Compare with offset from another value", value: Relativity.Relative },
-  { label: "Compare to fixed value", value: Relativity.Absolute }
-] satisfies { label: string; value: Relativity }[];
-
-export const RangeOrValue = {
-  Range: "range",
-  SingleValue: "singleValue",
-  IsNull: "isNull",
-  IsNotNull: "isNotNull"
-} as const;
-
-export type RangeOrValue = (typeof RangeOrValue)[keyof typeof RangeOrValue];
-
-export const rangeValueOptions = [
-  { label: "Range", value: RangeOrValue.Range },
-  { label: "Single value", value: RangeOrValue.SingleValue },
-  { label: "Is absent", value: RangeOrValue.IsNull },
-  { label: "Is present", value: RangeOrValue.IsNotNull }
-] satisfies { label: string; value: RangeOrValue }[];
-
-export const offsetOptions = [
-  { label: "relative to", value: "0" },
-  { label: "prior to", value: "-" },
-  { label: "after", value: "+" }
-];
-
-export const constraintOperatorOptions = [
-  {
-    label: "--",
-    value: "",
-    tooltip: "This concept only"
-  },
-  {
-    label: "<<",
-    value: "<<",
-    tooltip: "This concept and all descendants"
-  },
-  {
-    label: "<",
-    value: "<",
-    tooltip: "Descendants of this concept but not this concept"
-  },
-  {
-    label: "^",
-    value: "^",
-    tooltip: "Member of this value set"
-  },
-  {
-    label: ">>!",
-    value: ">>!",
-    tooltip: "This concept and all ancestors"
-  }
-];
+import type { Node, Where, Match, Orderable, Compare } from "vue-library/interfaces";
+import { Order, Operator } from "vue-library/enums";
+import { RelativeTo } from "@/interfaces/RelativeTo";
+import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
+import { SentencePart } from "@/interfaces";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
@@ -80,48 +13,8 @@ export function getPlainConstraintOperatorValue(node: Node): string {
 export function getPlainConstraintOperatorLabel(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
   if (key === undefined) return "concept only";
-  return constraintOperatorMap[key];
+  return ConstraintOperatorMap[key];
 }
-
-export type ConstraintOperatorKey = keyof typeof constraintOperatorMap;
-
-export const constraintOperatorMap = {
-  descendantsOrSelfOf: "+ children",
-  descendantsOf: "children only",
-  memberOf: "member of",
-  conceptOnly: "concept only"
-};
-
-export const plainConstraintOperatorOptions = [
-  {
-    label: "concept only",
-    value: "conceptOnly",
-    tooltip: "This concept only, not including descendants"
-  },
-  {
-    label: "+children",
-    value: "descendantsOrSelfOf",
-    tooltip: "This concept and all descendants"
-  },
-  {
-    label: "children only",
-    value: "descendantsOf",
-    tooltip: "Descendants of this concept but not this concept"
-  }
-];
-
-export const nodeInclusionOptions = [
-  {
-    label: "Include",
-    value: "Include",
-    tooltip: "Include concept (default)"
-  },
-  {
-    label: "Exclude",
-    value: "Exclude",
-    tooltip: "Exclude this from set"
-  }
-];
 
 export function getDateFromString(date: string): Date {
   if (date) {
@@ -138,34 +31,6 @@ export function getDateFromString(date: string): Date {
   }
   return new Date();
 }
-
-export const operatorOptions = [
-  {
-    label: "equal to",
-    value: Operator.eq,
-    tooltip: "exactly equal to value"
-  },
-  {
-    label: "greater or equal to",
-    value: Operator.gte,
-    tooltip: "inclusive of value"
-  },
-  {
-    label: "less than or equal to",
-    value: Operator.lte,
-    tooltip: "inclusive of value"
-  },
-  {
-    label: "greater than",
-    value: Operator.gt,
-    tooltip: "exclusive of value"
-  },
-  {
-    label: "less than",
-    value: Operator.lt,
-    tooltip: "exclusive of value"
-  }
-] satisfies { label: string; value: Operator; tooltip: string }[];
 
 export function getRelativeTo(where: Where): RelativeTo | undefined {
   if (where.compare && where.compare.right) {
@@ -214,11 +79,6 @@ export function isTimeInRange(time: string, start: string, end: string): boolean
   const t = toMinutes(time);
   return t >= toMinutes(start) && t <= toMinutes(end);
 }
-export type SentencePart =
-  | { type: "text"; value?: string }
-  | { type: "field"; value?: string }
-  | { type: "parameter"; value?: string }
-  | { type: "nodeRef"; value?: string };
 
 export function buildValueSentence(where: Where): SentencePart[] | undefined {
   if (where.range) return buildRangeSentence(where);

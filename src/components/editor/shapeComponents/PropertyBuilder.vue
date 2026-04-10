@@ -160,20 +160,19 @@
 
 <script lang="ts" setup>
 import { Property } from "@/interfaces";
-import { PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import { cloneDeep } from "lodash-es";
 import { EditorMode } from "@/enums";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "vue-library/helpers";
 import { propertyRangeTypes } from "@/helpers/EditorMethods";
-import { IM, RDF, RDFS, SHACL, SNOMED, XSD } from "@/vocabulary";
-import { DirectService, EntityService } from "@/services";
+import { IM, RDF, RDFS, SHACL, SNOMED, XSD, NAMESPACE } from "vue-library/enums";
+import { EntityService } from "@/services";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import { Namespace } from "@/vocabulary/Namespace";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { updateRangeQuery } from "@/helpers/EditorMethods";
+import { useDirectService } from "@/composables/useDirectService";
 
 interface Props {
   shape: PropertyShape;
@@ -193,7 +192,7 @@ interface SimpleProp {
 }
 
 const props = defineProps<Props>();
-const directService = new DirectService();
+const directService = useDirectService();
 const rangeType: Ref<string> = ref("concept");
 const showValidation = ref(false);
 
@@ -245,7 +244,7 @@ const rSuggestions: Ref<QueryRequest> = ref({
         },
         {
           iri: IM.HAS_SCHEME,
-          is: [{ iri: Namespace.SNOMED }, { iri: Namespace.IM }, { iri: Namespace.XSD }]
+          is: [{ iri: NAMESPACE.SNOMED }, { iri: NAMESPACE.IM }, { iri: NAMESPACE.XSD }]
         },
         {
           iri: IM.HAS_STATUS,
@@ -357,7 +356,7 @@ function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], 
   }
   const row: SimpleProp = {
     path: {
-      iri: pathIri,
+      iri: pathIri!,
       name: pathName,
       scheme: { iri: "", name: "" },
       status: { iri: "", name: "" },
@@ -481,10 +480,10 @@ async function validateEntity() {
 
 function updateEntity() {
   if (entityUpdate) {
-    const deltas: TTEntity[] = [];
+    const deltas: ExtendedTTEntity[] = [];
     const dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
     dmAllProperties.forEach((value, index) => {
-      const p: TTEntity = {};
+      const p: ExtendedTTEntity = {};
       let fullPath = {} as TTIriRef;
       let fullRange = {} as TTIriRef;
 
@@ -499,7 +498,7 @@ function updateEntity() {
       p[IM.INHERITED_FROM] = value.inherited;
       deltas.push(p);
     });
-    const update: TTEntity = {};
+    const update: ExtendedTTEntity = {};
     update[key] = deltas;
 
     entityUpdate(update);
@@ -585,7 +584,7 @@ function updateEntity() {
   border-style: solid none solid none;
   padding: 0.5rem;
   margin: 0;
-  grow: 1;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -596,7 +595,7 @@ function updateEntity() {
   border-style: solid none solid none;
   padding: 0.5rem;
   margin: 0;
-  grow: 1;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }

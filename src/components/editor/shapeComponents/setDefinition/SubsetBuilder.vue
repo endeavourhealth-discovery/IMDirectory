@@ -11,16 +11,15 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, TTIriRef } from "vue-library/interfaces";
 import ArrayBuilder from "../ArrayBuilder.vue";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
-import { IM, QUERY, RDFS } from "@/vocabulary";
+import { IM, QUERY, RDFS } from "vue-library/enums";
 import { EditorMode } from "@/enums";
 import { cloneDeep, isEqual } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   value?: TTIriRef[];
@@ -119,7 +118,7 @@ function updateInclusions(data: any) {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as TTEntity;
+    const result = {} as ExtendedTTEntity;
     if (isArrayHasLength(inclusions.value)) {
       result[key] = cloneDeep(inclusions.value);
     }

@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { Where, Query, Match, UIProperty } from "@/interfaces/AutoGen";
+import type { Where, Query, Match, UIProperty } from "vue-library/interfaces";
 import type { TreeNode } from "primevue/treenode";
 import { Ref, inject, onMounted, ref, watch, computed } from "vue";
 import { getRelativeToOptions, getRelativePropertyOptions } from "@/helpers/buildQuery";

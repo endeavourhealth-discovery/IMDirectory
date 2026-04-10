@@ -73,13 +73,14 @@
 </template>
 
 <script setup lang="ts">
-import { Task, TaskHistory, TaskState, TaskType, UserRole } from "@/interfaces/AutoGen";
+import type { Task, TaskHistory } from "vue-library/interfaces";
+import { TaskState, TaskType, UserRole } from "vue-library/enums";
 import WorkflowService from "@/services/WorkflowService";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import TaskHistoryDialog from "@/components/workflow/TaskHistoryDialog.vue";
 import SecurityService from "@/services/SecurityService";
-import { User } from "@/interfaces";
+import { User } from "vue-library/models";
 
 interface Props {
   id: string;

@@ -33,18 +33,14 @@
 
 <script setup lang="ts">
 import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
-import { TTIriRef, PropertyShape, QueryRequest, Query } from "@/interfaces/AutoGen";
+import type { ExtendedTTEntity, TTIriRef, PropertyShape, QueryRequest, Query } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
-import { isTTIriRef } from "@/helpers/TypeGuards";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { byName, isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";
-import { byName } from "@/helpers/Sorters";
-import { IM, RDFS } from "@/vocabulary";
+import { IM, NAMESPACE, RDFS } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import { cloneDeep, isEqual } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import { Namespace } from "@/vocabulary/Namespace";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -125,7 +121,11 @@ const showValidation = ref(false);
 const prefix = ref("");
 
 watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, newUserInput], [oldSelectedDropdownOption, oldUserInput]) => {
-  if (isTTIriRef(newSelectedDropdownOption) && newUserInput && (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)) {
+  if (
+    TypeGuards.isTTIriRef(newSelectedDropdownOption) &&
+    newUserInput &&
+    (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)
+  ) {
     let concatenated = "";
     concatenated += newSelectedDropdownOption.iri;
     if (includePrefix.value) concatenated += prefix.value;
@@ -140,7 +140,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
       }
       showValidation.value = true;
     }
-  } else if (!newUserInput && newUserInput !== oldUserInput && isTTIriRef(newSelectedDropdownOption)) {
+  } else if (!newUserInput && newUserInput !== oldUserInput && TypeGuards.isTTIriRef(newSelectedDropdownOption)) {
     let concatenated = "";
     concatenated += newSelectedDropdownOption.iri;
     if (includePrefix.value) concatenated += prefix.value;
@@ -154,7 +154,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
       }
       showValidation.value = true;
     }
-  } else if (!isTTIriRef(newSelectedDropdownOption) && isEqual(newSelectedDropdownOption, oldSelectedDropdownOption) && newUserInput) {
+  } else if (!TypeGuards.isTTIriRef(newSelectedDropdownOption) && isEqual(newSelectedDropdownOption, oldSelectedDropdownOption) && newUserInput) {
     let concatenated = "";
     if (includePrefix.value) concatenated += prefix.value;
     concatenated += newUserInput;
@@ -198,7 +198,7 @@ function setSelectedOption() {
     deconstructInputValue(props.shape.isIri!.iri);
     return;
   } else if (EditorMode.CREATE && isArrayHasLength(dropdownOptions.value)) {
-    const foundIndex = dropdownOptions.value.findIndex(option => option.iri === Namespace.IM);
+    const foundIndex = dropdownOptions.value.findIndex(option => option.iri === NAMESPACE.IM);
     if (foundIndex !== -1) selectedDropdownOption.value = dropdownOptions.value[foundIndex];
     else selectedDropdownOption.value = dropdownOptions.value[0];
     userInput.value = "";
@@ -237,7 +237,7 @@ async function getDropdownOptions() {
 }
 
 function updateEntity(data: string) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

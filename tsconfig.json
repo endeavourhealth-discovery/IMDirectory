@@ -1,5 +1,5 @@
 {
-    "compilerOptions": {
+  "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
     "strict": true,
@@ -14,21 +14,13 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "rootDirs": ["."],
-    "baseUrl": ".",
     "types": ["vite/client", "vitest/globals", "@vueuse/core", "@vueuse/integrations"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "outDir": "./dist/types"
   },
-  "include": [
-    "./src/**/*.vue",
-    "./src/**/*.ts",
-    "./src/**/*.js",
-    "components.d.ts",
-    "./tests/**/*.ts",
-    "./tests/**/*.js"
-  ],
+  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js", "components.d.ts", "./tests/**/*.ts", "./tests/**/*.js"],
   "exclude": ["node_modules"]
 }

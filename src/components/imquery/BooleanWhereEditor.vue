@@ -89,7 +89,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Where, Bool, UIProperty } from "@/interfaces/AutoGen";
+import type { Match, Node, Where, UIProperty } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";

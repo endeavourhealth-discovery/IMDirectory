@@ -14,10 +14,10 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { IM, QUERY, RDFS, SHACL } from "@/vocabulary";
+import { IM, QUERY, RDFS, SHACL } from "vue-library/enums";
 import { EntityService, QueryService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { QueryRequest, TTIriRef } from "@/interfaces/AutoGen";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { QueryRequest, TTIriRef } from "vue-library/interfaces";
 
 interface SelectOption {
   id: string;

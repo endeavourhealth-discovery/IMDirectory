@@ -7,13 +7,13 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM } from "@/vocabulary";
+import { isObjectHasKeys } from "vue-library/helpers";
+import { IM } from "vue-library/enums";
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 
 const props = defineProps<{
-  editorEntity: TTEntity;
+  editorEntity: ExtendedTTEntity;
 }>();
 
 const editorEntityDisplay = ref();

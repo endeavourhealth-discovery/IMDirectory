@@ -71,10 +71,10 @@
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import { onMounted, ref, Ref, watch } from "vue";
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 
 interface Provenane {
   prov: string;
@@ -97,7 +97,7 @@ const selectedProvenance = ref();
 const provItem = ref();
 const jsonDisplay = ref();
 
-const labels = ref({
+const labels: Ref<Record<string, string>> = ref({
   iri: "Iri:",
   [RDF.TYPE]: "Type:",
   [RDFS.LABEL]: "Name:",
