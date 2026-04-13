@@ -33,6 +33,7 @@
       />
 
       <InputText v-else-if="showValue" v-model="assignable.value" @input="updateNumericValue" />
+
       <Select
         v-if="assignable.compare && showUnits"
         type="text"
@@ -85,7 +86,7 @@ const assignable = defineModel<Assignable>("assignable", { default: {} });
 const where = defineModel<Where>("where", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();
-const operator = ref("");
+const operator = ref(Operator.eq);
 const offset = ref("0");
 const rangeOrValue = computed(() => {
   if (where.value.range) return RangeOrValue.Range;

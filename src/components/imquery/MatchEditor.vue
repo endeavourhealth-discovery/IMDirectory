@@ -94,10 +94,9 @@
             <Tabs v-model:value="activeTab" class="match-editor-tabs">
               <TabList>
                 <Tab value="filter">Filter</Tab>
-                <Tab v-if="editMatch.then" value="test">Post ordering tests</Tab>
-                <Tab value="columns">
-                  <span v-if="!datasetEntry">Columns to keep</span>
-                  <span v-else>Dataset items</span>
+                <Tab v-if="editMatch.orderBy" value="test">Post ordering tests</Tab>
+                <Tab v-if="datasetEntry" value="columns">
+                  <span>Dataset items</span>
                 </Tab>
               </TabList>
               <TabPanels>
@@ -120,27 +119,25 @@
                   </div>
                 </TabPanel>
                 <TabPanel value="test">
-                  <div v-if="editMatch.then">
-                    <div>
-                      <MatchContentEditor
-                        v-if="!editMatch.invalid && nodeShape"
-                        :base-type="baseType"
-                        :nodeShape="nodeShape"
-                        v-model:match="editMatch"
-                        v-model:then="editMatch.then"
-                        :from="from"
-                        :depth="0"
-                        :index="0"
-                        :key="'then'"
-                        @deleteMatch="deleteMatch"
-                        @updateMatch="onUpdate"
-                        @addLinked="onAddLinked"
-                        @edit-main="onEditMain"
-                      />
-                    </div>
+                  <div>
+                    <MatchContentEditor
+                      v-if="!editMatch.invalid && nodeShape"
+                      :base-type="baseType"
+                      :nodeShape="nodeShape"
+                      v-model:match="editMatch"
+                      :editingThen="true"
+                      :from="from"
+                      :depth="0"
+                      :index="0"
+                      :key="'then'"
+                      @deleteMatch="deleteMatch"
+                      @updateMatch="onUpdate"
+                      @addLinked="onAddLinked"
+                      @edit-main="onEditMain"
+                    />
                   </div>
                 </TabPanel>
-                <TabPanel value="columns">
+                <TabPanel v-if="datasetEntry" value="columns">
                   <div v-if="activeTab === 'columns'">
                     <span class="field">Select columns from left.</span>
                     <span v-if="!editMatch.path" style="font-style: italic">To select other columns, first define a filter</span>
@@ -154,14 +151,14 @@
       </template>
       <template #footer>
         <div class="button-footer">
-          <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
+          <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="cancel" />
           <Button v-if="edited" autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
         </div>
       </template>
     </Dialog>
   </div>
   <div v-if="editMatch.is">
-    <CohortEditor v-model:match="editMatch" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="onCancel" />
+    <CohortEditor v-model:match="editMatch" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="cancel" />
   </div>
 </template>
 
@@ -256,12 +253,12 @@ async function onNodeSelect(node: any) {
       if (!expandedKeys.value[typeNodes.value[0].key]) {
         expandedKeys.value[typeNodes.value[0].key] = true;
       }
-      setDefiningProperty(editMatch.value, nodeShape.value);
     }
   }
   if (node.type === "property") {
-    addFilter(editMatch.value, node);
+    addFilter(editMatch.value, node, activeTab.value === "test");
   }
+  setDefiningProperty(editMatch.value, nodeShape.value!);
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
   edited.value = true;
 }
@@ -270,12 +267,11 @@ function setupTrees(mode: Mode) {
   createModeView(typeNodes.value, mode);
   if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
 }
-function onUpdate() {
+async function onUpdate() {
   edited.value = true;
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
 }
-function onDeleteThen() {
-  delete editMatch.value.then;
-}
+
 async function onReturnNodeSelect(node: any) {
   edited.value = true;
   if (!editMatch.value.typeOf) {
@@ -330,8 +326,7 @@ async function getFunctionTemplates() {
 }
 
 async function onUpdateClauses(match: Match) {
-  editMatch.value = match;
-  await onSave();
+  emit("saveChanges", match);
 }
 
 async function onSave() {
@@ -361,10 +356,11 @@ async function saveChanges(): Promise<boolean> {
     return false;
   } else {
     editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    editMatch.value.draft = false;
     return true;
   }
 }
-function onCancel() {
+function cancel() {
   emit("cancel");
 }
 function onEditMain() {

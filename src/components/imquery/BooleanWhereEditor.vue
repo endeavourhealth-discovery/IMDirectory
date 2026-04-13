@@ -46,7 +46,7 @@
       </div>
     </div>
   </div>
-  <div v-else :class="where.invalid ? 'property-container-invalid' : 'property-container'">
+  <div v-else-if="where.iri" :class="where.invalid ? 'property-container-invalid' : 'property-container'">
     <span class="property-label">
       <span v-if="canCheck" class="group-checkbox">
         <Checkbox

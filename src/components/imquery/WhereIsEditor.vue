@@ -221,7 +221,7 @@ function updateIsIri(node: Node) {
 }
 .auto-complete-container {
   flex: 1 1 0%;
-  min-width: 52rem;
+  min-width: 40rem;
 }
 
 .sync-warning {
