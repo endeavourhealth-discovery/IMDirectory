@@ -15,14 +15,13 @@
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys, isArrayHasLength } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";
 import { FunctionService, QueryService } from "@/services";
-import { RDFS } from "@/vocabulary";
+import { RDFS } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, QueryRequest, Query } from "@/interfaces/AutoGen";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest, Query } from "vue-library/interfaces";
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -139,7 +138,7 @@ async function getDropdownOptions() {
 }
 
 function updateEntity(data: string) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

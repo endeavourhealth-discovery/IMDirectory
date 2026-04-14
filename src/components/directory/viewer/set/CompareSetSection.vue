@@ -5,7 +5,7 @@
       <AutocompleteSearchBar
         v-if="header !== 'Shared members '"
         v-model:selected="modelSelectedSet"
-        :root-entities="[Namespace.IM + 'Sets']"
+        :root-entities="[NAMESPACE.IM + 'Sets']"
         :im-query="searchQuery"
       />
       <div v-if="isArrayHasLength(members)">Total members ({{ members.length }})</div>
@@ -32,19 +32,19 @@
 </template>
 
 <script setup lang="ts">
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { useOverlay } from "@/composables/useOverlay";
+import { OverlaySummary } from "vue-library/components";
+import { useCopyToClipboard } from "vue-library/composables";
+import { useOverlay } from "vue-library/composables";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { FilterOptions, SearchOptions } from "@/interfaces";
-import { Concept, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
+import { isArrayHasLength } from "vue-library/helpers";
+import { SearchOptions } from "@/interfaces";
+import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+import { IM, NAMESPACE } from "vue-library/enums";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { Namespace } from "@/vocabulary/Namespace";
+import { useDirectService } from "@/composables/useDirectService";
 
 const props = defineProps<{
   header: string;
@@ -59,7 +59,7 @@ const emit = defineEmits<{
   "update:selectedSet": [payload: SearchResultSummary | undefined];
 }>();
 
-const directService = new DirectService();
+const directService = useDirectService();
 const { OS, showOverlay, hideOverlay } = useOverlay();
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);

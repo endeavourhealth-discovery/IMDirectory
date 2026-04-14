@@ -70,11 +70,12 @@
 </style>
 
 <script lang="ts" setup>
-import { DisplayMode, Match, Node, Return } from "@/interfaces/AutoGen";
+import type { Match, Node, Return } from "vue-library/interfaces";
+import { DisplayMode } from "vue-library/enums";
 import { Ref, ref, computed, onMounted } from "vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import { QueryService } from "@/services";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
 import TypeSelector from "@/components/imquery/TypeSelector.vue";
 import Button from "primevue/button";

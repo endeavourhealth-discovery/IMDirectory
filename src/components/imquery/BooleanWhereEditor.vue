@@ -46,7 +46,7 @@
       </div>
     </div>
   </div>
-  <div v-else :class="where.invalid ? 'property-container-invalid' : 'property-container'">
+  <div v-else-if="where.iri" :class="where.invalid ? 'property-container-invalid' : 'property-container'">
     <span class="property-label">
       <span v-if="canCheck" class="group-checkbox">
         <Checkbox
@@ -89,7 +89,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Where, Bool, UIProperty } from "@/interfaces/AutoGen";
+import type { Match, Node, Where, UIProperty } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import { onMounted, Ref, ref, watch, computed } from "vue";
 import { DataModelService } from "@/services";
 import WhereValueEditor from "./WhereValueEditor.vue";

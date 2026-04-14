@@ -10,11 +10,11 @@
 </template>
 <script setup lang="ts">
 import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
 
 interface Props {
   shape: PropertyShape;
@@ -93,7 +93,7 @@ watch(checked, async newValue => {
 });
 
 function updateEntity(data: boolean) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[props.shape.path.iri] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

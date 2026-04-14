@@ -13,15 +13,13 @@
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted, inject } from "vue";
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpers";
 import { processArguments } from "@/helpers/EditorMethods";
-import { isTTIriRef } from "@/helpers/TypeGuards";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { RDFS } from "@/vocabulary";
+import { RDFS } from "vue-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@/interfaces/AutoGen";
+import type { ExtendedTTEntity, PropertyShape, TTIriRef, QueryRequest, Query } from "vue-library/interfaces";
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -83,7 +81,7 @@ let key = props.shape.path.iri;
 
 let selectedEntity: Ref<TTIriRef> = ref({ iri: "", name: "" });
 watch(selectedEntity, async newValue => {
-  if (isTTIriRef(newValue)) {
+  if (TypeGuards.isTTIriRef(newValue)) {
     updateEntity(newValue);
     updateValueVariableMap(newValue);
     if (updateValidity) {
@@ -113,7 +111,7 @@ async function setSelectedEntity() {
     }
     return { iri: props.shape.isIri.iri, name: name };
   }
-  if (props.value && isTTIriRef(props.value)) return props.value;
+  if (props.value && TypeGuards.isTTIriRef(props.value)) return props.value;
   else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri?.iri) {
     let name = "";
     if (props.shape.isIri.name) name = props.shape.isIri.name;
@@ -145,9 +143,9 @@ async function setSelectedEntity() {
 }
 
 function updateEntity(data: TTIriRef) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key] = data;
-  if (!isTTIriRef(data) && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  if (!TypeGuards.isTTIriRef(data) && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
   else emit("updateClicked", data);
 }
@@ -162,8 +160,8 @@ function updateValueVariableMap(data: TTIriRef) {
 function hasData() {
   invalid.value = false;
   validationErrorMessage.value = undefined;
-  if (props.shape.minCount === 0 && !isTTIriRef(selectedEntity.value)) return;
-  if (!isTTIriRef(selectedEntity.value)) {
+  if (props.shape.minCount === 0 && !TypeGuards.isTTIriRef(selectedEntity.value)) return;
+  if (!TypeGuards.isTTIriRef(selectedEntity.value)) {
     invalid.value = true;
     validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required.";
   }

@@ -3,8 +3,7 @@ import { useCreatorStore } from "@/stores/creatorStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useQueryStore } from "@/stores/queryStore";
-import { urlToIri } from "@/helpers/Converters";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys, urlToIri } from "vue-library/helpers";
 import { RouteLocationNormalized, Router } from "vue-router";
 
 export function directoryGuard(iri: string | string[], to: RouteLocationNormalized) {

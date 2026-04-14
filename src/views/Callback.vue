@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import SecurityService from "@/services/SecurityService";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 

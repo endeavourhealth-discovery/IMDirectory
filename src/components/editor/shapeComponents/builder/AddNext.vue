@@ -10,9 +10,9 @@
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted } from "vue";
 import { NextComponentSummary, ComponentDetails } from "@/interfaces";
-import { PropertyShape } from "@/interfaces/AutoGen";
+import type { PropertyShape } from "vue-library/interfaces";
 import { ComponentType, EditorMode } from "@/enums";
-import { stringAscending } from "@/helpers/Sorters";
+import { stringAscending } from "vue-library/helpers";
 
 const props = defineProps<{
   id: string;

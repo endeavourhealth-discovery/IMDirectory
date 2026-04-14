@@ -47,20 +47,20 @@
 
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import OverlaySummary from "./OverlaySummary.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { OverlaySummary } from "vue-library/components";
 import { useToast } from "primevue/usetoast";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { byKey } from "@/helpers/Sorters";
+import { byKey, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { EntityService, FilerService } from "@/services";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import type { TreeNode } from "primevue/treenode";
-import { useTree } from "@/composables/useTree";
-import { useUserStore } from "@/stores/userStore";
+import { useTree } from "vue-library/composables";
+import { useUserStore } from "vue-library/stores";
 import { useConfirm } from "primevue/useconfirm";
 import { useCreateNew } from "@/composables/useCreateNew";
-import { TTIriRef, UserRole } from "@/interfaces/AutoGen";
-import { useOverlay } from "@/composables/useOverlay";
+import type { TTIriRef } from "vue-library/interfaces";
+import { UserRole } from "vue-library/enums";
+import { useOverlay } from "vue-library/composables";
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
 
@@ -97,7 +97,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
 const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
-  useTree(emit, props.childLength ? props.childLength : 40);
+  useTree(favourites, emit, props.childLength ? props.childLength : 40);
 const { getCreateOptions, checkExists } = useCreateNew();
 
 const loading = ref(true);

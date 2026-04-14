@@ -48,8 +48,8 @@
         </div>
       </template>
     </template>
-    <div v-if="match.then">
-      <span class="node-ref">then with the {{ testFields }} of the above</span>
+    <div v-if="match.then && !skipThen">
+      <span class="above">then with the {{ testFields }} of the above</span>
       <WhereContentDisplay :where="match.then" :depth="depth + 1" :parentOperator="whereOperator" :key="0" :index="0" :root="false" />
     </div>
     <span v-if="match.node">
@@ -60,12 +60,13 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Match } from "@/interfaces/AutoGen";
+import type { Match } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import DirectService from "@/services/DirectService";
 import { getBooleanOperator, getBoolGroup, getTestFields } from "@/helpers/buildQuery";
 import { computed } from "vue";
+import { useDirectService } from "@/composables/useDirectService";
 interface Props {
   match: Match;
   depth: number;
@@ -73,10 +74,11 @@ interface Props {
   clauseIndex: number;
   parentOperator?: Bool;
   from?: Match;
+  skipThen?: boolean;
 }
 const props = defineProps<Props>();
 const emit = defineEmits(["navigateTo"]);
-const directService = new DirectService();
+const directService = useDirectService();
 const whereOperator = computed(() => {
   return getBooleanOperator("Where", props.match.where);
 });
@@ -107,6 +109,9 @@ function getFormattedPath(path: any): string {
   min-width: 0;
   font-size: 1rem;
   margin-left: 2rem;
+}
+.above {
+  padding-right: 0.5rem;
 }
 
 .as {

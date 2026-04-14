@@ -19,10 +19,10 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted, inject } from "vue";
 import { EntityService } from "@/services";
-import { RDF } from "@/vocabulary";
+import { RDF } from "vue-library/enums";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import editorShapes from "@/constants/editorShapes";
-import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
   showTypeSelector?: boolean;
@@ -49,7 +49,7 @@ async function setOptions() {
 }
 
 function typeSelected(data: ExtendedEntityReferenceNode) {
-  const result: TTEntity = {};
+  const result: ExtendedTTEntity = {};
   result[RDF.TYPE] = [{ iri: data.iri, name: data.name }];
   if (entityUpdate) entityUpdate(result);
   props.updateShowTypeSelector(false);

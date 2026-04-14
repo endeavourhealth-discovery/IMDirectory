@@ -2,7 +2,7 @@
   <div>
     <div class="relative-buttons">
       <span class="field">
-        <span v-for="opt in compareOptions" :key="opt.value" class="gap-1">
+        <span v-for="opt in CompareOptions" :key="opt.value" class="gap-1">
           <RadioButton v-model="relativity" :value="opt.value" :inputId="opt.value" @update:modelValue="onChangeRelativeTo" />
           <label :for="opt.value" class="field">{{ opt.label }}</label>
         </span>
@@ -11,7 +11,7 @@
     <div class="value-input-container">
       <Select
         :modelValue="operator"
-        :options="operatorOptions"
+        :options="OperatorOptions"
         scroll-height="50rem"
         option-label="label"
         option-value="value"
@@ -33,6 +33,7 @@
       />
 
       <InputText v-else-if="showValue" v-model="assignable.value" @input="updateNumericValue" />
+
       <Select
         v-if="assignable.compare && showUnits"
         type="text"
@@ -59,10 +60,13 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch, computed } from "vue";
-import { RangeOrValue, operatorOptions, compareOptions, Relativity } from "@/helpers/QueryEditorMethods";
-import { Assignable, Operator, Where, TTIriRef, Match, UIProperty } from "@/interfaces/AutoGen";
-import { IM, XSD } from "@/vocabulary";
+import type { Assignable, Where, TTIriRef, Match, UIProperty } from "vue-library/interfaces";
+import { Operator } from "vue-library/enums";
+import { IM, XSD } from "vue-library/enums";
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
+import { RangeOrValue, Relativity } from "@/enums";
+import { CompareOptions } from "@/constants";
+import { OperatorOptions } from "@/constants/queryEditor/OperatorOptions";
 
 enum ValueType {
   date,
@@ -82,7 +86,7 @@ const assignable = defineModel<Assignable>("assignable", { default: {} });
 const where = defineModel<Where>("where", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();
-const operator = ref("");
+const operator = ref(Operator.eq);
 const offset = ref("0");
 const rangeOrValue = computed(() => {
   if (where.value.range) return RangeOrValue.Range;
@@ -160,7 +164,7 @@ function onChangeRelativeTo(e: any) {
   if (e === Relativity.Relative || e === Relativity.Compare) {
     relativity.value = e;
     if (!assignable.value.compare) {
-      assignable.value.compare = { left: {}, right: {} };
+      assignable.value.compare = { left: { iri: where.value.iri, name: where.value.name }, right: { parameter: "$searchDate", name: "search date" } };
       units.value = undefined;
     }
     if (e === Relativity.Compare) {

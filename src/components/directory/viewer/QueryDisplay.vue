@@ -83,11 +83,12 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { QueryService } from "@/services";
-import { Argument, Bool, DisplayMode, Node, Query, QueryRequest } from "@/interfaces/AutoGen";
+import type { Argument, Node, Query, QueryRequest } from "vue-library/interfaces";
+import { Bool, DisplayMode } from "vue-library/enums";
 import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import SQLDisplay from "./SQLDisplay.vue";
 import { cloneDeep } from "lodash-es";

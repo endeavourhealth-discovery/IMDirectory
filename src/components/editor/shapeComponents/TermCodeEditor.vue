@@ -22,10 +22,10 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { EditorMode } from "@/enums";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDFS } from "@/vocabulary";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import { IM, RDFS } from "vue-library/enums";
 import { useFilterStore } from "@/stores/filterStore";
 import { cloneDeep } from "lodash-es";
 

@@ -66,7 +66,8 @@ import { useValidity } from "@/composables/useValidity";
 import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 import { useDialog } from "primevue/usedialog";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
+import { useDirectService } from "@/composables/useDirectService";
 
 export default defineComponent({
   components: {
@@ -95,16 +96,16 @@ import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRoute, useRouter } from "vue-router";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDF } from "@/vocabulary";
-import { DirectService, EntityService, SetService } from "@/services";
+import { isObjectHasKeys } from "vue-library/helpers";
+import { IM, RDF } from "vue-library/enums";
+import { EntityService, SetService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@/helpers/EditorMethods";
@@ -117,7 +118,7 @@ const filterStore = useFilterStore();
 const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
-const directService = new DirectService();
+const directService = useDirectService();
 const { fetchEntity, editorEntity, editorEntityOriginal, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
   useEditorEntity(EditorMode.EDIT, updateType);
 const { shape, getShapesCombined, groups, processShape } = useEditorShape();

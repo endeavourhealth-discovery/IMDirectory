@@ -1,6 +1,6 @@
 import axios from "axios";
 import Env from "./Env";
-import { Namespace } from "@/interfaces/AutoGen";
+import type { Namespace } from "vue-library/interfaces";
 
 const API_URL = Env.API + "api/config/public";
 

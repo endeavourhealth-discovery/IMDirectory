@@ -3,7 +3,7 @@ import testData from "./setupEditorShape.testData";
 import { mountComposable } from "../TestMethods";
 
 import { useEditorShape } from "@/composables/useEditorShape";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import ConceptShape from "@/constants/editorShapes/Concept";
 
 describe("setupShape", () => {

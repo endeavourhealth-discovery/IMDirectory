@@ -29,14 +29,13 @@
 import TopBar from "@/components/shared/TopBar.vue";
 import FileUpload, { FileUploadUploadEvent } from "primevue/fileupload";
 import { useToast } from "primevue/usetoast";
-import { IM } from "@/vocabulary";
 import * as d3 from "d3";
-import { ToastOptions } from "@/models";
-import { ToastSeverity } from "@/enums";
+import { ToastOptions } from "vue-library/models";
+import { IM, ToastSeverity } from "vue-library/enums";
 import { FilerService } from "@/services";
 import { Ref, ref } from "vue";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TTDocument } from "@/interfaces/AutoGen";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { TTDocument } from "vue-library/interfaces";
 const toast = useToast();
 
 const progress = ref(); // Store the progress percentage

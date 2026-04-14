@@ -79,7 +79,7 @@
         <Select
           style="width: 4.5rem; min-height: 2.3rem"
           v-model="propertyConstraintOperator"
-          :options="constraintOperatorOptions"
+          :options="ConstraintOperatorOptions"
           option-label="label"
           option-value="value"
           @change="updatePropertyConstraint"
@@ -130,10 +130,10 @@
 import { ref, Ref, onMounted, watch, inject, computed } from "vue";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { EclService, QueryService } from "@/services";
-import { IM, QUERY } from "@/vocabulary";
+import { IM, QUERY } from "vue-library/enums";
 import { useToast } from "primevue/usetoast";
-import { ToastSeverity } from "@/enums";
-import { Bool, Where, Match, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
+import type { Where, Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import { useFilterStore } from "@/stores/filterStore";
 import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";
 import {
@@ -146,11 +146,11 @@ import {
   getBoolGroup
 } from "@/helpers/buildQuery";
 import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/helpers/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
 import ECLRefinementValue from "@/components/imquery/ECLRefinementValue.vue";
 import { v4 } from "uuid";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import { ConstraintOperatorOptions } from "@/constants";
 
 interface Props {
   index: number;

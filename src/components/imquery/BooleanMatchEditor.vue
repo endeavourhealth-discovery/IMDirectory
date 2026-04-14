@@ -123,7 +123,8 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Match, Node } from "@/interfaces/AutoGen";
+import type { Match, Node } from "vue-library/interfaces";
+import { Bool } from "vue-library/enums";
 import { computed, Ref, ref, onMounted, inject } from "vue";
 import { addMatchToParent, checkGroupChange, getBooleanOperator, getBoolGroup, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
 import Button from "primevue/button";
@@ -235,6 +236,7 @@ function createNewMatch() {
 }
 
 async function saveEditMatch(editedMatch: Match) {
+  showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
   updateKeepAs(match.value);

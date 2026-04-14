@@ -23,11 +23,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch,onUnmounted } from "vue";
-import { DirectService } from "../../services";
-import OverlaySummary from "./OverlaySummary.vue";
-import { useOverlay } from "@/composables/useOverlay";
+import { ref, watch, onUnmounted } from "vue";
+import { OverlaySummary } from "vue-library/components";
+import { useOverlay } from "vue-library/composables";
 import { cloneDeep } from "lodash-es";
+import { useDirectService } from "@/composables/useDirectService";
 
 interface Props {
   iri: string;
@@ -46,8 +46,8 @@ const emit = defineEmits<{
 }>();
 
 onUnmounted(() => {
-  hideOverlay()
-})
+  hideOverlay();
+});
 
 const vLinkMenu = ref();
 const items = ref([
@@ -59,7 +59,7 @@ const items = ref([
   }
 ]);
 const { OS, showOverlay, hideOverlay } = useOverlay();
-const directService = new DirectService();
+const directService = useDirectService();
 
 function onNodeContext(event: MouseEvent) {
   vLinkMenu.value.show(event);

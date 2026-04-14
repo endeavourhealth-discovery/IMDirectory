@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 
-import { IM, RDFS } from "@/vocabulary";
-import { SearchResponse } from "@/interfaces/AutoGen";
+import { IM, RDFS } from "vue-library/enums";
+import type { SearchResponse } from "vue-library/interfaces";
 import { EntityService } from "@/services";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 import { ref } from "vue";
 
 export const useDirectoryStore = defineStore("directory", () => {

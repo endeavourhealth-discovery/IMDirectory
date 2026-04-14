@@ -1,9 +1,7 @@
 import { EntityService } from "@/services";
-import { deferred } from "@/helpers/Deferred";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isPropertyShape } from "@/helpers/TypeGuards";
-import { FormGenerator, PropertyShape } from "@/interfaces/AutoGen";
-import { IM, COMPONENT } from "@/vocabulary";
+import { deferred, isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
+import type { FormGenerator, PropertyShape } from "vue-library/interfaces";
+import { IM, COMPONENT } from "vue-library/enums";
 import { isArray } from "lodash-es";
 import { Ref, ref } from "vue";
 import Swal from "sweetalert2";
@@ -94,7 +92,7 @@ export function useValidity(shape?: FormGenerator) {
   ) {
     let valid = true;
     let message;
-    if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
+    if (TypeGuards.isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
       const customValidationResult = await EntityService.checkValidation(componentShape.validation!.iri, editorEntity.value);
       if (customValidationResult.valid === false) {
         valid = false;

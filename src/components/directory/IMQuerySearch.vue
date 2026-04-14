@@ -34,13 +34,13 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
-import { QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
+import type { QueryRequest, SearchResultSummary } from "vue-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@/models";
-import { ToastSeverity } from "@/enums";
+import { ToastOptions } from "vue-library/models";
+import { ToastSeverity } from "vue-library/enums";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import ResultsTable from "../shared/ResultsTable.vue";
 
 const emit = defineEmits<{

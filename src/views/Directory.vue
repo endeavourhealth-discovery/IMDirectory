@@ -33,7 +33,7 @@ import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
 import { useFilterStore } from "@/stores/filterStore";
-import { FilterOptions } from "@/interfaces";
+import type { FilterOptions } from "vue-library/interfaces";
 
 const router = useRouter();
 const filterStore = useFilterStore();

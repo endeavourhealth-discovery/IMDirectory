@@ -6,7 +6,7 @@
         <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
       </div>
       <div class="flex flex-row justify-start">
-        <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" />
+        <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" :tagSeverityMatches="tagSeverityMatches" />
         <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
       </div>
       <div>
@@ -167,11 +167,11 @@ import JSONViewer from "./viewer/JSONViewer.vue";
 import Provenance from "./viewer/Provenance.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import type { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
 import {
+  isObjectHasKeys,
   isConcept,
   isFeature,
   isIndicator,
@@ -182,22 +182,20 @@ import {
   isQuery,
   isRecordModel,
   isValueSet
-} from "@/helpers/ConceptTypeMethods";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
+} from "vue-library/helpers";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import Details from "./viewer/Details.vue";
 import DataModels from "./viewer/DataModels.vue";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
-import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
-import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
-import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
+import { ArrayObjectNameTagWithLabel, ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "vue-library/components";
 import ModelChart from "@/components/directory/viewer/ModelChart.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
-  entity: TTEntity;
+  entity: ExtendedTTEntity;
 }
 
 const props = defineProps<Props>();
@@ -206,18 +204,20 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const directService = new DirectService();
+const directService = useDirectService();
+const sharedStore = useSharedStore();
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const concept: Ref<TTEntity> = ref({});
+const concept: Ref<ExtendedTTEntity> = ref({});
 
 const entityIri = ref("");
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
 const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
+const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
 
 const tabMap = reactive(new Map<string, string>());
 

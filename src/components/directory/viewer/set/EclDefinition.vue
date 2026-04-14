@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { EclService } from "@/services";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 
 interface Props {
   definition: string;

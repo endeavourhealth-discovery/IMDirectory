@@ -1,12 +1,11 @@
 import type { TreeNode } from "primevue/treenode";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, Node, PropertyShape, TTIriRef, Where, NodeShape } from "@/interfaces/AutoGen";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
+import type { Match, Node, PropertyShape,TTIriRef, Where,NodeShape } from "vue-library/interfaces";
 import { Ref, ref } from "vue";
 import { addWhereToMatch, setPathGetNodeRef } from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
-const codeable = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
+const codeable:string[] = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
 export type Mode = "match" | "return";
 type PropertyTreeNode = {
   key: string;

@@ -54,7 +54,7 @@
 import { onMounted, Ref, ref, nextTick } from "vue";
 import { GithubService } from "@/services";
 import { GithubRelease } from "@/interfaces";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "vue-library/helpers";
 import { useSharedStore } from "@/stores/sharedStore";
 import { sanitizeUrl } from "@braintree/sanitize-url";
 

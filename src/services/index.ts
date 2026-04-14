@@ -1,4 +1,3 @@
-import DirectService from "./DirectService";
 import EntityService from "./EntityService";
 import FilerService from "./FilerService";
 import Env from "./Env";
@@ -15,7 +14,6 @@ import StatusService from "./StatusService";
 import SecurityService from "./SecurityService";
 
 export {
-  DirectService,
   EntityService,
   FilerService,
   Env,

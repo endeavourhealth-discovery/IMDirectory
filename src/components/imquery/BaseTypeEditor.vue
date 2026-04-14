@@ -34,8 +34,8 @@
 
 <script lang="ts" setup>
 import { Ref, ref, watch, computed, onMounted } from "vue";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
+import { IM, RDF, RDFS, SHACL, NAMESPACE } from "vue-library/enums";
+import type { Match, SearchResultSummary, QueryRequest } from "vue-library/interfaces";
 import { EntityService, QueryService } from "@/services";
 import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
@@ -73,9 +73,9 @@ async function init() {
     baseType.value.iri = match.value.typeOf!.iri!;
     baseType.value.name = match.value.typeOf.name;
   } else {
-    baseType.value.iri = IM.NAMESPACE + "Patient";
+    baseType.value.iri = NAMESPACE.IM + "Patient";
     baseType.value.name = "Patients";
-    match.value.typeOf = { iri: IM.NAMESPACE + "Patient", name: "Patients" };
+    match.value.typeOf = { iri: NAMESPACE.IM + "Patient", name: "Patients" };
   }
 }
 

@@ -28,8 +28,8 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, computed } from "vue";
 import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { IM } from "vue-library/enums";
+import type { TTIriRef } from "vue-library/interfaces";
 import { MenuItem } from "primevue/menuitem";
 
 const props = defineProps<{

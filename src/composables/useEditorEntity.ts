@@ -1,10 +1,10 @@
 import { computed, Ref, ref } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import { EntityService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import type { TTIriRef } from "vue-library/interfaces";
 import { EditorMode } from "@/enums";
 import { isEqual } from "lodash-es";
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 import Env from "./Env";
-import { Query, SearchResponse, ECLQueryRequest } from "@/interfaces/AutoGen";
+import type { Query, SearchResponse, ECLQueryRequest } from "vue-library/interfaces";
 
 const API_URL = Env.API + "api/ecl/protected";
 
@@ -17,11 +17,7 @@ const EclService = {
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<ECLQueryRequest> {
-    return await axios.post(
-      API_URL + "/queryFromEcl",
-      { ecl: ecl, status: { valid: true } },
-      { headers: { "Content-Type": "application/json" }, raw: raw }
-    );
+    return await axios.post(API_URL + "/queryFromEcl", { ecl: ecl, status: { valid: true } }, { headers: { "Content-Type": "application/json" }, raw: raw });
   },
 
   async getEclFromEcl(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
@@ -77,11 +73,7 @@ const EclService = {
   },
 
   async getECLFromQuery(query: Query, showNames?: boolean): Promise<ECLQueryRequest> {
-    return await axios.post(
-      API_URL + "/eclFromQuery",
-      { query: query, showNames: showNames },
-      { headers: { "Content-Type": "application/json" }, raw: true }
-    );
+    return await axios.post(API_URL + "/eclFromQuery", { query: query, showNames: showNames }, { headers: { "Content-Type": "application/json" }, raw: true });
   }
 };
 export default EclService;

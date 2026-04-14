@@ -91,9 +91,10 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { PropertyDisplay } from "@/interfaces";
-import { DataModelService, DirectService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { DataModelService } from "@/services";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { DataTableExpandedRows } from "primevue/datatable";
+import { useDirectService } from "@/composables/useDirectService";
 
 const props = defineProps<{
   entityIri: string;
@@ -104,7 +105,7 @@ defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const directService = new DirectService();
+const directService = useDirectService();
 
 const loading = ref(false);
 const properties: Ref<PropertyDisplay[]> = ref([]);

@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
 import { onMounted, Ref, ref, watch } from "vue";
-import { XSD } from "@/vocabulary";
+import { XSD } from "vue-library/enums";
 import { cloneDeep, debounce } from "lodash-es";
 import CodeGenService from "@/services/CodeGenService";
 import { CodeTemplate } from "@/interfaces";

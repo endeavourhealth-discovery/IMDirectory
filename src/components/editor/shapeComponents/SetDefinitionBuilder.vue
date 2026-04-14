@@ -86,14 +86,13 @@ import { EditorMode } from "@/enums";
 import { EclService } from "@/services";
 import { cloneDeep, isEqual, last } from "lodash-es";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ECLQueryRequest, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "vue-library/interfaces";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+import { useCopyToClipboard } from "vue-library/composables";
 import { useEclValidator } from "@/composables/useEclValidator";
 import { useDialog } from "primevue/usedialog";
-import { IM } from "@/vocabulary";
+import { IM } from "vue-library/enums";
 import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
 import Swal from "sweetalert2";
 
@@ -237,7 +236,7 @@ function previewExpansion() {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as TTEntity;
+    const result = {} as ExtendedTTEntity;
     if (eclQuery.value && eclQuery.value.query) {
       result[key] = JSON.stringify(eclQuery.value.query);
     }

@@ -42,17 +42,17 @@
 
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { IM, SHACL } from "@/vocabulary";
+import type { TTIriRef } from "vue-library/interfaces";
+import { IM, SHACL } from "vue-library/enums";
 import { DataModelService } from "@/services";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { OverlaySummary } from "vue-library/components";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { useUserStore } from "@/stores/userStore";
-import { useOverlay } from "@/composables/useOverlay";
-import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
+import { useUserStore } from "vue-library/stores";
+import { useOverlay } from "vue-library/composables";
+import { getColourFromType } from "vue-library/helpers";
 import { DataTableRowSelectEvent } from "primevue/datatable";
 interface UIDataModel extends TTIriRef {
   type?: TTIriRef[];

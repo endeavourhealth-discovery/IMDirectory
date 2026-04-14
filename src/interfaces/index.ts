@@ -8,15 +8,13 @@ import { Dataset } from "./Dataset";
 import { DefinitionConfig } from "./DefinitionConfig";
 import { ECLComponentDetails } from "./ECLComponentDetails";
 import { ExportValueSet } from "./ExportValueSet";
-import { FiltersAsIris } from "./FiltersAsIris";
 import GraphData from "./GraphData";
 import { HistoryItem } from "./HistoryItem";
 import { MapItem } from "./MapItem";
 import { MatchPattern } from "./MatchPattern";
-import { Namespace } from "./Namespace";
 import { NextComponentSummary } from "./NextComponentSummary";
 import { Property } from "./Property";
-import { RecentActivityItem } from "./RecentActivityItem";
+import { ExtendedRecentActivityItem } from "./ExtendedRecentActivityItem";
 import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import { TermCode } from "./TermCode";
@@ -31,22 +29,20 @@ import { GenericType } from "./GenericType";
 import { GithubRelease } from "./GithubRelease";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
-import { FilterOptions } from "./FilterOptions";
 import { AliasEntity } from "./AliasEntity";
 import { PropertyDisplay } from "./PropertyDisplay";
-import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { SelectedMatch } from "./SelectedMatch";
-import { MailOptions } from "./MailOptions";
 import { QueryResponse } from "./QueryResponse";
 import { SetDiffObject } from "./SetDiffObject";
 import { CodeTemplate } from "./CodeTemplate";
-import { ExtendedSearchResultSummary } from "./ExtendedSearchResultSummary";
 import { SearchOptions } from "./SearchOptions";
 import { ValidatedEntity } from "./ValidatedEntity";
 import { DownloadSettings } from "./DownloadSettings";
+import { RelativeTo } from "./RelativeTo";
+import { SentencePart } from "./SentencePart";
 
 export {
   type Address,
@@ -59,15 +55,13 @@ export {
   type DefinitionConfig,
   type ECLComponentDetails,
   type ExportValueSet,
-  type FiltersAsIris,
   type GraphData,
   type HistoryItem,
   type MapItem,
   type MatchPattern,
-  type Namespace,
   type NextComponentSummary,
   type Property,
-  type RecentActivityItem,
+  type ExtendedRecentActivityItem,
   type SimpleMap,
   type SimpleMapIri,
   type TermCode,
@@ -82,20 +76,18 @@ export {
   type GithubRelease,
   type TangledTreeData,
   type AllowableChildProperty,
-  type FilterOptions,
-  type User,
   type CustomAlert,
   type AliasEntity,
   type PropertyDisplay,
   type TTProperty,
   type TreeNode,
   type SelectedMatch,
-  type MailOptions,
   type QueryResponse,
   type SetDiffObject,
   type CodeTemplate,
-  type ExtendedSearchResultSummary,
   type SearchOptions,
   type ValidatedEntity,
-  type DownloadSettings
+  type DownloadSettings,
+  type RelativeTo,
+  type SentencePart
 };

@@ -47,9 +47,3 @@ This specification describes the homepage functionality of IMDirectory.
 * Click shortcut "Code templates"
 * Login required message appears
 
-## Quicklinks - ASSIGN UPRN
-
-* Open IMDirectory
-* Click shortcut "ASSIGN UPRN"
-* Login required message appears
-* Close tab

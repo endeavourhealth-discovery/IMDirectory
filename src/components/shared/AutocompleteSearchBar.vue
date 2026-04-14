@@ -79,13 +79,14 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch, nextTick, computed, onBeforeUnmount } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { FilterOptions } from "@/interfaces";
-import { QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { useSpeechToText } from "@/composables/useSpeechToText";
+import { OverlaySummary } from "vue-library/components";
+import type { FilterOptions } from "vue-library/interfaces";
+import type { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
+import { TextSearchStyle } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import { useSpeechToText } from "vue-library/composables";
 import { cloneDeep, debounce, isEqual } from "lodash-es";
-import { useOverlay } from "@/composables/useOverlay";
+import { useOverlay } from "vue-library/composables";
 import { EntityService, QueryService } from "@/services";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 interface Props {

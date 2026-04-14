@@ -1,11 +1,23 @@
-import { Bool, HasPaths, Match, Node, NodeShape, Path, Query, QueryRequest, Return, RuleAction, SearchBinding, Where } from "@/interfaces/AutoGen";
-import { IM, RDF, SHACL } from "@/vocabulary";
+import type {
+  Match,
+  Node,
+  Orderable,
+  Query,
+  QueryRequest,
+  SearchBinding,
+  Where,
+  Path,
+  NodeShape,
+  Return,
+  HasPaths,
+  PropertyRange
+} from "vue-library/interfaces";
+import { Bool, RuleAction, IM, RDF, SHACL } from "vue-library/enums";
 import { SearchOptions } from "@/interfaces";
 import type { TreeNode } from "primevue/treenode";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "vue-library/helpers";
 import Swal from "sweetalert2";
 import { cloneDeep } from "lodash-es";
-import { Orderable } from "@/models/orderable";
 import { v4 } from "uuid";
 import { DataModelService } from "@/services";
 
@@ -258,6 +270,25 @@ export function addWhereToMatch(match: Match, where: Where, index?: number) {
     if (index === undefined || index < 0 || index >= match.where.and.length) match.where.and!.push(where);
     else match.where.and!.splice(index, 0, where); // insert
   } else match.where = where;
+}
+
+export function addWhereToThen(match: Match, where: Where) {
+  if (match.then && !match.then.and && !match.then.or && !match.then.iri) {
+    match.then = where;
+    return;
+  }
+  if (match.then) {
+    if (!match.then.and && !match.then.or) {
+      const currentWhere = match.then;
+      match.then = {} as Where;
+      match.then.and = [currentWhere];
+      match.then.and.push(where);
+    } else if (match.then.and) {
+      match.then.and.push(where);
+    } else if (match.then.or) {
+      match.then.or.push(where);
+    }
+  } else match.then = where;
 }
 export function getPathPropertyNames(pathable: Match | Path, where: Where): string | undefined {
   if (!where.nodeRef) return where.name;
@@ -512,10 +543,11 @@ export function createNodeVariable(match: Match, index: number): string {
 export function setDefiningProperty(match: Match, nodeShape: NodeShape): void {
   if (nodeShape.definingProperty) {
     if (!hasProperty(match.where, nodeShape.definingProperty.iri)) {
-      const where = { iri: nodeShape.definingProperty.iri, invalid: true } as Where;
       const propertyShape = nodeShape.property?.find(property => property.path.iri === nodeShape.definingProperty!.iri);
-      if (propertyShape && propertyShape.clazz) where.is = [{}];
-      addWhereToMatch(match, where);
+      if (propertyShape) {
+        const where = createWhere(propertyShape.path.iri, propertyShape.clazz, undefined);
+        addWhereToMatch(match, where);
+      }
     }
   }
 }
@@ -573,7 +605,7 @@ export function addReturn(match: Match, node: TreeNode) {
 
   match.invalid = false;
 }
-export function addFilter(match: Match, node: TreeNode): string | undefined {
+export function addFilter(match: Match, node: TreeNode, isThen: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
     const fullPath = node.data.path;
@@ -581,15 +613,21 @@ export function addFilter(match: Match, node: TreeNode): string | undefined {
       nodeRef = setPathGetNodeRef(match, fullPath, true);
     }
     if (node.data.rangeType != SHACL.NODESHAPE) {
-      const where = { iri: node.data.iri, invalid: true } as Where;
-      if (nodeRef) where.nodeRef = nodeRef;
-      if (node.data.rangeType === IM.VALUESET || node.data.rangeType === IM.CONCEPT) where.is = [{}];
-      addWhereToMatch(match, where);
+      const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);
+      if (!isThen) addWhereToMatch(match, where);
+      else addWhereToThen(match, where);
     }
   }
 
   match.invalid = false;
   return nodeRef;
+}
+
+function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
+  const where = { iri: iri, invalid: true } as Where;
+  if (nodeRef) where.nodeRef = nodeRef;
+  if (is) where.is = [{ descendantsOrSelfOf: true }];
+  return where;
 }
 
 export function setPathGetNodeRef(pathable: HasPaths, fullPath: string, optional?: boolean): string | undefined {

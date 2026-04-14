@@ -30,7 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, DisplayMode, Match, Query, Node } from "@/interfaces/AutoGen";
+import type { Match, Query, Node } from "vue-library/interfaces";
+import { Bool, DisplayMode } from "vue-library/enums";
 import { onMounted, watch, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
