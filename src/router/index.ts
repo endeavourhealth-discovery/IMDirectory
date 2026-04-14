@@ -26,7 +26,7 @@ import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import routes from "./methods/routes";
 import { setModes } from "./methods/setModes";
 import { SecurityService } from "@/services";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "vue-library/stores";
 
 const router = createRouter({
   history: createWebHashHistory(),

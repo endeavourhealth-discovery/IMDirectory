@@ -339,11 +339,7 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
 }
 
 async function submit(): Promise<void> {
-  let namespace = "";
-  if (isObjectHasKeys(editorEntity.value, [IM.ID])) {
-    namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
-    if (await checkExists(editorEntity.value[IM.ID])) return;
-  }
+  if (isObjectHasKeys(editorEntity.value, [IM.ID])) if (await checkExists(editorEntity.value[IM.ID])) return;
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
@@ -371,7 +367,7 @@ async function submit(): Promise<void> {
               await SetService.updateSubsetsFromSuper(editorEntity.value);
               delete editorEntity.value[IM.HAS_SUBSET];
             }
-            const res = await EntityService.createEntity({ entity: editorEntity.value, namespace: namespace, hostUrl: window.location.origin });
+            const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
             if (res) {
               creatorStore.updateCreatorSavedEntity(undefined);
               return res;
