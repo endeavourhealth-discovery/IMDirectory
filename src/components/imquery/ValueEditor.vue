@@ -164,7 +164,7 @@ function onChangeRelativeTo(e: any) {
   if (e === Relativity.Relative || e === Relativity.Compare) {
     relativity.value = e;
     if (!assignable.value.compare) {
-      assignable.value.compare = { left: {}, right: {} };
+      assignable.value.compare = { left: { iri: where.value.iri, name: where.value.name }, right: { parameter: "$searchDate", name: "search date" } };
       units.value = undefined;
     }
     if (e === Relativity.Compare) {
