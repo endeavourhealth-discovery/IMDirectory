@@ -236,6 +236,7 @@ function createNewMatch() {
 }
 
 async function saveEditMatch(editedMatch: Match) {
+  showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
   updateKeepAs(match.value);

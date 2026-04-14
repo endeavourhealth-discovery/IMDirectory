@@ -6,7 +6,7 @@ import { SentencePart } from "@/interfaces";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
-  if (key === undefined) return "conceptOnly";
+  if (key === undefined) return "descendantsOrSelfOf";
   return key.toString();
 }
 
@@ -187,8 +187,16 @@ function getOperatorTerm(operator: Operator): string {
       break;
     case "<":
       return "less than ";
+      break;
+    case "startsWith":
+      return "starts with ";
+      break;
+    case "contains":
+      return "contains ";
+    case "isTrue":
+      return "is true ";
     default:
-      return "";
+      return (operator as string) + " ";
   }
 }
 export function getIsOperator(nodes: Node[], eclQuery: boolean | undefined) {
