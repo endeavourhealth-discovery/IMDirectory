@@ -1,9 +1,11 @@
 import { Ref, ref } from "vue";
-import type { FormGenerator, PropertyShape, TTIriRef } from "vue-library/interfaces";
-import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+
 import { IM, RDF, RDFS } from "vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { FormGenerator, PropertyShape, TTIriRef } from "vue-library/interfaces";
+
 import editorShapes from "@/constants/editorShapes";
+import { EditorMode } from "@/enums";
 
 export function useEditorShape() {
   const shape: Ref<FormGenerator | undefined> = ref();

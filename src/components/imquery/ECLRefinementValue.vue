@@ -59,16 +59,20 @@
 </template>
 
 <script setup lang="ts">
-import { getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import Button from "primevue/button";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { computed, inject, onMounted, ref, Ref, watch } from "vue";
-import type { QueryRequest, SearchResultSummary, Where, Node, TTIriRef } from "vue-library/interfaces";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { IM, QUERY, SNOMED, ToastSeverity } from "vue-library/enums";
+import type { Node, QueryRequest, SearchResultSummary, TTIriRef, Where } from "vue-library/interfaces";
+
 import { isEqual } from "lodash-es";
-import { EclService, QueryService } from "@/services";
+import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { ConstraintOperatorOptions } from "@/constants";
+import { getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
+import { EclService, QueryService } from "@/services";
+
 interface Props {
   index: number;
 }

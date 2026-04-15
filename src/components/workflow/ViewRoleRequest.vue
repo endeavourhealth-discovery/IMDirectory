@@ -31,14 +31,18 @@
 </template>
 
 <script setup lang="ts">
-import type { RoleRequest, Task } from "vue-library/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
 import { UserRole } from "vue-library/enums";
-import SecurityService from "@/services/SecurityService";
-import WorkflowService from "@/services/WorkflowService";
+import type { RoleRequest, Task } from "vue-library/interfaces";
 import { useUserStore } from "vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
-import { computed, onMounted, ref, Ref, watch } from "vue";
+
+import SecurityService from "@/services/SecurityService";
+import WorkflowService from "@/services/WorkflowService";
+
 import TaskViewer from "./TaskViewer.vue";
 
 interface Props {

@@ -21,27 +21,31 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
-import CookiesConsent from "./components/app/CookiesConsent.vue";
-import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
-import FooterBar from "./components/app/FooterBar.vue";
-import DevBanner from "./components/app/DevBanner.vue";
-import { useRoute, useRouter } from "vue-router";
-import { useToast } from "primevue/usetoast";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { SecurityService, Env, GithubService } from "@/services";
-import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import semver from "semver";
-import { GithubRelease } from "./interfaces";
-import { useUserStore } from "vue-library/stores";
-import SnomedConsent from "./components/app/SnomedConsent.vue";
-import { useSharedStore } from "@/stores/sharedStore";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+
 import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
-import { useLoadingStore } from "./stores/loadingStore";
-import { useFilterStore } from "@/stores/filterStore";
-import { setModes } from "./router/methods/setModes";
+import { isObjectHasKeys } from "vue-library/helpers";
+import { useUserStore } from "vue-library/stores";
+
 import { useCookies } from "@vueuse/integrations";
+import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { useToast } from "primevue/usetoast";
+import semver from "semver";
+import { useRoute, useRouter } from "vue-router";
+
+import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
+import { Env, GithubService, SecurityService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
+import { useSharedStore } from "@/stores/sharedStore";
+
+import CookiesConsent from "./components/app/CookiesConsent.vue";
+import DevBanner from "./components/app/DevBanner.vue";
+import FooterBar from "./components/app/FooterBar.vue";
+import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
+import SnomedConsent from "./components/app/SnomedConsent.vue";
+import { GithubRelease } from "./interfaces";
+import { setModes } from "./router/methods/setModes";
+import { useLoadingStore } from "./stores/loadingStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();

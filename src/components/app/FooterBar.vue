@@ -38,11 +38,14 @@
 </template>
 
 <script setup lang="ts">
-import { useSharedStore } from "@/stores/sharedStore";
+import { Ref, onMounted, ref } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
+
 import { useRouter } from "vue-router";
-import { onMounted, ref, Ref } from "vue";
+
 import { GithubService } from "@/services";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const sharedStore = useSharedStore();
 const router = useRouter();

@@ -1,6 +1,8 @@
-import { ConceptService } from "@/services";
-import { ref, Ref } from "vue";
+import { Ref, ref } from "vue";
+
 import type { SearchTermCode } from "vue-library/interfaces";
+
+import { ConceptService } from "@/services";
 
 export function useTerms() {
   const terms: Ref<SearchTermCode[]> = ref([]);

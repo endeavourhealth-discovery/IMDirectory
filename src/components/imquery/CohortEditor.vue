@@ -101,21 +101,24 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, Ref, watch, provide } from "vue";
+import { Ref, computed, onMounted, provide, ref, watch } from "vue";
+
 import { IM, NAMESPACE } from "vue-library/enums";
 import type { Match, Node, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
-import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
-import { EntityService } from "@/services";
-import { v4 } from "uuid";
-import SearchBar from "@/components/shared/SearchBar.vue";
-import NavTree from "@/components/shared/NavTree.vue";
-import SearchResults from "@/components/shared/SearchResults.vue";
-import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
+
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
+import { v4 } from "uuid";
+
+import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
+import NavTree from "@/components/shared/NavTree.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
+import SearchResults from "@/components/shared/SearchResults.vue";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { EntityService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });

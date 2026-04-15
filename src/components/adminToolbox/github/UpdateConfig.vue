@@ -5,9 +5,11 @@
 </template>
 
 <script setup lang="ts">
-import { GithubService } from "@/services";
-import Swal from "sweetalert2";
 import { ref } from "vue";
+
+import Swal from "sweetalert2";
+
+import { GithubService } from "@/services";
 
 const loading = ref(false);
 

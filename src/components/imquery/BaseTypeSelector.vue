@@ -9,8 +9,10 @@
   />
 </template>
 <script setup lang="ts">
-import type { SearchResultSummary, QueryRequest, Query } from "vue-library/interfaces";
 import { ref, watch } from "vue";
+
+import type { Query, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
 interface Props {

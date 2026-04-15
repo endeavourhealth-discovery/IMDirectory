@@ -37,9 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { TermCode } from "@/interfaces";
+import { computed, ref } from "vue";
+
 import { isArrayHasLength } from "vue-library/helpers";
+
+import { TermCode } from "@/interfaces";
 
 interface Props {
   label?: string;

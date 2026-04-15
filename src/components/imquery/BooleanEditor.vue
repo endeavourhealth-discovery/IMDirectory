@@ -55,14 +55,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { createNewBoolGroup, getBooleanOptions, getIsRoleGroup, removeSubgroup, getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
-import type { Match, Where } from "vue-library/interfaces";
-import { Bool } from "vue-library/enums";
-import { computed, inject, onMounted, ref, Ref, watch } from "vue";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { defineComponent } from "vue";
+
+import { Bool } from "vue-library/enums";
+import type { Match, Where } from "vue-library/interfaces";
+
+import Button from "primevue/button";
+
 import RoleGroup from "@/components/imquery/RoleGroup.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import Button from "primevue/button";
+import { createNewBoolGroup, getBoolGroup, getBooleanOperator, getBooleanOptions, getIsRoleGroup, removeSubgroup } from "@/helpers/buildQuery";
 
 interface Props {
   index: number;

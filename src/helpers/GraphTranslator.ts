@@ -1,7 +1,8 @@
-import type { ExtendedTTEntity, GenericObject, TTBundle, TTIriRef } from "vue-library/interfaces";
-import { TTGraphData, TTProperty } from "../interfaces";
+import { IM, NAMESPACE, OWL, RDFS, SHACL } from "vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { NAMESPACE, IM, OWL, RDFS, SHACL } from "vue-library/enums";
+import type { ExtendedTTEntity, GenericObject, TTBundle, TTIriRef } from "vue-library/interfaces";
+
+import { TTGraphData, TTProperty } from "../interfaces";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;

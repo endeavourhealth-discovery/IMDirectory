@@ -120,14 +120,17 @@
 </template>
 
 <script setup lang="ts">
-import type { Match, Node } from "vue-library/interfaces";
+import { Ref, computed, inject, ref } from "vue";
+
 import { Bool, DisplayMode } from "vue-library/enums";
-import { Ref, ref, computed, inject } from "vue";
-import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { QueryService } from "@/services";
-import { getBooleanOperator, getDisplayOperator, getBoolGroup, getTestFields, clauseCheck } from "@/helpers/buildQuery";
+import type { Match, Node } from "vue-library/interfaces";
+
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
+import { QueryService } from "@/services";
+
+import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 
 interface Props {
   isVariable?: boolean;

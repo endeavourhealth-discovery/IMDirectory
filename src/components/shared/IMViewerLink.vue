@@ -23,10 +23,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onUnmounted } from "vue";
+import { onUnmounted, ref, watch } from "vue";
+
 import { OverlaySummary } from "vue-library/components";
 import { useOverlay } from "vue-library/composables";
+
 import { cloneDeep } from "lodash-es";
+
 import { useDirectService } from "@/composables/useDirectService";
 
 interface Props {

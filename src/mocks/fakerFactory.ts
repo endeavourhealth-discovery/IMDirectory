@@ -1,7 +1,9 @@
+import { UserSchema } from "vue-library";
+
+import { faker } from "@faker-js/faker";
 import { Collection } from "@msw/data";
 import { output, z } from "zod";
-import { UserSchema } from "vue-library";
-import { faker } from "@faker-js/faker";
+
 import { ComponentType } from "@/enums";
 
 const entitySchema = z.object({

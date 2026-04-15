@@ -91,27 +91,31 @@
 </template>
 
 <script lang="ts" setup>
-import Members from "./Members.vue";
-import CompareSetDialog from "./CompareSetDialog.vue";
-import SubsetDisplay from "./SubsetDisplay.vue";
+import { ComputedRef, Ref, computed, markRaw, onMounted, ref, watch } from "vue";
+
+import { ArrayObjectNamesToStringWithLabel } from "vue-library/components";
+import { useDownloadFile } from "vue-library/composables";
+import { useCopyToClipboard } from "vue-library/composables";
+import { IM, RDFS } from "vue-library/enums";
+import { ToastSeverity, UserRole } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "vue-library/interfaces";
+import { ToastOptions } from "vue-library/models";
+import { useUserStore } from "vue-library/stores";
+
+import { useDialog } from "primevue/usedialog";
+import { useToast } from "primevue/usetoast";
+
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
-import { computed, ComputedRef, markRaw, onMounted, Ref, ref, watch } from "vue";
-import { EntityService, SetService } from "@/services";
-import { IM, RDFS } from "vue-library/enums";
-import { ArrayObjectNamesToStringWithLabel } from "vue-library/components";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "vue-library/models";
-import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialog } from "primevue/usedialog";
-import { useDownloadFile } from "vue-library/composables";
-import { useUserStore } from "vue-library/stores";
-import { useCopyToClipboard } from "vue-library/composables";
 import { DownloadSettings } from "@/interfaces";
-import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "vue-library/interfaces";
-import { UserRole, ToastSeverity } from "vue-library/enums";
+import { EntityService, SetService } from "@/services";
+
+import CompareSetDialog from "./CompareSetDialog.vue";
+import Members from "./Members.vue";
+import SubsetDisplay from "./SubsetDisplay.vue";
 
 const props = defineProps<{
   entityIri: string;

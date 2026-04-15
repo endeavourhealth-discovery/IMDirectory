@@ -17,15 +17,18 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
-import type { TTIriRef, PropertyShape, QueryRequest, Query } from "vue-library/interfaces";
-import { EditorMode } from "@/enums";
-import { byName, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
-import { processArguments } from "@/helpers/EditorMethods";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { RDFS } from "vue-library/enums";
+import { TypeGuards, byName, isObjectHasKeys } from "vue-library/helpers";
+import type { PropertyShape, Query, QueryRequest, TTIriRef } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+
+import { EditorMode } from "@/enums";
+import { processArguments } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
-import { cloneDeep } from "lodash-es";
 
 const props = defineProps<{
   shape: PropertyShape;

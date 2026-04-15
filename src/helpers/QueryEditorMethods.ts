@@ -1,8 +1,9 @@
-import type { Node, Where, Match, Orderable, Compare } from "vue-library/interfaces";
-import { Order, Operator } from "vue-library/enums";
-import { RelativeTo } from "@/interfaces/RelativeTo";
+import { Operator, Order } from "vue-library/enums";
+import type { Compare, Match, Node, Orderable, Where } from "vue-library/interfaces";
+
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
 import { SentencePart } from "@/interfaces";
+import { RelativeTo } from "@/interfaces/RelativeTo";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);

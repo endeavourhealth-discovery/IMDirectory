@@ -1,20 +1,24 @@
-import Env from "./Env";
-import { QueryResponse } from "@/interfaces";
-import axios from "axios";
+import { DisplayMode } from "vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import {
+  ArgumentReference,
   ExtendedTTEntity,
+  IMLLanguage,
+  Indicator,
   Match,
   PathQuery,
   Query,
   QueryRequest,
-  SearchResponse,
-  ArgumentReference,
-  IMLLanguage,
-  Indicator,
-  Return
+  Return,
+  SearchResponse
 } from "vue-library/interfaces";
-import { DisplayMode } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+
+import axios from "axios";
+
+import { QueryResponse } from "@/interfaces";
+
+import Env from "./Env";
+
 const API_URL = Env.API + "api/query/protected";
 
 const QueryService = {

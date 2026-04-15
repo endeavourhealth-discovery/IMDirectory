@@ -69,17 +69,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
+import { IM, QUERY, RDF, RDFS } from "vue-library/enums";
+import { TypeGuards, byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { cloneDeep, isEqual } from "lodash-es";
-import { EditorMode } from "@/enums";
-import { byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
-import { processArguments } from "@/helpers/EditorMethods";
-import { DataModelService, QueryService } from "@/services";
-import { IM, QUERY, RDF, RDFS } from "vue-library/enums";
-import type { ExtendedTTEntity, TTIriRef, PropertyShape, QueryRequest, Query, SearchResultSummary } from "vue-library/interfaces";
-import injectionKeys from "@/injectionKeys/injectionKeys";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
+
+import { EditorMode } from "@/enums";
+import { processArguments } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { DataModelService, QueryService } from "@/services";
 
 interface Props {
   shape: PropertyShape;

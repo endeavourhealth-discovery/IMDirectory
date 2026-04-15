@@ -7,12 +7,15 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { EntityService } from "@/services";
+
+import { useCopyToClipboard } from "vue-library/composables";
+import { IM } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { IM } from "vue-library/enums";
-import { useCopyToClipboard } from "vue-library/composables";
+
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;

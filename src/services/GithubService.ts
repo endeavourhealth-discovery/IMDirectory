@@ -1,6 +1,8 @@
-import Env from "./Env";
 import axios from "axios";
+
 import { GithubRelease } from "@/interfaces";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/github";
 

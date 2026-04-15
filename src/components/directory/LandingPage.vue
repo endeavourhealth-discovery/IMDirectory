@@ -25,11 +25,13 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
+
+import { IM, NAMESPACE, SHACL } from "vue-library/enums";
 import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
-import { IM, SHACL, NAMESPACE } from "vue-library/enums";
-import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
-import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
+
 import Favourites from "@/components/directory/landingPage/Favourites.vue";
+import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
+import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
 import { useDirectService } from "@/composables/useDirectService";
 
 const directService = useDirectService();

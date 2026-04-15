@@ -1,5 +1,6 @@
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import Swal from "sweetalert2";
+
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 export function useEclValidator() {
   function showVerificationDialog(dynamicDialog: any): any {

@@ -59,14 +59,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch, computed } from "vue";
-import type { Assignable, Where, TTIriRef, Match, UIProperty } from "vue-library/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
 import { Operator } from "vue-library/enums";
 import { IM, XSD } from "vue-library/enums";
+import type { Assignable, Match, TTIriRef, UIProperty, Where } from "vue-library/interfaces";
+
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
-import { RangeOrValue, Relativity } from "@/enums";
 import { CompareOptions } from "@/constants";
 import { OperatorOptions } from "@/constants/queryEditor/OperatorOptions";
+import { RangeOrValue, Relativity } from "@/enums";
 
 enum ValueType {
   date,

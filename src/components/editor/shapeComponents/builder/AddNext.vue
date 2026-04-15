@@ -8,11 +8,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted } from "vue";
-import { NextComponentSummary, ComponentDetails } from "@/interfaces";
-import type { PropertyShape } from "vue-library/interfaces";
-import { ComponentType, EditorMode } from "@/enums";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { stringAscending } from "vue-library/helpers";
+import type { PropertyShape } from "vue-library/interfaces";
+
+import { ComponentType, EditorMode } from "@/enums";
+import { ComponentDetails, NextComponentSummary } from "@/interfaces";
 
 const props = defineProps<{
   id: string;

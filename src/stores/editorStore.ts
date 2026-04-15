@@ -1,11 +1,14 @@
-import { defineStore } from "pinia";
-import { useUserStore } from "vue-library/stores";
-import { EntityService } from "@/services";
+import { ref } from "vue";
+
 import { RDFS } from "vue-library/enums";
 import { isObjectHasKeys } from "vue-library/helpers";
 import { localStorageWithExpiry } from "vue-library/helpers";
 import type { ExtendedTTEntity } from "vue-library/interfaces";
-import { ref } from "vue";
+import { useUserStore } from "vue-library/stores";
+
+import { defineStore } from "pinia";
+
+import { EntityService } from "@/services";
 
 export const useEditorStore = defineStore("editor", () => {
   const editorIri = ref<string>(localStorageWithExpiry.getItem("editorSelectedIri"));

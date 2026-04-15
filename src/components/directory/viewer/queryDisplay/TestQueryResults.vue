@@ -24,10 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import type { DBEntry } from "vue-library/interfaces";
-import { QueryService } from "@/services";
-import { cloneDeep } from "lodash-es";
 import { Ref, ref } from "vue";
+
+import type { DBEntry } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+
+import { QueryService } from "@/services";
 
 interface Props {
   testQueryResults: string[];

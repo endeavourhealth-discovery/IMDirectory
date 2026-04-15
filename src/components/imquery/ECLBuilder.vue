@@ -67,17 +67,21 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
-import { cloneDeep } from "lodash-es";
-import EclService from "@/services/EclService";
-import QueryService from "@/services/QueryService";
+import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
 import { isObjectHasKeys } from "vue-library/helpers";
-import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
+import type { ECLQueryRequest, Match, Node, Query } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
-import { useCopyToClipboard } from "vue-library/composables";
-import type { Match, ECLQueryRequest, Query, Node } from "vue-library/interfaces";
+
+import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
 import { useEclValidator } from "@/composables/useEclValidator";
+import EclService from "@/services/EclService";
+import QueryService from "@/services/QueryService";
+
 interface Props {
   showDialog?: boolean;
   showNames?: boolean;

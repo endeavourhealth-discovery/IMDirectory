@@ -1,9 +1,13 @@
-import { RouteLocationNormalized, Router } from "vue-router";
-import { directToLogin } from "./intercepts";
-import { useUserStore } from "vue-library/stores";
-import { useSharedStore } from "@/stores/sharedStore";
-import { UserRole } from "vue-library/enums";
 import { computed } from "vue";
+
+import { UserRole } from "vue-library/enums";
+import { useUserStore } from "vue-library/stores";
+
+import { RouteLocationNormalized, Router } from "vue-router";
+
+import { useSharedStore } from "@/stores/sharedStore";
+
+import { directToLogin } from "./intercepts";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAuth)) {

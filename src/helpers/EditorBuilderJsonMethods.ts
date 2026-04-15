@@ -1,7 +1,8 @@
-import { ComponentType } from "../enums/ComponentType";
-import { NextComponentSummary, ComponentDetails } from "../interfaces";
-import { EditorMode } from "../enums";
 import type { PropertyShape } from "vue-library/interfaces";
+
+import { EditorMode } from "../enums";
+import { ComponentType } from "../enums/ComponentType";
+import { ComponentDetails, NextComponentSummary } from "../interfaces";
 
 export function generateNewComponent(
   type: ComponentType,

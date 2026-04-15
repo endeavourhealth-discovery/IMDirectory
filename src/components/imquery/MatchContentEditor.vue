@@ -107,19 +107,23 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength } from "vue-library/helpers";
-import type { Match, Node, TTIriRef, NodeShape, PropertyShape, Return, Where } from "vue-library/interfaces";
-import { computed, inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { useCopyToClipboard } from "vue-library/composables";
-import { EntityService } from "@/services";
 import { IM } from "vue-library/enums";
-import { getOrderables, createNodeVariable, getBooleanOperator } from "@/helpers/buildQuery";
-import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { Match, Node, NodeShape, PropertyShape, Return, TTIriRef, Where } from "vue-library/interfaces";
+
 import { cloneDeep, isEqual } from "lodash-es";
-import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 import Button from "primevue/button";
+
+import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
+import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
+import { createNodeVariable, getBooleanOperator, getOrderables } from "@/helpers/buildQuery";
+import { EntityService } from "@/services";
+
 interface Props {
   baseType: Node;
   from?: Match;

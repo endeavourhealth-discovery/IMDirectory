@@ -9,10 +9,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, Ref, watch } from "vue";
-import { ComponentType } from "@/enums";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
+
+import { ComponentType } from "@/enums";
 
 interface Props {
   position?: number;

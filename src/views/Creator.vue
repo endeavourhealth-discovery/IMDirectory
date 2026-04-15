@@ -51,29 +51,32 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+
+import { useUserStore } from "vue-library/stores";
+
+import { useDialog } from "primevue/usedialog";
+
 import TypeSelector from "@/components/creator/TypeSelector.vue";
-import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
-import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
-import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
-import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
-import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
-import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
-import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
-import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
-import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
-import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
+import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
-import { QueryService } from "@/services";
-import { defineComponent } from "vue";
+import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
+import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
+import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
+import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
+import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
+import { useDirectService } from "@/composables/useDirectService";
 import { useValidity } from "@/composables/useValidity";
 import { useValueVariableMap } from "@/composables/useValueVariableMap";
-import { useDialog } from "primevue/usedialog";
-import { useUserStore } from "vue-library/stores";
-import { useDirectService } from "@/composables/useDirectService";
+import { QueryService } from "@/services";
 
 export default defineComponent({
   components: {
@@ -98,26 +101,29 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { onUnmounted, onMounted, computed, ref, Ref, watch, provide, ComputedRef } from "vue";
+import { ComputedRef, Ref, computed, onMounted, onUnmounted, provide, ref, watch } from "vue";
+
+import { DisplayMode } from "vue-library/enums";
+import { IM, RDF, RDFS } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+import Swal, { SweetAlertResult } from "sweetalert2";
+import { useRoute, useRouter } from "vue-router";
+
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { cloneDeep } from "lodash-es";
-import Swal, { SweetAlertResult } from "sweetalert2";
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
-import { useRoute, useRouter } from "vue-router";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
-import { DisplayMode } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
 import { EditorMode } from "@/enums";
-import { IM, RDF, RDFS } from "vue-library/enums";
+import { processComponentType } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EntityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { processComponentType } from "@/helpers/EditorMethods";
 
 interface Props {
   type?: TTIriRef;

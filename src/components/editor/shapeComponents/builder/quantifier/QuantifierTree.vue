@@ -24,13 +24,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
-import type { EntityReferenceNode, GenericObject, TTIriRef } from "vue-library/interfaces";
 import { byKey, getColourFromType, getFAIconFromType, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { EntityService } from "@/services";
+import type { EntityReferenceNode, GenericObject, TTIriRef } from "vue-library/interfaces";
+
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
+
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   quantifier?: TTIriRef;

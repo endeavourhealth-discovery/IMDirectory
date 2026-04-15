@@ -51,6 +51,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
+
 import { SimpleMap } from "@/interfaces";
 
 interface Props {

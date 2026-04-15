@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { inject, computed, toRefs, type ComputedRef } from "vue";
+import { type ComputedRef, computed, inject, toRefs } from "vue";
+
 import type { DiffResult, InlineDiffOptions } from "json-diff-kit";
 
 import InlineResult from "./InlineResult.vue";
+import type { ViewerProps } from "./types";
 import getInlineDiff from "./utils/get-inline-diff";
 import getInlineSyntaxHighlight from "./utils/get-inline-syntax-highlights";
 import { mergeSegments } from "./utils/segment-util";
-import type { ViewerProps } from "./types";
 
 const DEFAULT_INDENT = 2;
 

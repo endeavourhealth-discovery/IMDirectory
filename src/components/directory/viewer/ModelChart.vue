@@ -9,10 +9,12 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, Ref, ref } from "vue";
+import { Ref, nextTick, onMounted, ref } from "vue";
+
 import mermaid from "mermaid";
-import { DataModelService } from "@/services";
+
 import { PropertyDisplay } from "@/interfaces";
+import { DataModelService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;

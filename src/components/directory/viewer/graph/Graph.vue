@@ -16,14 +16,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch } from "vue";
-import GraphComponent from "./GraphComponent.vue";
-import { TTGraphData } from "@/interfaces";
-import { GraphTranslator } from "@/helpers";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { EntityService } from "@/services";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { IM } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
 import type { TTBundle } from "vue-library/interfaces";
+
+import { GraphTranslator } from "@/helpers";
+import { TTGraphData } from "@/interfaces";
+import { EntityService } from "@/services";
+
+import GraphComponent from "./GraphComponent.vue";
+
 const { translateFromEntityBundle } = GraphTranslator;
 
 const props = defineProps<{

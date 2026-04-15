@@ -22,10 +22,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref } from "vue";
-import { SetService } from "@/services";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { Ref, onMounted, ref } from "vue";
+
 import type { TTIriRef } from "vue-library/interfaces";
+
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { SetService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;

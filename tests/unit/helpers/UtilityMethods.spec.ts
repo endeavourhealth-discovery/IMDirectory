@@ -1,5 +1,6 @@
-import { getDisplayFromDate } from "@/helpers/UtilityMethods";
 import { describe, expect, it } from "vitest";
+
+import { getDisplayFromDate } from "@/helpers/UtilityMethods";
 
 describe("getDisplayFromDate", () => {
   it("should return today when 0 days of difference", () => {

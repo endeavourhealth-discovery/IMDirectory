@@ -79,22 +79,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, inject, nextTick, onMounted, ref, Ref, watch } from "vue";
-import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
-import AddByCodeList from "./setDefinition/AddByCodeList.vue";
-import { EditorMode } from "@/enums";
-import { EclService } from "@/services";
-import { cloneDeep, isEqual, last } from "lodash-es";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "vue-library/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
+import { ComputedRef, Ref, computed, inject, nextTick, onMounted, ref, watch } from "vue";
+
 import { useCopyToClipboard } from "vue-library/composables";
-import { useEclValidator } from "@/composables/useEclValidator";
-import { useDialog } from "primevue/usedialog";
 import { IM } from "vue-library/enums";
-import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "vue-library/interfaces";
+
+import { cloneDeep, isEqual, last } from "lodash-es";
+import { useDialog } from "primevue/usedialog";
 import Swal from "sweetalert2";
+
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
+import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
+import { useEclValidator } from "@/composables/useEclValidator";
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EclService } from "@/services";
+
+import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 
 interface Props {
   shape: PropertyShape;

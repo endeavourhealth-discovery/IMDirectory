@@ -1,5 +1,6 @@
-import { useLoadingStore } from "@/stores/loadingStore";
 import { RouteLocationNormalized, RouteRecordRaw } from "vue-router";
+
+import { useLoadingStore } from "@/stores/loadingStore";
 
 export function startRouterLoading(routes: Array<RouteRecordRaw>, to: RouteLocationNormalized, from: RouteLocationNormalized) {
   const loadingStore = useLoadingStore();
