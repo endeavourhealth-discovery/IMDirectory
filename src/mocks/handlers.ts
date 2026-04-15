@@ -1,9 +1,11 @@
-import { http, HttpResponse } from "msw";
 import { IM } from "vue-library/enums";
-import * as fakerFactory from "@/mocks/fakerFactory";
-import { isArray } from "lodash-es";
 import type { ExtendedTTEntity } from "vue-library/interfaces";
+
 import { faker } from "@faker-js/faker";
+import { isArray } from "lodash-es";
+import { HttpResponse, http } from "msw";
+
+import * as fakerFactory from "@/mocks/fakerFactory";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 

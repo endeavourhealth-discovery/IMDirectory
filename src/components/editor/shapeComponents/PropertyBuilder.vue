@@ -159,20 +159,23 @@
 </template>
 
 <script lang="ts" setup>
-import { Property } from "@/interfaces";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
-import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
-import { cloneDeep } from "lodash-es";
-import { EditorMode } from "@/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import { propertyRangeTypes } from "@/helpers/EditorMethods";
-import { IM, RDF, RDFS, SHACL, SNOMED, XSD, NAMESPACE } from "vue-library/enums";
-import { EntityService } from "@/services";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
-import { updateRangeQuery } from "@/helpers/EditorMethods";
+import { IM, NAMESPACE, RDF, RDFS, SHACL, SNOMED, XSD } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { EditorMode } from "@/enums";
+import { propertyRangeTypes } from "@/helpers/EditorMethods";
+import { updateRangeQuery } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { Property } from "@/interfaces";
+import { EntityService } from "@/services";
 
 interface Props {
   shape: PropertyShape;

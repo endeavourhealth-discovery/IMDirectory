@@ -35,10 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Where, Query, Match, UIProperty } from "vue-library/interfaces";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import type { Match, Query, UIProperty, Where } from "vue-library/interfaces";
+
 import type { TreeNode } from "primevue/treenode";
-import { Ref, inject, onMounted, ref, watch, computed } from "vue";
-import { getRelativeToOptions, getRelativePropertyOptions } from "@/helpers/buildQuery";
+
+import { getRelativePropertyOptions, getRelativeToOptions } from "@/helpers/buildQuery";
 
 interface Props {
   propertyIri: string;

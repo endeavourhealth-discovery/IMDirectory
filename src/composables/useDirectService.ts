@@ -1,8 +1,10 @@
-import { LocationQuery, useRouter } from "vue-router";
 import { RecentActivityItemDto, useUserStore } from "vue-library";
-import { useDirectoryStore } from "@/stores/directoryStore";
+
+import { LocationQuery, useRouter } from "vue-router";
+
 import Env from "@/services/Env";
 import UserService from "@/services/UserService";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 export function useDirectService() {
   const router = useRouter();

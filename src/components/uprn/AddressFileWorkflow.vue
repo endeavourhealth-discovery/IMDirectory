@@ -31,10 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from "primevue/usetoast";
+import { isArrayHasLength } from "vue-library/helpers";
 
 import FileUpload from "primevue/fileupload";
-import { isArrayHasLength } from "vue-library/helpers";
+import { useToast } from "primevue/usetoast";
+
 import UprnService from "@/services/UprnService";
 
 const toast = useToast();

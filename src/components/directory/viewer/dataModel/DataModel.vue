@@ -56,14 +56,17 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, Ref, ref, watch } from "vue";
-import { DataModelService } from "@/services";
-import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import type { TreeNode } from "primevue/treenode";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM, RDFS, RDF } from "vue-library/enums";
-import type { GenericObject, PropertyShape, TTIriRef, PropertyRange } from "vue-library/interfaces";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
+import { IM, RDF, RDFS } from "vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import type { GenericObject, PropertyRange, PropertyShape, TTIriRef } from "vue-library/interfaces";
+
+import type { TreeNode } from "primevue/treenode";
+
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { DataModelService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;

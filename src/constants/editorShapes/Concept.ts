@@ -1,5 +1,5 @@
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, NAMESPACE, QUERY, RDF, RDFS, VALIDATION, XSD } from "vue-library/enums";
 import type { FormGenerator } from "vue-library/interfaces";
-import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD, NAMESPACE } from "vue-library/enums";
 
 const ConceptShape: FormGenerator = {
   iri: EDITOR.CONCEPT_SHAPE,

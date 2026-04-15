@@ -89,28 +89,32 @@
 </template>
 
 <script lang="ts" setup>
-import type { Match, Node, Where, UIProperty } from "vue-library/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
 import { Bool } from "vue-library/enums";
-import { onMounted, Ref, ref, watch, computed } from "vue";
-import { DataModelService } from "@/services";
-import WhereValueEditor from "./WhereValueEditor.vue";
-import { getNameFromRef } from "@/helpers/TTTransform";
-import {
-  deletePropertyFromParent,
-  getBooleanOperator,
-  getBoolGroup,
-  getDisplayOperator,
-  updateBooleans,
-  getTypeIriFromMatch,
-  updateFocusConcepts,
-  getPathPropertyNames,
-  checkGroupChange
-} from "@/helpers/buildQuery";
+import type { Match, Node, UIProperty, Where } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
+
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
+import { getNameFromRef } from "@/helpers/TTTransform";
+import {
+  checkGroupChange,
+  deletePropertyFromParent,
+  getBoolGroup,
+  getBooleanOperator,
+  getDisplayOperator,
+  getPathPropertyNames,
+  getTypeIriFromMatch,
+  updateBooleans,
+  updateFocusConcepts
+} from "@/helpers/buildQuery";
+import { DataModelService } from "@/services";
+
+import WhereIsEditor from "./WhereIsEditor.vue";
+import WhereValueEditor from "./WhereValueEditor.vue";
 
 const props = withDefaults(
   defineProps<{

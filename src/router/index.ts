@@ -1,17 +1,9 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import { useAuthStore } from "@/stores/authStore";
+
+import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import { endRouterLoading, startRouterLoading } from "./methods/loading";
-import {
-  creatorSaveChangesWarning,
-  directoryGuard,
-  editorGuard,
-  editorSaveChangesWarning,
-  pageNotFoundFromCreator,
-  pageNotFoundFromEditor,
-  queryGuard,
-  viewerIriExistsGuard
-} from "./methods/routeGuards";
 import {
   requiresAdmin,
   requiresAuthGuard,
@@ -22,7 +14,16 @@ import {
   requiresSnomedLicense,
   requiresUprnAgreement
 } from "./methods/metaGuards";
-import { setBrowserTabTitles } from "./methods/browserTabTitles";
+import {
+  creatorSaveChangesWarning,
+  directoryGuard,
+  editorGuard,
+  editorSaveChangesWarning,
+  pageNotFoundFromCreator,
+  pageNotFoundFromEditor,
+  queryGuard,
+  viewerIriExistsGuard
+} from "./methods/routeGuards";
 import routes from "./methods/routes";
 import { setModes } from "./methods/setModes";
 

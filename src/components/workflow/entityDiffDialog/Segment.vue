@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, toRefs } from "vue";
+
 import type { DiffResult } from "json-diff-kit";
 
-import { isExpandLine } from "./utils/segment-util";
-import { HiddenUnchangedLinesInfo, SegmentItem } from "./utils/get-segment";
 import ExpandLine from "./ExpandLine.vue";
 import Line from "./Line.vue";
+import { HiddenUnchangedLinesInfo, SegmentItem } from "./utils/get-segment";
+import { isExpandLine } from "./utils/segment-util";
 
 interface SegmentProps {
   segment: SegmentItem | HiddenUnchangedLinesInfo;

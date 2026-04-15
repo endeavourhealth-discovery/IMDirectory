@@ -124,14 +124,18 @@
 </template>
 
 <script setup lang="ts">
-import type { BugReport, Task } from "vue-library/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
 import { Browser, OperatingSystem, TaskModule } from "vue-library/enums";
-import WorkflowService from "@/services/WorkflowService";
-import { computed, onMounted, Ref, ref, watch } from "vue";
-import TaskViewer from "./TaskViewer.vue";
+import type { BugReport, Task } from "vue-library/interfaces";
 import { useUserStore } from "vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
 import Swal from "sweetalert2";
+
+import WorkflowService from "@/services/WorkflowService";
+
+import TaskViewer from "./TaskViewer.vue";
 
 interface Props {
   id: string;

@@ -36,13 +36,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from "vue";
-import { EntityService } from "@/services";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { IM } from "vue-library/enums";
-import Viewer from "@/components/directory/Viewer.vue";
+import type { ExtendedTTEntity, SearchResponse } from "vue-library/interfaces";
+
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import type { ExtendedTTEntity, SearchResponse } from "vue-library/interfaces";
+import Viewer from "@/components/directory/Viewer.vue";
+import { EntityService } from "@/services";
 
 interface Props {
   selectedIri: string;

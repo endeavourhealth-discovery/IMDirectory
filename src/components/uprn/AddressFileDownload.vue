@@ -28,10 +28,13 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from "primevue/usetoast";
-import { ref, computed, onMounted, Ref } from "vue";
-import UprnService from "@/services/UprnService";
+import { Ref, computed, onMounted, ref } from "vue";
+
 import { useUserStore } from "vue-library/stores";
+
+import { useToast } from "primevue/usetoast";
+
+import UprnService from "@/services/UprnService";
 
 const toast = useToast();
 const userStore = useUserStore();

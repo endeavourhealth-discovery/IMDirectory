@@ -59,9 +59,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch } from "vue";
-import { EntityService } from "@/services";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { OrganizationChartNode } from "primevue/organizationchart";
+
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;

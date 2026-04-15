@@ -17,12 +17,14 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "vue-library/helpers";
-import { useCopyToClipboard } from "vue-library/composables";
 import { onMounted, ref } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
 import { IM, RDFS } from "vue-library/enums";
-import { EntityService } from "@/services";
+import { isObjectHasKeys } from "vue-library/helpers";
 import type { ExtendedTTEntity } from "vue-library/interfaces";
+
+import { EntityService } from "@/services";
 
 interface Props {
   concept: ExtendedTTEntity;

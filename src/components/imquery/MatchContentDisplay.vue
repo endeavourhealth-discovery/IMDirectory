@@ -60,13 +60,16 @@
 </template>
 
 <script setup lang="ts">
-import type { Match } from "vue-library/interfaces";
+import { computed } from "vue";
+
 import { Bool } from "vue-library/enums";
+import type { Match } from "vue-library/interfaces";
+
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getBooleanOperator, getBoolGroup, getTestFields } from "@/helpers/buildQuery";
-import { computed } from "vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { getBoolGroup, getBooleanOperator, getTestFields } from "@/helpers/buildQuery";
+
 interface Props {
   match: Match;
   depth: number;

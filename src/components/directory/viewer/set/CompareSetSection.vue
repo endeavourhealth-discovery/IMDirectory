@@ -32,19 +32,21 @@
 </template>
 
 <script setup lang="ts">
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+
 import { OverlaySummary } from "vue-library/components";
 import { useCopyToClipboard } from "vue-library/composables";
 import { useOverlay } from "vue-library/composables";
-import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { EntityService } from "@/services";
-import { useFilterStore } from "@/stores/filterStore";
-import { isArrayHasLength } from "vue-library/helpers";
-import { SearchOptions } from "@/interfaces";
-import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
 import { IM, NAMESPACE } from "vue-library/enums";
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { EntityService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
 
 const props = defineProps<{
   header: string;

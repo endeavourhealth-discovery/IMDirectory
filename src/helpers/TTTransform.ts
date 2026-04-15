@@ -1,6 +1,6 @@
+import { NAMESPACE } from "vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import type { ExtendedTTEntity, GenericObject, TTIriRef } from "vue-library/interfaces";
-import { NAMESPACE } from "vue-library/enums";
 
 export function transformTT(ttEntity: ExtendedTTEntity, map?: GenericObject) {
   if (!isObjectHasKeys(ttEntity)) return {} as ExtendedTTEntity;

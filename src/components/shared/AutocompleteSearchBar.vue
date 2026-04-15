@@ -77,18 +77,22 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch, nextTick, computed, onBeforeUnmount } from "vue";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
 import { OverlaySummary } from "vue-library/components";
-import type { FilterOptions } from "vue-library/interfaces";
-import type { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
+import { useSpeechToText } from "vue-library/composables";
+import { useOverlay } from "vue-library/composables";
 import { TextSearchStyle } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
-import { useSpeechToText } from "vue-library/composables";
+import type { FilterOptions } from "vue-library/interfaces";
+import type { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
+
 import { cloneDeep, debounce, isEqual } from "lodash-es";
-import { useOverlay } from "vue-library/composables";
-import { EntityService, QueryService } from "@/services";
+
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
+import { EntityService, QueryService } from "@/services";
+
 interface Props {
   selected?: SearchResultSummary;
   filterOptions?: FilterOptions;

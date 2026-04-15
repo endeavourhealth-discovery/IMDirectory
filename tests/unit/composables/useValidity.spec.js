@@ -1,12 +1,16 @@
-import { useValidity } from "@/composables/useValidity";
-import testData from "./useValidity.testData";
-import { mountComposable } from "../TestMethods";
-import { flushPromises } from "@vue/test-utils";
-import { IM } from "vue-library/enums";
 import { ref } from "vue";
-import { EntityService } from "@/services";
+
+import { IM } from "vue-library/enums";
+
+import { flushPromises } from "@vue/test-utils";
 import { cloneDeep } from "lodash-es";
-import { describe, vi, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useValidity } from "@/composables/useValidity";
+import { EntityService } from "@/services";
+
+import { mountComposable } from "../TestMethods";
+import testData from "./useValidity.testData";
 
 describe("useValidity", () => {
   describe("constructValidationCheckStatus", () => {

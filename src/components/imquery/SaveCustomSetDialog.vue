@@ -62,13 +62,16 @@
 
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
-import { useForm } from "vee-validate";
+
+import { IM, IM_FUNCTION, NAMESPACE, RDF, RDFS } from "vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { Node, TTIriRef, Match } from "vue-library/interfaces";
-import { EntityService, FilerService, FunctionService } from "@/services";
-import { IM, RDF, RDFS, IM_FUNCTION, NAMESPACE } from "vue-library/enums";
+import type { Match, Node, TTIriRef } from "vue-library/interfaces";
+
 import { useToast } from "primevue/usetoast";
+import { useForm } from "vee-validate";
 import * as yup from "yup";
+
+import { EntityService, FilerService, FunctionService } from "@/services";
 
 interface Props {
   setMembers: Node[];

@@ -1,10 +1,28 @@
-import { createApp, ComponentPublicInstance } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import PrimeVue from "primevue/config";
+import { ComponentPublicInstance, createApp } from "vue";
+
+import { injectionKeysVueLibrary } from "vue-library";
+import { IMFontAwesomeIcon } from "vue-library/components";
+
 import Aura from "@primeuix/themes/aura";
+import { createPinia } from "pinia";
+import PrimeVue from "primevue/config";
+import ConfirmationService from "primevue/confirmationservice";
+import DialogService from "primevue/dialogservice";
+import Ripple from "primevue/ripple";
+import StyleClass from "primevue/styleclass";
+import ToastService from "primevue/toastservice";
+import Tooltip from "primevue/tooltip";
 import VueClipboard from "vue3-clipboard";
+import { VueShowdownPlugin } from "vue-showdown";
+
+import { useSharedStore } from "@/stores/sharedStore";
+
+import App from "./App.vue";
+import "./assets/tailwind.css";
+import { useDirectService } from "./composables/useDirectService";
 import { worker } from "./mocks/browser";
+import router from "./router";
+import { EntityService, UserService } from "./services";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -21,25 +39,6 @@ declare module "vue-router" {
     transitionDelay?: string;
   }
 }
-
-import "./assets/tailwind.css";
-
-import { IMFontAwesomeIcon } from "vue-library/components";
-
-import Tooltip from "primevue/tooltip";
-import ConfirmationService from "primevue/confirmationservice";
-import ToastService from "primevue/toastservice";
-import StyleClass from "primevue/styleclass";
-import DialogService from "primevue/dialogservice";
-import Ripple from "primevue/ripple";
-
-import { VueShowdownPlugin } from "vue-showdown";
-
-import { createPinia } from "pinia";
-import { useSharedStore } from "@/stores/sharedStore";
-import { injectionKeysVueLibrary } from "vue-library";
-import { EntityService, UserService } from "./services";
-import { useDirectService } from "./composables/useDirectService";
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {

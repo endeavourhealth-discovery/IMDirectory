@@ -1,24 +1,26 @@
+import { Bool, IM, RDF, RuleAction, SHACL } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
 import type {
+  HasPaths,
   Match,
   Node,
+  NodeShape,
   Orderable,
+  Path,
+  PropertyRange,
   Query,
   QueryRequest,
-  SearchBinding,
-  Where,
-  Path,
-  NodeShape,
   Return,
-  HasPaths,
-  PropertyRange
+  SearchBinding,
+  Where
 } from "vue-library/interfaces";
-import { Bool, RuleAction, IM, RDF, SHACL } from "vue-library/enums";
-import { SearchOptions } from "@/interfaces";
-import type { TreeNode } from "primevue/treenode";
-import { isArrayHasLength } from "vue-library/helpers";
-import Swal from "sweetalert2";
+
 import { cloneDeep } from "lodash-es";
+import type { TreeNode } from "primevue/treenode";
+import Swal from "sweetalert2";
 import { v4 } from "uuid";
+
+import { SearchOptions } from "@/interfaces";
 import { DataModelService } from "@/services";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {

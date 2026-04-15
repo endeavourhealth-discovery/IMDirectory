@@ -153,46 +153,48 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, reactive, Ref, ref, watch } from "vue";
-import DataModel from "./viewer/dataModel/DataModel.vue";
-import SetDefinition from "./viewer/set/SetDefinition.vue";
-import Content from "./viewer/Content.vue";
-import EntityChart from "./viewer/EntityChart.vue";
-import Graph from "./viewer/graph/Graph.vue";
-import UsedIn from "./viewer/UsedIn.vue";
-import Mappings from "./viewer/mapping/Mappings.vue";
-import EclDefinition from "./viewer/set/EclDefinition.vue";
-import Properties from "./viewer/dataModel/Properties.vue";
-import JSONViewer from "./viewer/JSONViewer.vue";
-import Provenance from "./viewer/Provenance.vue";
-import SecondaryTree from "@/components/shared/SecondaryTree.vue";
-import TermCodeTable from "@/components/shared/TermCodeTable.vue";
-import { EntityService } from "@/services";
+import { Ref, computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 
-import type { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+import { ArrayObjectNameTagWithLabel, ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "vue-library/components";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import {
-  isObjectHasKeys,
   isConcept,
   isFeature,
-  isIndicator,
   isFolder,
   isFunctionalProperty,
+  isIndicator,
+  isObjectHasKeys,
   isOfTypes,
   isProperty,
   isQuery,
   isRecordModel,
   isValueSet
 } from "vue-library/helpers";
-import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
-import Details from "./viewer/Details.vue";
-import DataModels from "./viewer/DataModels.vue";
-import QueryDisplay from "./viewer/QueryDisplay.vue";
+import type { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
-import { ArrayObjectNameTagWithLabel, ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "vue-library/components";
-import ModelChart from "@/components/directory/viewer/ModelChart.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
+import ModelChart from "@/components/directory/viewer/ModelChart.vue";
+import SecondaryTree from "@/components/shared/SecondaryTree.vue";
+import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { EntityService } from "@/services";
 import { useSharedStore } from "@/stores/sharedStore";
+
+import Content from "./viewer/Content.vue";
+import DataModels from "./viewer/DataModels.vue";
+import Details from "./viewer/Details.vue";
+import EntityChart from "./viewer/EntityChart.vue";
+import JSONViewer from "./viewer/JSONViewer.vue";
+import Provenance from "./viewer/Provenance.vue";
+import QueryDisplay from "./viewer/QueryDisplay.vue";
+import UsedIn from "./viewer/UsedIn.vue";
+import DataModel from "./viewer/dataModel/DataModel.vue";
+import Properties from "./viewer/dataModel/Properties.vue";
+import Graph from "./viewer/graph/Graph.vue";
+import Mappings from "./viewer/mapping/Mappings.vue";
+import EclDefinition from "./viewer/set/EclDefinition.vue";
+import SetDefinition from "./viewer/set/SetDefinition.vue";
 
 interface Props {
   entity: ExtendedTTEntity;

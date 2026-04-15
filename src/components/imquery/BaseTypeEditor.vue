@@ -33,15 +33,18 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, ref, watch, computed, onMounted } from "vue";
-import { IM, RDF, RDFS, SHACL, NAMESPACE } from "vue-library/enums";
-import type { Match, SearchResultSummary, QueryRequest } from "vue-library/interfaces";
-import { EntityService, QueryService } from "@/services";
-import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM, NAMESPACE, RDF, RDFS, SHACL } from "vue-library/enums";
+import type { Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+
 import Button from "primevue/button";
+
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });

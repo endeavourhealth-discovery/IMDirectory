@@ -1,9 +1,12 @@
-import type { TreeNode } from "primevue/treenode";
-import { DataModelService } from "@/services";
-import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
-import type { PropertyShape, Node } from "vue-library/interfaces";
 import { Ref, ref } from "vue";
+
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import type { Node, PropertyShape } from "vue-library/interfaces";
+
+import type { TreeNode } from "primevue/treenode";
+
+import { DataModelService } from "@/services";
 
 export function useReturnTrees() {
   const baseType: Ref<Node> = ref({} as Node);

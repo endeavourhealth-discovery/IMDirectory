@@ -27,13 +27,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, ref, Ref } from "vue";
-import TopBar from "@/components/shared/TopBar.vue";
-import SearchBar from "@/components/shared/SearchBar.vue";
-import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
-import { useRouter } from "vue-router";
-import { useFilterStore } from "@/stores/filterStore";
+import { ComputedRef, Ref, computed, ref } from "vue";
+
 import type { FilterOptions } from "vue-library/interfaces";
+
+import { useRouter } from "vue-router";
+
+import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
+import TopBar from "@/components/shared/TopBar.vue";
+import { useFilterStore } from "@/stores/filterStore";
 
 const router = useRouter();
 const filterStore = useFilterStore();

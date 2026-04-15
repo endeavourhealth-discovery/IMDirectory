@@ -14,8 +14,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
+
 import type { Where } from "vue-library/interfaces";
-import { isBoolWhere, getIsRoleGroup, manageRoleGroup } from "@/helpers/buildQuery";
+
+import { getIsRoleGroup, isBoolWhere, manageRoleGroup } from "@/helpers/buildQuery";
 
 const where = defineModel<Where>("where");
 const isRoleGroup = ref(getIsRoleGroup(where.value));

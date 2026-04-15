@@ -26,16 +26,20 @@
 </template>
 
 <script setup lang="ts">
-import TopBar from "@/components/shared/TopBar.vue";
-import FileUpload, { FileUploadUploadEvent } from "primevue/fileupload";
-import { useToast } from "primevue/usetoast";
-import * as d3 from "d3";
-import { ToastOptions } from "vue-library/models";
-import { IM, ToastSeverity } from "vue-library/enums";
-import { FilerService } from "@/services";
 import { Ref, ref } from "vue";
+
+import { IM, ToastSeverity } from "vue-library/enums";
 import { isObjectHasKeys } from "vue-library/helpers";
 import type { TTDocument } from "vue-library/interfaces";
+import { ToastOptions } from "vue-library/models";
+
+import * as d3 from "d3";
+import FileUpload, { FileUploadUploadEvent } from "primevue/fileupload";
+import { useToast } from "primevue/usetoast";
+
+import TopBar from "@/components/shared/TopBar.vue";
+import { FilerService } from "@/services";
+
 const toast = useToast();
 
 const progress = ref(); // Store the progress percentage

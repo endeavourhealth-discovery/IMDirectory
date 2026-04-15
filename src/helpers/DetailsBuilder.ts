@@ -1,5 +1,5 @@
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import { IM, RDFS, SHACL } from "vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import type { TTBundle, TTIriRef } from "vue-library/interfaces";
 
 export function buildDetails(definition: TTBundle): any[] {

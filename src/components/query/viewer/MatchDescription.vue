@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import type { Match } from "vue-library/interfaces";
+
 interface Props {
   match: Match;
   depth: number;

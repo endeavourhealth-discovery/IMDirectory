@@ -93,20 +93,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { EclService, EntityService, QueryService, UserService } from "@/services";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { nextTick } from "vue";
+
 import { OverlaySummary } from "vue-library/components";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { IMFontAwesomeIcon } from "vue-library/components";
-import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
 import { BatteryBar } from "vue-library/components";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
 import { useDownloadFile } from "vue-library/composables";
-import { useUserStore } from "vue-library/stores";
-import { cloneDeep } from "lodash-es";
 import { useOverlay } from "vue-library/composables";
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialog } from "primevue/usedialog";
+import { TextSearchStyle } from "vue-library/enums";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
+import { isArrayHasLength } from "vue-library/helpers";
 import {
   DownloadByQueryOptions,
   ECLQueryRequest,
@@ -115,17 +112,24 @@ import {
   SearchResponse,
   SearchResultSummary
 } from "vue-library/interfaces";
-import { TextSearchStyle } from "vue-library/enums";
-import { DownloadSettings, SearchOptions } from "@/interfaces";
-import { isArrayHasLength } from "vue-library/helpers";
 import type { FilterOptions, Namespace } from "vue-library/interfaces";
-import { useFilterStore } from "@/stores/filterStore";
-import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { MenuItem } from "primevue/menuitem";
+import { useUserStore } from "vue-library/stores";
+
+import { cloneDeep } from "lodash-es";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
-import { nextTick } from "vue";
 import DataTable from "primevue/datatable";
+import { MenuItem } from "primevue/menuitem";
+import { useDialog } from "primevue/usedialog";
+
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { DownloadSettings, SearchOptions } from "@/interfaces";
+import { EclService, EntityService, QueryService, UserService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
+
+import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
 
 interface Props {
   searchTerm?: string;

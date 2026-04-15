@@ -67,12 +67,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watch } from "vue";
-import UprnService from "@/services/UprnService";
+import { Ref, computed, ref, watch } from "vue";
+
+import { isObject } from "vue-library/helpers";
+
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
+
 import { UprnSearchResponse } from "@/interfaces";
-import { isObject } from "vue-library/helpers";
+import UprnService from "@/services/UprnService";
 
 const toast = useToast();
 

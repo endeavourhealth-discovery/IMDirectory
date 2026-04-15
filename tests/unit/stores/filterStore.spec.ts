@@ -1,8 +1,10 @@
-import { beforeEach, describe, vi, expect } from "vitest";
-import { createTestingPinia } from "@pinia/testing";
-import { useFilterStore } from "@/stores/filterStore";
-import type { FilterOptions } from "vue-library/interfaces";
 import { IM, RDF, RDFS } from "vue-library/enums";
+import type { FilterOptions } from "vue-library/interfaces";
+
+import { createTestingPinia } from "@pinia/testing";
+import { beforeEach, describe, expect, vi } from "vitest";
+
+import { useFilterStore } from "@/stores/filterStore";
 
 describe("state", () => {
   beforeEach(() => {

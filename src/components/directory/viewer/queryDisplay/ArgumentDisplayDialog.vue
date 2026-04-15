@@ -20,8 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
 import type { Argument, ArgumentReference } from "vue-library/interfaces";
+
+import ArgumentDisplay from "@/components/directory/viewer/queryDisplay/ArgumentDisplay.vue";
 
 interface Props {
   arguments: ArgumentReference[] | undefined;

@@ -54,21 +54,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useUserStore } from "vue-library/stores";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { IMFontAwesomeIcon } from "vue-library/components";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-library/helpers";
+import { IMFontAwesomeIcon } from "vue-library/components";
 import { OverlaySummary } from "vue-library/components";
-import { cloneDeep } from "lodash-es";
-import type { ExtendedSearchResultSummary, TTIriRef } from "vue-library/interfaces";
-import { EntityService, UserService } from "@/services";
 import { useOverlay } from "vue-library/composables";
 import { RDF, RDFS } from "vue-library/enums";
-import { useDirectoryStore } from "@/stores/directoryStore";
+import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedSearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { useUserStore } from "vue-library/stores";
+
+import { cloneDeep } from "lodash-es";
 import { useConfirm } from "primevue/useconfirm";
+
+import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { EntityService, UserService } from "@/services";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const { OS, showOverlay, hideOverlay } = useOverlay();
 

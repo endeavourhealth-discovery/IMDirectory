@@ -43,11 +43,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Match, Node } from "vue-library/interfaces";
+import { Ref, computed, inject, ref } from "vue";
+
 import { Bool } from "vue-library/enums";
-import { Ref, ref, inject, computed } from "vue";
-import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
+import type { Match, Node } from "vue-library/interfaces";
+
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
+import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
 
 interface Props {
   match: Match;

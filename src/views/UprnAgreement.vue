@@ -68,8 +68,9 @@
 </template>
 
 <script setup lang="ts">
-import TopBar from "@/components/shared/TopBar.vue";
 import { useRouter } from "vue-router";
+
+import TopBar from "@/components/shared/TopBar.vue";
 
 const router = useRouter();
 

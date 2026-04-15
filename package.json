@@ -16,7 +16,8 @@
     "test:e2e": "gauge run --verbose",
     "test:e2e:ci": "cross-env headless_chrome=true screenshot_on_failure=true gauge run",
     "lint": "cross-env TIMING=1 eslint --fix",
-    "format": "prettier --list-different --write src",
+    "format": "prettier --write \"{src,tests}/**/*.{js,ts,vue,json,css,scss,md}\"",
+    "format:check": "prettier --list-different \"{src,tests}/**/*.{js,ts,vue,json,css,scss,md}\"",
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
     "stop-only": "node stop-only.js"
   },

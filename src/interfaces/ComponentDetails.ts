@@ -1,5 +1,6 @@
-import { ComponentType, EditorMode } from "../enums";
 import type { PropertyShape } from "vue-library/interfaces";
+
+import { ComponentType, EditorMode } from "../enums";
 
 export interface ComponentDetails {
   id: string;

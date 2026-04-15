@@ -73,18 +73,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount, computed } from "vue";
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { ConceptAggregate, TreeParent } from "@/interfaces";
-import { RDF, RDFS } from "vue-library/enums";
-import { EntityService } from "@/services";
-import { useTree } from "vue-library/composables";
-import { OverlaySummary } from "vue-library/components";
-import type { TreeNode } from "primevue/treenode";
-import { useOverlay } from "vue-library/composables";
-import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
 import { useUserStore } from "vue-library";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { OverlaySummary } from "vue-library/components";
+import { useTree } from "vue-library/composables";
+import { useOverlay } from "vue-library/composables";
+import { RDF, RDFS } from "vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+
+import type { TreeNode } from "primevue/treenode";
+
+import { ConceptAggregate, TreeParent } from "@/interfaces";
+import { EntityService } from "@/services";
 
 interface Props {
   entityIri: string;

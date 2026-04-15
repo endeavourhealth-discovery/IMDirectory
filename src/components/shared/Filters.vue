@@ -62,11 +62,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import type { FilterOptions, TTIriRef } from "vue-library/interfaces";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+
 import { GRAPH, NAMESPACE } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
+import type { FilterOptions, TTIriRef } from "vue-library/interfaces";
+
 import { useFilterStore } from "@/stores/filterStore";
+
 interface Props {
   selectedFilterOptions?: FilterOptions;
 }

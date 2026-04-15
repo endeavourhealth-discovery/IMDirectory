@@ -70,11 +70,13 @@
 </template>
 
 <script setup lang="ts">
-import { EntityService } from "@/services";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
-import { onMounted, ref, Ref, watch } from "vue";
-import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
 import { isObjectHasKeys } from "vue-library/helpers";
+
+import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
+import { EntityService } from "@/services";
 
 interface Provenane {
   prov: string;

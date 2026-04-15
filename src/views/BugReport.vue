@@ -112,16 +112,19 @@
 </template>
 
 <script setup lang="ts">
-import TopBar from "@/components/shared/TopBar.vue";
-import { useSharedStore } from "@/stores/sharedStore";
 import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { Browser, OperatingSystem, Status, TaskModule, TaskState, TaskType } from "vue-library/enums";
 import type { BugReport } from "vue-library/interfaces";
-import { TaskModule, TaskState, TaskType, Browser, OperatingSystem, Status } from "vue-library/enums";
 import { useUserStore } from "vue-library/stores";
-import WorkflowService from "@/services/WorkflowService";
+
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
+
+import TopBar from "@/components/shared/TopBar.vue";
 import GithubService from "@/services/GithubService";
+import WorkflowService from "@/services/WorkflowService";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();

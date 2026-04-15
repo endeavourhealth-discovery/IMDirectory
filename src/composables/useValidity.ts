@@ -1,10 +1,13 @@
-import { EntityService } from "@/services";
-import { deferred, isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
-import type { FormGenerator, PropertyShape } from "vue-library/interfaces";
-import { IM, COMPONENT } from "vue-library/enums";
-import { isArray } from "lodash-es";
 import { Ref, ref } from "vue";
+
+import { COMPONENT, IM } from "vue-library/enums";
+import { TypeGuards, deferred, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { FormGenerator, PropertyShape } from "vue-library/interfaces";
+
+import { isArray } from "lodash-es";
 import Swal from "sweetalert2";
+
+import { EntityService } from "@/services";
 
 export function useValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);

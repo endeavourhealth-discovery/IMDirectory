@@ -47,13 +47,16 @@
 </template>
 
 <script setup lang="ts">
-import Filters from "@/components/shared/Filters.vue";
-import { ref, watch, onMounted } from "vue";
-import type { FilterOptions, SearchResultSummary } from "vue-library/interfaces";
-import { useSpeechToText } from "vue-library/composables";
+import { onMounted, ref, watch } from "vue";
 import { Ref } from "vue";
-import InputGroupAddon from "primevue/inputgroupaddon";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
+import { useSpeechToText } from "vue-library/composables";
+import type { FilterOptions, SearchResultSummary } from "vue-library/interfaces";
+
+import InputGroupAddon from "primevue/inputgroupaddon";
+
+import Filters from "@/components/shared/Filters.vue";
 
 interface Props {
   showFilters: boolean;
