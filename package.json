@@ -1,6 +1,6 @@
 {
-  "name": "im-ui",
-  "version": "2.3.0",
+  "name": "IMDirectory",
+  "version": "2.12.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -78,6 +78,7 @@
     "@originjs/vite-plugin-commonjs": "1.0.3",
     "@pinia/testing": "1.0.3",
     "@playwright/test": "1.57.0",
+    "@sonar/scan": "^4.3.5",
     "@tailwindcss/vite": "4.2.2",
     "@testing-library/vue": "8.1.0",
     "@trivago/prettier-plugin-sort-imports": "6.0.2",
@@ -157,6 +158,7 @@
     ],
     "onlyBuiltDependencies": [
       "@getgauge/cli",
+      "@parcel/watcher",
       "core-js",
       "esbuild",
       "msw",

@@ -1,23 +1,16 @@
 # IMDirectory
 
-![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/version.svg)
-![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/build.svg)
-![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/unit-test.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IMDirectory&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMDirectory)
+## Current status
+
+| Environment | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Live        | ![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-live/version.svg) ![Build](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-live/build.svg) ![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-live/unit-test.svg)                                                                                                                                                    |
+| UAT         | ![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-uat/version.svg) ![Build](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-uat/build.svg) ![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-uat/unit-test.svg)                                                                                                                                                       |
+| Dev         | ![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-dev/version.svg) ![Build](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-dev/build.svg) ![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMAPI-dev/unit-test.svg) [![Sonar](https://sonarcloud.io/api/project_badges/measure?project=IMAPI&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=IMDirectory) |
 
 ## Project setup
 
 **The proxy expects the IMAPI to be running on localhost:8080**
-
-### node, npm, pnpm
-
-IMDirectory uses [node](https://nodejs.org/en), [npm](https://www.npmjs.com/) and [pnpm](https://pnpm.io/). Current recommended compatable versions are:
-
-| Package | Version |
-| ------- | ------- |
-| node    | 18.17.0 |
-| npm     | 9.6.7   |
-| pnpm    | 9.11.0  |
 
 ### Fontawesome
 
