@@ -79,6 +79,7 @@
     "@playwright/test": "1.57.0",
     "@tailwindcss/vite": "4.2.2",
     "@testing-library/vue": "8.1.0",
+    "@trivago/prettier-plugin-sort-imports": "6.0.2",
     "@types/d3": "7.4.3",
     "@types/jsonpath": "0.2.4",
     "@types/lodash-es": "4.17.12",
