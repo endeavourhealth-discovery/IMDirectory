@@ -99,7 +99,7 @@ const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const hover = ref();
 const checkUngroup: Ref<boolean> = ref(false);
 const subOperator = computed(() => {
-  if (props.parentOperator === Bool.or) return "AND";
+  if (operator.value === Bool.or) return "AND";
   else return "OR";
 });
 const isRoleGroup = computed(() => getIsRoleGroup(clause.value));

@@ -139,6 +139,9 @@ export function addConceptToGroup(match: Match) {
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
+    delete match.where;
+    delete match.orderBy;
+    match.uuid = v4();
     match.or = [subMatch];
     match.or.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
   }
