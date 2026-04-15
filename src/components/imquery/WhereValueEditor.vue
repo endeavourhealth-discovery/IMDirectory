@@ -1,5 +1,6 @@
 <template>
   <div class="where-value-editor">
+    <div>{{ where }}</div>
     <div>
       <ValueSentenceDisplay v-if="valueSentence" :value-sentence="valueSentence" />
     </div>
