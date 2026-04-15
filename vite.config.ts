@@ -27,6 +27,7 @@ export default defineConfig({
   ],
   optimizeDeps: {
     include: ["prismjs", "prismjs/components/*.js"],
+    exclude: ["tests/e2e/outputs"],
     rolldownOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]
     }
