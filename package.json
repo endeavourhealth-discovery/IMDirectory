@@ -169,6 +169,6 @@
     ]
   },
   "lint-staged": {
-    "*.{js,ts,vue,json,css,scss,md}": "prettier --write"
+    "{src/tests}/**/*.{js,ts,vue,json,css,scss,md}": "prettier --write"
   }
 }
