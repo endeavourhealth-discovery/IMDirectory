@@ -1,6 +1,8 @@
-import { UprnSearchResponse } from "@/interfaces";
-import Env from "./Env";
 import axios from "axios";
+
+import { UprnSearchResponse } from "@/interfaces";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/uprn/private";
 

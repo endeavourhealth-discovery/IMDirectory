@@ -163,22 +163,25 @@
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength } from "vue-library/helpers";
-import type { Match, Node, TTIriRef, Return,NodeShape } from "vue-library/interfaces";
-import { DisplayMode,Bool } from "vue-library/enums";
-import { onMounted, Ref, ref, watch, inject } from "vue";
-import { useCopyToClipboard } from "vue-library/composables";
-import { EntityService, QueryService,DataModelService } from "@/services";
-import { IM } from "vue-library/enums";
-import type { TreeNode } from "primevue/treenode";
-import { addReturn, addFilter, setDefiningProperty } from "@/helpers/buildQuery";
-import CohortEditor from "@/components/imquery/CohortEditor.vue";
-import { usePropertyTree, Mode } from "@/composables/usePropertyTree";
-import { cloneDeep } from "lodash-es";
+import { Ref, inject, onMounted, ref, watch } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
-import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
+import { useCopyToClipboard } from "vue-library/composables";
+import { Bool, DisplayMode } from "vue-library/enums";
+import { IM } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { Match, Node, NodeShape, Return, TTIriRef } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+import type { TreeNode } from "primevue/treenode";
 import Swal from "sweetalert2";
+
+import CohortEditor from "@/components/imquery/CohortEditor.vue";
+import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
+import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
+import { addFilter, addReturn, setDefiningProperty } from "@/helpers/buildQuery";
+import { DataModelService, EntityService, QueryService } from "@/services";
 
 interface Props {
   baseType: Node;

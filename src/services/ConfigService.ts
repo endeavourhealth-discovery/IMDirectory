@@ -1,6 +1,8 @@
-import axios from "axios";
-import Env from "./Env";
 import type { Namespace } from "vue-library/interfaces";
+
+import axios from "axios";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/config/public";
 

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { hasDefinition, hasMap, hasMultiplePredicates, hasParameter, hasProperty } from "./detailsBuilderTestData";
+
 import { buildDetails } from "@/helpers/DetailsBuilder";
+
+import { hasDefinition, hasMap, hasMultiplePredicates, hasParameter, hasProperty } from "./detailsBuilderTestData";
 
 describe("detailsBuilder", () => {
   describe("buildDetails", () => {

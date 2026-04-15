@@ -1,8 +1,10 @@
-import Env from "./Env";
-import axios from "axios";
-import { NamespacePermission, User } from "vue-library/models";
 import { PrimeVueColors, PrimeVuePresetThemes } from "vue-library/enums";
 import type { RecentActivityItemDto } from "vue-library/interfaces";
+import { NamespacePermission, User } from "vue-library/models";
+
+import axios from "axios";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/user/private";
 

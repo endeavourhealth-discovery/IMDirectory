@@ -1,7 +1,8 @@
-import { ComponentType } from "../enums";
-import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "vue-library/interfaces";
-import { enumToArray, isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
 import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
+import { TypeGuards, enumToArray, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "vue-library/interfaces";
+
+import { ComponentType } from "../enums";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];

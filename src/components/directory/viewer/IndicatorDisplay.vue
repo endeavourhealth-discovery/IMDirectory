@@ -42,14 +42,17 @@
 </template>
 
 <script setup lang="ts">
+import { Ref, computed, onMounted, provide, ref, watch } from "vue";
+
 import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { QueryService } from "@/services";
 import type { Indicator } from "vue-library/interfaces";
-import { computed, onMounted, provide, ref, Ref, watch } from "vue";
 import { useUserStore } from "vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
+
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { QueryService } from "@/services";
 
 interface Props {
   entityIri?: string;

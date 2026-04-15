@@ -52,13 +52,15 @@
 </template>
 
 <script setup lang="ts">
-import { getTypeIcon, getIconColor, isArrayHasLength } from "vue-library/helpers";
-import type { Where, Node } from "vue-library/interfaces";
+import { Ref, computed, onMounted, ref } from "vue";
+
 import { Bool } from "vue-library/enums";
-import { computed, Ref, ref, onMounted } from "vue";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getRelativeTo, buildValueSentence, getIsOperator } from "@/helpers/QueryEditorMethods";
+import { getIconColor, getTypeIcon, isArrayHasLength } from "vue-library/helpers";
+import type { Node, Where } from "vue-library/interfaces";
+
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { buildValueSentence, getIsOperator, getRelativeTo } from "@/helpers/QueryEditorMethods";
 
 interface Props {
   where: Where;

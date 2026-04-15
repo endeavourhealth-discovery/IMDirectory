@@ -154,29 +154,33 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, Ref, ref, computed, watch } from "vue";
-import ConceptSelector from "./ConceptSelector.vue";
-import Button from "primevue/button";
-import type { Match, Where, Node, QueryRequest, TTIriRef } from "vue-library/interfaces";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { Bool } from "vue-library/enums";
+import { QUERY } from "vue-library/enums";
+import type { Match, Node, QueryRequest, TTIriRef, Where } from "vue-library/interfaces";
+
+import Button from "primevue/button";
+import { v4 } from "uuid";
+
+import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import ECLRefinement from "@/components/imquery/ECLRefinement.vue";
-import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";
+import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
 import {
   addConceptToGroup,
   addRefinementToGroup,
   checkGroupChange,
   createNewBoolGroup,
-  getBooleanOperator,
   getBoolGroup,
+  getBooleanOperator,
   getExclusionOptions,
   getIsRoleGroup,
   manageRoleGroup,
   updateFocusConcepts
 } from "@/helpers/buildQuery";
-import { v4 } from "uuid";
-import { QUERY } from "vue-library/enums";
 import { QueryService } from "@/services";
-import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+
+import ConceptSelector from "./ConceptSelector.vue";
 
 interface Props {
   index: number;

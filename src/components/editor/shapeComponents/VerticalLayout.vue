@@ -11,25 +11,27 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
+import CheckboxDisplay from "@/components/editor/shapeComponents/CheckboxDisplay.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
-import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
-import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
-import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinitionBuilder.vue";
+import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
+import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinitionBuilder.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
-import { defineComponent } from "vue";
-import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
-import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
-import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
-import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
 import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
-import CheckboxDisplay from "@/components/editor/shapeComponents/CheckboxDisplay.vue";
 
 export default defineComponent({
   components: {
@@ -56,12 +58,14 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { EditorMode } from "@/enums";
-import { inject, ref, Ref, onMounted, ComputedRef, computed } from "vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { processComponentType } from "@/helpers/EditorMethods";
+import { ComputedRef, Ref, computed, inject, onMounted, ref } from "vue";
+
 import { isObjectHasKeys } from "vue-library/helpers";
 import type { PropertyShape } from "vue-library/interfaces";
+
+import { EditorMode } from "@/enums";
+import { processComponentType } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps<{
   shape: PropertyShape;

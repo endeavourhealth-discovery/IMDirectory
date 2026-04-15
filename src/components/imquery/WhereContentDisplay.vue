@@ -49,15 +49,17 @@
 </template>
 
 <script setup lang="ts">
-import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import type { Where, Node } from "vue-library/interfaces";
-import { Bool, IM } from "vue-library/enums";
 import { computed, ref } from "vue";
+
+import { Bool, IM } from "vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import type { Node, Where } from "vue-library/interfaces";
+
+import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { buildValueSentence, getIsOperator } from "@/helpers/QueryEditorMethods";
-import { getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
 import { getRelativeTo } from "@/helpers/QueryEditorMethods";
-import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
+import { getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
 
 interface Props {
   where: Where;

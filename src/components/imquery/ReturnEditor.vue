@@ -48,14 +48,17 @@
 </template>
 
 <script setup lang="ts">
-import type { Match, Return } from "vue-library/interfaces";
+import { computed, onMounted } from "vue";
+
 import { Bool } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
+import type { Match, Return } from "vue-library/interfaces";
+
+import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import { getPathName } from "@/helpers/buildQuery";
-import { onMounted, computed } from "vue";
+
 interface Props {
   match: Match;
 }

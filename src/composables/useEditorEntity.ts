@@ -1,12 +1,15 @@
-import { computed, Ref, ref } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import { Ref, computed, ref } from "vue";
+
 import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
-import { EntityService } from "@/services";
-import { useEditorStore } from "@/stores/editorStore";
-import { useCreatorStore } from "@/stores/creatorStore";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
 import type { TTIriRef } from "vue-library/interfaces";
-import { EditorMode } from "@/enums";
+
 import { isEqual } from "lodash-es";
+
+import { EditorMode } from "@/enums";
+import { EntityService } from "@/services";
+import { useCreatorStore } from "@/stores/creatorStore";
+import { useEditorStore } from "@/stores/editorStore";
 
 export function useEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
   const editorStore = useEditorStore();

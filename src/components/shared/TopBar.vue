@@ -148,21 +148,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, onMounted, watch } from "vue";
-import Shortcut from "../directory/landingPage/Shortcut.vue";
-import { useToast } from "primevue/usetoast";
-import { FilerService, CodeGenService, SecurityService } from "@/services";
-import type { MenuItem } from "primevue/menuitem";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { useUserStore } from "vue-library/stores";
-import { useSharedStore } from "@/stores/sharedStore";
-import { useRouter } from "vue-router";
 import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
 import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "vue-library/enums";
-import Button from "primevue/button";
+import { useUserStore } from "vue-library/stores";
+
 import { useCookies } from "@vueuse/integrations";
+import Button from "primevue/button";
+import type { MenuItem } from "primevue/menuitem";
+import { useToast } from "primevue/usetoast";
 import Swal from "sweetalert2";
+import { useRouter } from "vue-router";
+
 import { useDirectService } from "@/composables/useDirectService";
+import { CodeGenService, FilerService, SecurityService } from "@/services";
+import { useSharedStore } from "@/stores/sharedStore";
+
+import Shortcut from "../directory/landingPage/Shortcut.vue";
 
 const router = useRouter();
 const userStore = useUserStore();

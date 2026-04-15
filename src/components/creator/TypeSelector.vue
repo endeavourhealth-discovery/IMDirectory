@@ -17,12 +17,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted, inject } from "vue";
-import { EntityService } from "@/services";
+import { Ref, inject, onMounted, ref } from "vue";
+
 import { RDF } from "vue-library/enums";
 import type { ExtendedEntityReferenceNode, ExtendedTTEntity } from "vue-library/interfaces";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+
 import editorShapes from "@/constants/editorShapes";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService } from "@/services";
 
 interface Props {
   showTypeSelector?: boolean;

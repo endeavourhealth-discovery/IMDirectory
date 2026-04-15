@@ -17,11 +17,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, Ref, ComputedRef, computed } from "vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import type { ExtendedTTEntity, PropertyShape } from "vue-library/interfaces";
-import { EditorMode } from "@/enums";
+
 import { cloneDeep } from "lodash-es";
+
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {
   shape: PropertyShape;

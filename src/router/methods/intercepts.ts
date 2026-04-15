@@ -1,7 +1,8 @@
-import { useSharedStore } from "@/stores/sharedStore";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { Router } from "vue-router";
 import { SecurityService } from "@/services";
+
+import { useSharedStore } from "@/stores/sharedStore";
 
 export async function directToLogin(router: Router) {
   const sharedStore = useSharedStore();

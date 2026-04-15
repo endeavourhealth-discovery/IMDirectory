@@ -45,15 +45,19 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, computed } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
 import { IM } from "vue-library/enums";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import type { QueryRequest, SearchResultSummary, Node } from "vue-library/interfaces";
+import type { Node, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+
 import { cloneDeep, isEqual } from "lodash-es";
-import { useFilterStore } from "@/stores/filterStore";
-import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { ConstraintOperatorOptions } from "@/constants";
+import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { useFilterStore } from "@/stores/filterStore";
+
 interface Props {
   parent?: any;
 }

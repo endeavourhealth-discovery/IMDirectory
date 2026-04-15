@@ -1,6 +1,6 @@
 import type { InlineDiffResult } from "./get-inline-diff";
 import type { InlineHighlightResult } from "./get-inline-syntax-highlights";
-import type { SegmentItem, HiddenUnchangedLinesInfo } from "./get-segment";
+import type { HiddenUnchangedLinesInfo, SegmentItem } from "./get-segment";
 
 export const isExpandLine = (segment: SegmentItem | HiddenUnchangedLinesInfo): segment is HiddenUnchangedLinesInfo => {
   return "hasLinesBefore" in segment || "hasLinesAfter" in segment;

@@ -13,13 +13,14 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import EntityComboBox from "./EntityComboBox.vue";
 import EntityDropdown from "./EntityDropdown.vue";
 import EntitySearch from "./EntitySearch.vue";
-import TextInput from "./TextInput.vue";
 import TextDisplay from "./TextDisplay.vue";
-import { defineComponent } from "vue";
+import TextInput from "./TextInput.vue";
 
 export default defineComponent({
   components: { EntityAutoComplete, EntityComboBox, EntityDropdown, EntitySearch, TextDisplay, TextInput }
@@ -27,11 +28,13 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
-import { EditorMode } from "@/enums";
-import { isObjectHasKeys, TypeGuards } from "vue-library/helpers";
-import { processComponentType } from "@/helpers/EditorMethods";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { TypeGuards, isObjectHasKeys } from "vue-library/helpers";
 import type { PropertyShape } from "vue-library/interfaces";
+
+import { EditorMode } from "@/enums";
+import { processComponentType } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {

@@ -1,25 +1,28 @@
 import { IM, RDFS } from "vue-library/enums";
-import { ValidatedEntity } from "@/interfaces";
+import { isObjectHasKeys } from "vue-library/helpers";
 import {
+  DownloadByQueryOptions,
+  EditRequest,
+  EntityValidationRequest,
   ExtendedEntityReferenceNode,
   ExtendedTTEntity,
   FilterOptions,
   FiltersAsIris,
-  TTBundle,
-  TTIriRef,
-  SearchResultSummary,
-  DownloadByQueryOptions,
+  Namespace,
   Pageable,
-  EntityValidationRequest,
-  EditRequest,
-  Namespace
+  SearchResultSummary,
+  TTBundle,
+  TTIriRef
 } from "vue-library/interfaces";
-import Env from "./Env";
+
 import axios from "axios";
-import type { TreeNode } from "primevue/treenode";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { buildDetails } from "@/helpers/DetailsBuilder";
 import { OrganizationChartNode } from "primevue/organizationchart";
+import type { TreeNode } from "primevue/treenode";
+
+import { buildDetails } from "@/helpers/DetailsBuilder";
+import { ValidatedEntity } from "@/interfaces";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/entity";
 

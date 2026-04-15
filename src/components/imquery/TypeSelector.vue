@@ -35,13 +35,16 @@
 </style>
 
 <script lang="ts" setup>
-import { nextTick, onMounted, Ref, ref, watch } from "vue";
-import type { TreeNode } from "primevue/treenode";
-import type { Node, Match, Path } from "vue-library/interfaces";
+import { Ref, nextTick, onMounted, ref, watch } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
+import type { Match, Node, Path } from "vue-library/interfaces";
+
 import { TreeSelectionKeys } from "primevue/tree";
+import type { TreeNode } from "primevue/treenode";
+
 import { useReturnTrees } from "@/composables/useReturnTrees";
-import { getOrderable, getOrderOptions } from "@/helpers/QueryEditorMethods";
+import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 
 const visible = defineModel<boolean>("visible");
 const props = defineProps<{

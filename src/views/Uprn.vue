@@ -25,11 +25,13 @@
 </template>
 
 <script setup lang="ts">
-import TopBar from "@/components/shared/TopBar.vue";
 import { computed, ref } from "vue";
+
+import { useRouter } from "vue-router";
+
+import TopBar from "@/components/shared/TopBar.vue";
 import UprnConsent from "@/components/uprn/UprnConsent.vue";
 import { useLoadingStore } from "@/stores/loadingStore";
-import { useRouter } from "vue-router";
 
 const router = useRouter();
 const loadingStore = useLoadingStore();

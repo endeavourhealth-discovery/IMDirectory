@@ -89,12 +89,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
+
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+
+import { DataTableExpandedRows } from "primevue/datatable";
+
+import { useDirectService } from "@/composables/useDirectService";
 import { PropertyDisplay } from "@/interfaces";
 import { DataModelService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { DataTableExpandedRows } from "primevue/datatable";
-import { useDirectService } from "@/composables/useDirectService";
 
 const props = defineProps<{
   entityIri: string;

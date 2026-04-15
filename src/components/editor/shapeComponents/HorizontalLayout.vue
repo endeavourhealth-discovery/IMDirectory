@@ -8,10 +8,11 @@
 </template>
 
 <script lang="ts">
-import ArrayBuilder from "./ArrayBuilder.vue";
-import VerticalLayout from "./VerticalLayout.vue";
-import SetDefinitionBuilder from "./SetDefinitionBuilder.vue";
 import { defineComponent } from "vue";
+
+import ArrayBuilder from "./ArrayBuilder.vue";
+import SetDefinitionBuilder from "./SetDefinitionBuilder.vue";
+import VerticalLayout from "./VerticalLayout.vue";
 
 export default defineComponent({
   components: { ArrayBuilder, VerticalLayout, SetDefinitionBuilder }
@@ -19,12 +20,14 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { EditorMode } from "@/enums";
-import { inject, ref, Ref, onMounted } from "vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { processComponentType } from "@/helpers/EditorMethods";
+import { Ref, inject, onMounted, ref } from "vue";
+
 import { isObjectHasKeys } from "vue-library/helpers";
 import type { PropertyShape } from "vue-library/interfaces";
+
+import { EditorMode } from "@/enums";
+import { processComponentType } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {
   shape: PropertyShape;

@@ -80,16 +80,18 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, computed, onMounted } from "vue";
-import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
-import type { GenericObject, TTIriRef, SearchResultSummary, ECLQueryRequest } from "vue-library/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
 import { IM } from "vue-library/enums";
-import { EclService } from "@/services";
 import { byName } from "vue-library/helpers";
+import type { ECLQueryRequest, GenericObject, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { EclService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { useCopyToClipboard } from "vue-library/composables";
 
 const emit = defineEmits<{
   locateInTree: [payload: string];

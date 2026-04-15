@@ -21,9 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, Ref, computed } from "vue";
-import SideBar from "@/components/workflow/SideBar.vue";
+import { Ref, computed, onMounted, ref } from "vue";
+
 import TopBar from "@/components/shared/TopBar.vue";
+import SideBar from "@/components/workflow/SideBar.vue";
 import { useLoadingStore } from "@/stores/loadingStore";
 
 const loadingStore = useLoadingStore();

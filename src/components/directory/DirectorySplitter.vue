@@ -42,16 +42,19 @@
 </template>
 
 <script setup lang="ts">
-import NavTree from "@/components/shared/NavTree.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { Ref, computed, ref } from "vue";
+
 import { isObjectHasKeys } from "vue-library/helpers";
-import { useRouter } from "vue-router";
-import { useLoadingStore } from "@/stores/loadingStore";
-import { TreeNode } from "@/interfaces";
 import type { FilterOptions, SearchResponse } from "vue-library/interfaces";
+
 import { SplitterResizeEndEvent } from "primevue/splitter";
+import { useRouter } from "vue-router";
+
+import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { TreeNode } from "@/interfaces";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useLoadingStore } from "@/stores/loadingStore";
 
 defineProps<{
   searchTerm: string;

@@ -40,12 +40,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from "vue";
-import type { Node, Query } from "vue-library/interfaces";
-import { EntityService, SetService } from "@/services";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { IM } from "vue-library/enums";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { isObjectHasKeys } from "vue-library/helpers";
+import type { Node, Query } from "vue-library/interfaces";
+
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { EntityService, SetService } from "@/services";
 
 const props = defineProps<{
   entityIri?: string;

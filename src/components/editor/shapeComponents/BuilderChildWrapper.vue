@@ -34,15 +34,16 @@
 </template>
 
 <script lang="ts">
-import EntitySearch from "./EntitySearch.vue";
-import EntityAutoComplete from "./EntityAutoComplete.vue";
+import { defineComponent } from "vue";
+
+import AutocompleteSearchBarWrapper from "./AutocompleteSearchBarWrapper.vue";
 import ComponentGroup from "./ComponentGroup.vue";
+import EntityAutoComplete from "./EntityAutoComplete.vue";
+import EntityDisplay from "./EntityDisplay.vue";
+import EntityDropdown from "./EntityDropdown.vue";
+import EntitySearch from "./EntitySearch.vue";
 import PropertyBuilder from "./PropertyBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
-import EntityDropdown from "./EntityDropdown.vue";
-import EntityDisplay from "./EntityDisplay.vue";
-import AutocompleteSearchBarWrapper from "./AutocompleteSearchBarWrapper.vue";
-import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { EntitySearch, EntityAutoComplete, ComponentGroup, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay, AutocompleteSearchBarWrapper }
@@ -50,12 +51,13 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import type { PropertyShape } from "vue-library/interfaces";
+
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
-import { ComponentDetails } from "@/interfaces";
-import type { PropertyShape } from "vue-library/interfaces";
 import { ComponentType, EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
+import { ComponentDetails } from "@/interfaces";
 
 interface Props {
   id: string;

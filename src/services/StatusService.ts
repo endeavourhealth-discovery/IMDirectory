@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import Env from "./Env";
 
 const API_URL = Env.API + "api/status/public";

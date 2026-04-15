@@ -46,28 +46,31 @@
 </template>
 
 <script lang="ts">
-import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
-import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
-import TabLayout from "@/components/editor/shapeComponents/TabLayout.vue";
+import { defineComponent } from "vue";
+
+import { useUserStore } from "vue-library/stores";
+
+import { useDialog } from "primevue/usedialog";
+
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
-import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
-import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
-import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
-import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
-import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
-import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
-import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
+import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
-import { defineComponent } from "vue";
+import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
+import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
+import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import TabLayout from "@/components/editor/shapeComponents/TabLayout.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
+import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
+import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
+import { useDirectService } from "@/composables/useDirectService";
 import { useValidity } from "@/composables/useValidity";
 import { useValueVariableMap } from "@/composables/useValueVariableMap";
-import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
-import { useDialog } from "primevue/usedialog";
-import { useUserStore } from "vue-library/stores";
-import { useDirectService } from "@/composables/useDirectService";
 
 export default defineComponent({
   components: {
@@ -91,25 +94,28 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide, ref, watch } from "vue";
-import SideBar from "@/components/editor/SideBar.vue";
-import TopBar from "@/components/shared/TopBar.vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useRoute, useRouter } from "vue-router";
+import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, onUnmounted, provide, ref, watch } from "vue";
+
+import { IM, RDF } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
 import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
 import Swal, { SweetAlertResult } from "sweetalert2";
+import "vue-json-pretty/lib/styles.css";
+import { useRoute, useRouter } from "vue-router";
+
+import SideBar from "@/components/editor/SideBar.vue";
+import TopBar from "@/components/shared/TopBar.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { useEditorShape } from "@/composables/useEditorShape";
-import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { IM, RDF } from "vue-library/enums";
+import { processComponentType } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EntityService, SetService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { processComponentType } from "@/helpers/EditorMethods";
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -241,6 +247,7 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
 }
 
 function submit(): void {
+  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
@@ -270,7 +277,7 @@ function submit(): void {
                 await SetService.updateSubsetsFromSuper(editorEntity.value);
                 delete editorEntity.value[IM.HAS_SUBSET];
               }
-              const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
+              const res = await EntityService.updateEntity({ entity: editorEntity.value, namespace: namespace, hostUrl: window.location.origin });
               if (res) {
                 editorStore.updateEditorSavedEntity(undefined);
                 return res;

@@ -27,6 +27,7 @@
 
 <script setup lang="ts">
 import { isArray } from "lodash-es";
+
 interface Props {
   icon: string | string[];
   label: string;

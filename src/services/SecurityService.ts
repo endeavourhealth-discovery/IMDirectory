@@ -1,7 +1,9 @@
-import axios from "axios";
-import Env from "./Env";
 import { UserRole } from "vue-library/enums";
 import { User } from "vue-library/models";
+
+import axios from "axios";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/security";
 

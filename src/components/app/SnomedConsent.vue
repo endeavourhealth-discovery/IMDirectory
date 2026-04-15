@@ -33,8 +33,8 @@
             Territories".
           </li>
           <li>
-            End Users, that do not hold an IHTSDO Affiliate License, may access SNOMED CT® using <strong>Information Model</strong> subject to acceptance of
-            and adherence to the following sub-license limitations:
+            End Users, that do not hold an IHTSDO Affiliate License, may access SNOMED CT® using <strong>Information Model</strong> subject to acceptance of and
+            adherence to the following sub-license limitations:
             <ul>
               <li>
                 The sub-licensee is only permitted to access SNOMED CT® using this software (or service) for the purpose of exploring and evaluating the
@@ -80,9 +80,12 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import Dialog from "primevue/dialog";
-import Button from "primevue/button";
+
 import { useUserStore } from "vue-library/stores";
+
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+
 import { useSharedStore } from "@/stores/sharedStore";
 
 const userStore = useUserStore();

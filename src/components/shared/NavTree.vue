@@ -46,23 +46,26 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from "vue";
+import { Ref, computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
 import { OverlaySummary } from "vue-library/components";
-import { useToast } from "primevue/usetoast";
-import { byKey, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { EntityService, FilerService } from "@/services";
-import { IM } from "vue-library/enums";
-import type { TreeNode } from "primevue/treenode";
 import { useTree } from "vue-library/composables";
-import { useUserStore } from "vue-library/stores";
-import { useConfirm } from "primevue/useconfirm";
-import { useCreateNew } from "@/composables/useCreateNew";
-import type { TTIriRef } from "vue-library/interfaces";
-import { UserRole } from "vue-library/enums";
 import { useOverlay } from "vue-library/composables";
+import { IM } from "vue-library/enums";
+import { UserRole } from "vue-library/enums";
+import { byKey, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { TTIriRef } from "vue-library/interfaces";
+import { useUserStore } from "vue-library/stores";
+
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
+import type { TreeNode } from "primevue/treenode";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+
+import { useCreateNew } from "@/composables/useCreateNew";
+import { EntityService, FilerService } from "@/services";
 
 interface Props {
   allowDragAndDrop?: boolean;

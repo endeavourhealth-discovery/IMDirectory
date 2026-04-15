@@ -20,15 +20,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
-import { EditorMode } from "@/enums";
-import { byName, isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpers";
-import { processArguments } from "@/helpers/EditorMethods";
-import { FunctionService, QueryService } from "@/services";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { RDFS } from "vue-library/enums";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import type { ExtendedTTEntity, PropertyShape, TTIriRef, QueryRequest, Query } from "vue-library/interfaces";
+import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
+
+import { EditorMode } from "@/enums";
+import { processArguments } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { FunctionService, QueryService } from "@/services";
 
 const props = defineProps<{
   shape: PropertyShape;

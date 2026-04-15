@@ -88,16 +88,20 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref, watch, computed } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
 import { IM, XSD } from "vue-library/enums";
-import type { Match, Where, Assignable, UIProperty } from "vue-library/interfaces";
 import { Operator } from "vue-library/enums";
-import { buildValueSentence } from "@/helpers/QueryEditorMethods";
-import ValueEditor from "@/components/imquery/ValueEditor.vue";
+import type { Assignable, Match, UIProperty, Where } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
+
+import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
-import { RangeOrValue } from "@/enums";
 import { RangeValueOptions } from "@/constants";
+import { RangeOrValue } from "@/enums";
+import { buildValueSentence } from "@/helpers/QueryEditorMethods";
+
 interface Props {
   uiProperty: UIProperty;
   from?: Match;

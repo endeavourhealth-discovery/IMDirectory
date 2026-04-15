@@ -1,8 +1,10 @@
-import { defineStore } from "pinia";
-import { useUserStore } from "vue-library/stores";
+import { ref } from "vue";
+
 import { localStorageWithExpiry } from "vue-library/helpers";
 import type { ExtendedTTEntity } from "vue-library/interfaces";
-import { ref } from "vue";
+import { useUserStore } from "vue-library/stores";
+
+import { defineStore } from "pinia";
 
 export const useCreatorStore = defineStore("creator", () => {
   const creatorSavedEntity = ref<any>(localStorageWithExpiry.getItem("creatorSavedEntity") ?? {});

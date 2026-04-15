@@ -89,10 +89,13 @@
 </template>
 
 <script setup lang="ts">
-import { useSharedStore } from "@/stores/sharedStore";
-import { useUserStore } from "vue-library/stores";
 import { computed } from "vue";
+
+import { useUserStore } from "vue-library/stores";
+
 import { useRouter } from "vue-router";
+
+import { useSharedStore } from "@/stores/sharedStore";
 
 const userStore = useUserStore();
 const router = useRouter();

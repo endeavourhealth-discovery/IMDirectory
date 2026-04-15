@@ -1,6 +1,8 @@
 # Gauge - metadata dir
 .gauge
 
+.scannerwork
+
 node_modules
 
 .npmrc

@@ -41,15 +41,18 @@
 </template>
 
 <script lang="ts" setup>
-import { EntityService } from "@/services";
-import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys, TypeGuards } from "vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "vue-library/interfaces";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { IM, NAMESPACE, RDFS, SNOMED } from "vue-library/enums";
+import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "vue-library/interfaces";
+
 import { cloneDeep, isArray } from "lodash-es";
-import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   shape: PropertyShape;

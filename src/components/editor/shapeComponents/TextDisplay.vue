@@ -19,13 +19,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, Ref } from "vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { cloneDeep } from "lodash-es";
-import type { ExtendedTTEntity, PropertyShape, Argument } from "vue-library/interfaces";
-import { EditorMode } from "@/enums";
+import { Ref, inject, onMounted, ref, watch } from "vue";
+
 import { isObjectHasKeys } from "vue-library/helpers";
+import type { Argument, ExtendedTTEntity, PropertyShape } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+
+import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService } from "@/services";
 
 const props = defineProps<{

@@ -127,30 +127,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted, watch, inject, computed } from "vue";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { EclService, QueryService } from "@/services";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { IM, QUERY } from "vue-library/enums";
-import { useToast } from "primevue/usetoast";
-import type { Where, Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
 import { Bool } from "vue-library/enums";
-import { useFilterStore } from "@/stores/filterStore";
-import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";
+import type { Match, QueryRequest, SearchResultSummary, Where } from "vue-library/interfaces";
+
+import Button from "primevue/button";
+import { useToast } from "primevue/usetoast";
+import { v4 } from "uuid";
+
+import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import ECLRefinementValue from "@/components/imquery/ECLRefinementValue.vue";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
+import { ConstraintOperatorOptions } from "@/constants";
 import {
-  getBooleanOptions,
-  getIsRoleGroup,
   checkGroupChange,
   createNewBoolGroup,
-  removeSubgroup,
+  getBoolGroup,
   getBooleanOperator,
-  getBoolGroup
+  getBooleanOptions,
+  getIsRoleGroup,
+  removeSubgroup
 } from "@/helpers/buildQuery";
-import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/helpers/buildQuery";
-import Button from "primevue/button";
-import ECLRefinementValue from "@/components/imquery/ECLRefinementValue.vue";
-import { v4 } from "uuid";
-import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
-import { ConstraintOperatorOptions } from "@/constants";
+import { getConstraintOperator, manageRoleGroup, setConstraintOperator } from "@/helpers/buildQuery";
+import { EclService, QueryService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
   index: number;

@@ -35,11 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Argument, ArgumentReference } from "vue-library/interfaces";
-import { computed, ComputedRef, onMounted, ref, watch } from "vue";
-import Column from "primevue/column";
+import { ComputedRef, computed, onMounted, ref, watch } from "vue";
+
 import { IM, XSD } from "vue-library/enums";
+import type { Argument, ArgumentReference } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
+import Column from "primevue/column";
 
 interface Props {
   arguments: ArgumentReference[] | undefined;

@@ -1,6 +1,7 @@
-import { SetService, Env } from "@/services";
 import axios from "axios";
-import { vi, expect, it, beforeEach, describe } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { Env, SetService } from "@/services";
 
 describe("SetService.ts ___ axios success", () => {
   beforeEach(() => {

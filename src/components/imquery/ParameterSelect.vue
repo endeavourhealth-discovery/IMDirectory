@@ -13,11 +13,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { IM, QUERY, RDFS, SHACL } from "vue-library/enums";
-import { EntityService, QueryService } from "@/services";
 import { isArrayHasLength } from "vue-library/helpers";
 import type { QueryRequest, TTIriRef } from "vue-library/interfaces";
+
+import { EntityService, QueryService } from "@/services";
 
 interface SelectOption {
   id: string;

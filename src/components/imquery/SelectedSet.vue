@@ -33,15 +33,18 @@
 </template>
 
 <script lang="ts" setup>
-import { EntityService } from "@/services";
-import { onMounted, ref, Ref, watch } from "vue";
-import { IM, RDF, RDFS } from "vue-library/enums";
-import type { ExtendedTTEntity, Match, Node, TTIriRef } from "vue-library/interfaces";
+import { Ref, onMounted, ref, watch } from "vue";
+
 import { IMFontAwesomeIcon } from "vue-library/components";
-import { useOverlay } from "vue-library/composables";
 import { OverlaySummary } from "vue-library/components";
-import { cloneDeep } from "lodash-es";
+import { useOverlay } from "vue-library/composables";
+import { IM, RDF, RDFS } from "vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayHasLength, isConcept, isValueSet } from "vue-library/helpers";
+import type { ExtendedTTEntity, Match, Node, TTIriRef } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+
+import { EntityService } from "@/services";
 
 interface Props {
   propertyIri: string | undefined;

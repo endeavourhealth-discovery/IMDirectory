@@ -1,7 +1,9 @@
-import { beforeEach, describe, vi, expect } from "vitest";
-import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "vue-library/stores";
+
+import { createTestingPinia } from "@pinia/testing";
+import { beforeEach, describe, expect, vi } from "vitest";
+
+import { useSharedStore } from "@/stores/sharedStore";
 
 describe("state", () => {
   beforeEach(() => {

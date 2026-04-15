@@ -66,24 +66,28 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
-import QueryService from "@/services/QueryService";
-import Swal from "sweetalert2";
+import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
+
 import { useCopyToClipboard } from "vue-library/composables";
 import type { Match, Query } from "vue-library/interfaces";
-import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
-import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
-import { useQueryStore } from "@/stores/queryStore";
-import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
-import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
-import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
-import { cloneDeep, isEqual } from "lodash-es";
-import { usePropertyTree } from "@/composables/usePropertyTree";
-import type { TreeNode } from "primevue/treenode";
-import Button from "primevue/button";
-import { v4 } from "uuid";
+
 import { value } from "jsonpath";
+import { cloneDeep, isEqual } from "lodash-es";
+import Button from "primevue/button";
+import type { TreeNode } from "primevue/treenode";
+import Swal from "sweetalert2";
+import { v4 } from "uuid";
+
+import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
+import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
+import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
+import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
+import { usePropertyTree } from "@/composables/usePropertyTree";
+import QueryService from "@/services/QueryService";
+import { useQueryStore } from "@/stores/queryStore";
+
 interface Props {
   showDialog?: boolean;
   sourceQuery: Query;

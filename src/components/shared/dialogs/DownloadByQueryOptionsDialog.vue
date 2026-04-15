@@ -92,12 +92,14 @@
 </template>
 
 <script lang="ts" setup>
-import { useFilterStore } from "@/stores/filterStore";
-import { DownloadSettings } from "@/interfaces";
-import type { TTIriRef } from "vue-library/interfaces";
+import { Ref, computed, ref, watch } from "vue";
+
 import { IM, SNOMED } from "vue-library/enums";
-import { computed, Ref, ref, watch } from "vue";
 import { NAMESPACE } from "vue-library/enums";
+import type { TTIriRef } from "vue-library/interfaces";
+
+import { DownloadSettings } from "@/interfaces";
+import { useFilterStore } from "@/stores/filterStore";
 
 interface DownloadOption {
   key: string;

@@ -1,13 +1,15 @@
-import { expect, vi } from "vitest";
-import { EntityService } from "@/services";
 import { IM, SHACL } from "vue-library/enums";
-import * as fakerFactory from "@/mocks/fakerFactory";
-import { mountComposable } from "../TestMethods";
-import { EditorMode } from "@/enums";
+
+import { expect, vi } from "vitest";
 
 import { useEditorEntity } from "@/composables/useEditorEntity";
-import { useEditorStore } from "@/stores/editorStore";
+import { EditorMode } from "@/enums";
+import * as fakerFactory from "@/mocks/fakerFactory";
+import { EntityService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
+import { useEditorStore } from "@/stores/editorStore";
+
+import { mountComposable } from "../TestMethods";
 
 describe("fetchEntity", () => {
   let getFullEntitySpy;

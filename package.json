@@ -1,6 +1,6 @@
 {
-  "name": "im-ui",
-  "version": "2.3.0",
+  "name": "IMDirectory",
+  "version": "2.12.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,7 +16,8 @@
     "test:e2e": "gauge run --verbose",
     "test:e2e:ci": "cross-env headless_chrome=true screenshot_on_failure=true gauge run",
     "lint": "cross-env TIMING=1 eslint --fix",
-    "format": "prettier --list-different --write src",
+    "format": "prettier --write \"{src,tests}/**/*.{js,ts,vue,json,css,scss,md}\"",
+    "format:check": "prettier --list-different \"{src,tests}/**/*.{js,ts,vue,json,css,scss,md}\"",
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
     "stop-only": "node stop-only.js"
   },
@@ -29,7 +30,7 @@
     "@vueuse/core": "14.2.1",
     "@vueuse/integrations": "14.2.1",
     "abortcontroller-polyfill": "1.7.8",
-    "axios": "1.14.0",
+    "axios": "1.15.0",
     "chart.js": "4.5.1",
     "copyfiles": "2.4.1",
     "core-js": "3.49.0",
@@ -77,8 +78,10 @@
     "@originjs/vite-plugin-commonjs": "1.0.3",
     "@pinia/testing": "1.0.3",
     "@playwright/test": "1.57.0",
+    "@sonar/scan": "^4.3.5",
     "@tailwindcss/vite": "4.2.2",
     "@testing-library/vue": "8.1.0",
+    "@trivago/prettier-plugin-sort-imports": "6.0.2",
     "@types/d3": "7.4.3",
     "@types/jsonpath": "0.2.4",
     "@types/lodash-es": "4.17.12",
@@ -155,6 +158,7 @@
     ],
     "onlyBuiltDependencies": [
       "@getgauge/cli",
+      "@parcel/watcher",
       "core-js",
       "esbuild",
       "msw",

@@ -20,17 +20,20 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { cloneDeep, isEqual } from "lodash-es";
-import type { TTIriRef, SearchResultSummary } from "vue-library/interfaces";
-import { EditorMode } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength, TypeGuards } from "vue-library/helpers";
-import { QueryService, EntityService } from "@/services";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
 import { RDFS, ToastSeverity } from "vue-library/enums";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 import type { GenericObject, PropertyShape, QueryRequest } from "vue-library/interfaces";
+
+import { cloneDeep, isEqual } from "lodash-es";
 import { useToast } from "primevue/usetoast";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService, QueryService } from "@/services";
 
 const toast = useToast();
 
