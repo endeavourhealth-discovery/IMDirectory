@@ -19,7 +19,8 @@
     "format": "prettier --write \"{src,tests}/**/*.{js,ts,vue,json,css,scss,md}\"",
     "format:check": "prettier --list-different \"{src,tests}/**/*.{js,ts,vue,json,css,scss,md}\"",
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
-    "stop-only": "node stop-only.js"
+    "stop-only": "node stop-only.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.1.2",
@@ -109,8 +110,10 @@
     "globals": "17.4.0",
     "happy-dom": "20.8.9",
     "headers-polyfill": "5.0.1",
+    "husky": "9.1.7",
     "idb-keyval": "6.2.2",
     "jwt-decode": "4.0.0",
+    "lint-staged": "16.4.0",
     "msw": "2.13.2",
     "npm-run-all": "4.1.5",
     "nprogress": "0.2.0",
@@ -163,5 +166,8 @@
       "msw",
       "vue-demi"
     ]
+  },
+  "lint-staged": {
+    "{src/tests}/**/*.{js,ts,vue,json,css,scss,md}": "prettier --write"
   }
 }
