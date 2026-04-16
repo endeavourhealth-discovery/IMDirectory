@@ -59,7 +59,7 @@
       class="grouped-display-table"
     >
       <template #groupheader="{ data }: any">
-        <span v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</span>
+        <span v-if="isObjectHasKeys(data, ['group']) && isObjectHasKeys(data.group, ['name'])">{{ data.group.name }}</span>
       </template>
 
       <Column field="group.name" header="Group">
@@ -128,13 +128,14 @@ onMounted(async () => {
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
   const results = await DataModelService.getPropertiesDisplay(iri);
+  console.log(results);
   if (results && results.length !== 0) {
     results.forEach((result: PropertyDisplay) => {
       if (result.isOr) {
         results[results.indexOf(result)] = getProperty(result);
       }
       result.property[0].name = result.property[0].name?.slice(0, result.property[0].name?.indexOf("(")) as string;
-      if (isObjectHasKeys(result, ["group"])) groupedProperties.value.push(result);
+      if (isObjectHasKeys(result, ["group"]) && result.group != null) groupedProperties.value.push(result);
       else properties.value.push(result);
     });
   }

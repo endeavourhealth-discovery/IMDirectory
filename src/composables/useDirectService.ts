@@ -84,7 +84,7 @@ export function useDirectService() {
   }
 
   async function uprn() {
-    await directTo({ appRoute: "uprn", newTab: true });
+    await directTo({ appRoute: "uprn", newTab: false });
   }
 
   async function workflow() {
