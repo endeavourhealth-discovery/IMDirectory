@@ -46,11 +46,12 @@ import type { Namespace, NamespaceRequest, Task } from "vue-library/interfaces";
 import { useUserStore } from "vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
 
 import ConfigService from "@/services/ConfigService";
 import WorkflowService from "@/services/WorkflowService";
+import { useDialogStore } from "@/stores/dialogStore";
 
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 import TaskViewer from "./TaskViewer.vue";
 
 interface Props {
@@ -59,6 +60,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
 
@@ -130,8 +132,8 @@ async function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateNamespaceRequest(updatedNamespaceRequest).then(async () => {
-          await Swal.fire({
-            icon: "success",
+          await dialogStore.open(AlertDialog, {
+            icon: "fa-regular fa-circle-check",
             title: "Success",
             text: "Namespace request successfully updated."
           });

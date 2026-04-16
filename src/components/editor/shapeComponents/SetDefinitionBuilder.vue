@@ -88,15 +88,16 @@ import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSumm
 
 import { cloneDeep, isEqual, last } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
-import Swal from "sweetalert2";
 
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
 import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { useEclValidator } from "@/composables/useEclValidator";
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EclService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 
@@ -107,6 +108,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const dialogStore = useDialogStore();
 const validationDialog = useDialog();
 const eclQuery: Ref<ECLQueryRequest> = ref({ status: { valid: true } } as ECLQueryRequest);
 const importMenu = ref();
@@ -269,12 +272,11 @@ function showBuilder(): void {
 }
 
 async function showInvalidAlert() {
-  await Swal.fire({
-    icon: "warning",
+  await dialogStore.open(AlertDialog, {
+    icon: "fa-regular fa-circle-exclamation",
     title: "Warning",
-    text: "Invalid ECL . Please fix or remove ecl before using builder.",
-    confirmButtonText: "Close",
-    confirmButtonColor: "#689F38"
+    text: "Invalid ECL. Please fix or remove ecl before using builder.",
+    confirmButtonText: "Close"
   });
 }
 

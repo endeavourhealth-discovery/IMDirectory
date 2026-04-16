@@ -118,14 +118,16 @@ import { Browser, OperatingSystem, Status, TaskModule, TaskState, TaskType } fro
 import type { BugReport } from "vue-library/interfaces";
 import { useUserStore } from "vue-library/stores";
 
-import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 
 import TopBar from "@/components/shared/TopBar.vue";
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import GithubService from "@/services/GithubService";
 import WorkflowService from "@/services/WorkflowService";
+import { useDialogStore } from "@/stores/dialogStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
+const dialogStore = useDialogStore();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const router = useRouter();
@@ -236,16 +238,20 @@ async function onSubmit() {
     bugReport.state = TaskState.TODO;
     bugReport.hostUrl = window.location.origin;
     await WorkflowService.createBugReport(bugReport).then(async () => {
-      await Swal.fire({
-        title: "Success",
-        text: "Bug report successfully submitted",
-        icon: "success",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#2196F3"
-      }).then(async () => {
-        loading.value = false;
-        await router.push({ path: "/" });
-      });
+      await dialogStore
+        .open(AlertDialog, {
+          props: { modal: true, style: { width: "30vw" }, closable: false },
+          data: {
+            title: "Success",
+            text: "Bug report successfully submitted",
+            icon: "fa-regular fa-circle-check",
+            confirmButtonText: "Close"
+          }
+        })
+        .then(async () => {
+          loading.value = false;
+          await router.push({ path: "/" });
+        });
     });
     loading.value = false;
   }

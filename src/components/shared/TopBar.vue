@@ -130,7 +130,7 @@
         </template>
       </TieredMenu>
     </div>
-    <Dialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
+    <dynamicDialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-col gap-2">
         <label for="template">Template</label>
         <Select id="template" v-model="template" :options="templates" />
@@ -143,7 +143,7 @@
         <Button label="Cancel" icon="fa-regular fa-xmark" @click="showCodeDownload = false" class="p-button-text" />
         <Button label="Download" icon="fa-duotone fa-display-code" :disabled="!template" @click="generateAndDownload" />
       </template>
-    </Dialog>
+    </dynamicDialog>
   </div>
 </template>
 
@@ -157,19 +157,23 @@ import { useUserStore } from "vue-library/stores";
 import { useCookies } from "@vueuse/integrations";
 import Button from "primevue/button";
 import type { MenuItem } from "primevue/menuitem";
+import { useDialog } from "primevue/usedialog";
 import { useToast } from "primevue/usetoast";
-import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { CodeGenService, FilerService, SecurityService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
 import Shortcut from "../directory/landingPage/Shortcut.vue";
 
+const dynamicDialog = useDialog();
 const router = useRouter();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const dialogStore = useDialogStore();
 const cookies = useCookies();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -350,18 +354,23 @@ function setUserMenuItems(): void {
 }
 
 async function logout() {
-  await Swal.fire({
-    icon: "question",
-    title: "Confirm logout?",
-    text: "Are you sure you want to logout?",
-    confirmButtonText: "Logout",
-    showCancelButton: true
-  }).then(async result => {
-    if (result.isConfirmed) {
-      await SecurityService.logout();
-      location.reload();
-    }
-  });
+  await dialogStore
+    .open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        title: "Confirm logout?",
+        text: "Are you sure you want to logout?",
+        icon: "fa-regular fa-circle-question",
+        confirmButtonText: "Logout",
+        cancelButtonText: "Cancel"
+      }
+    })
+    .then(async result => {
+      if (result.confirm) {
+        await SecurityService.logout();
+        location.reload();
+      }
+    });
 }
 
 async function goToMyProfile() {
