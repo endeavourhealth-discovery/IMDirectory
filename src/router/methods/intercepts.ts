@@ -1,6 +1,7 @@
 import { Router } from "vue-router";
 
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { SecurityService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
@@ -22,10 +23,13 @@ export async function directToLogin(router: Router) {
     .then(async (result: any) => {
       if (result?.confirm) {
         console.log("redirecting to login");
+        if (!sharedStore.signinUrl) {
+          sharedStore.updateSigninUrl(await SecurityService.getLoginUrl());
+        }
         window.location.href = sharedStore.signinUrl;
       } else {
         console.log("redirecting to landing page");
-        await router.push({ name: "LandingPage" });
+        await router.push("/directory");
       }
     });
 }
