@@ -5,13 +5,15 @@ import { TypeGuards, deferred, isArrayHasLength, isObjectHasKeys } from "vue-lib
 import type { FormGenerator, PropertyShape } from "vue-library/interfaces";
 
 import { isArray } from "lodash-es";
-import Swal from "sweetalert2";
 
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { EntityService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function useValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
   const validationCheckStatus: Ref<{ key: string; deferred: { promise: any; reject: any; resolve: any } }[]> = ref([]);
+  const dialogStore = useDialogStore();
 
   constructValidationCheckStatus(shape);
 
@@ -39,12 +41,14 @@ export function useValidity(shape?: FormGenerator) {
 
   async function checkExists(iri: string): Promise<boolean> {
     if (await EntityService.entityExists(iri)) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Entity with this iri already exists.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(AlertDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Warning",
+          text: "Entity with this iri already exists.",
+          confirmButtonText: "Close"
+        }
       });
       return true;
     } else return false;

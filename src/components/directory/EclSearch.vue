@@ -30,7 +30,7 @@
 
           <div v-if="setDefinition.status!.valid">
             <label for="">Show names </label>
-            <Checkbox v-model="showNames" :binary="true" />
+            <Checkbox v-model="showNames" :binary="true" class="checkbox" />
           </div>
           <div class="error-message" v-if="!setDefinition.status!.valid">
             Invalid ECL : line {{ setDefinition.status!.line }}, offset {{ setDefinition.status!.offset }} -> {{ setDefinition.status!.message }}
@@ -221,6 +221,7 @@ function setFilterDefaults() {
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
+  margin: 1rem;
 }
 
 #query-string-container {
@@ -313,6 +314,7 @@ function setFilterDefaults() {
 .copy-button {
   display: flex;
   flex-flow: row;
+  margin-left: 1rem;
 }
 .transparent-textarea {
   min-height: 15rem;
@@ -328,5 +330,9 @@ function setFilterDefaults() {
 .input-container {
   width: 98%;
   flex: 0 1 auto;
+}
+
+.checkbox {
+  margin: 2rem;
 }
 </style>

@@ -29,12 +29,14 @@ import { useUserStore } from "vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { useDialog } from "primevue";
 import { useToast } from "primevue/usetoast";
 import semver from "semver";
 import { useRoute, useRouter } from "vue-router";
 
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import { Env, GithubService, SecurityService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
@@ -50,10 +52,12 @@ import { useLoadingStore } from "./stores/loadingStore";
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
+const dialog = useDialog();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 const cookie = useCookies();
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
@@ -118,6 +122,7 @@ onMounted(async () => {
   } else {
     window.location.href = await SecurityService.getLoginUrl();
   }
+  dialogStore.register(dialog);
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
 });
@@ -295,7 +300,6 @@ function setupExternalErrorHandler() {
 @use "assets/layout/sass/_main.scss";
 @import "primeicons/primeicons.css";
 @import "assets/layout/flags/flags.css";
-@import "sweetalert2/dist/sweetalert2.min.css";
 @import "assets/tailwind.css";
 @import "assets/primevueOverrides.css";
 

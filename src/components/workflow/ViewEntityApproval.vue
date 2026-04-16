@@ -44,12 +44,13 @@ import type { EntityApproval, Task } from "vue-library/interfaces";
 import { useUserStore } from "vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
 
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
 import WorkflowService from "@/services/WorkflowService";
+import { useDialogStore } from "@/stores/dialogStore";
 
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 import EntityDiffDialog from "./EntityDiffDialog.vue";
 import TaskViewer from "./TaskViewer.vue";
 
@@ -59,6 +60,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
 
@@ -140,10 +142,13 @@ async function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateEntityApproval(updatedEntityApproval).then(async () => {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Entity approval successfully updated."
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" } },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Entity approval successfully updated."
+            }
           });
         });
 
