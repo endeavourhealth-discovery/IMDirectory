@@ -6,8 +6,8 @@
     <div v-if="html" v-html="html"></div>
     <p v-if="error" class="mt-2 text-red-500">{{ error }}</p>
     <div v-if="!reverseButtons" class="m-6 flex flex-row flex-nowrap items-center gap-4">
-      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" :loading="isLoading" />
-      <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex" :label="denyButtonText" />
+      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex alert-confirm" :label="confirmButtonText" :loading="isLoading" />
+      <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex alert-deny" :label="denyButtonText" />
       <Button
         v-if="cancelButtonText || showCancelButton"
         @click="buttonClick"
@@ -21,11 +21,11 @@
         v-if="cancelButtonText || showCancelButton"
         @click="buttonClick"
         severity="secondary"
-        class="flex"
+        class="flex alert-cancel"
         :label="cancelButtonText ? cancelButtonText : 'Cancel'"
       />
-      <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex" :label="denyButtonText" />
-      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex" :label="confirmButtonText" :loading="isLoading" />
+      <Button v-if="denyButtonText" @click="denyButtonClick" severity="warning" class="flex alert-deny" :label="denyButtonText" />
+      <Button v-if="confirmButtonText" @click="confirmButtonClick" class="flex alert-confirm" :label="confirmButtonText" :loading="isLoading" />
     </div>
   </div>
 </template>

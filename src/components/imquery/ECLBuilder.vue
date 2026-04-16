@@ -277,9 +277,6 @@ function stripValidation(build: any) {
 </script>
 
 <style scoped>
-.swal2-container {
-  z-index: 3000 !important;
-}
 #ecl-builder-dialog {
   display: flex;
   flex-direction: column;

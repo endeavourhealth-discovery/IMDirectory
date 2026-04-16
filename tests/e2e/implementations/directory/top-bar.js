@@ -23,7 +23,7 @@ step("URL contains <text>", async text => {
 });
 
 step("Confirm dialog", async () => {
-  await pw.page.locator(".swal2-confirm").click();
+  await pw.page.locator(".alert-confirm").click();
 });
 
 step("Login button is displayed", async () => {
