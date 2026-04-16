@@ -174,7 +174,6 @@ import type { Match, Node, NodeShape, Return, TTIriRef } from "vue-library/inter
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
-import Swal from "sweetalert2";
 
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
@@ -182,6 +181,9 @@ import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
 import { addFilter, addReturn, setDefiningProperty } from "@/helpers/buildQuery";
 import { DataModelService, EntityService, QueryService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   baseType: Node;
@@ -203,6 +205,7 @@ const emit = defineEmits<{
   (event: "addTest", match: Match): void;
   (event: "addLinked", match: Match): void;
 }>();
+const dialogStore = useDialogStore();
 const activeTab = ref("filter");
 const expandedKeys = ref<Record<string, boolean>>({});
 const expandedReturnKeys = ref<Record<string, boolean>>({});
@@ -340,12 +343,11 @@ async function onSave() {
 }
 
 async function showInvalid(match: Match) {
-  await Swal.fire({
-    icon: "warning",
+  await dialogStore.open(AlertDialog, {
+    icon: "fa-regular fa-circle-check",
     title: "Warning",
     text: match.errorMessage + ". Use filter tab to edit.",
-    confirmButtonText: "Close",
-    confirmButtonColor: "#689F38"
+    confirmButtonText: "Close"
   });
 }
 

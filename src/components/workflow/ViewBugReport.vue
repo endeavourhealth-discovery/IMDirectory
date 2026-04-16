@@ -131,10 +131,11 @@ import type { BugReport, Task } from "vue-library/interfaces";
 import { useUserStore } from "vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
 
 import WorkflowService from "@/services/WorkflowService";
+import { useDialogStore } from "@/stores/dialogStore";
 
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 import TaskViewer from "./TaskViewer.vue";
 
 interface Props {
@@ -143,6 +144,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
 
@@ -296,10 +298,13 @@ function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateBugReport(updatedBugReport).then(async () => {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Bug report successfully updated."
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" } },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Bug report successfully updated."
+            }
           });
         });
 

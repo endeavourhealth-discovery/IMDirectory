@@ -17,11 +17,12 @@ import type {
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
-import Swal from "sweetalert2";
 import { v4 } from "uuid";
 
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { SearchOptions } from "@/interfaces";
 import { DataModelService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -36,14 +37,17 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 }
 
 export async function setReturn(match: Match, keepAs: string) {
+  const dialogStore = useDialogStore();
   if (keepAs === "") {
     if (match.return) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "You have already added properties to the output. Cannot remove label",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(AlertDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Warning",
+          text: "You have already added properties to the output. Cannot remove label",
+          confirmButtonText: "Close"
+        }
       });
     } else delete match.node;
   } else match.node = keepAs;
@@ -139,6 +143,9 @@ export function addConceptToGroup(match: Match) {
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
+    delete match.where;
+    delete match.orderBy;
+    match.uuid = v4();
     match.or = [subMatch];
     match.or.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
   }
