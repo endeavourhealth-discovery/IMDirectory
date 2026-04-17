@@ -35,9 +35,10 @@ import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "vue-library/components";
 
+import { AlertDialogOptions, TypedDynamicDialogOptions } from "@/interfaces";
 import { useDialogStore } from "@/stores/dialogStore";
 
-const dialogRef: any = inject("dialogRef");
+const dialogRef: Ref<TypedDynamicDialogOptions<AlertDialogOptions>> | undefined = inject("dialogRef");
 
 const dialogStore = useDialogStore();
 
@@ -56,7 +57,7 @@ const isLoading = computed(() => dialogStore.isLoading);
 const error = computed(() => dialogStore.error);
 
 onMounted(() => {
-  if (dialogRef.value) {
+  if (dialogRef?.value.data) {
     const params = dialogRef.value.data;
     if (params.title) title.value = params.title;
     if (params.text) text.value = params.text;

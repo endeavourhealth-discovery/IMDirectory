@@ -130,7 +130,7 @@
         </template>
       </TieredMenu>
     </div>
-    <dynamicDialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
+    <DynamicDialog header="Set namespace/package" :visible="showCodeDownload" :modal="true" :closable="false" id="code-download-dialog">
       <div class="flex flex-col gap-2">
         <label for="template">Template</label>
         <Select id="template" v-model="template" :options="templates" />
@@ -143,7 +143,7 @@
         <Button label="Cancel" icon="fa-regular fa-xmark" @click="showCodeDownload = false" class="p-button-text" />
         <Button label="Download" icon="fa-duotone fa-display-code" :disabled="!template" @click="generateAndDownload" />
       </template>
-    </dynamicDialog>
+    </DynamicDialog>
   </div>
 </template>
 

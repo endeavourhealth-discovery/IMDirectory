@@ -344,10 +344,13 @@ async function onSave() {
 
 async function showInvalid(match: Match) {
   await dialogStore.open(AlertDialog, {
-    icon: "fa-regular fa-circle-check",
-    title: "Warning",
-    text: match.errorMessage + ". Use filter tab to edit.",
-    confirmButtonText: "Close"
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-check",
+      title: "Warning",
+      text: match.errorMessage + ". Use filter tab to edit.",
+      confirmButtonText: "Close"
+    }
   });
 }
 

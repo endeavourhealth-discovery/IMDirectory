@@ -133,9 +133,12 @@ async function updateTask(task: Task) {
         };
         await WorkflowService.updateNamespaceRequest(updatedNamespaceRequest).then(async () => {
           await dialogStore.open(AlertDialog, {
-            icon: "fa-regular fa-circle-check",
-            title: "Success",
-            text: "Namespace request successfully updated."
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Namespace request successfully updated."
+            }
           });
         });
 
