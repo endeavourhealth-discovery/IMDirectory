@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
 import { defineStore } from "pinia";
-import { DynamicDialogInstance } from "primevue/dynamicdialogoptions";
+import { DynamicDialogInstance, DynamicDialogOptions } from "primevue/dynamicdialogoptions";
 import { useDialog } from "primevue/usedialog";
 
 type PrimeDialog = ReturnType<typeof useDialog>;
@@ -11,7 +11,6 @@ export const useDialogStore = defineStore("dialog", () => {
   let dialogRef = ref<DynamicDialogInstance | null>();
   let resolver: ((v: any) => void) | null;
 
-  let dialogData = ref({});
   let isLoading = ref(false);
   let error = ref<string | null>();
 
@@ -19,11 +18,10 @@ export const useDialogStore = defineStore("dialog", () => {
     dialogService.value = service;
   }
 
-  function open(component: any, data?: any): Promise<any> {
+  function open(component: any, data?: DynamicDialogOptions): Promise<any> {
     if (!dialogService) throw new Error("Dialog service not registered correctly.");
 
     error.value = null;
-    dialogData = data;
 
     return new Promise(resolve => {
       resolver = resolve;

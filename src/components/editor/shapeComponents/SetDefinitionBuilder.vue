@@ -273,10 +273,13 @@ function showBuilder(): void {
 
 async function showInvalidAlert() {
   await dialogStore.open(AlertDialog, {
-    icon: "fa-regular fa-circle-exclamation",
-    title: "Warning",
-    text: "Invalid ECL. Please fix or remove ecl before using builder.",
-    confirmButtonText: "Close"
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-exclamation",
+      title: "Warning",
+      text: "Invalid ECL. Please fix or remove ecl before using builder.",
+      confirmButtonText: "Close"
+    }
   });
 }
 

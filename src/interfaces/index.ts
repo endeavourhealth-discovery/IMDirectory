@@ -1,4 +1,5 @@
 import { Address } from "./Address";
+import { AlertDialogOptions } from "./AlertDialogOptions";
 import { AliasEntity } from "./AliasEntity";
 import AllowableChildProperty from "./AllowableChildProperty";
 import { ChartMapNode } from "./ChartMapNode";
@@ -39,6 +40,7 @@ import TangledTreeData from "./TangledTreeData";
 import { TermCode } from "./TermCode";
 import { TreeNode } from "./TreeNode";
 import { TreeParent } from "./TreeParent";
+import { TypedDynamicDialogOptions } from "./TypedDynamicDialogOptions";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
 import { ValidatedEntity } from "./ValidatedEntity";
@@ -46,6 +48,7 @@ import { ValueSetMember } from "./ValueSetMember";
 
 export {
   type Address,
+  type AlertDialogOptions,
   type ChartMapNode,
   type ChartTableNode,
   type ComponentDetails,
@@ -81,6 +84,7 @@ export {
   type PropertyDisplay,
   type TTProperty,
   type TreeNode,
+  type TypedDynamicDialogOptions,
   type SelectedMatch,
   type QueryResponse,
   type SetDiffObject,
