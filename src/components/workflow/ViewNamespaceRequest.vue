@@ -137,7 +137,8 @@ async function updateTask(task: Task) {
             data: {
               icon: "fa-regular fa-circle-check",
               title: "Success",
-              text: "Namespace request successfully updated."
+              text: "Namespace request successfully updated.",
+              confirmButtonText: "Close"
             }
           });
         });
