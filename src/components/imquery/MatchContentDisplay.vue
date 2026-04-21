@@ -1,4 +1,5 @@
 <template>
+  <span v-if="match.notExists" class="not">Exclude if </span>
   <div v-if="match.description">
     <span class="match-description">{{ match.description }} </span>
     <span>defined as:</span>
@@ -7,7 +8,6 @@
     <span class="field">and if the above</span>
     <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
   </span>
-  <span v-if="match.notExists" class="not">Exclude if </span>
 
   <template v-if="match.is">
     <ul>
