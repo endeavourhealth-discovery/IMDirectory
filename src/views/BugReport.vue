@@ -207,9 +207,9 @@ onMounted(() => {
 function setOptions() {
   moduleOptions.value = [TaskModule.AUTH, TaskModule.CREATOR, TaskModule.DIRECTORY, TaskModule.EDITOR, TaskModule.QUERY, TaskModule.UPRN];
   osOptions.value = [OperatingSystem.LINUX, OperatingSystem.MACOS, OperatingSystem.WINDOWS];
-  osOptions.value.push("Other");
+  osOptions.value.push(OperatingSystem.OTHER);
   browserOptions.value = [Browser.CHROME, Browser.EDGE, Browser.FIREFOX, Browser.IE];
-  browserOptions.value.push("Other");
+  browserOptions.value.push(Browser.OTHER);
 }
 
 async function onSubmit() {
