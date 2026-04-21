@@ -5,6 +5,7 @@
         <span class="description">Description</span>
         <InputText v-model="match.description" type="text" class="match-description" @update:model-value="updateDescription" />
       </div>
+
       <div>
         <span class="field">With the following conditions:</span>
       </div>
@@ -103,6 +104,10 @@
       </span>
       <Button data-testid="add-test-button" class="add-button" label="Add related feature" @click="addLinked" />
     </div>
+    <div v-if="match.where || match.orderBy">
+      <span class="description">Optionally assign score if true</span>
+      <InputText v-model="match.score" type="text" class="match-score" @update:model-value="updateScore" />
+    </div>
   </div>
 </template>
 
@@ -167,6 +172,7 @@ const toggleNotExists = () => {
     delete match.value.notExists;
   }
   edited.value = true;
+  emit("updateMatch");
 };
 
 const notExistsLabel = computed(() => {
@@ -194,6 +200,10 @@ function onDeleteWhere() {
   emit("deleteMatch");
 }
 function updateDescription() {
+  edited.value = true;
+  emit("updateMatch");
+}
+function updateScore() {
   edited.value = true;
   emit("updateMatch");
 }
@@ -313,6 +323,10 @@ function onDeleteThen() {
 }
 .match-description {
   width: 60rem;
+}
+
+.match-score {
+  width: 20rem;
 }
 .description {
   padding-right: 0.5rem;

@@ -8,7 +8,7 @@
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
       class="edit-match-dialog"
       maximizable
-      @hide="onCancel"
+      @hide="onCancelDialog"
     >
       <template #default>
         <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
@@ -276,6 +276,10 @@ function setupTrees(mode: Mode) {
 async function onUpdate() {
   edited.value = true;
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+}
+
+function onCancelDialog() {
+  emit("cancel");
 }
 
 async function onReturnNodeSelect(node: any) {

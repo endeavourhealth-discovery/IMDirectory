@@ -6,7 +6,12 @@
         <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
       </div>
       <div class="flex flex-row justify-start">
-        <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" :tagSeverityMatches="tagSeverityMatches" />
+        <ArrayObjectNamesToStringWithLabel
+          v-if="!!entity[IM.HAS_STATUS]"
+          :data="entity[IM.HAS_STATUS]"
+          :tagSeverityMatches="tagSeverityMatches"
+          label="Status"
+        />
         <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
       </div>
       <div>
@@ -155,7 +160,7 @@
 <script lang="ts" setup>
 import { Ref, computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 
-import { ArrayObjectNameTagWithLabel, ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "vue-library/components";
+import { ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "vue-library/components";
 import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import {
   isConcept,
