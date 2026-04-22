@@ -319,15 +319,13 @@ function onDeleteThen() {
 .keep-as-reference {
   padding-right: 1rem;
 }
-.match-description {
-  width: 60rem;
-}
+
 
 .match-score {
   width: 20rem;
 }
 .description {
-  padding-right: 0.5rem;
+  padding-right: 1rem;
 }
 .name-display {
   width: 100%;

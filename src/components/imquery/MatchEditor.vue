@@ -158,7 +158,7 @@
     </Dialog>
   </div>
   <div v-if="editMatch.is">
-    <CohortEditor v-model:match="editMatch" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="cancel" />
+    <CohortEditor v-model:match="editMatch"  :parentOperator="parentOperator" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="cancel" />
   </div>
 </template>
 

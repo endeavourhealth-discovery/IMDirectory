@@ -57,6 +57,7 @@
       <span class="as">{{ match.node }})</span>
     </span>
   </template>
+  <span v-if="match.score" class="score">Score if true : {{ match.score }}</span>
 </template>
 
 <script setup lang="ts">
@@ -131,5 +132,8 @@ function getFormattedPath(path: any): string {
 .match-description {
   color: var(--p-blue-700);
   padding-right: 1rem;
+}
+.score {
+  padding-left: 2rem;
 }
 </style>
