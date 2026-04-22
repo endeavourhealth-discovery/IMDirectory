@@ -38,7 +38,6 @@
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
-        :from="from"
         @updateAssignable="updateWhereDisplay(where)"
       />
     </div>
@@ -50,7 +49,6 @@
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
-        :from="from"
         :fromOrTo="'from'"
         @updateAssignable="updateWhereDisplay(where.range.from)"
       />
@@ -62,7 +60,6 @@
         :qualifier="where.qualifier"
         :refresh="refresh"
         :fromOrTo="'to'"
-        :from="from"
         @updateAssignable="updateWhereDisplay(where.range.to)"
       />
     </div>
@@ -103,7 +100,6 @@ import { buildValueSentence } from "@/helpers/QueryEditorMethods";
 
 interface Props {
   uiProperty: UIProperty;
-  from?: Match;
 }
 
 const refresh = defineModel<number>("refresh", { default: 0 });

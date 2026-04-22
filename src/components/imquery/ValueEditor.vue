@@ -81,7 +81,6 @@ const props = defineProps<{
   uiProperty: UIProperty;
   fromOrTo?: "from" | "to";
   qualifier?: TTIriRef;
-  from?: Match;
 }>();
 const refresh = defineModel<number>("refresh", { default: 0 });
 const assignable = defineModel<Assignable>("assignable", { default: {} });

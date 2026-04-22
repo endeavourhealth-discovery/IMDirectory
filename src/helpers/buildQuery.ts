@@ -569,36 +569,11 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef: string | undefined, parent?: Match): string {
-  if ((!nodeRef || nodeRef === "") && match.typeOf) return match.typeOf.iri!;
-  if (match.path && nodeRef) {
-    for (const path of match.path) {
-      const type = getTypeIriFromPath(path, nodeRef);
-      if (type) return type;
-    }
-  } else if (match.nodeRef && parent) {
-    if (parent.return) {
-      for (const ret of parent.return) {
-        if (ret.nodeRef) {
-          const type = getTypeIriFromMatch(parent, baseType, ret.nodeRef);
-          if (type) return type;
-        }
-      }
-    }
-  }
-  return baseType.iri!;
+export function getTypeIriFromMatch(match: Match, baseType: Node): string {
+  if (match.typeOf) return match.typeOf.iri!;
+  else return baseType.iri!;
 }
 
-function getTypeIriFromPath(path: Path, nodeRef: string): string | undefined {
-  if (path.node === nodeRef) return path.typeOf!.iri;
-  if (path.path) {
-    for (const subPath of path.path) {
-      const type = getTypeIriFromPath(subPath, nodeRef);
-      if (type) return type;
-    }
-  }
-  return undefined;
-}
 export function addReturn(match: Match, node: TreeNode) {
   if (node.type === "property") {
     const fullPath = node.data.path;
