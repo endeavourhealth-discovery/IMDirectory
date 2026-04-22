@@ -48,7 +48,7 @@ import { cloneDeep } from "lodash-es";
 
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
-import TestQueryResults from "@/components/directory/viewer/queryDisplay/TestQueryResults.vue";
+import TestQueryResults from "@/components/query/viewer/TestQueryResults.vue";
 import QueryEditor from "@/components/imquery/QueryEditor.vue";
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";

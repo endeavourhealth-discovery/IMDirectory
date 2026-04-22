@@ -2,6 +2,7 @@ import { Bool, IM, RDF, RuleAction, SHACL } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
 import type {
   HasPaths,
+  Having,
   Match,
   Node,
   NodeShape,
@@ -371,6 +372,14 @@ export function setRuleAction(match: Match, ruleAction: string) {
       break;
     }
   }
+}
+
+export function getHavingText(having: Having): string {
+  let text = "";
+  if (having.aggregate) {
+    text = "if " + having.aggregate + " ";
+  }
+  return text;
 }
 export function getRuleActionLabel(value: string): string {
   const match = getRuleActionOptions().find(item => item.value === value);
