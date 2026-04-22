@@ -107,10 +107,10 @@
                       :base-type="baseType"
                       :nodeShape="nodeShape"
                       v-model:match="editMatch"
-                      :from="from"
                       :depth="0"
                       :index="0"
                       :key="'main'"
+                      :parentOperator="parentOperator"
                       @deleteMatch="deleteMatch"
                       @updateMatch="onUpdate"
                       @add-test="activeTab = 'test'"
@@ -126,10 +126,10 @@
                       :nodeShape="nodeShape"
                       v-model:match="editMatch"
                       :editingThen="true"
-                      :from="from"
                       :depth="0"
                       :index="0"
                       :key="'then'"
+                      :parentOperator="parentOperator"
                       @deleteMatch="deleteMatch"
                       @updateMatch="onUpdate"
                       @addLinked="onAddLinked"
@@ -188,12 +188,12 @@ import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 interface Props {
   baseType: Node;
   match: Match;
-  from?: Match;
   depth: number;
   clauseIndex: number;
   showEditor: boolean;
   editCohort?: boolean;
   datasetEntry?: boolean;
+  parentOperator?: Bool;
 }
 
 const props = defineProps<Props>();

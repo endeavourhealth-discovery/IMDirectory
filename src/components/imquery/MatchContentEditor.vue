@@ -27,7 +27,6 @@
           :base-type="baseType"
           v-model:parent="match"
           v-model:where="match.where"
-          :from="from"
           :index="0"
           :parentIndex="0"
           :rootBool="true"
@@ -85,7 +84,6 @@
         :base-type="baseType"
         v-model:parent="match"
         v-model:where="match.then"
-        :from="from"
         :index="0"
         :parentIndex="0"
         :rootBool="true"
@@ -104,7 +102,7 @@
       </span>
       <Button data-testid="add-test-button" class="add-button" label="Add related feature" @click="addLinked" />
     </div>
-    <div v-if="match.where || match.orderBy">
+    <div v-if="(match.where || match.orderBy) &&parentOperator && parentOperator===Bool.or">
       <span class="description">Optionally assign score if true</span>
       <InputText v-model="match.score" type="text" class="match-score" @update:model-value="updateScore" />
     </div>
@@ -117,8 +115,8 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { useCopyToClipboard } from "vue-library/composables";
 import { IM } from "vue-library/enums";
 import { isArrayHasLength } from "vue-library/helpers";
-import type { Match, Node, NodeShape, PropertyShape, Return, TTIriRef, Where } from "vue-library/interfaces";
-
+import type { Match, Node, NodeShape, TTIriRef} from "vue-library/interfaces";
+import {Bool} from "vue-library/enums";
 import { cloneDeep, isEqual } from "lodash-es";
 import Button from "primevue/button";
 
@@ -131,12 +129,12 @@ import { EntityService } from "@/services";
 
 interface Props {
   baseType: Node;
-  from?: Match;
   depth: number;
   index: number;
   isStep?: boolean;
   nodeShape: NodeShape;
   editingThen?: boolean;
+  parentOperator? : Bool
 }
 
 const props = defineProps<Props>();

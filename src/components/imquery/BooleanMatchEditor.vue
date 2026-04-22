@@ -9,6 +9,7 @@
       :depth="depth"
       :clauseIndex="index"
       :editCohort="editMatch && !!editMatch.is"
+      :parentOperator="parentOperator"
       @cancel="cancelEditMatch"
       @deleteMatch="onDeleteMatchList"
       @saveChanges="saveEditMatch"
@@ -278,7 +279,6 @@ function onDeletedWhere() {
   emit("deleteMatch");
 }
 function editMatchClause() {
-  if (match.value.nodeRef) from.value = parent.value.and![props.index - 1];
   editMatch.value = match.value;
   showEditor.value = true;
 }

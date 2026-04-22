@@ -29,7 +29,6 @@
           :match="match"
           v-model:where="boolGroup![subIndex]"
           v-model:parent="where"
-          :from="from"
           :index="subIndex"
           :parentIndex="index"
           :baseType="baseType"
@@ -76,7 +75,6 @@
           :ui-property="selectedWhere"
           v-model:where="where!"
           :refresh="refreshCounter"
-          :from="from"
           @updateProperty="updateProperty"
         />
       </div>
@@ -126,7 +124,6 @@ const props = withDefaults(
     parentOperator?: Bool;
     parentIndex: number;
     canCheck?: boolean;
-    from?: Match;
   }>(),
   { showDelete: true }
 );
@@ -162,7 +159,7 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   if (where.value.iri) {
-    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType, where.value.nodeRef, props.from);
+    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType);
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);
