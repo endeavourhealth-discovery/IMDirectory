@@ -1,17 +1,9 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import { useAuthStore } from "@/stores/authStore";
+
+import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import { endRouterLoading, startRouterLoading } from "./methods/loading";
-import {
-  creatorSaveChangesWarning,
-  directoryGuard,
-  editorGuard,
-  editorSaveChangesWarning,
-  pageNotFoundFromCreator,
-  pageNotFoundFromEditor,
-  queryGuard,
-  viewerIriExistsGuard
-} from "./methods/routeGuards";
 import {
   requiresAdmin,
   requiresAuthGuard,
@@ -22,9 +14,20 @@ import {
   requiresSnomedLicense,
   requiresUprnAgreement
 } from "./methods/metaGuards";
-import { setBrowserTabTitles } from "./methods/browserTabTitles";
+import {
+  creatorSaveChangesWarning,
+  directoryGuard,
+  editorGuard,
+  editorSaveChangesWarning,
+  pageNotFoundFromCreator,
+  pageNotFoundFromEditor,
+  queryGuard,
+  viewerIriExistsGuard
+} from "./methods/routeGuards";
 import routes from "./methods/routes";
 import { setModes } from "./methods/setModes";
+import { SecurityService } from "@/services";
+import { useUserStore } from "vue-library/stores";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -41,6 +44,13 @@ router.beforeEach(async (to, from) => {
   const currentPath = to.path;
   authStore.updateAuthReturnPath(currentPath);
   const iri = to.params.selectedIri;
+  const userStore = useUserStore();
+  try {
+    const user = await SecurityService.getUser(true);
+    if (user) userStore.updateCurrentUser(user);
+  } catch (e: any) {
+    console.log("No user session found");
+  }
   let routedByGuard: boolean;
   routedByGuard = await requiresAuthGuard(to, from, router);
   if (routedByGuard) return false;

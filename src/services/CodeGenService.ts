@@ -1,7 +1,10 @@
-import Env from "./Env";
+import type { CodeGenDto } from "vue-library/interfaces";
+
 import axios from "axios";
+
 import { CodeTemplate } from "@/interfaces";
-import { CodeGenDto } from "@/interfaces/AutoGen";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/codeGen/public";
 

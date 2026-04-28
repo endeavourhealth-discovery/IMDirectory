@@ -34,7 +34,8 @@
 </template>
 
 <script setup lang="ts">
-import { FunctionClause, Node } from "@/interfaces/AutoGen";
+import type { FunctionClause, Node } from "vue-library/interfaces";
+
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 const props = defineProps<{

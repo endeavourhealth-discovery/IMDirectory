@@ -8,7 +8,7 @@
       :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
       class="edit-match-dialog"
       maximizable
-      @hide="onCancel"
+      @hide="onCancelDialog"
     >
       <template #default>
         <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
@@ -94,10 +94,9 @@
             <Tabs v-model:value="activeTab" class="match-editor-tabs">
               <TabList>
                 <Tab value="filter">Filter</Tab>
-                <Tab v-if="editMatch.then" value="test">Post ordering tests</Tab>
-                <Tab value="columns">
-                  <span v-if="!datasetEntry">Columns to keep</span>
-                  <span v-else>Dataset items</span>
+                <Tab v-if="editMatch.orderBy" value="test">Post ordering tests</Tab>
+                <Tab v-if="datasetEntry" value="columns">
+                  <span>Dataset items</span>
                 </Tab>
               </TabList>
               <TabPanels>
@@ -108,10 +107,10 @@
                       :base-type="baseType"
                       :nodeShape="nodeShape"
                       v-model:match="editMatch"
-                      :from="from"
                       :depth="0"
                       :index="0"
                       :key="'main'"
+                      :parentOperator="parentOperator"
                       @deleteMatch="deleteMatch"
                       @updateMatch="onUpdate"
                       @add-test="activeTab = 'test'"
@@ -120,27 +119,25 @@
                   </div>
                 </TabPanel>
                 <TabPanel value="test">
-                  <div v-if="editMatch.then">
-                    <div>
-                      <MatchContentEditor
-                        v-if="!editMatch.invalid && nodeShape"
-                        :base-type="baseType"
-                        :nodeShape="nodeShape"
-                        v-model:match="editMatch"
-                        v-model:then="editMatch.then"
-                        :from="from"
-                        :depth="0"
-                        :index="0"
-                        :key="'then'"
-                        @deleteMatch="deleteMatch"
-                        @updateMatch="onUpdate"
-                        @addLinked="onAddLinked"
-                        @edit-main="onEditMain"
-                      />
-                    </div>
+                  <div>
+                    <MatchContentEditor
+                      v-if="!editMatch.invalid && nodeShape"
+                      :base-type="baseType"
+                      :nodeShape="nodeShape"
+                      v-model:match="editMatch"
+                      :editingThen="true"
+                      :depth="0"
+                      :index="0"
+                      :key="'then'"
+                      :parentOperator="parentOperator"
+                      @deleteMatch="deleteMatch"
+                      @updateMatch="onUpdate"
+                      @addLinked="onAddLinked"
+                      @edit-main="onEditMain"
+                    />
                   </div>
                 </TabPanel>
-                <TabPanel value="columns">
+                <TabPanel v-if="datasetEntry" value="columns">
                   <div v-if="activeTab === 'columns'">
                     <span class="field">Select columns from left.</span>
                     <span v-if="!editMatch.path" style="font-style: italic">To select other columns, first define a filter</span>
@@ -154,43 +151,49 @@
       </template>
       <template #footer>
         <div class="button-footer">
-          <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
+          <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="cancel" />
           <Button v-if="edited" autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
         </div>
       </template>
     </Dialog>
   </div>
   <div v-if="editMatch.is">
-    <CohortEditor v-model:match="editMatch" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="onCancel" />
+    <CohortEditor v-model:match="editMatch"  :parentOperator="parentOperator" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="cancel" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Bool, DisplayMode, Match, Node, TTIriRef, NodeShape } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref, watch, inject } from "vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { EntityService, QueryService, DataModelService } from "@/services";
-import { IM } from "@/vocabulary";
-import type { TreeNode } from "primevue/treenode";
-import { addReturn, addFilter, setDefiningProperty } from "@/helpers/buildQuery";
-import CohortEditor from "@/components/imquery/CohortEditor.vue";
-import { usePropertyTree, Mode } from "@/composables/usePropertyTree";
+import { Ref, inject, onMounted, ref, watch } from "vue";
+
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { useCopyToClipboard } from "vue-library/composables";
+import { Bool, DisplayMode } from "vue-library/enums";
+import { IM } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { Match, Node, NodeShape, Return, TTIriRef } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import type { TreeNode } from "primevue/treenode";
+
+import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
-import Swal from "sweetalert2";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
+import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
+import { addFilter, addReturn, setDefiningProperty } from "@/helpers/buildQuery";
+import { DataModelService, EntityService, QueryService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   baseType: Node;
   match: Match;
-  from?: Match;
   depth: number;
   clauseIndex: number;
   showEditor: boolean;
   editCohort?: boolean;
   datasetEntry?: boolean;
+  parentOperator?: Bool;
 }
 
 const props = defineProps<Props>();
@@ -202,6 +205,7 @@ const emit = defineEmits<{
   (event: "addTest", match: Match): void;
   (event: "addLinked", match: Match): void;
 }>();
+const dialogStore = useDialogStore();
 const activeTab = ref("filter");
 const expandedKeys = ref<Record<string, boolean>>({});
 const expandedReturnKeys = ref<Record<string, boolean>>({});
@@ -255,12 +259,12 @@ async function onNodeSelect(node: any) {
       if (!expandedKeys.value[typeNodes.value[0].key]) {
         expandedKeys.value[typeNodes.value[0].key] = true;
       }
-      setDefiningProperty(editMatch.value, nodeShape.value);
     }
   }
   if (node.type === "property") {
-    addFilter(editMatch.value, node);
+    addFilter(editMatch.value, node, activeTab.value === "test");
   }
+  setDefiningProperty(editMatch.value, nodeShape.value!);
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
   edited.value = true;
 }
@@ -269,12 +273,15 @@ function setupTrees(mode: Mode) {
   createModeView(typeNodes.value, mode);
   if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
 }
-function onUpdate() {
+async function onUpdate() {
   edited.value = true;
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
 }
-function onDeleteThen() {
-  delete editMatch.value.then;
+
+function onCancelDialog() {
+  emit("cancel");
 }
+
 async function onReturnNodeSelect(node: any) {
   edited.value = true;
   if (!editMatch.value.typeOf) {
@@ -329,8 +336,7 @@ async function getFunctionTemplates() {
 }
 
 async function onUpdateClauses(match: Match) {
-  editMatch.value = match;
-  await onSave();
+  emit("saveChanges", match);
 }
 
 async function onSave() {
@@ -341,12 +347,14 @@ async function onSave() {
 }
 
 async function showInvalid(match: Match) {
-  await Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: match.errorMessage + ". Use filter tab to edit.",
-    confirmButtonText: "Close",
-    confirmButtonColor: "#689F38"
+  await dialogStore.open(AlertDialog, {
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-check",
+      title: "Warning",
+      text: match.errorMessage + ". Use filter tab to edit.",
+      confirmButtonText: "Close"
+    }
   });
 }
 
@@ -360,10 +368,11 @@ async function saveChanges(): Promise<boolean> {
     return false;
   } else {
     editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    editMatch.value.draft = false;
     return true;
   }
 }
-function onCancel() {
+function cancel() {
   emit("cancel");
 }
 function onEditMain() {

@@ -3,8 +3,9 @@
 </template>
 
 <script setup lang="ts">
-import { Entailment } from "@/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
+
+import type { Entailment } from "vue-library/interfaces";
 
 const props = defineProps<{
   entailmentObject: Entailment;

@@ -1,6 +1,8 @@
-import { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "@/interfaces/AutoGen";
-import Env from "./Env";
+import type { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "vue-library/interfaces";
+
 import axios from "axios";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/workflow/private";
 

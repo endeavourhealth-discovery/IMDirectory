@@ -19,15 +19,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, Ref } from "vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { Ref, inject, onMounted, ref, watch } from "vue";
+
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { Argument, ExtendedTTEntity, PropertyShape } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import { PropertyShape, Argument } from "@/interfaces/AutoGen";
+
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { processArguments } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService } from "@/services";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -153,7 +155,7 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
 }
 
 function updateEntity(data: string) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

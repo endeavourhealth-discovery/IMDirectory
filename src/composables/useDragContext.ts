@@ -1,4 +1,4 @@
-import { Match, Where } from "@/interfaces/AutoGen";
+import type { Match, Where } from "vue-library/interfaces";
 
 type DraggedItem = {
   clause: Match | Where;

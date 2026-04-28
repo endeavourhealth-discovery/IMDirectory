@@ -51,12 +51,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, nextTick } from "vue";
-import { GithubService } from "@/services";
-import { GithubRelease } from "@/interfaces";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { useSharedStore } from "@/stores/sharedStore";
+import { Ref, nextTick, onMounted, ref } from "vue";
+
+import { isObjectHasKeys } from "vue-library/helpers";
+
 import { sanitizeUrl } from "@braintree/sanitize-url";
+
+import { GithubRelease } from "@/interfaces";
+import { GithubService } from "@/services";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const sharedStore = useSharedStore();
 

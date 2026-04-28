@@ -62,14 +62,16 @@
 
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
-import { useForm } from "vee-validate";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { Node, TTIriRef, Match } from "@/interfaces/AutoGen";
-import { EntityService, FilerService, FunctionService } from "@/services";
-import { IM, RDF, RDFS, IM_FUNCTION } from "@/vocabulary";
+
+import { IM, IM_FUNCTION, NAMESPACE, RDF, RDFS } from "vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { Match, Node, TTIriRef } from "vue-library/interfaces";
+
 import { useToast } from "primevue/usetoast";
+import { useForm } from "vee-validate";
 import * as yup from "yup";
-import { Namespace } from "@/vocabulary/Namespace";
+
+import { EntityService, FilerService, FunctionService } from "@/services";
 
 interface Props {
   setMembers: Node[];
@@ -79,7 +81,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{ onSave: [payload: Node] }>();
 
 const schema = yup.object({
-  scheme: yup.string().required().label("Scheme").default(Namespace.IM),
+  scheme: yup.string().required().label("Scheme").default(NAMESPACE.IM),
   iri: yup
     .string()
     .required()
@@ -156,7 +158,7 @@ function onNameGenIri() {
 
 function selectDefaults() {
   if (isArrayHasLength(schemeOptions.value)) setFieldValue("scheme", schemeOptions.value[0].iri);
-  else setFieldValue("scheme", Namespace.IM);
+  else setFieldValue("scheme", NAMESPACE.IM);
 
   setFieldValue("type", IM.CONCEPT_SET);
 }
@@ -165,7 +167,7 @@ const onSubmit = handleSubmit(async () => {
   loading.value = true;
   const setEntity = buildSetEntity();
   try {
-    await FilerService.fileEntity(setEntity, Namespace.IM, IM.ADD_QUADS);
+    await FilerService.fileEntity(setEntity, NAMESPACE.IM, IM.ADD_QUADS);
     const createdEntity = await EntityService.getFullEntity(setEntity.iri);
     if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.HAS_SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
       toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });

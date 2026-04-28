@@ -6,14 +6,16 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue";
-import VueJsonPretty from "vue-json-pretty";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM } from "@/vocabulary";
+
+import { IM } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import VueJsonPretty from "vue-json-pretty";
 
 const props = defineProps<{
-  editorEntity: TTEntity;
+  editorEntity: ExtendedTTEntity;
 }>();
 
 const editorEntityDisplay = ref();

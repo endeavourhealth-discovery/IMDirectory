@@ -1,15 +1,21 @@
-import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { DirectService, EntityService } from "@/services";
-import { IM, RDFS, SHACL } from "@/vocabulary";
-import type { TreeNode } from "primevue/treenode";
 import { Ref } from "vue";
+
+import { IM, RDFS, SHACL } from "vue-library/enums";
+import { getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
+import type { TTIriRef } from "vue-library/interfaces";
+
 import { MenuItem } from "primevue/menuitem";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import Swal from "sweetalert2";
+import type { TreeNode } from "primevue/treenode";
+
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { EntityService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import { useDirectService } from "./useDirectService";
 
 export function useCreateNew() {
-  const directService = new DirectService();
+  const directService = useDirectService();
+  const dialogStore = useDialogStore();
 
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [
@@ -55,12 +61,14 @@ export function useCreateNew() {
 
   async function checkExists(iri: string): Promise<boolean> {
     if (await EntityService.entityExists(iri)) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Entity with this iri already exists.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(AlertDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Warning",
+          text: "Entity with this iri already exists.",
+          confirmButtonText: "Close"
+        }
       });
       return true;
     } else return false;

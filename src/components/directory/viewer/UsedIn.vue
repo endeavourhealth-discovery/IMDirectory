@@ -35,15 +35,18 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from "vue";
-import { EntityService } from "@/services";
-import { RDF, RDFS } from "@/vocabulary";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { useOverlay } from "@/composables/useOverlay";
-import { DirectService } from "@/services";
+import { Ref, onMounted, ref, watch } from "vue";
+
+import { OverlaySummary } from "vue-library/components";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { useOverlay } from "vue-library/composables";
+import { RDF, RDFS } from "vue-library/enums";
+import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
+
 import { DataTableRowSelectEvent } from "primevue/datatable";
+
+import { useDirectService } from "@/composables/useDirectService";
+import { EntityService } from "@/services";
 
 interface Usage {
   iri: string;
@@ -60,7 +63,7 @@ defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const directService = new DirectService();
+const directService = useDirectService();
 
 const usages: Ref<Usage[]> = ref([]);
 const loading = ref(false);

@@ -20,6 +20,7 @@
       />
       <span class="clause-label">Check to add to import list</span>
     </span>
+    <ValueSentenceDisplay v-if="match.having &&havingSentence" :value-sentence="havingSentence" />
     <template v-for="(nestedQuery, index) in boolGroup" :key="`nestedQueryDisplay-${index}`">
       <RecursiveMatchDisplay
         :match="nestedQuery"
@@ -43,10 +44,15 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node } from "@/interfaces/AutoGen";
-import { Ref, ref, inject, computed } from "vue";
-import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
+import { Ref, computed, inject, ref } from "vue";
+
+import { Bool } from "vue-library/enums";
+import type { Match, Node } from "vue-library/interfaces";
+
+import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
+import { buildHavingSentence } from "@/helpers/QueryEditorMethods";
+import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
 
 interface Props {
   match: Match;
@@ -66,7 +72,9 @@ const props = defineProps<Props>();
 const importClauses: Map<string, Match> | undefined = inject("importClauses", undefined);
 const checked = ref(false);
 const selected = ref(props.parentSelected);
-
+const havingSentence = computed(() => {
+  return buildHavingSentence(props.match.having);
+});
 function onClauseCheckChange() {
   if (importClauses) clauseCheck(importClauses, props.match, checked.value);
   selected.value = checked.value;

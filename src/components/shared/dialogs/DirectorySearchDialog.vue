@@ -99,20 +99,22 @@
   </Dialog>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from "vue";
-import SearchBar from "@/components/shared/SearchBar.vue";
-import SearchResults from "@/components/shared/SearchResults.vue";
-import NavTree from "@/components/shared/NavTree.vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM, RDFS } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+import { SplitterResizeEndEvent } from "primevue/splitter";
+
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import { cloneDeep } from "lodash-es";
+import NavTree from "@/components/shared/NavTree.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
+import SearchResults from "@/components/shared/SearchResults.vue";
 import { EntityService, QueryService } from "@/services";
-import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
-import { IM, RDFS } from "@/vocabulary";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { FilterOptions } from "@/interfaces";
-import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useLoadingStore } from "@/stores/loadingStore";
 

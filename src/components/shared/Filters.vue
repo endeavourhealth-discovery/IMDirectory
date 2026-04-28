@@ -62,13 +62,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { FilterOptions } from "@/interfaces";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { GRAPH } from "@/vocabulary";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+
+import { GRAPH, NAMESPACE } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { FilterOptions, TTIriRef } from "vue-library/interfaces";
+
 import { useFilterStore } from "@/stores/filterStore";
-import { SCHEME } from "@/vocabulary/SCHEME";
+
 interface Props {
   selectedFilterOptions?: FilterOptions;
 }
@@ -163,10 +164,10 @@ function setDefaults() {
 }
 
 function setLegacy(include: boolean): void {
-  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme.iri === SCHEME.EMIS);
+  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme.iri === NAMESPACE.EMIS);
   if (include) {
     if (emisScheme === -1) {
-      const found = storeFilterOptions.value?.schemes.find(scheme => scheme.iri === SCHEME.EMIS);
+      const found = storeFilterOptions.value?.schemes.find(scheme => scheme.iri === NAMESPACE.EMIS);
       if (found) selectedSchemes.value.push(found);
     }
   } else {

@@ -29,7 +29,6 @@
           :match="match"
           v-model:where="boolGroup![subIndex]"
           v-model:parent="where"
-          :from="from"
           :index="subIndex"
           :parentIndex="index"
           :baseType="baseType"
@@ -46,7 +45,7 @@
       </div>
     </div>
   </div>
-  <div v-else :class="where.invalid ? 'property-container-invalid' : 'property-container'">
+  <div v-else-if="where.iri" :class="where.invalid ? 'property-container-invalid' : 'property-container'">
     <span class="property-label">
       <span v-if="canCheck" class="group-checkbox">
         <Checkbox
@@ -76,7 +75,6 @@
           :ui-property="selectedWhere"
           v-model:where="where!"
           :refresh="refreshCounter"
-          :from="from"
           @updateProperty="updateProperty"
         />
       </div>
@@ -89,27 +87,32 @@
 </template>
 
 <script lang="ts" setup>
-import { Match, Node, Where, Bool, UIProperty } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref, watch, computed } from "vue";
-import { DataModelService } from "@/services";
-import WhereValueEditor from "./WhereValueEditor.vue";
-import { getNameFromRef } from "@/helpers/TTTransform";
-import {
-  deletePropertyFromParent,
-  getBooleanOperator,
-  getBoolGroup,
-  getDisplayOperator,
-  updateBooleans,
-  getTypeIriFromMatch,
-  updateFocusConcepts,
-  getPathPropertyNames,
-  checkGroupChange
-} from "@/helpers/buildQuery";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { Bool } from "vue-library/enums";
+import type { Match, Node, UIProperty, Where } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import WhereIsEditor from "./WhereIsEditor.vue";
 import Button from "primevue/button";
+
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
+import { getNameFromRef } from "@/helpers/TTTransform";
+import {
+  checkGroupChange,
+  deletePropertyFromParent,
+  getBoolGroup,
+  getBooleanOperator,
+  getDisplayOperator,
+  getPathPropertyNames,
+  getTypeIriFromMatch,
+  updateBooleans,
+  updateFocusConcepts
+} from "@/helpers/buildQuery";
+import { DataModelService } from "@/services";
+
+import WhereIsEditor from "./WhereIsEditor.vue";
+import WhereValueEditor from "./WhereValueEditor.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -121,7 +124,6 @@ const props = withDefaults(
     parentOperator?: Bool;
     parentIndex: number;
     canCheck?: boolean;
-    from?: Match;
   }>(),
   { showDelete: true }
 );
@@ -157,7 +159,7 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   if (where.value.iri) {
-    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType, where.value.nodeRef, props.from);
+    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType);
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);

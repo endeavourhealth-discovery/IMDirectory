@@ -3,10 +3,13 @@
 </template>
 
 <script setup lang="ts">
-import SecurityService from "@/services/SecurityService";
-import { useUserStore } from "@/stores/userStore";
 import { onMounted } from "vue";
+
+import { useUserStore } from "vue-library/stores";
+
 import { useRoute, useRouter } from "vue-router";
+
+import SecurityService from "@/services/SecurityService";
 
 const route = useRoute();
 const router = useRouter();

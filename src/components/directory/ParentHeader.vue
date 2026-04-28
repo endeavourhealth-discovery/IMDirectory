@@ -28,18 +28,15 @@
 </template>
 
 <script setup lang="ts">
-import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
-import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
-import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { IM, RDF, RDFS } from "vue-library/enums";
+import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
+
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 defineProps<{
-  entity: TTEntity;
+  entity: ExtendedTTEntity;
   showSelect?: boolean;
 }>();
 const emit = defineEmits<{
@@ -49,12 +46,12 @@ const emit = defineEmits<{
   viewHierarchy: [payload: string];
 }>();
 
-function getIcon(entity: TTEntity) {
+function getIcon(entity: ExtendedTTEntity) {
   if (entity.iri === IM.FAVOURITES) return ["fa-solid", "star"];
   return getFAIconFromType(entity[RDF.TYPE]);
 }
 
-function getColour(entity: TTEntity) {
+function getColour(entity: ExtendedTTEntity) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
 }
 </script>

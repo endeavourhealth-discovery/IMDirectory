@@ -1,10 +1,12 @@
+import { ref } from "vue";
+
+import { IM, RDFS } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { SearchResponse } from "vue-library/interfaces";
+
 import { defineStore } from "pinia";
 
-import { IM, RDFS } from "@/vocabulary";
-import { SearchResponse } from "@/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { ref } from "vue";
 
 export const useDirectoryStore = defineStore("directory", () => {
   const conceptIri = ref<string>(IM.MODULE_ONTOLOGY);

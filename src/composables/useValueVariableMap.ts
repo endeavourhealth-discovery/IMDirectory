@@ -1,6 +1,7 @@
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { PropertyShape } from "@/interfaces/AutoGen";
 import { Ref, ref } from "vue";
+
+import { isArrayHasLength } from "vue-library/helpers";
+import type { PropertyShape } from "vue-library/interfaces";
 
 export function useValueVariableMap() {
   const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());

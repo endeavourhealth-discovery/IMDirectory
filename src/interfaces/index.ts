@@ -1,55 +1,54 @@
 import { Address } from "./Address";
+import { AlertDialogOptions } from "./AlertDialogOptions";
+import { AliasEntity } from "./AliasEntity";
+import AllowableChildProperty from "./AllowableChildProperty";
 import { ChartMapNode } from "./ChartMapNode";
 import { ChartTableNode } from "./ChartTableNode";
+import { CodeTemplate } from "./CodeTemplate";
 import { ComponentDetails } from "./ComponentDetails";
 import { ConceptAggregate } from "./ConceptAggregate";
+import { CustomAlert } from "./CustomAlert";
 import { DashboardLayout } from "./DashboardLayout";
 import { Dataset } from "./Dataset";
 import { DefinitionConfig } from "./DefinitionConfig";
+import { DownloadSettings } from "./DownloadSettings";
 import { ECLComponentDetails } from "./ECLComponentDetails";
 import { ExportValueSet } from "./ExportValueSet";
-import { FiltersAsIris } from "./FiltersAsIris";
-import GraphData from "./GraphData";
-import { HistoryItem } from "./HistoryItem";
-import { MapItem } from "./MapItem";
-import { MatchPattern } from "./MatchPattern";
-import { Namespace } from "./Namespace";
-import { NextComponentSummary } from "./NextComponentSummary";
-import { Property } from "./Property";
-import { RecentActivityItem } from "./RecentActivityItem";
-import { SimpleMap } from "./SimpleMap";
-import { SimpleMapIri } from "./SimpleMapIri";
-import { TermCode } from "./TermCode";
-import { TreeParent } from "./TreeParent";
-import TTGraphData from "./TTGraphData";
-import { UPRN } from "./Uprn";
-import { UprnSearchResponse } from "./UprnSearchResponse";
-import { ValueSetMember } from "./ValueSetMember";
+import { ExtendedRecentActivityItem } from "./ExtendedRecentActivityItem";
 import { Field } from "./Field";
 import { FieldDto } from "./FieldDto";
 import { GenericType } from "./GenericType";
 import { GithubRelease } from "./GithubRelease";
-import TangledTreeData from "./TangledTreeData";
-import AllowableChildProperty from "./AllowableChildProperty";
-import { FilterOptions } from "./FilterOptions";
-import { AliasEntity } from "./AliasEntity";
+import GraphData from "./GraphData";
+import { HistoryItem } from "./HistoryItem";
+import { MapItem } from "./MapItem";
+import { MatchPattern } from "./MatchPattern";
+import { NextComponentSummary } from "./NextComponentSummary";
+import { Property } from "./Property";
 import { PropertyDisplay } from "./PropertyDisplay";
-import { User } from "./User";
-import { CustomAlert } from "./CustomAlert";
-import { TTProperty } from "./TTProperty";
-import { TreeNode } from "./TreeNode";
-import { SelectedMatch } from "./SelectedMatch";
-import { MailOptions } from "./MailOptions";
 import { QueryResponse } from "./QueryResponse";
-import { SetDiffObject } from "./SetDiffObject";
-import { CodeTemplate } from "./CodeTemplate";
-import { ExtendedSearchResultSummary } from "./ExtendedSearchResultSummary";
+import { RelativeTo } from "./RelativeTo";
 import { SearchOptions } from "./SearchOptions";
+import { SelectedMatch } from "./SelectedMatch";
+import { SentencePart } from "./SentencePart";
+import { SetDiffObject } from "./SetDiffObject";
+import { SimpleMap } from "./SimpleMap";
+import { SimpleMapIri } from "./SimpleMapIri";
+import TTGraphData from "./TTGraphData";
+import { TTProperty } from "./TTProperty";
+import TangledTreeData from "./TangledTreeData";
+import { TermCode } from "./TermCode";
+import { TreeNode } from "./TreeNode";
+import { TreeParent } from "./TreeParent";
+import { TypedDynamicDialogOptions } from "./TypedDynamicDialogOptions";
+import { UPRN } from "./Uprn";
+import { UprnSearchResponse } from "./UprnSearchResponse";
 import { ValidatedEntity } from "./ValidatedEntity";
-import { DownloadSettings } from "./DownloadSettings";
+import { ValueSetMember } from "./ValueSetMember";
 
 export {
   type Address,
+  type AlertDialogOptions,
   type ChartMapNode,
   type ChartTableNode,
   type ComponentDetails,
@@ -59,15 +58,13 @@ export {
   type DefinitionConfig,
   type ECLComponentDetails,
   type ExportValueSet,
-  type FiltersAsIris,
   type GraphData,
   type HistoryItem,
   type MapItem,
   type MatchPattern,
-  type Namespace,
   type NextComponentSummary,
   type Property,
-  type RecentActivityItem,
+  type ExtendedRecentActivityItem,
   type SimpleMap,
   type SimpleMapIri,
   type TermCode,
@@ -82,20 +79,19 @@ export {
   type GithubRelease,
   type TangledTreeData,
   type AllowableChildProperty,
-  type FilterOptions,
-  type User,
   type CustomAlert,
   type AliasEntity,
   type PropertyDisplay,
   type TTProperty,
   type TreeNode,
+  type TypedDynamicDialogOptions,
   type SelectedMatch,
-  type MailOptions,
   type QueryResponse,
   type SetDiffObject,
   type CodeTemplate,
-  type ExtendedSearchResultSummary,
   type SearchOptions,
   type ValidatedEntity,
-  type DownloadSettings
+  type DownloadSettings,
+  type RelativeTo,
+  type SentencePart
 };

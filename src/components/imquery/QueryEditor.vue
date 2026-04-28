@@ -66,24 +66,30 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
-import QueryService from "@/services/QueryService";
-import Swal from "sweetalert2";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { Bool, Match, Query } from "@/interfaces/AutoGen";
-import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
-import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
-import { useQueryStore } from "@/stores/queryStore";
-import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
-import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
-import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
-import { cloneDeep, isEqual } from "lodash-es";
-import { usePropertyTree } from "@/composables/usePropertyTree";
-import type { TreeNode } from "primevue/treenode";
-import Button from "primevue/button";
-import { v4 } from "uuid";
+import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
+import type { Match, Query } from "vue-library/interfaces";
+
 import { value } from "jsonpath";
+import { cloneDeep, isEqual } from "lodash-es";
+import Button from "primevue/button";
+import type { TreeNode } from "primevue/treenode";
+import { v4 } from "uuid";
+
+import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
+import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
+import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
+import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
+import { usePropertyTree } from "@/composables/usePropertyTree";
+import QueryService from "@/services/QueryService";
+import { useDialogStore } from "@/stores/dialogStore";
+import { useQueryStore } from "@/stores/queryStore";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
+
 interface Props {
   showDialog?: boolean;
   sourceQuery: Query;
@@ -96,6 +102,7 @@ const emit = defineEmits<{
   closeDialog: [];
 }>();
 
+const dialogStore = useDialogStore();
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
@@ -164,22 +171,24 @@ function closeBuilderDialog(): void {
 
 async function displayValidationMessage(invalid: boolean | undefined) {
   if (!invalid) {
-    await Swal.fire({
-      icon: "success",
-      title: "Success",
-      backdrop: true,
-      showClass: { popup: "swal-popup" },
-      text: "All entities are valid.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-check",
+        title: "Success",
+        text: "All entities are valid.",
+        confirmButtonText: "Close"
+      }
     });
   } else {
-    await Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: "Invalid values found. Please review your entries.",
+        confirmButtonText: "Close"
+      }
     });
   }
 }

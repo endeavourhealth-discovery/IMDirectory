@@ -8,10 +8,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
-import Differ, { DiffResult } from "json-diff-kit/dist/differ";
-import DiffViewer from "./entityDiffDialog/DiffViewer.vue";
+import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
+
 import { InlineDiffOptions, ViewerProps } from "json-diff-kit";
+import Differ, { DiffResult } from "json-diff-kit/dist/differ";
+
+import DiffViewer from "./entityDiffDialog/DiffViewer.vue";
 
 interface Props {
   originalEntity: any;

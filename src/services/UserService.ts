@@ -1,11 +1,10 @@
-import { fetchAuthSession } from "aws-amplify/auth";
-import Env from "./Env";
+import { PrimeVueColors, PrimeVuePresetThemes } from "vue-library/enums";
+import type { RecentActivityItemDto } from "vue-library/interfaces";
+import { NamespacePermission, User } from "vue-library/models";
+
 import axios from "axios";
-import { User } from "@/interfaces";
-import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
-import PrimeVueColors from "@/enums/PrimeVueColors";
-import { UserData } from "@/interfaces/UserData";
-import { Graph, NamespacePermission, RecentActivityItemDto } from "@/interfaces/AutoGen";
+
+import Env from "./Env";
 
 const API_URL = Env.API + "api/user/private";
 

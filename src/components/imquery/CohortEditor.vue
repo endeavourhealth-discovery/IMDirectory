@@ -10,6 +10,21 @@
     <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
       <ProgressSpinner />
     </div>
+    <div>
+      <Button
+        :icon="match.notExists ? 'pi pi-times' : 'pi pi-check'"
+        class="p-button-text p-button-rounded"
+        :class="match.notExists ? 'text-red-500' : 'text-green-500'"
+        v-tooltip="notExistsLabel"
+        @click="toggleNotExists"
+      />
+      <span>{{ notExistsLabel }}</span>
+    </div>
+    <div v-if="parentOperator && parentOperator === Bool.or">
+      <span class="description">Optionally assign score if true</span>
+      <InputText v-model="match.score" type="text" class="match-score" @update:model-value="updateScore" />
+    </div>
+
     <span v-if="match.is">Currently selected :{{ match.is[0].name }}</span>
     <div class="directory-search-dialog-content">
       <div class="search-bar">
@@ -75,7 +90,7 @@
           @click="updateCohort"
         />
         <Button
-          v-if="cohortIri"
+          v-if="cohortIri && importClauses.size > 0"
           type="button"
           data-testid="import-definition-button"
           class="add-button"
@@ -83,29 +98,37 @@
           text
           @click="updateClauses"
         />
+        <Button v-if="edited && !cohortIri" autofocus data-testid="save-feature-button" label="Save" @click="emit('updateCohort')" />
       </div>
     </template>
   </Dialog>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, provide, ref, Ref, watch } from "vue";
-import { IM } from "@/vocabulary";
-import { Namespace } from "@/vocabulary/Namespace";
-import { Match, Node, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
-import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
-import { EntityService } from "@/services";
-import { v4 } from "uuid";
-import SearchBar from "@/components/shared/SearchBar.vue";
-import NavTree from "@/components/shared/NavTree.vue";
-import SearchResults from "@/components/shared/SearchResults.vue";
-import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
+import { Ref, computed, onMounted, provide, ref, watch } from "vue";
+
+import { Bool, IM, NAMESPACE } from "vue-library/enums";
+import type { Match, Node, NodeShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
+import { v4 } from "uuid";
 
+import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
+import NavTree from "@/components/shared/NavTree.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
+import SearchResults from "@/components/shared/SearchResults.vue";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { EntityService } from "@/services";
+
+interface Props {
+  parentOperator?: Bool;
+}
+
+const props = defineProps<Props>();
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
@@ -121,6 +144,7 @@ const lastSearchTerm = ref(searchTerm.value);
 const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
+const edited: Ref<boolean> = ref(false);
 const cohortFilterOptions: Ref<SearchOptions> = ref({
   types: [{ iri: IM.QUERY }],
   status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
@@ -132,12 +156,30 @@ const cohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 const treeIri = ref("");
 const cohortIri = ref("");
 const directoryHistory: Ref<string[]> = ref([]);
+const isSelectableEntity: Ref<boolean> = ref(false);
 const emit = defineEmits<{
   (event: "updateCohort"): void;
   (event: "updateClauses", clause: Match): void;
   (event: "navigateTo", iri: string): void;
   (event: "cancel"): void;
+  (event: "updateMatch"): void;
 }>();
+
+const toggleNotExists = () => {
+  if (match.value.notExists === undefined) {
+    match.value.notExists = true;
+  } else {
+    delete match.value.notExists;
+  }
+  edited.value = true;
+};
+
+const notExistsLabel = computed(() => {
+  if (match.value.notExists === undefined) {
+    return "Click to exclude if true";
+  }
+  return match.value.notExists ? "Click to include if true" : "Click to exclude if true";
+});
 
 watch(
   cohort,
@@ -160,7 +202,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  rootEntities.value = [Namespace.IM + "Q_Queries"];
+  rootEntities.value = [NAMESPACE.IM + "Q_Queries"];
   cohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
   if (match.value.is) {
     cohort.value.iri = match.value.is[0].iri!;
@@ -176,8 +218,14 @@ function updateSearchResults(newSearchResults: SearchResponse | undefined) {
 
 async function showDetails(data: any) {
   const entity = await EntityService.getEntitySummary(data);
-  cohortIri.value = data;
-  activePage.value = 1;
+  if (entity.type[0].iri === IM.QUERY) {
+    isSelectableEntity.value = true;
+    cohortIri.value = data;
+    activePage.value = 1;
+  } else {
+    isSelectableEntity.value = false;
+    cohortIri.value = "";
+  }
 }
 function onSearch() {
   if (searchTerm.value && searchTerm.value !== lastSearchTerm.value) {
@@ -201,6 +249,10 @@ function updateSelected(data: SearchResultSummary) {
 }
 function locateInTree(iri: string) {
   treeIri.value = iri;
+}
+function updateScore() {
+  edited.value = true;
+  emit("updateMatch");
 }
 
 function navigateTo(iri: string) {
@@ -278,5 +330,16 @@ async function updateSelectedFromIri(iri: string) {
   height: 100%;
   overflow: hidden;
   border-bottom: 10px solid #ccc;
+}
+.match-description {
+  width: 60rem;
+}
+
+.description {
+  padding-right: 1rem;
+}
+
+.match-score {
+  width: 20rem;
 }
 </style>

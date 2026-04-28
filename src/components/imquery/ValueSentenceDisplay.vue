@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { SentencePart } from "@/helpers/QueryEditorMethods";
+import { SentencePart } from "@/interfaces/SentencePart";
 
 interface Props {
   valueSentence: SentencePart[];

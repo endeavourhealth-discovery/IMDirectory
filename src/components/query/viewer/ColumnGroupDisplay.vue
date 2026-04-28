@@ -22,7 +22,6 @@
       </div>
       <span v-if="datasetEntry.orderBy">{{ datasetEntry.orderBy.description }}</span>
       <div v-if="datasetEntry.return">
-
         <ReturnColumns :select="datasetEntry.return" class="pl-8" :parentQuery="parentQuery" />
       </div>
     </div>
@@ -30,12 +29,16 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, DisplayMode, Match, Query, Node } from "@/interfaces/AutoGen";
-import { onMounted, watch, ref } from "vue";
-import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
-import ReturnColumns from "./ReturnColumns.vue";
+import { onMounted, ref, watch } from "vue";
+
+import { Bool, DisplayMode } from "vue-library/enums";
+import type { Match, Node, Query } from "vue-library/interfaces";
+
 import { QueryService } from "@/services";
+
+import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
+import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
+import ReturnColumns from "./ReturnColumns.vue";
 
 interface Props {
   matchExpanded: boolean;

@@ -6,7 +6,7 @@
           <Select
             style="width: 8.5rem; min-height: 2.3rem"
             :model-value="getNodeInclusion(node)"
-            :options="nodeInclusionOptions"
+            :options="NodeInclusionOptions"
             option-label="label"
             option-value="value"
             @update:model-value="(val: string) => updateNodeInclusion(node, val)"
@@ -43,7 +43,7 @@
             style="width: 10.5rem; min-height: 2.3rem"
             :disabled="!isConstraintEditable(node)"
             :modelValue="getPlainConstraintOperatorValue(node)"
-            :options="plainConstraintOperatorOptions"
+            :options="PlainConstraintOperatorOptions"
             option-label="label"
             option-value="value"
             @update:modelValue="(val: string) => setConstraintOperator(node, val)"
@@ -95,23 +95,24 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, computed } from "vue";
-import { IM } from "@/vocabulary";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node, Where, UIProperty } from "@/interfaces/AutoGen";
-import { useFilterStore } from "@/stores/filterStore";
-import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
-import {
-  plainConstraintOperatorOptions,
-  nodeInclusionOptions,
-  getPlainConstraintOperatorLabel,
-  getPlainConstraintOperatorValue
-} from "@/helpers/QueryEditorMethods";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
-import SetService from "@/services/SetService";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM } from "vue-library/enums";
+import { getIconColor, getTypeIcon } from "vue-library/helpers";
+import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "vue-library/interfaces";
+
 import Button from "primevue/button";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { NodeInclusionOptions } from "@/constants/queryEditor/NodeInclusionOptions";
+import { PlainConstraintOperatorOptions } from "@/constants/queryEditor/PlainConstraintOperatorOptions";
+import { getPlainConstraintOperatorLabel, getPlainConstraintOperatorValue } from "@/helpers/QueryEditorMethods";
+import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import SetService from "@/services/SetService";
+import { useFilterStore } from "@/stores/filterStore";
+
 interface Props {
   parent?: any;
   uiProperty: UIProperty;
@@ -224,7 +225,7 @@ function updateIsIri(node: Node) {
 }
 .auto-complete-container {
   flex: 1 1 0%;
-  min-width: 52rem;
+  min-width: 40rem;
 }
 
 .sync-warning {

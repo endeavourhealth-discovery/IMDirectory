@@ -30,7 +30,7 @@
 
           <div v-if="setDefinition.status!.valid">
             <label for="">Show names </label>
-            <Checkbox v-model="showNames" :binary="true" />
+            <Checkbox v-model="showNames" :binary="true" class="checkbox" />
           </div>
           <div class="error-message" v-if="!setDefinition.status!.valid">
             Invalid ECL : line {{ setDefinition.status!.line }}, offset {{ setDefinition.status!.offset }} -> {{ setDefinition.status!.message }}
@@ -80,17 +80,18 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, computed, onMounted } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
+import { IM } from "vue-library/enums";
+import { byName } from "vue-library/helpers";
+import type { ECLQueryRequest, GenericObject, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+
 import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
-import { TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
-import { EclService } from "@/services";
-import { byName } from "@/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { EclService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { GenericObject } from "@/interfaces/GenericObject";
 
 const emit = defineEmits<{
   locateInTree: [payload: string];
@@ -220,6 +221,7 @@ function setFilterDefaults() {
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
+  margin: 1rem;
 }
 
 #query-string-container {
@@ -312,6 +314,7 @@ function setFilterDefaults() {
 .copy-button {
   display: flex;
   flex-flow: row;
+  margin-left: 1rem;
 }
 .transparent-textarea {
   min-height: 15rem;
@@ -327,5 +330,9 @@ function setFilterDefaults() {
 .input-container {
   width: 98%;
   flex: 0 1 auto;
+}
+
+.checkbox {
+  margin: 2rem;
 }
 </style>

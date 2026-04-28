@@ -27,15 +27,18 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Node, Query } from "@/interfaces/AutoGen";
-import { onMounted, ref, Ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
+
+import type { Match, Node, Query } from "vue-library/interfaces";
+
 import Button from "primevue/button";
+import { v4 } from "uuid";
+
+import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
+import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import { deleteGroupFromQuery } from "@/helpers/buildQuery";
-import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
 import { QueryService } from "@/services";
-import MatchEditor from "@/components/imquery/MatchEditor.vue";
-import { v4 } from "uuid";
 
 interface Props {
   index: number;
@@ -45,7 +48,7 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
-  (event: "saveColumnGroup", index:number,match: Match): void;
+  (event: "saveColumnGroup", index: number, match: Match): void;
   (event: "cancel"): void;
   (event: "deleteGroup", index: number): void;
 }>();
@@ -67,7 +70,7 @@ function editColumnGroup() {
 function saveEditColumnGroup(editedMatch: Match) {
   showEditor.value = false;
   editedMatch.draft = false;
-  emit("saveColumnGroup", props.index,editedMatch);
+  emit("saveColumnGroup", props.index, editedMatch);
 }
 function cancelEditColumnGroup() {
   showEditor.value = false;

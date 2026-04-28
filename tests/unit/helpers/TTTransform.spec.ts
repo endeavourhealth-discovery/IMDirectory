@@ -1,11 +1,13 @@
-import { transformTT } from "@/helpers/TTTransform";
 import { describe, expect, it } from "vitest";
+
+import { transformTT } from "@/helpers/TTTransform";
+
 import {
-  OntologiesFolderTTEntity,
-  OntologiesFolderTransformed,
   EventTTEntity,
   EventTTEntityTransformed,
   OntologiesFolderCustomTransformed,
+  OntologiesFolderTTEntity,
+  OntologiesFolderTransformed,
   customMap
 } from "./TTTransform.testData";
 

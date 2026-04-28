@@ -55,13 +55,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { createNewBoolGroup, getBooleanOptions, getIsRoleGroup, removeSubgroup, getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
-import { Match, Where, Bool } from "@/interfaces/AutoGen";
-import { computed, inject, onMounted, ref, Ref, watch } from "vue";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { defineComponent } from "vue";
+
+import { Bool } from "vue-library/enums";
+import type { Match, Where } from "vue-library/interfaces";
+
+import Button from "primevue/button";
+
 import RoleGroup from "@/components/imquery/RoleGroup.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import Button from "primevue/button";
+import { createNewBoolGroup, getBoolGroup, getBooleanOperator, getBooleanOptions, getIsRoleGroup, removeSubgroup } from "@/helpers/buildQuery";
 
 interface Props {
   index: number;
@@ -95,7 +99,7 @@ const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const hover = ref();
 const checkUngroup: Ref<boolean> = ref(false);
 const subOperator = computed(() => {
-  if (props.parentOperator === Bool.or) return "AND";
+  if (operator.value === Bool.or) return "AND";
   else return "OR";
 });
 const isRoleGroup = computed(() => getIsRoleGroup(clause.value));

@@ -10,9 +10,11 @@
 </template>
 
 <script setup lang="ts">
+import { Ref, onMounted, watch } from "vue";
+
+import type { SearchTermCode } from "vue-library/interfaces";
+
 import { useTerms } from "@/composables/useTerms";
-import { SearchTermCode } from "@/interfaces/AutoGen";
-import { onMounted, Ref, watch } from "vue";
 
 interface Props {
   entityIri: string;

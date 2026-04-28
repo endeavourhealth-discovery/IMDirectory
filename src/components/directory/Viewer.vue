@@ -6,7 +6,12 @@
         <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
       </div>
       <div class="flex flex-row justify-start">
-        <ArrayObjectNameTagWithLabel v-if="!!entity[IM.HAS_STATUS]" label="Status" :data="entity[IM.HAS_STATUS]" />
+        <ArrayObjectNamesToStringWithLabel
+          v-if="!!entity[IM.HAS_STATUS]"
+          :data="entity[IM.HAS_STATUS]"
+          :tagSeverityMatches="tagSeverityMatches"
+          label="Status"
+        />
         <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
       </div>
       <div>
@@ -153,51 +158,51 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, reactive, Ref, ref, watch } from "vue";
-import DataModel from "./viewer/dataModel/DataModel.vue";
-import SetDefinition from "./viewer/set/SetDefinition.vue";
-import Content from "./viewer/Content.vue";
-import EntityChart from "./viewer/EntityChart.vue";
-import Graph from "./viewer/graph/Graph.vue";
-import UsedIn from "./viewer/UsedIn.vue";
-import Mappings from "./viewer/mapping/Mappings.vue";
-import EclDefinition from "./viewer/set/EclDefinition.vue";
-import Properties from "./viewer/dataModel/Properties.vue";
-import JSONViewer from "./viewer/JSONViewer.vue";
-import Provenance from "./viewer/Provenance.vue";
-import SecondaryTree from "@/components/shared/SecondaryTree.vue";
-import TermCodeTable from "@/components/shared/TermCodeTable.vue";
-import { DirectService, EntityService } from "@/services";
+import { Ref, computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "vue-library/components";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
 import {
   isConcept,
   isFeature,
-  isIndicator,
   isFolder,
   isFunctionalProperty,
+  isIndicator,
+  isObjectHasKeys,
   isOfTypes,
   isProperty,
   isQuery,
   isRecordModel,
   isValueSet
-} from "@/helpers/ConceptTypeMethods";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import Details from "./viewer/Details.vue";
-import DataModels from "./viewer/DataModels.vue";
-import QueryDisplay from "./viewer/QueryDisplay.vue";
+} from "vue-library/helpers";
+import type { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
-import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
-import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
-import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
-import ModelChart from "@/components/directory/viewer/ModelChart.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
+import ModelChart from "@/components/directory/viewer/ModelChart.vue";
+import SecondaryTree from "@/components/shared/SecondaryTree.vue";
+import TermCodeTable from "@/components/shared/TermCodeTable.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { EntityService } from "@/services";
+import { useSharedStore } from "@/stores/sharedStore";
+
+import Content from "./viewer/Content.vue";
+import DataModels from "./viewer/DataModels.vue";
+import Details from "./viewer/Details.vue";
+import EntityChart from "./viewer/EntityChart.vue";
+import JSONViewer from "./viewer/JSONViewer.vue";
+import Provenance from "./viewer/Provenance.vue";
+import QueryDisplay from "./viewer/QueryDisplay.vue";
+import UsedIn from "./viewer/UsedIn.vue";
+import DataModel from "./viewer/dataModel/DataModel.vue";
+import Properties from "./viewer/dataModel/Properties.vue";
+import Graph from "./viewer/graph/Graph.vue";
+import Mappings from "./viewer/mapping/Mappings.vue";
+import EclDefinition from "./viewer/set/EclDefinition.vue";
+import SetDefinition from "./viewer/set/SetDefinition.vue";
 
 interface Props {
-  entity: TTEntity;
+  entity: ExtendedTTEntity;
 }
 
 const props = defineProps<Props>();
@@ -206,18 +211,20 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const directService = new DirectService();
+const directService = useDirectService();
+const sharedStore = useSharedStore();
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const concept: Ref<TTEntity> = ref({});
+const concept: Ref<ExtendedTTEntity> = ref({});
 
 const entityIri = ref("");
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
 const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
+const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
 
 const tabMap = reactive(new Map<string, string>());
 

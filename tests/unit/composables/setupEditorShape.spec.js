@@ -1,10 +1,12 @@
+import { IM } from "vue-library/enums";
+
 import { expect, vi } from "vitest";
-import testData from "./setupEditorShape.testData";
-import { mountComposable } from "../TestMethods";
 
 import { useEditorShape } from "@/composables/useEditorShape";
-import { IM } from "@/vocabulary";
 import ConceptShape from "@/constants/editorShapes/Concept";
+
+import { mountComposable } from "../TestMethods";
+import testData from "./setupEditorShape.testData";
 
 describe("setupShape", () => {
   let wrapper;

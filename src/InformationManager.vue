@@ -21,36 +21,43 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
-import CookiesConsent from "./components/app/CookiesConsent.vue";
-import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
-import FooterBar from "./components/app/FooterBar.vue";
-import DevBanner from "./components/app/DevBanner.vue";
-import { useRoute, useRouter } from "vue-router";
-import { useToast } from "primevue/usetoast";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { SecurityService, Env, GithubService } from "@/services";
-import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import semver from "semver";
-import { GithubRelease } from "./interfaces";
-import { useUserStore } from "./stores/userStore";
-import SnomedConsent from "./components/app/SnomedConsent.vue";
-import { useSharedStore } from "@/stores/sharedStore";
-import { useChangeFontSize } from "@/composables/useChangeFontSize";
-import { useLoadingStore } from "./stores/loadingStore";
-import { useFilterStore } from "@/stores/filterStore";
-import { useChangeThemeOptions } from "./composables/useChangeThemeOptions";
-import { setModes } from "./router/methods/setModes";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+
+import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
+import { isObjectHasKeys } from "vue-library/helpers";
+import { useUserStore } from "vue-library/stores";
+
 import { useCookies } from "@vueuse/integrations";
+import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { useDialog } from "primevue";
+import { useToast } from "primevue/usetoast";
+import semver from "semver";
+import { useRoute, useRouter } from "vue-router";
+
+import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
+import { Env, GithubService, SecurityService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
+import { useFilterStore } from "@/stores/filterStore";
+import { useSharedStore } from "@/stores/sharedStore";
+
+import CookiesConsent from "./components/app/CookiesConsent.vue";
+import DevBanner from "./components/app/DevBanner.vue";
+import FooterBar from "./components/app/FooterBar.vue";
+import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
+import SnomedConsent from "./components/app/SnomedConsent.vue";
+import { GithubRelease } from "./interfaces";
+import { setModes } from "./router/methods/setModes";
+import { useLoadingStore } from "./stores/loadingStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
+const dialog = useDialog();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 const cookie = useCookies();
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const loadingStore = useLoadingStore();
@@ -115,6 +122,7 @@ onMounted(async () => {
   } else {
     window.location.href = await SecurityService.getLoginUrl();
   }
+  dialogStore.register(dialog);
   loadingStore.updateViewsLoading(false);
   finishedOnMounted.value = true;
 });
@@ -292,7 +300,6 @@ function setupExternalErrorHandler() {
 @use "assets/layout/sass/_main.scss";
 @import "primeicons/primeicons.css";
 @import "assets/layout/flags/flags.css";
-@import "sweetalert2/dist/sweetalert2.min.css";
 @import "assets/tailwind.css";
 @import "assets/primevueOverrides.css";
 

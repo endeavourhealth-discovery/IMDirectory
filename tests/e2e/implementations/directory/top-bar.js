@@ -23,7 +23,9 @@ step("URL contains <text>", async text => {
 });
 
 step("Confirm dialog", async () => {
-  await pw.page.locator(".swal2-confirm").click();
+  const popup = pw.page.locator(".alert-dialog").locator("button").filter({ hasText: "Logout" });
+  await popup.waitFor({ state: "visible" });
+  await popup.click();
 });
 
 step("Login button is displayed", async () => {

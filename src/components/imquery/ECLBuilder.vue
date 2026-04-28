@@ -67,17 +67,23 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
+import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { ECLQueryRequest, Match, Node, Query } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
+import { useDialog } from "primevue/usedialog";
+
+import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
+import { useEclValidator } from "@/composables/useEclValidator";
 import EclService from "@/services/EclService";
 import QueryService from "@/services/QueryService";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
-import { useDialog } from "primevue/usedialog";
-import Swal from "sweetalert2";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { Match, ECLQueryRequest, Query, Node } from "@/interfaces/AutoGen";
-import { useEclValidator } from "@/composables/useEclValidator";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
+
 interface Props {
   showDialog?: boolean;
   showNames?: boolean;
@@ -90,6 +96,7 @@ const emit = defineEmits<{
   closeDialog: [];
 }>();
 
+const dialogStore = useDialogStore();
 const checkIncludeSubtypes = ref(false);
 const dynamicDialog = useDialog();
 const activeInputId = ref("");
@@ -219,22 +226,24 @@ async function validateBuild() {
 
 async function displayValidationMessage(invalid: boolean | undefined, message?: string) {
   if (!invalid) {
-    await Swal.fire({
-      icon: "success",
-      title: "Success",
-      backdrop: true,
-      showClass: { popup: "swal-popup" },
-      text: "All entities are valid.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-check",
+        title: "Success",
+        text: "All entities are valid.",
+        confirmButtonText: "Close"
+      }
     });
   } else {
-    await Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: message ? message : "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: message ? message : "Invalid values found. Please review your entries.",
+        confirmButtonText: "Close"
+      }
     });
   }
 }

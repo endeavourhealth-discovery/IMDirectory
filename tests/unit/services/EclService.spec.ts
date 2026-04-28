@@ -1,8 +1,10 @@
-import { describe, beforeEach, it, expect, vi } from "vitest";
-import { EclService, Env } from "@/services";
+import type { ECLQueryRequest, Query } from "vue-library/interfaces";
+
 import axios from "axios";
-import { fakerFactory } from "@/mocks/fakerFactory";
-import { ECLQueryRequest, Query } from "@/interfaces/AutoGen";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import * as fakerFactory from "@/mocks/fakerFactory";
+import { EclService, Env } from "@/services";
 
 describe("EclService ___ axios success", () => {
   beforeEach(() => {
@@ -12,7 +14,7 @@ describe("EclService ___ axios success", () => {
   });
 
   it("can get ECLSearch", async () => {
-    const fakerResults = [fakerFactory.conceptSummary.create()];
+    const fakerResults = [await fakerFactory.conceptSummaryRandom()];
     axios.post = vi.fn().mockResolvedValue({ entities: fakerResults, count: fakerResults.length, page: 1 });
     const controller = new AbortController();
     const eclSearchRequest: ECLQueryRequest = { query: { is: [{ iri: "testString" }] }, includeLegacy: false, limit: 1000 };

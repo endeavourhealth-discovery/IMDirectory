@@ -1,9 +1,24 @@
-import Env from "./Env";
-import { QueryResponse } from "@/interfaces";
+import { DisplayMode } from "vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import {
+  ArgumentReference,
+  ExtendedTTEntity,
+  IMLLanguage,
+  Indicator,
+  Match,
+  PathQuery,
+  Query,
+  QueryRequest,
+  Return,
+  SearchResponse
+} from "vue-library/interfaces";
+
 import axios from "axios";
-import { DisplayMode, Match, PathQuery, Query, QueryRequest, SearchResponse, ArgumentReference, IMLLanguage, Indicator, Return } from "@/interfaces/AutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+
+import { QueryResponse } from "@/interfaces";
+
+import Env from "./Env";
+
 const API_URL = Env.API + "api/query/protected";
 
 const QueryService = {
@@ -72,7 +87,7 @@ const QueryService = {
     return (
       isObjectHasKeys(queryResponse, ["entities"]) &&
       isArrayHasLength(queryResponse.entities) &&
-      queryResponse.entities.some((entity: TTEntity) => entity.iri === selectedIri)
+      queryResponse.entities.some((entity: ExtendedTTEntity) => entity.iri === selectedIri)
     );
   },
 

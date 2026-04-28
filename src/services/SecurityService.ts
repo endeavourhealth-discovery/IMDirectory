@@ -1,7 +1,9 @@
+import { UserRole } from "vue-library/enums";
+import { User } from "vue-library/models";
+
 import axios from "axios";
+
 import Env from "./Env";
-import { UserRole } from "@/interfaces/AutoGen";
-import { User } from "@/interfaces";
 
 const API_URL = Env.API + "api/security";
 
@@ -36,8 +38,7 @@ const SecurityService = {
 
   async getProfileUrl(): Promise<string> {
     return await axios.get(API_URL + "/private/user/profileUrl");
-  },
-
+  }
 };
 
 if (process.env.NODE_ENV !== "test") Object.freeze(SecurityService);

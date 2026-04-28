@@ -30,7 +30,7 @@ step("Right panel contains <text>", async text => {
 });
 
 step("Login required message appears", async () => {
-  const popup = pw.page.locator(".swal2-popup").filter({ hasText: "Please Login to continue" });
+  const popup = pw.page.locator(".alert-dialog").filter({ hasText: "Please Login to continue" });
   await popup.waitFor({ state: "visible" });
 });
 

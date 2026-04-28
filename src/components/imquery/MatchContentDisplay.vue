@@ -1,4 +1,5 @@
 <template>
+  <span v-if="match.notExists" class="not">Exclude if </span>
   <div v-if="match.description">
     <span class="match-description">{{ match.description }} </span>
     <span>defined as:</span>
@@ -7,7 +8,6 @@
     <span class="field">and if the above</span>
     <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
   </span>
-  <span v-if="match.notExists" class="not">Exclude if </span>
 
   <template v-if="match.is">
     <ul>
@@ -48,8 +48,8 @@
         </div>
       </template>
     </template>
-    <div v-if="match.then">
-      <span class="node-ref">then with the {{ testFields }} of the above</span>
+    <div v-if="match.then && !skipThen">
+      <span class="above">then with the {{ testFields }} of the above</span>
       <WhereContentDisplay :where="match.then" :depth="depth + 1" :parentOperator="whereOperator" :key="0" :index="0" :root="false" />
     </div>
     <span v-if="match.node">
@@ -57,15 +57,20 @@
       <span class="as">{{ match.node }})</span>
     </span>
   </template>
+  <span v-if="match.score" class="score">Score if true : {{ match.score }}</span>
 </template>
 
 <script setup lang="ts">
-import { Bool, Match } from "@/interfaces/AutoGen";
+import { computed } from "vue";
+
+import { Bool } from "vue-library/enums";
+import type { Match } from "vue-library/interfaces";
+
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import DirectService from "@/services/DirectService";
-import { getBooleanOperator, getBoolGroup, getTestFields } from "@/helpers/buildQuery";
-import { computed } from "vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { getBoolGroup, getBooleanOperator, getTestFields } from "@/helpers/buildQuery";
+
 interface Props {
   match: Match;
   depth: number;
@@ -73,10 +78,11 @@ interface Props {
   clauseIndex: number;
   parentOperator?: Bool;
   from?: Match;
+  skipThen?: boolean;
 }
 const props = defineProps<Props>();
 const emit = defineEmits(["navigateTo"]);
-const directService = new DirectService();
+const directService = useDirectService();
 const whereOperator = computed(() => {
   return getBooleanOperator("Where", props.match.where);
 });
@@ -108,6 +114,9 @@ function getFormattedPath(path: any): string {
   font-size: 1rem;
   margin-left: 2rem;
 }
+.above {
+  padding-right: 0.5rem;
+}
 
 .as {
   color: var(--p-amber-700) !important;
@@ -123,5 +132,8 @@ function getFormattedPath(path: any): string {
 .match-description {
   color: var(--p-blue-700);
   padding-right: 1rem;
+}
+.score {
+  padding-left: 2rem;
 }
 </style>

@@ -9,6 +9,7 @@
       :depth="depth"
       :clauseIndex="index"
       :editCohort="editMatch && !!editMatch.is"
+      :parentOperator="parentOperator"
       @cancel="cancelEditMatch"
       @deleteMatch="onDeleteMatchList"
       @saveChanges="saveEditMatch"
@@ -123,20 +124,24 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Match, Node } from "@/interfaces/AutoGen";
-import { computed, Ref, ref, onMounted, inject } from "vue";
-import { addMatchToParent, checkGroupChange, getBooleanOperator, getBoolGroup, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
-import Button from "primevue/button";
-import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
-import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
-import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
-import MatchEditor from "@/components/imquery/MatchEditor.vue";
+import { Ref, computed, inject, onMounted, ref } from "vue";
+
+import { Bool } from "vue-library/enums";
+import type { Match, Node } from "vue-library/interfaces";
+
 import { isEqual } from "lodash-es";
-import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
+import Button from "primevue/button";
 import Menu from "primevue/menu";
-import { QueryService } from "@/services";
-import { v4 } from "uuid";
 import type { TreeNode } from "primevue/treenode";
+import { v4 } from "uuid";
+
+import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
+import MatchEditor from "@/components/imquery/MatchEditor.vue";
+import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
+import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
+import { addMatchToParent, checkGroupChange, getBoolGroup, getBooleanOperator, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
+import { QueryService } from "@/services";
 
 interface Props {
   isVariable?: boolean;
@@ -235,6 +240,7 @@ function createNewMatch() {
 }
 
 async function saveEditMatch(editedMatch: Match) {
+  showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
   updateKeepAs(match.value);
@@ -273,7 +279,6 @@ function onDeletedWhere() {
   emit("deleteMatch");
 }
 function editMatchClause() {
-  if (match.value.nodeRef) from.value = parent.value.and![props.index - 1];
   editMatch.value = match.value;
   showEditor.value = true;
 }

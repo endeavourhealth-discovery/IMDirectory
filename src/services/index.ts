@@ -1,21 +1,19 @@
-import DirectService from "./DirectService";
-import EntityService from "./EntityService";
-import FilerService from "./FilerService";
-import Env from "./Env";
-import QueryService from "./QueryService";
-import SetService from "./SetService";
-import GithubService from "./GithubService";
-import EclService from "./EclService";
-import UserService from "./UserService";
-import FunctionService from "./FunctionService";
 import CodeGenService from "./CodeGenService";
-import DataModelService from "./DataModelService";
 import ConceptService from "./ConceptService";
-import StatusService from "./StatusService";
+import DataModelService from "./DataModelService";
+import EclService from "./EclService";
+import EntityService from "./EntityService";
+import Env from "./Env";
+import FilerService from "./FilerService";
+import FunctionService from "./FunctionService";
+import GithubService from "./GithubService";
+import QueryService from "./QueryService";
 import SecurityService from "./SecurityService";
+import SetService from "./SetService";
+import StatusService from "./StatusService";
+import UserService from "./UserService";
 
 export {
-  DirectService,
   EntityService,
   FilerService,
   Env,

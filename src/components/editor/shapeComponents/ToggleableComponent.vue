@@ -23,18 +23,22 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+
 import EntitySearch from "./EntitySearch.vue";
+
 export default defineComponent({
   components: { EntitySearch }
 });
 </script>
 
 <script setup lang="ts">
-import { watch, onMounted, ref, inject } from "vue";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { processComponentType } from "@/helpers/EditorMethods";
+import { inject, onMounted, ref, watch } from "vue";
+
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
+
 import { EditorMode } from "@/enums";
+import { processComponentType } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {

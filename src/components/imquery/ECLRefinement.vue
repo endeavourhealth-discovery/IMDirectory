@@ -79,7 +79,7 @@
         <Select
           style="width: 4.5rem; min-height: 2.3rem"
           v-model="propertyConstraintOperator"
-          :options="constraintOperatorOptions"
+          :options="ConstraintOperatorOptions"
           option-label="label"
           option-value="value"
           @change="updatePropertyConstraint"
@@ -127,30 +127,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted, watch, inject, computed } from "vue";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { EclService, QueryService } from "@/services";
-import { IM, QUERY } from "@/vocabulary";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { IM, QUERY } from "vue-library/enums";
+import { Bool } from "vue-library/enums";
+import type { Match, QueryRequest, SearchResultSummary, Where } from "vue-library/interfaces";
+
+import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
-import { ToastSeverity } from "@/enums";
-import { Bool, Where, Match, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
-import { useFilterStore } from "@/stores/filterStore";
-import { onDragStart, onDragEnd, onDragOver, onDrop } from "@/composables/useDragContext";
+import { v4 } from "uuid";
+
+import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import ECLRefinementValue from "@/components/imquery/ECLRefinementValue.vue";
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
+import { ConstraintOperatorOptions } from "@/constants";
 import {
-  getBooleanOptions,
-  getIsRoleGroup,
   checkGroupChange,
   createNewBoolGroup,
-  removeSubgroup,
+  getBoolGroup,
   getBooleanOperator,
-  getBoolGroup
+  getBooleanOptions,
+  getIsRoleGroup,
+  removeSubgroup
 } from "@/helpers/buildQuery";
-import { setConstraintOperator, getConstraintOperator, manageRoleGroup } from "@/helpers/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
-import Button from "primevue/button";
-import ECLRefinementValue from "@/components/imquery/ECLRefinementValue.vue";
-import { v4 } from "uuid";
-import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import { getConstraintOperator, manageRoleGroup, setConstraintOperator } from "@/helpers/buildQuery";
+import { EclService, QueryService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
   index: number;

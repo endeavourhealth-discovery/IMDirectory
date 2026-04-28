@@ -24,7 +24,7 @@
     <div v-else class="where-relative-container">
       <div class="relative-buttons">
         <span class="field">
-          <span v-for="opt in rangeValueOptions" :key="opt.value" class="gap-1">
+          <span v-for="opt in RangeValueOptions" :key="opt.value" class="gap-1">
             <RadioButton v-model="rangeOrValue" :value="opt.value" :inputId="opt.value" @update:modelValue="updateRangeOrValue" />
             <label :for="opt.value" class="field">{{ opt.label }}</label>
           </span>
@@ -38,7 +38,6 @@
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
-        :from="from"
         @updateAssignable="updateWhereDisplay(where)"
       />
     </div>
@@ -50,7 +49,6 @@
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
-        :from="from"
         :fromOrTo="'from'"
         @updateAssignable="updateWhereDisplay(where.range.from)"
       />
@@ -62,7 +60,6 @@
         :qualifier="where.qualifier"
         :refresh="refresh"
         :fromOrTo="'to'"
-        :from="from"
         @updateAssignable="updateWhereDisplay(where.range.to)"
       />
     </div>
@@ -87,16 +84,22 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref, watch, computed } from "vue";
-import { IM, XSD } from "@/vocabulary";
-import { Match, Where, Operator, Assignable, UIProperty } from "@/interfaces/AutoGen";
-import { buildValueSentence, RangeOrValue, rangeValueOptions } from "@/helpers/QueryEditorMethods";
-import ValueEditor from "@/components/imquery/ValueEditor.vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM, XSD } from "vue-library/enums";
+import { Operator } from "vue-library/enums";
+import type { Assignable, Match, UIProperty, Where } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
+
+import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
+import { RangeValueOptions } from "@/constants";
+import { RangeOrValue } from "@/enums";
+import { buildValueSentence } from "@/helpers/QueryEditorMethods";
+
 interface Props {
   uiProperty: UIProperty;
-  from?: Match;
 }
 
 const refresh = defineModel<number>("refresh", { default: 0 });
@@ -202,7 +205,7 @@ function updateRangeOrValue() {
 }
 
 function updateQualifier() {
-  if (qualifierIri.value &&props.uiProperty.qualifierOptions) {
+  if (qualifierIri.value && props.uiProperty.qualifierOptions) {
     where.value.qualifier = props.uiProperty.qualifierOptions.find(opt => opt.iri === qualifierIri.value);
   } else {
     delete where.value.qualifier;

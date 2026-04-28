@@ -60,14 +60,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, Ref, ref } from "vue";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { EntityService } from "@/services";
+import { ComputedRef, Ref, computed, ref } from "vue";
+
+import { isArrayHasLength } from "vue-library/helpers";
+
 import * as d3 from "d3";
 import { DSVRowArray } from "d3";
+import { FileUploadUploadEvent } from "primevue/fileupload";
+
 import { entityToAliasEntity } from "@/helpers/Transforms";
 import { ValidatedEntity } from "@/interfaces";
-import { FileUploadUploadEvent } from "primevue/fileupload";
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   showAddByList: boolean;

@@ -26,11 +26,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, computed } from "vue";
-import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
-import { TTIriRef } from "@/interfaces/AutoGen";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM } from "vue-library/enums";
+import type { TTIriRef } from "vue-library/interfaces";
+
 import { MenuItem } from "primevue/menuitem";
+
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;

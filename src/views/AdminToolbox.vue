@@ -16,10 +16,12 @@
 </template>
 
 <script setup lang="ts">
-import TopBar from "@/components/shared/TopBar.vue";
-import { computed, Ref, ref } from "vue";
+import { Ref, computed, ref } from "vue";
+
 import type { MenuItem } from "primevue/menuitem";
 import { useRouter } from "vue-router";
+
+import TopBar from "@/components/shared/TopBar.vue";
 import { useLoadingStore } from "@/stores/loadingStore";
 
 const router = useRouter();

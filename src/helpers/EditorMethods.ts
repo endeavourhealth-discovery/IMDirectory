@@ -1,11 +1,8 @@
-import { GenericObject } from "@/interfaces/GenericObject";
-import { ComponentType } from "../enums";
-import { Argument, PropertyShape, QueryRequest, TTIriRef } from "../interfaces/AutoGen";
-import { enumToArray } from "./Converters";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { isTTIriRef } from "./TypeGuards";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
+import { TypeGuards, enumToArray, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "vue-library/interfaces";
 
+import { ComponentType } from "../enums";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
@@ -61,10 +58,11 @@ function processArgument(property: PropertyShape, key: string, value: any, argRe
     } else if (valueVariableMap && valueVariableMap.has(value)) {
       foundValueVariable = valueVariableMap.get(value);
     }
-    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item))) argResult["valueIriList"] = foundValueVariable;
+    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => TypeGuards.isTTIriRef(item)))
+      argResult["valueIriList"] = foundValueVariable;
     else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
       argResult["valueDataList"] = foundValueVariable;
-    else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
+    else if (TypeGuards.isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
     else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
     else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
     else argResult[key] = foundValueVariable;

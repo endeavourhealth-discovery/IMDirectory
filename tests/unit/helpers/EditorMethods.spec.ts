@@ -1,16 +1,18 @@
+import { COMPONENT } from "vue-library/enums";
+import type { PropertyShape } from "vue-library/interfaces";
+
+import { describe, expect, it } from "vitest";
+
 import { ComponentType } from "@/enums";
 import { getTreeQueryIri, processArguments, processComponentType } from "@/helpers/EditorMethods";
-import { PropertyShape } from "@/interfaces/AutoGen";
-import { fakerFactory } from "@/mocks/fakerFactory";
-import { COMPONENT } from "@/vocabulary";
-import { describe, it, expect } from "vitest";
+import * as fakerFactory from "@/mocks/fakerFactory";
 
 describe("EditorMethods", () => {
   describe("processArguments", () => {
-    it("processes arguments", () => {
-      const argument1 = fakerFactory.argument.create({ valueVariable: "testVariable", valueDataList: [] });
-      const argument2 = fakerFactory.argument.create({ valueVariable: "altVariable", valueDataList: [] });
-      const argument3 = fakerFactory.argument.create({ valueVariable: "testVariableWithOrder", valueDataList: [] });
+    it("processes arguments", async () => {
+      const argument1 = await fakerFactory.argumentRandom();
+      const argument2 = await fakerFactory.argumentRandom();
+      const argument3 = await fakerFactory.argumentRandom();
       // const shape = fakerFactory.propertyShape.create({ argument: [argument1, argument2, argument3], builderChild: true, order: 2 });
       const propertyShape: PropertyShape = {
         order: 2,
@@ -21,11 +23,11 @@ describe("EditorMethods", () => {
       };
       const valueVariableMap = new Map().set("testVariable", { id: "testId" }).set("testVariableWithOrder2", { id: "testOrderId" });
       const results = processArguments(propertyShape, valueVariableMap);
-      expect(results[0]).toEqual(expect.objectContaining({ valueObject: { id: "testId" } }));
+      expect(results[0]).toEqual(expect.objectContaining({ valueIri: argument1.valueIri }));
       expect(results[0]).toEqual(expect.objectContaining({ valueData: argument1.valueData }));
       expect(results[1]).toEqual(expect.objectContaining({ valueVariable: null }));
       expect(results[1]).toEqual(expect.objectContaining({ valueData: argument2.valueData }));
-      expect(results[2]).toEqual(expect.objectContaining({ valueObject: { id: "testOrderId" } }));
+      expect(results[2]).toEqual(expect.objectContaining({ valueIri: argument3.valueIri }));
       expect(results[2]).toEqual(expect.objectContaining({ valueData: argument3.valueData }));
     });
   });
@@ -35,21 +37,21 @@ describe("EditorMethods", () => {
       expect(getTreeQueryIri([])).toBe(undefined);
     });
 
-    it("handles length < 2", () => {
-      expect(getTreeQueryIri([fakerFactory.iriRef.create()])).toBe(undefined);
+    it("handles length < 2", async () => {
+      expect(getTreeQueryIri([await fakerFactory.iriRefRandom()])).toBe(undefined);
     });
 
-    it("returns position 1 id", () => {
-      const iri1 = fakerFactory.iriRef.create();
-      const iri2 = fakerFactory.iriRef.create();
-      const iri3 = fakerFactory.iriRef.create();
+    it("returns position 1 id", async () => {
+      const iri1 = await fakerFactory.iriRefRandom();
+      const iri2 = await fakerFactory.iriRefRandom();
+      const iri3 = await fakerFactory.iriRefRandom();
       expect(getTreeQueryIri([iri1, iri2, iri3])).toBe(iri2.iri);
     });
   });
 
   describe("processComponentType", () => {
-    it("processes component type ___ invalid not component", () => {
-      const testIri = fakerFactory.iriRef.create();
+    it("processes component type ___ invalid not component", async () => {
+      const testIri = await fakerFactory.iriRefRandom();
       expect(() => processComponentType(testIri)).toThrowError("Iri is not of type ComponentType: " + testIri.iri);
     });
 

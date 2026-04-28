@@ -28,11 +28,13 @@
 </template>
 
 <script setup lang="ts">
-import { Bool, Return } from "@/interfaces/AutoGen";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { Bool } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import type { Return } from "vue-library/interfaces";
+
+import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 
 defineProps<{
   select: Return[];

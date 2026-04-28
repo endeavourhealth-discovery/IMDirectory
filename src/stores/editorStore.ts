@@ -1,15 +1,18 @@
-import { defineStore } from "pinia";
-import { useUserStore } from "@/stores/userStore";
-import { EntityService } from "@/services";
-import { RDFS } from "@/vocabulary";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 import { ref } from "vue";
+
+import { RDFS } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import { localStorageWithExpiry } from "vue-library/helpers";
+import type { ExtendedTTEntity } from "vue-library/interfaces";
+import { useUserStore } from "vue-library/stores";
+
+import { defineStore } from "pinia";
+
+import { EntityService } from "@/services";
 
 export const useEditorStore = defineStore("editor", () => {
   const editorIri = ref<string>(localStorageWithExpiry.getItem("editorSelectedIri"));
-  const editorSavedEntity = ref<TTEntity | undefined>(localStorageWithExpiry.getItem("editorSavedEntity") ?? {});
+  const editorSavedEntity = ref<ExtendedTTEntity | undefined>(localStorageWithExpiry.getItem("editorSavedEntity") ?? {});
   const editorHasChanges = ref<boolean>(false);
   const findInEditorTreeIri = ref<string>("");
   const refreshEditorTree = ref<boolean>(false);
@@ -28,7 +31,7 @@ export const useEditorStore = defineStore("editor", () => {
     return "";
   }
 
-  function updateEditorSavedEntity(entity: TTEntity | undefined) {
+  function updateEditorSavedEntity(entity: ExtendedTTEntity | undefined) {
     editorSavedEntity.value = entity;
     if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSavedEntity", entity);
     else localStorage.removeItem("editorSavedEntity");

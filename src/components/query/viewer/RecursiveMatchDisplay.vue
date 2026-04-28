@@ -31,6 +31,7 @@
         />
         <span class="match-description"> {{ match.description }}</span>
       </span>
+
       <template v-if="match.is">
         <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
           <Button v-if="!eclQuery" text :icon="!cohorts.has(index) ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="expandCohort(index)" />
@@ -59,6 +60,7 @@
           </template>
         </template>
       </template>
+      <span v-if="match.score" class="score">Score if true : {{ match.score }}</span>
       <template v-if="matchExpanded || !match.description">
         <component :is="match.description ? 'div' : 'span'">
           <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
@@ -120,13 +122,17 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Bool, Node, DisplayMode } from "@/interfaces/AutoGen";
-import { Ref, ref, computed, inject } from "vue";
-import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { QueryService } from "@/services";
-import { getBooleanOperator, getDisplayOperator, getBoolGroup, getTestFields, clauseCheck } from "@/helpers/buildQuery";
+import { Ref, computed, inject, ref } from "vue";
+
+import { Bool, DisplayMode } from "vue-library/enums";
+import type { Match, Node } from "vue-library/interfaces";
+
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
+import { QueryService } from "@/services";
+
+import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 
 interface Props {
   isVariable?: boolean;
@@ -239,12 +245,6 @@ async function expandCohort(index: number) {
   color: var(--p-amber-700) !important;
   padding-right: 0.2rem;
 }
-.linked-match {
-  color: var(--p-amber-700) !important;
-  padding-left: 0.5rem;
-  padding-right: 0.2rem;
-  cursor: pointer !important;
-}
 
 .tree-node-wrapper {
   left: 0;
@@ -321,5 +321,8 @@ async function expandCohort(index: number) {
 }
 .clause-label {
   padding-left: 1rem;
+}
+.score {
+  padding-left: 2rem;
 }
 </style>

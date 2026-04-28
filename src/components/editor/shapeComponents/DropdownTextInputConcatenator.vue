@@ -17,17 +17,18 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
-import { TTIriRef, PropertyShape, QueryRequest, Query } from "@/interfaces/AutoGen";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { RDFS } from "vue-library/enums";
+import { TypeGuards, byName, isObjectHasKeys } from "vue-library/helpers";
+import type { PropertyShape, Query, QueryRequest, TTIriRef } from "vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+
 import { EditorMode } from "@/enums";
-import { isTTIriRef } from "@/helpers/TypeGuards";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { processArguments } from "@/helpers/EditorMethods";
-import { byName } from "@/helpers/Sorters";
-import { RDFS } from "@/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
-import { cloneDeep } from "lodash-es";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -93,7 +94,11 @@ const userInput = ref("");
 const showValidation = ref(false);
 
 watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, newUserInput], [oldSelectedDropdownOption, oldUserInput]) => {
-  if (isTTIriRef(newSelectedDropdownOption) && newUserInput && (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)) {
+  if (
+    TypeGuards.isTTIriRef(newSelectedDropdownOption) &&
+    newUserInput &&
+    (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)
+  ) {
     const concatenated = newSelectedDropdownOption.iri + newUserInput;
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);

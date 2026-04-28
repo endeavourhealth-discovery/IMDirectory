@@ -18,10 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import router from "@/router";
-import { useUserStore } from "@/stores/userStore";
+import { Ref, computed, onMounted, ref } from "vue";
+
+import { useUserStore } from "vue-library/stores";
+
 import { MenuItem } from "primevue/menuitem";
-import { computed, onMounted, Ref, ref } from "vue";
+
+import router from "@/router";
 
 const userStore = useUserStore();
 const isAdmin = computed(() => userStore.isAdmin);

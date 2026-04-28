@@ -27,7 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import { ECLQueryRequest, Query } from "@/interfaces/AutoGen";
+import type { ECLQueryRequest, Query } from "vue-library/interfaces";
+
 import Members from "@/components/directory/viewer/set/Members.vue";
 
 interface Props {

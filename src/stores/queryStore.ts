@@ -1,10 +1,13 @@
-import { defineStore } from "pinia";
-import { SelectedMatch } from "@/interfaces";
-import { QueryRequest} from "@/interfaces/AutoGen";
-import { EntityService } from "@/services";
-import { RDFS } from "@/vocabulary";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { ref } from "vue";
+
+import { RDFS } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { QueryRequest } from "vue-library/interfaces";
+
+import { defineStore } from "pinia";
+
+import { SelectedMatch } from "@/interfaces";
+import { EntityService } from "@/services";
 
 export const useQueryStore = defineStore("query", () => {
   const queryIri = ref<string>("");

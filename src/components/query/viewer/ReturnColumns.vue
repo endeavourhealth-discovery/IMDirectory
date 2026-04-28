@@ -8,9 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Return, Query } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
+
+import { isArrayHasLength } from "vue-library/helpers";
+import type { Query, Return } from "vue-library/interfaces";
+
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 
 interface Props {

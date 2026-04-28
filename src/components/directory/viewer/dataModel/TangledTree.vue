@@ -15,13 +15,16 @@
 </template>
 
 <script setup lang="ts">
+import { Ref, onMounted, reactive, ref, watch } from "vue";
+
+import { isArrayHasLength } from "vue-library/helpers";
+import type { TTIriRef } from "vue-library/interfaces";
+
 import * as d3 from "d3";
-import { onMounted, reactive, ref, Ref, watch } from "vue";
-import { PropertyDisplay, TangledTreeData } from "@/interfaces";
 import { cloneDeep } from "lodash-es";
+
+import { PropertyDisplay, TangledTreeData } from "@/interfaces";
 import { DataModelService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { TTIriRef } from "@/interfaces/AutoGen";
 
 const props = defineProps<{
   data: Array<TangledTreeData[]>;

@@ -47,11 +47,16 @@
 </template>
 
 <script setup lang="ts">
-import { formatDateTime } from "@/helpers/Datetime/FormatDateTime";
-import { Task, TaskHistory, TaskType, WorkflowResponse } from "@/interfaces/AutoGen";
-import WorkflowService from "@/services/WorkflowService";
-import { onMounted, ref, Ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
+
+import { TaskType } from "vue-library/enums";
+import { formatDateTime } from "vue-library/helpers";
+import type { Task, TaskHistory, WorkflowResponse } from "vue-library/interfaces";
+
 import { useRouter } from "vue-router";
+
+import WorkflowService from "@/services/WorkflowService";
+
 import TaskHistoryDialog from "./TaskHistoryDialog.vue";
 
 interface Props {

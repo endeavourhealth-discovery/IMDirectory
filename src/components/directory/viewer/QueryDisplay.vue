@@ -83,16 +83,21 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
-import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { QueryService } from "@/services";
-import { Argument, Bool, DisplayMode, Node, Query, QueryRequest } from "@/interfaces/AutoGen";
-import { computed, onMounted, provide, ref, Ref, watch } from "vue";
-import SQLDisplay from "./SQLDisplay.vue";
+import { Ref, computed, onMounted, provide, ref, watch } from "vue";
+
+import { Bool, DisplayMode } from "vue-library/enums";
+import { isObjectHasKeys } from "vue-library/helpers";
+import type { Argument, Node, Query, QueryRequest } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
+import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
+import { getBoolGroup, getBooleanOperator } from "@/helpers/buildQuery";
+import { QueryService } from "@/services";
+
+import SQLDisplay from "./SQLDisplay.vue";
 
 enum DisplayOptions {
   RuleView = "Rule view",

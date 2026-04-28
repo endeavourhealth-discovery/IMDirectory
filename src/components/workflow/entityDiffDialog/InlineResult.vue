@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, computed, toRefs } from "vue";
+import { computed, inject, toRefs } from "vue";
 
 import type { ViewerProps } from "./types";
 

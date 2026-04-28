@@ -3,7 +3,7 @@
     <Select
       style="width: 4.5rem; min-height: 2.3rem"
       v-model="valueConstraintOperator"
-      :options="constraintOperatorOptions"
+      :options="ConstraintOperatorOptions"
       option-label="label"
       option-value="value"
       @change="updateValueConstraint"
@@ -59,17 +59,20 @@
 </template>
 
 <script setup lang="ts">
-import { getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import { constraintOperatorOptions } from "@/helpers/QueryEditorMethods";
-import Button from "primevue/button";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { computed, inject, onMounted, ref, Ref, watch } from "vue";
-import { QueryRequest, SearchResultSummary, Where, Node, TTIriRef } from "@/interfaces/AutoGen";
-import { IM, QUERY, SNOMED } from "@/vocabulary";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { IM, QUERY, SNOMED, ToastSeverity } from "vue-library/enums";
+import type { Node, QueryRequest, SearchResultSummary, TTIriRef, Where } from "vue-library/interfaces";
+
 import { isEqual } from "lodash-es";
-import { EclService, QueryService } from "@/services";
-import { ToastSeverity } from "@/enums";
+import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { ConstraintOperatorOptions } from "@/constants";
+import { getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
+import { EclService, QueryService } from "@/services";
+
 interface Props {
   index: number;
 }

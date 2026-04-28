@@ -1,16 +1,19 @@
-import { EntityService } from "@/services";
-import { deferred } from "@/helpers/Deferred";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { isPropertyShape } from "@/helpers/TypeGuards";
-import { FormGenerator, PropertyShape } from "@/interfaces/AutoGen";
-import { IM, COMPONENT } from "@/vocabulary";
-import { isArray } from "lodash-es";
 import { Ref, ref } from "vue";
-import Swal from "sweetalert2";
+
+import { COMPONENT, IM } from "vue-library/enums";
+import { TypeGuards, deferred, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { FormGenerator, PropertyShape } from "vue-library/interfaces";
+
+import { isArray } from "lodash-es";
+
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { EntityService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function useValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
   const validationCheckStatus: Ref<{ key: string; deferred: { promise: any; reject: any; resolve: any } }[]> = ref([]);
+  const dialogStore = useDialogStore();
 
   constructValidationCheckStatus(shape);
 
@@ -38,12 +41,14 @@ export function useValidity(shape?: FormGenerator) {
 
   async function checkExists(iri: string): Promise<boolean> {
     if (await EntityService.entityExists(iri)) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Entity with this iri already exists.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(AlertDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Warning",
+          text: "Entity with this iri already exists.",
+          confirmButtonText: "Close"
+        }
       });
       return true;
     } else return false;
@@ -94,7 +99,7 @@ export function useValidity(shape?: FormGenerator) {
   ) {
     let valid = true;
     let message;
-    if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
+    if (TypeGuards.isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
       const customValidationResult = await EntityService.checkValidation(componentShape.validation!.iri, editorEntity.value);
       if (customValidationResult.valid === false) {
         valid = false;

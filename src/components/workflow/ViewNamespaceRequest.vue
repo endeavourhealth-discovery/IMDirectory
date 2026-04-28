@@ -39,14 +39,20 @@
 </template>
 
 <script setup lang="ts">
-import { Namespace, NamespaceRequest, Task } from "@/interfaces/AutoGen";
-import WorkflowService from "@/services/WorkflowService";
-import { useUserStore } from "@/stores/userStore";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { NAMESPACE } from "vue-library/enums";
+import type { Namespace, NamespaceRequest, Task } from "vue-library/interfaces";
+import { useUserStore } from "vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import TaskViewer from "./TaskViewer.vue";
+
 import ConfigService from "@/services/ConfigService";
+import WorkflowService from "@/services/WorkflowService";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
+import TaskViewer from "./TaskViewer.vue";
 
 interface Props {
   id: string;
@@ -54,6 +60,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
 
@@ -77,7 +84,7 @@ onMounted(async () => {
   loading.value = false;
 });
 
-const selectedNamespace: Ref<string | undefined> = ref();
+const selectedNamespace: Ref<NAMESPACE | undefined> = ref();
 const namespaceErrorMessage = ref("");
 const namespaceOptions: Ref<Namespace[]> = ref([]);
 watch(selectedNamespace, newValue => {
@@ -125,10 +132,14 @@ async function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateNamespaceRequest(updatedNamespaceRequest).then(async () => {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Namespace request successfully updated."
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Namespace request successfully updated.",
+              confirmButtonText: "Close"
+            }
           });
         });
 

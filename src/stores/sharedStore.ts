@@ -1,8 +1,9 @@
-import { defineStore } from "pinia";
-import { IM } from "@/vocabulary";
-import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
-import { TagSeverity } from "@/enums";
 import { ref } from "vue";
+
+import { IM, TagSeverity } from "vue-library/enums";
+import { localStorageWithExpiry } from "vue-library/helpers";
+
+import { defineStore } from "pinia";
 
 export const useSharedStore = defineStore("shared", () => {
   const showCookieConsent = ref<boolean>(false);

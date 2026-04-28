@@ -14,30 +14,34 @@
       </div>
     </template>
   </Select>
-  <span v-if="relativeProperty" class="field">Select property:</span>
-  <Select
-    v-if="relativeProperty"
-    :modelValue="relativeProperty"
-    :options="relativePropertyOptions"
-    scroll-height="50rem"
-    option-label="label"
-    option-value="value"
-    data-testid="operator-selector"
-    @update:modelValue="updateRelativeProperty"
-  >
-    <template #option="slotProps">
-      <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-        <div>{{ slotProps.option.label }}</div>
-      </div>
-    </template>
-  </Select>
+  <template v-if="relativePropertyOptions && relativePropertyOptions.length > 0">
+    <span class="field">Select property:</span>
+    <Select
+      :modelValue="relativeProperty"
+      :options="relativePropertyOptions"
+      scroll-height="50rem"
+      option-label="label"
+      option-value="value"
+      data-testid="operator-selector"
+      @update:modelValue="updateRelativeProperty"
+    >
+      <template #option="slotProps">
+        <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+          <div>{{ slotProps.option.label }}</div>
+        </div>
+      </template>
+    </Select>
+  </template>
 </template>
 
 <script setup lang="ts">
-import { Where, Query, Match, UIProperty } from "@/interfaces/AutoGen";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import type { Match, Query, UIProperty, Where } from "vue-library/interfaces";
+
 import type { TreeNode } from "primevue/treenode";
-import { Ref, inject, onMounted, ref, watch, computed } from "vue";
-import { getRelativeToOptions, getRelativePropertyOptions } from "@/helpers/buildQuery";
+
+import { getRelativePropertyOptions, getRelativeToOptions } from "@/helpers/buildQuery";
 
 interface Props {
   propertyIri: string;
@@ -68,11 +72,12 @@ watch(
 async function updateRelativeTo(relativeTo: any) {
   if (!assignable.value.compare) assignable.value.compare = {};
   if (!assignable.value.compare.right) assignable.value.compare.right = {};
-  const relativeMatch = keepAs.value.find(match => match.node === relativeTo.value);
+  const relativeMatch = keepAs.value.find(match => match.node === relativeTo);
   if (relativeMatch) {
     assignable.value.compare.right.nodeRef = relativeMatch.node;
     delete assignable.value.compare.right.parameter;
     relativePropertyOptions.value = await getRelativePropertyOptions(keepAs.value, assignable.value.compare.right.nodeRef!, props.uiProperty.valueType);
+    relativeProperty.value = relativePropertyOptions.value[0].value;
   } else {
     assignable.value.compare.right.parameter = relativeTo.value;
     delete assignable.value.compare.right.nodeRef;
@@ -100,7 +105,7 @@ async function initValues() {
       relativeTo.value = getRelativeToOptions(keepAs.value).find(opt => opt.value === assignable.value.compare!.right!.nodeRef!).value;
       if (assignable.value.compare.right.iri) relativeProperty.value = assignable.value.compare.right.iri;
       relativePropertyOptions.value = await getRelativePropertyOptions(keepAs.value, assignable.value.compare.right.nodeRef, props.uiProperty.valueType);
-    }
+    } else relativeTo.value = relativeToOptions.value[0].value;
   }
 }
 </script>

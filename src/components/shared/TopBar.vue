@@ -148,27 +148,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, onMounted, watch } from "vue";
-import Shortcut from "../directory/landingPage/Shortcut.vue";
-import { useToast } from "primevue/usetoast";
-import { DirectService, FilerService, CodeGenService, SecurityService } from "@/services";
-import type { MenuItem } from "primevue/menuitem";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { useUserStore } from "@/stores/userStore";
-import { useSharedStore } from "@/stores/sharedStore";
-import { useRouter } from "vue-router";
-import { useChangeFontSize } from "@/composables/useChangeFontSize";
-import { useChangeThemeOptions } from "@/composables/useChangeThemeOptions";
-import PrimeVuePresetThemes from "@/enums/PrimeVuePresetThemes";
-import PrimeVueColors from "@/enums/PrimeVueColors";
-import Button from "primevue/button";
-import { FontSize, UserRole } from "@/enums";
+import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "vue-library/enums";
+import { useUserStore } from "vue-library/stores";
+
 import { useCookies } from "@vueuse/integrations";
-import Swal from "sweetalert2";
+import Button from "primevue/button";
+import type { MenuItem } from "primevue/menuitem";
+import { useDialog } from "primevue/usedialog";
+import { useToast } from "primevue/usetoast";
+import { useRouter } from "vue-router";
 
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { CodeGenService, FilerService, SecurityService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
+import { useSharedStore } from "@/stores/sharedStore";
+
+import Shortcut from "../directory/landingPage/Shortcut.vue";
+
+const dynamicDialog = useDialog();
 const router = useRouter();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const dialogStore = useDialogStore();
 const cookies = useCookies();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -227,7 +232,7 @@ const themesMenu = ref();
 const fontSizeMenu = ref();
 const userMenu = ref();
 const appsOP = ref();
-const directService = new DirectService();
+const directService = useDirectService();
 
 watch(preset, async newValue => {
   await changePreset(newValue);
@@ -349,18 +354,23 @@ function setUserMenuItems(): void {
 }
 
 async function logout() {
-  await Swal.fire({
-    icon: "question",
-    title: "Confirm logout?",
-    text: "Are you sure you want to logout?",
-    confirmButtonText: "Logout",
-    showCancelButton: true
-  }).then(async result => {
-    if (result.isConfirmed) {
-      await SecurityService.logout();
-      location.reload();
-    }
-  });
+  await dialogStore
+    .open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        title: "Confirm logout?",
+        text: "Are you sure you want to logout?",
+        icon: "fa-regular fa-circle-question",
+        confirmButtonText: "Logout",
+        cancelButtonText: "Cancel"
+      }
+    })
+    .then(async result => {
+      if (result.confirm) {
+        await SecurityService.logout();
+        location.reload();
+      }
+    });
 }
 
 async function goToMyProfile() {
@@ -497,7 +507,6 @@ async function openAdminToolbox() {
 </script>
 
 <style scoped>
-@reference "tailwindcss-primeui";
 .im-logo {
   cursor: pointer;
   margin: 0 0.5rem;

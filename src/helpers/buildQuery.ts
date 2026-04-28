@@ -1,13 +1,29 @@
-import { Bool, HasPaths, Match, Node, NodeShape, Path, Query, QueryRequest, Return, RuleAction, SearchBinding, Where } from "@/interfaces/AutoGen";
-import { IM, RDF, SHACL } from "@/vocabulary";
-import { SearchOptions } from "@/interfaces";
-import type { TreeNode } from "primevue/treenode";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import Swal from "sweetalert2";
+import { Bool, IM, RDF, RuleAction, SHACL } from "vue-library/enums";
+import { isArrayHasLength } from "vue-library/helpers";
+import type {
+  HasPaths,
+  Having,
+  Match,
+  Node,
+  NodeShape,
+  Orderable,
+  Path,
+  PropertyRange,
+  Query,
+  QueryRequest,
+  Return,
+  SearchBinding,
+  Where
+} from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import { Orderable } from "@/models/orderable";
+import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
+
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { SearchOptions } from "@/interfaces";
 import { DataModelService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -22,14 +38,17 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
 }
 
 export async function setReturn(match: Match, keepAs: string) {
+  const dialogStore = useDialogStore();
   if (keepAs === "") {
     if (match.return) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "You have already added properties to the output. Cannot remove label",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(AlertDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-exclamation",
+          title: "Warning",
+          text: "You have already added properties to the output. Cannot remove label",
+          confirmButtonText: "Close"
+        }
       });
     } else delete match.node;
   } else match.node = keepAs;
@@ -125,6 +144,9 @@ export function addConceptToGroup(match: Match) {
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
+    delete match.where;
+    delete match.orderBy;
+    match.uuid = v4();
     match.or = [subMatch];
     match.or.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
   }
@@ -259,6 +281,25 @@ export function addWhereToMatch(match: Match, where: Where, index?: number) {
     else match.where.and!.splice(index, 0, where); // insert
   } else match.where = where;
 }
+
+export function addWhereToThen(match: Match, where: Where) {
+  if (match.then && !match.then.and && !match.then.or && !match.then.iri) {
+    match.then = where;
+    return;
+  }
+  if (match.then) {
+    if (!match.then.and && !match.then.or) {
+      const currentWhere = match.then;
+      match.then = {} as Where;
+      match.then.and = [currentWhere];
+      match.then.and.push(where);
+    } else if (match.then.and) {
+      match.then.and.push(where);
+    } else if (match.then.or) {
+      match.then.or.push(where);
+    }
+  } else match.then = where;
+}
 export function getPathPropertyNames(pathable: Match | Path, where: Where): string | undefined {
   if (!where.nodeRef) return where.name;
   if (pathable.path) {
@@ -331,6 +372,14 @@ export function setRuleAction(match: Match, ruleAction: string) {
       break;
     }
   }
+}
+
+export function getHavingText(having: Having): string {
+  let text = "";
+  if (having.aggregate) {
+    text = "if " + having.aggregate + " ";
+  }
+  return text;
 }
 export function getRuleActionLabel(value: string): string {
   const match = getRuleActionOptions().find(item => item.value === value);
@@ -512,10 +561,11 @@ export function createNodeVariable(match: Match, index: number): string {
 export function setDefiningProperty(match: Match, nodeShape: NodeShape): void {
   if (nodeShape.definingProperty) {
     if (!hasProperty(match.where, nodeShape.definingProperty.iri)) {
-      const where = { iri: nodeShape.definingProperty.iri, invalid: true } as Where;
       const propertyShape = nodeShape.property?.find(property => property.path.iri === nodeShape.definingProperty!.iri);
-      if (propertyShape && propertyShape.clazz) where.is = [{}];
-      addWhereToMatch(match, where);
+      if (propertyShape) {
+        const where = createWhere(propertyShape.path.iri, propertyShape.clazz, undefined);
+        addWhereToMatch(match, where);
+      }
     }
   }
 }
@@ -528,36 +578,11 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef: string | undefined, parent?: Match): string {
-  if ((!nodeRef || nodeRef === "") && match.typeOf) return match.typeOf.iri!;
-  if (match.path && nodeRef) {
-    for (const path of match.path) {
-      const type = getTypeIriFromPath(path, nodeRef);
-      if (type) return type;
-    }
-  } else if (match.nodeRef && parent) {
-    if (parent.return) {
-      for (const ret of parent.return) {
-        if (ret.nodeRef) {
-          const type = getTypeIriFromMatch(parent, baseType, ret.nodeRef);
-          if (type) return type;
-        }
-      }
-    }
-  }
-  return baseType.iri!;
+export function getTypeIriFromMatch(match: Match, baseType: Node): string {
+  if (match.typeOf) return match.typeOf.iri!;
+  else return baseType.iri!;
 }
 
-function getTypeIriFromPath(path: Path, nodeRef: string): string | undefined {
-  if (path.node === nodeRef) return path.typeOf!.iri;
-  if (path.path) {
-    for (const subPath of path.path) {
-      const type = getTypeIriFromPath(subPath, nodeRef);
-      if (type) return type;
-    }
-  }
-  return undefined;
-}
 export function addReturn(match: Match, node: TreeNode) {
   if (node.type === "property") {
     const fullPath = node.data.path;
@@ -573,7 +598,7 @@ export function addReturn(match: Match, node: TreeNode) {
 
   match.invalid = false;
 }
-export function addFilter(match: Match, node: TreeNode): string | undefined {
+export function addFilter(match: Match, node: TreeNode, isThen: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
     const fullPath = node.data.path;
@@ -581,15 +606,21 @@ export function addFilter(match: Match, node: TreeNode): string | undefined {
       nodeRef = setPathGetNodeRef(match, fullPath, true);
     }
     if (node.data.rangeType != SHACL.NODESHAPE) {
-      const where = { iri: node.data.iri, invalid: true } as Where;
-      if (nodeRef) where.nodeRef = nodeRef;
-      if (node.data.rangeType === IM.VALUESET || node.data.rangeType === IM.CONCEPT) where.is = [{}];
-      addWhereToMatch(match, where);
+      const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);
+      if (!isThen) addWhereToMatch(match, where);
+      else addWhereToThen(match, where);
     }
   }
 
   match.invalid = false;
   return nodeRef;
+}
+
+function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
+  const where = { iri: iri, invalid: true } as Where;
+  if (nodeRef) where.nodeRef = nodeRef;
+  if (is) where.is = [{ descendantsOrSelfOf: true }];
+  return where;
 }
 
 export function setPathGetNodeRef(pathable: HasPaths, fullPath: string, optional?: boolean): string | undefined {

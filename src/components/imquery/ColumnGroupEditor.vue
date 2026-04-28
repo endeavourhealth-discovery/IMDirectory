@@ -70,16 +70,21 @@
 </style>
 
 <script lang="ts" setup>
-import { DisplayMode, Match, Node, Return } from "@/interfaces/AutoGen";
-import { Ref, ref, computed, onMounted } from "vue";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
-import { QueryService } from "@/services";
-import { IM } from "@/vocabulary";
-import type { TreeNode } from "primevue/treenode";
-import TypeSelector from "@/components/imquery/TypeSelector.vue";
+import { Ref, computed, onMounted, ref } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
+import { DisplayMode } from "vue-library/enums";
+import { IM } from "vue-library/enums";
+import type { Match, Node, Return } from "vue-library/interfaces";
+
 import Button from "primevue/button";
-import RecursiveReturnDisplay from "@/components/query/viewer/RecursiveReturnDisplay.vue";
+import type { TreeNode } from "primevue/treenode";
+
 import FieldSelector from "@/components/imquery/FieldSelector.vue";
+import TypeSelector from "@/components/imquery/TypeSelector.vue";
+import RecursiveReturnDisplay from "@/components/query/viewer/RecursiveReturnDisplay.vue";
+import { QueryService } from "@/services";
+
 interface Props {
   baseType: Node;
   clauseIndex: number;

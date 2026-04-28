@@ -38,17 +38,21 @@
 </template>
 
 <script lang="ts" setup>
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { EditorMode } from "@/enums";
-import { DisplayMode, PropertyShape, Query, QueryRequest } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "vue-library/composables";
+import { DisplayMode } from "vue-library/enums";
+import { IM } from "vue-library/enums";
+import type { PropertyShape, Query, QueryRequest } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import { EntityService, QueryService } from "@/services";
-import { useCopyToClipboard } from "@/composables/useCopyToClipboard";
+
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import QueryEditor from "@/components/imquery/QueryEditor.vue";
 import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
+import QueryEditor from "@/components/imquery/QueryEditor.vue";
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService, QueryService } from "@/services";
 
 interface Props {
   mode: EditorMode;

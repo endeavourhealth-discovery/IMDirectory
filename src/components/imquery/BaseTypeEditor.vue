@@ -33,15 +33,18 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, ref, watch, computed, onMounted } from "vue";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
-import { EntityService, QueryService } from "@/services";
-import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM, NAMESPACE, RDF, RDFS, SHACL } from "vue-library/enums";
+import type { Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+
 import Button from "primevue/button";
+
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });
@@ -73,9 +76,9 @@ async function init() {
     baseType.value.iri = match.value.typeOf!.iri!;
     baseType.value.name = match.value.typeOf.name;
   } else {
-    baseType.value.iri = IM.NAMESPACE + "Patient";
+    baseType.value.iri = NAMESPACE.IM + "Patient";
     baseType.value.name = "Patients";
-    match.value.typeOf = { iri: IM.NAMESPACE + "Patient", name: "Patients" };
+    match.value.typeOf = { iri: NAMESPACE.IM + "Patient", name: "Patients" };
   }
 }
 

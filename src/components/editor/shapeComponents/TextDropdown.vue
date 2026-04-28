@@ -13,16 +13,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
-import { EditorMode } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { processArguments } from "@/helpers/EditorMethods";
-import { FunctionService, QueryService } from "@/services";
-import { RDFS } from "@/vocabulary";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, QueryRequest, Query } from "@/interfaces/AutoGen";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { RDFS } from "vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest } from "vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+
+import { EditorMode } from "@/enums";
+import { processArguments } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { FunctionService, QueryService } from "@/services";
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -139,7 +141,7 @@ async function getDropdownOptions() {
 }
 
 function updateEntity(data: string) {
-  const result = {} as TTEntity;
+  const result = {} as ExtendedTTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

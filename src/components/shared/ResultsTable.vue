@@ -93,30 +93,43 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { DirectService, EclService, EntityService, QueryService } from "@/services";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
-import BatteryBar from "./BatteryBar.vue";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { useDownloadFile } from "@/composables/useDownloadFile";
-import { useUserStore } from "@/stores/userStore";
-import { cloneDeep } from "lodash-es";
-import { useOverlay } from "@/composables/useOverlay";
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialog } from "primevue/usedialog";
-import { DownloadByQueryOptions, ECLQueryRequest, QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
-import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { useFilterStore } from "@/stores/filterStore";
-import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { MenuItem } from "primevue/menuitem";
-import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { nextTick } from "vue";
+
+import { OverlaySummary } from "vue-library/components";
+import { IMFontAwesomeIcon } from "vue-library/components";
+import { BatteryBar } from "vue-library/components";
+import { useDownloadFile } from "vue-library/composables";
+import { useOverlay } from "vue-library/composables";
+import { TextSearchStyle } from "vue-library/enums";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
+import { isArrayHasLength } from "vue-library/helpers";
+import {
+  DownloadByQueryOptions,
+  ECLQueryRequest,
+  ExtendedSearchResultSummary,
+  QueryRequest,
+  SearchResponse,
+  SearchResultSummary
+} from "vue-library/interfaces";
+import type { FilterOptions, Namespace } from "vue-library/interfaces";
+import { useUserStore } from "vue-library/stores";
+
+import { cloneDeep } from "lodash-es";
+import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import DataTable from "primevue/datatable";
+import { MenuItem } from "primevue/menuitem";
+import { useDialog } from "primevue/usedialog";
+
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { DownloadSettings, SearchOptions } from "@/interfaces";
+import { EclService, EntityService, QueryService, UserService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
+
+import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
 
 interface Props {
   searchTerm?: string;
@@ -157,7 +170,7 @@ const searchLoading: Ref<boolean> = ref(false);
 const { downloadFile } = useDownloadFile(window, document);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const schemes: Ref<Namespace[]> = ref([]);
-const directService = new DirectService();
+const directService = useDirectService();
 
 const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
 const pageCache = ref<Record<number, ExtendedSearchResultSummary[] | undefined>>({});
@@ -276,7 +289,7 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
 
 async function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
-  await userStore.updateFavourites(selected.value.iri);
+  await userStore.updateFavourites(selected.value.iri, UserService);
 }
 function getNameDisplay(data: ExtendedSearchResultSummary): string {
   const name = data.bestMatch ? data.bestMatch : data.name;
