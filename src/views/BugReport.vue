@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { Browser, OperatingSystem, Status, TaskModule, TaskState, TaskType } from "vue-library/enums";
+import { Browser, OperatingSystem, REPO, Status, TaskModule, TaskState, TaskType } from "vue-library/enums";
 import type { BugReport } from "vue-library/interfaces";
 import { useUserStore } from "vue-library/stores";
 
@@ -232,7 +232,7 @@ async function onSubmit() {
     bugReport.actualResult = actualResult.value;
     if (user.value) bugReport.createdBy = user.value.id;
     if (error.value) bugReport.error = error.value;
-    const latestResult = await GithubService.getLatestRelease("IMDirectory");
+    const latestResult = await GithubService.getLatestRelease(REPO.IM_DIRECTORY);
     if (latestResult) bugReport.version = latestResult.version;
     bugReport.type = TaskType.BUG_REPORT;
     bugReport.state = TaskState.TODO;

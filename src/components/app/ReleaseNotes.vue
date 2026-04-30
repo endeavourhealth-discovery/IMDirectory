@@ -53,11 +53,12 @@
 <script setup lang="ts">
 import { Ref, nextTick, onMounted, ref } from "vue";
 
+import { REPO } from "vue-library/enums";
 import { isObjectHasKeys } from "vue-library/helpers";
+import type { GithubRelease } from "vue-library/interfaces";
 
 import { sanitizeUrl } from "@braintree/sanitize-url";
 
-import { GithubRelease } from "@/interfaces";
 import { GithubService } from "@/services";
 import { useSharedStore } from "@/stores/sharedStore";
 
@@ -84,7 +85,7 @@ function setLocalVersion(repoName: string, versionNo: string) {
 
 async function getLatestReleaseNotes() {
   loadingNotes.value = true;
-  const release = await GithubService.getLatestRelease("IMDirectory");
+  const release = await GithubService.getLatestRelease(REPO.IM_DIRECTORY);
   release.releaseNotes = release.releaseNotes.map(note => note.replaceAll("%27", "'").replaceAll("%22", '"'));
   if (isObjectHasKeys(release)) releases.value = [release];
   loadingNotes.value = false;
@@ -92,7 +93,7 @@ async function getLatestReleaseNotes() {
 
 async function getAllRepoReleaseNotes() {
   loadingNotes.value = true;
-  const results = await GithubService.getReleases("IMDirectory");
+  const results = await GithubService.getReleases(REPO.IM_DIRECTORY);
   results.forEach(res => (res.releaseNotes = res.releaseNotes.map(note => note.replaceAll("%27", "'").replaceAll("%22", '"'))));
   releases.value = results;
   loadingNotes.value = false;
