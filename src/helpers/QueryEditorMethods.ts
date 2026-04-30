@@ -1,5 +1,5 @@
 import { Operator, Order } from "vue-library/enums";
-import type { Compare, Match, Node, Orderable, Where } from "vue-library/interfaces";
+import type { Compare, Having, Match, Node, Orderable, Range, Where } from "vue-library/interfaces";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
 import { SentencePart } from "@/interfaces";
@@ -81,8 +81,26 @@ export function isTimeInRange(time: string, start: string, end: string): boolean
   return t >= toMinutes(start) && t <= toMinutes(end);
 }
 
+export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
+  if (!having) return;
+  const parts: SentencePart[] = [];
+  parts.push({ type: "text", value: "True if " + having.aggregate?.toString() + " " });
+  if (having.range) {
+    const range = buildRangeSentence(having.range);
+    if (range) parts.push(...range);
+    return parts;
+  } else {
+    if (having.operator) {
+      parts.push({ type: "text", value: getOperatorTerm(having.operator) });
+    }
+    const value = having.value && having.value != "0" ? having.value : undefined;
+    if (value) parts.push({ type: "text", value: `${value} ` });
+    return parts;
+  }
+}
+
 export function buildValueSentence(where: Where): SentencePart[] | undefined {
-  if (where.range) return buildRangeSentence(where);
+  if (where.range) return buildRangeSentence(where.range);
   return buildNonRangeSentence(where);
 }
 
@@ -108,9 +126,9 @@ function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
   return parts;
 }
 
-function buildRangeSentence(where: Where): SentencePart[] | undefined {
+function buildRangeSentence(range: Range): SentencePart[] | undefined {
   const parts: SentencePart[] = [];
-  const { from, to } = where.range!;
+  const { from, to } = range;
   const units = from.compare && from.compare.units ? from.compare.units.name : "";
   const fromVal = from.value && from.value != "0" ? from.value : undefined;
   const toVal = to.value;

@@ -20,6 +20,10 @@
       />
       <span>{{ notExistsLabel }}</span>
     </div>
+    <div v-if="parentOperator && parentOperator === Bool.or">
+      <span class="description">Optionally assign score if true</span>
+      <InputText v-model="match.score" type="text" class="match-score" @update:model-value="updateScore" />
+    </div>
 
     <span v-if="match.is">Currently selected :{{ match.is[0].name }}</span>
     <div class="directory-search-dialog-content">
@@ -103,8 +107,8 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
-import { IM, NAMESPACE } from "vue-library/enums";
-import type { Match, Node, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { Bool, IM, NAMESPACE } from "vue-library/enums";
+import type { Match, Node, NodeShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
@@ -120,6 +124,11 @@ import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
 import { SearchOptions } from "@/interfaces";
 import { EntityService } from "@/services";
 
+interface Props {
+  parentOperator?: Bool;
+}
+
+const props = defineProps<Props>();
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
@@ -153,6 +162,7 @@ const emit = defineEmits<{
   (event: "updateClauses", clause: Match): void;
   (event: "navigateTo", iri: string): void;
   (event: "cancel"): void;
+  (event: "updateMatch"): void;
 }>();
 
 const toggleNotExists = () => {
@@ -240,6 +250,10 @@ function updateSelected(data: SearchResultSummary) {
 function locateInTree(iri: string) {
   treeIri.value = iri;
 }
+function updateScore() {
+  edited.value = true;
+  emit("updateMatch");
+}
 
 function navigateTo(iri: string) {
   cohortIri.value = iri;
@@ -316,5 +330,16 @@ async function updateSelectedFromIri(iri: string) {
   height: 100%;
   overflow: hidden;
   border-bottom: 10px solid #ccc;
+}
+.match-description {
+  width: 60rem;
+}
+
+.description {
+  padding-right: 1rem;
+}
+
+.match-score {
+  width: 20rem;
 }
 </style>
