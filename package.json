@@ -22,7 +22,7 @@
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
     "stop-only": "node stop-only.js",
     "prepare": "husky",
-    "pnpm:devPreinstall": "pnpm config set @endeavour:registry https://artifactory.endhealth.co.uk/repository/npm/"
+    "pnpm:devPreinstall": "npm config set @endeavour:registry https://artifactory.endhealth.co.uk/repository/npm/"
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.1.2",
