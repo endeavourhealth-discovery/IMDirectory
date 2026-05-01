@@ -40,10 +40,10 @@
 <script lang="ts" setup>
 import { Ref, inject, onMounted, ref, watch } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import { DisplayMode } from "vue-library/enums";
-import { IM } from "vue-library/enums";
-import type { PropertyShape, Query, QueryRequest } from "vue-library/interfaces";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { DisplayMode } from "@endeavour/vue-library/enums";
+import { IM } from "@endeavour/vue-library/enums";
+import type { PropertyShape, Query, QueryRequest } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

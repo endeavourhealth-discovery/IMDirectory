@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import type { Match, Query, UIProperty, Where } from "vue-library/interfaces";
+import type { Match, Query, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import type { TreeNode } from "primevue/treenode";
 

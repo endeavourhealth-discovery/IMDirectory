@@ -82,10 +82,10 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import { IM } from "vue-library/enums";
-import { byName } from "vue-library/helpers";
-import type { ECLQueryRequest, GenericObject, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM } from "@endeavour/vue-library/enums";
+import { byName } from "@endeavour/vue-library/helpers";
+import type { ECLQueryRequest, GenericObject, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import ResultsTable from "@/components/shared/ResultsTable.vue";

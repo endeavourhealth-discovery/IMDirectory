@@ -1,4 +1,4 @@
-import { RecentActivityItemDto, useUserStore } from "vue-library";
+import { RecentActivityItemDto, useUserStore } from "@endeavour/vue-library";
 
 import { LocationQuery, useRouter } from "vue-router";
 

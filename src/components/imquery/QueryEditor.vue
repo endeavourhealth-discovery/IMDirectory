@@ -68,8 +68,8 @@
 <script setup lang="ts">
 import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import type { Match, Query } from "vue-library/interfaces";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import type { Match, Query } from "@endeavour/vue-library/interfaces";
 
 import { value } from "jsonpath";
 import { cloneDeep, isEqual } from "lodash-es";

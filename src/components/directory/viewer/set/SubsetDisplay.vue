@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 
-import type { TTIriRef } from "vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { SetService } from "@/services";

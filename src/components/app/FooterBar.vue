@@ -40,8 +40,8 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { REPO } from "vue-library/enums";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { REPO } from "@endeavour/vue-library/enums";
 
 import { useRouter } from "vue-router";
 

@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-import { IM } from "vue-library/enums";
+import { IM } from "@endeavour/vue-library/enums";
 
 import { flushPromises } from "@vue/test-utils";
 import { cloneDeep } from "lodash-es";

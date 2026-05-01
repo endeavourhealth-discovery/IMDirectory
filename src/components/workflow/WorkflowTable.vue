@@ -49,9 +49,9 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 
-import { TaskType } from "vue-library/enums";
-import { formatDateTime } from "vue-library/helpers";
-import type { Task, TaskHistory, WorkflowResponse } from "vue-library/interfaces";
+import { TaskType } from "@endeavour/vue-library/enums";
+import { formatDateTime } from "@endeavour/vue-library/helpers";
+import type { Task, TaskHistory, WorkflowResponse } from "@endeavour/vue-library/interfaces";
 
 import { useRouter } from "vue-router";
 

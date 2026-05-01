@@ -72,8 +72,8 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
+import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
 import { EntityService } from "@/services";

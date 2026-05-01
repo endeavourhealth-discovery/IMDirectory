@@ -1,4 +1,4 @@
-import type { SearchResultSummary } from "vue-library/interfaces";
+import type { SearchResultSummary } from "@endeavour/vue-library/interfaces";
 
 export interface EclRefinement {
   type: string;

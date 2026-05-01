@@ -20,11 +20,11 @@
     "format:check": "prettier --list-different \"{src,tests}/**/*.{js,ts,vue,json,css,scss,md}\"",
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
     "stop-only": "node stop-only.js",
-    "prepare": "husky",
-    "preinstall": "pnpm add endeavourhealth-discovery/VueLibrary"
+    "prepare": "husky"
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.1.2",
+    "@endeavour/vue-library": "0.1.0",
     "@msw/data": "1.1.2",
     "@primeuix/themes": "2.0.3",
     "@primevue/auto-import-resolver": "4.5.4",
@@ -62,7 +62,6 @@
     "vite-plugin-prismjs": "0.0.11",
     "vue": "3.5.32",
     "vue-json-pretty": "2.6.0",
-    "vue-library": "github:endeavourhealth-discovery/VueLibrary",
     "vue-router": "5.0.4",
     "vue-showdown": "4.2.0",
     "vue3-clipboard": "1.0.0",
@@ -165,8 +164,7 @@
       "core-js",
       "esbuild",
       "msw",
-      "vue-demi",
-      "vue-library"
+      "vue-demi"
     ]
   },
   "lint-staged": {

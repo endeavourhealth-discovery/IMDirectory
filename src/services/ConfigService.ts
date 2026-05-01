@@ -1,4 +1,4 @@
-import type { Namespace } from "vue-library/interfaces";
+import type { Namespace } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

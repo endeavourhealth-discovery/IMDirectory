@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, ref } from "vue";
 
-import type { FilterOptions } from "vue-library/interfaces";
+import type { FilterOptions } from "@endeavour/vue-library/interfaces";
 
 import { useRouter } from "vue-router";
 

@@ -1,8 +1,8 @@
 import { Ref } from "vue";
 
-import { IM, RDFS, SHACL } from "vue-library/enums";
-import { getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import type { TTIriRef } from "vue-library/interfaces";
+import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { MenuItem } from "primevue/menuitem";
 import type { TreeNode } from "primevue/treenode";

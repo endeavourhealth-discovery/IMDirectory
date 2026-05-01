@@ -1,8 +1,8 @@
 import { ref } from "vue";
 
-import { localStorageWithExpiry } from "vue-library/helpers";
-import type { ExtendedTTEntity } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { defineStore } from "pinia";
 

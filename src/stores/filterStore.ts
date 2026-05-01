@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { FilterOptions, Namespace } from "vue-library/interfaces";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { FilterOptions, Namespace } from "@endeavour/vue-library/interfaces";
 
 import { defineStore } from "pinia";
 

@@ -28,10 +28,10 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 
-import { IM, ToastSeverity } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { TTDocument } from "vue-library/interfaces";
-import { ToastOptions } from "vue-library/models";
+import { IM, ToastSeverity } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTDocument } from "@endeavour/vue-library/interfaces";
+import { ToastOptions } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
 import FileUpload, { FileUploadUploadEvent } from "primevue/fileupload";

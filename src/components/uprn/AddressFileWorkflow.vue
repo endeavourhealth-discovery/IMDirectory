@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "vue-library/helpers";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 
 import FileUpload from "primevue/fileupload";
 import { useToast } from "primevue/usetoast";
@@ -49,7 +49,7 @@ const handleFileUpload = async (event: any) => {
       try {
         const result = await UprnService.upload(formData);
         if (result) {
-          if (result.upload.status === "OK") {
+          if (result.upload?.status === "OK") {
             console.log("File uploaded successfully");
             toast.add({ severity: "success", summary: "Success", detail: "File uploaded successfully" });
           } else {

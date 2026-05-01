@@ -1,8 +1,8 @@
 import { Ref, ref } from "vue";
 
-import { IM, RDF, RDFS } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { FormGenerator, PropertyShape, TTIriRef } from "vue-library/interfaces";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { FormGenerator, PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import editorShapes from "@/constants/editorShapes";
 import { EditorMode } from "@/enums";

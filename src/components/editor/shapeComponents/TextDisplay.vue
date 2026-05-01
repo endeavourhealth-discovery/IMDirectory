@@ -21,8 +21,8 @@
 <script setup lang="ts">
 import { Ref, inject, onMounted, ref, watch } from "vue";
 
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { Argument, ExtendedTTEntity, PropertyShape } from "vue-library/interfaces";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Argument, ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

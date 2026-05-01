@@ -114,9 +114,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { Browser, OperatingSystem, REPO, Status, TaskModule, TaskState, TaskType } from "vue-library/enums";
-import type { BugReport } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { Browser, OperatingSystem, REPO, Status, TaskModule, TaskState, TaskType } from "@endeavour/vue-library/enums";
+import type { BugReport } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useRouter } from "vue-router";
 

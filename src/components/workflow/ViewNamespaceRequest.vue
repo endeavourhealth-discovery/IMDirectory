@@ -41,9 +41,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { NAMESPACE } from "vue-library/enums";
-import type { Namespace, NamespaceRequest, Task } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { NAMESPACE } from "@endeavour/vue-library/enums";
+import type { Namespace, NamespaceRequest, Task } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 

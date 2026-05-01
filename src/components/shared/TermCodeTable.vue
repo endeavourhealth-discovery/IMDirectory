@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, watch } from "vue";
 
-import type { SearchTermCode } from "vue-library/interfaces";
+import type { SearchTermCode } from "@endeavour/vue-library/interfaces";
 
 import { useTerms } from "@/composables/useTerms";
 

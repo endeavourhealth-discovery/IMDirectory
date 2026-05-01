@@ -48,15 +48,15 @@
 <script lang="ts" setup>
 import { Ref, computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { OverlaySummary } from "vue-library/components";
-import { useTree } from "vue-library/composables";
-import { useOverlay } from "vue-library/composables";
-import { IM } from "vue-library/enums";
-import { UserRole } from "vue-library/enums";
-import { byKey, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { TTIriRef } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useTree } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { IM } from "@endeavour/vue-library/enums";
+import { UserRole } from "@endeavour/vue-library/enums";
+import { byKey, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";

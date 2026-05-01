@@ -97,9 +97,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import { getIconColor, getTypeIcon } from "vue-library/helpers";
-import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import { getIconColor, getTypeIcon } from "@endeavour/vue-library/helpers";
+import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 

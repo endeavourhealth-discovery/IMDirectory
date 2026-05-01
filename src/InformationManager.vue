@@ -23,11 +23,11 @@
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
-import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
-import { REPO } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { GithubRelease } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
+import { REPO } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { GithubRelease } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";

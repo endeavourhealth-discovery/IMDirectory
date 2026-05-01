@@ -1,6 +1,6 @@
-import { IM, RDFS, SHACL } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { TTBundle, TTIriRef } from "vue-library/interfaces";
+import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTBundle, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 export function buildDetails(definition: TTBundle): any[] {
   const treeNode = { children: [] as any[] };

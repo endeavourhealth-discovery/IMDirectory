@@ -38,8 +38,8 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import type { ExtendedTTEntity, SearchResponse } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import type { ExtendedTTEntity, SearchResponse } from "@endeavour/vue-library/interfaces";
 
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";

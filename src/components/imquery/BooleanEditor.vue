@@ -58,8 +58,8 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { defineComponent } from "vue";
 
-import { Bool } from "vue-library/enums";
-import type { Match, Where } from "vue-library/interfaces";
+import { Bool } from "@endeavour/vue-library/enums";
+import type { Match, Where } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 

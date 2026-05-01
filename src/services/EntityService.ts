@@ -1,5 +1,5 @@
-import { IM, RDFS } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
+import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import {
   DownloadByQueryOptions,
   EditRequest,
@@ -13,7 +13,7 @@ import {
   SearchResultSummary,
   TTBundle,
   TTIriRef
-} from "vue-library/interfaces";
+} from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 import { OrganizationChartNode } from "primevue/organizationchart";

@@ -1,5 +1,5 @@
-import { Bool, IM, RDF, RuleAction, SHACL } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
+import { Bool, IM, RDF, RuleAction, SHACL } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type {
   HasPaths,
   Having,
@@ -14,7 +14,7 @@ import type {
   Return,
   SearchBinding,
   Where
-} from "vue-library/interfaces";
+} from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
