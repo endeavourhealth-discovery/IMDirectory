@@ -1,8 +1,8 @@
 import { ref } from "vue";
 
-import { RDFS } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { QueryRequest } from "vue-library/interfaces";
+import { RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { QueryRequest } from "@endeavour/vue-library/interfaces";
 
 import { defineStore } from "pinia";
 

@@ -61,8 +61,8 @@
 <script setup lang="ts">
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { IM, QUERY, SNOMED, ToastSeverity } from "vue-library/enums";
-import type { Node, QueryRequest, SearchResultSummary, TTIriRef, Where } from "vue-library/interfaces";
+import { IM, QUERY, SNOMED, ToastSeverity } from "@endeavour/vue-library/enums";
+import type { Node, QueryRequest, SearchResultSummary, TTIriRef, Where } from "@endeavour/vue-library/interfaces";
 
 import { isEqual } from "lodash-es";
 import Button from "primevue/button";

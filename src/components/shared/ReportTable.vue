@@ -21,8 +21,8 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref } from "vue";
 
-import { OWL, RDFS } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
+import { OWL, RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 
 interface Props {
   title?: string;

@@ -75,10 +75,10 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { TaskState, TaskType, UserRole } from "vue-library/enums";
-import type { Task, TaskHistory } from "vue-library/interfaces";
-import { User } from "vue-library/models";
-import { useUserStore } from "vue-library/stores";
+import { TaskState, TaskType, UserRole } from "@endeavour/vue-library/enums";
+import type { Task, TaskHistory } from "@endeavour/vue-library/interfaces";
+import { User } from "@endeavour/vue-library/models";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import TaskHistoryDialog from "@/components/workflow/TaskHistoryDialog.vue";
 import SecurityService from "@/services/SecurityService";

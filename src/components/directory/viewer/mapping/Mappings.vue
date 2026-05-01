@@ -124,9 +124,9 @@
 <script lang="ts" setup>
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import { byPriority, byScheme, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { ConceptContextMap, GenericObject, Namespace } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import { byPriority, byScheme, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ConceptContextMap, GenericObject, Namespace } from "@endeavour/vue-library/interfaces";
 
 import { ChartMapNode, ChartTableNode, MapItem, SimpleMap, SimpleMapIri } from "@/interfaces";
 import { Context } from "@/interfaces/Context";

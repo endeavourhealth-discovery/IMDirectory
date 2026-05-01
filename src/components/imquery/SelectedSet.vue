@@ -35,12 +35,12 @@
 <script lang="ts" setup>
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { OverlaySummary } from "vue-library/components";
-import { useOverlay } from "vue-library/composables";
-import { IM, RDF, RDFS } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType, isArrayHasLength, isConcept, isValueSet } from "vue-library/helpers";
-import type { ExtendedTTEntity, Match, Node, TTIriRef } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength, isConcept, isValueSet } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

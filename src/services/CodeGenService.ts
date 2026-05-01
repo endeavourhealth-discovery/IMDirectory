@@ -1,4 +1,4 @@
-import type { CodeGenDto } from "vue-library/interfaces";
+import type { CodeGenDto } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

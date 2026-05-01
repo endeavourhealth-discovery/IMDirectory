@@ -7,9 +7,9 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { ExtendedTTEntity } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import VueJsonPretty from "vue-json-pretty";

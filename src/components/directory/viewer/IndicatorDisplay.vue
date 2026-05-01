@@ -44,9 +44,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { Indicator } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Indicator } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";

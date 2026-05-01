@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { Ref, computed, inject, onMounted, ref } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 
 import { AlertDialogOptions, TypedDynamicDialogOptions } from "@/interfaces";
 import { useDialogStore } from "@/stores/dialogStore";

@@ -1,5 +1,5 @@
-import { UserRole } from "vue-library/enums";
-import { User } from "vue-library/models";
+import { UserRole } from "@endeavour/vue-library/enums";
+import { User } from "@endeavour/vue-library/models";
 
 import axios from "axios";
 

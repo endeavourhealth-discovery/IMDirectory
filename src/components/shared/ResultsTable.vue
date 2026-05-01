@@ -96,14 +96,14 @@
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { nextTick } from "vue";
 
-import { OverlaySummary } from "vue-library/components";
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { BatteryBar } from "vue-library/components";
-import { useDownloadFile } from "vue-library/composables";
-import { useOverlay } from "vue-library/composables";
-import { TextSearchStyle } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "vue-library/helpers";
-import { isArrayHasLength } from "vue-library/helpers";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { BatteryBar } from "@endeavour/vue-library/components";
+import { useDownloadFile } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { TextSearchStyle } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@endeavour/vue-library/helpers";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import {
   DownloadByQueryOptions,
   ECLQueryRequest,
@@ -111,9 +111,9 @@ import {
   QueryRequest,
   SearchResponse,
   SearchResultSummary
-} from "vue-library/interfaces";
-import type { FilterOptions, Namespace } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+} from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, Namespace } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";

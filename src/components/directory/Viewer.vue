@@ -160,8 +160,8 @@
 <script lang="ts" setup>
 import { Ref, computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 
-import { ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "vue-library/components";
-import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
+import { ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "@endeavour/vue-library/components";
+import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import {
   isConcept,
   isFeature,
@@ -174,8 +174,8 @@ import {
   isQuery,
   isRecordModel,
   isValueSet
-} from "vue-library/helpers";
-import type { ExtendedTTEntity, TTIriRef } from "vue-library/interfaces";
+} from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";

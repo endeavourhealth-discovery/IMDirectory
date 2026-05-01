@@ -81,10 +81,10 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, nextTick, onMounted, ref, watch } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import { IM } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "vue-library/interfaces";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep, isEqual, last } from "lodash-es";
 import { useDialog } from "primevue/usedialog";

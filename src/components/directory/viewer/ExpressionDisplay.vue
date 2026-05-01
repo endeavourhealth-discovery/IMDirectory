@@ -19,10 +19,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import { IM, RDFS } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { ExtendedTTEntity } from "vue-library/interfaces";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 
 import { EntityService } from "@/services";
 

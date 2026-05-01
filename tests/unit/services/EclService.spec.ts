@@ -1,4 +1,4 @@
-import type { ECLQueryRequest, Query } from "vue-library/interfaces";
+import type { ECLQueryRequest, Query } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";

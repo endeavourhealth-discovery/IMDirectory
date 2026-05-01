@@ -129,9 +129,9 @@
 <script setup lang="ts">
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { IM, QUERY } from "vue-library/enums";
-import { Bool } from "vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary, Where } from "vue-library/interfaces";
+import { IM, QUERY } from "@endeavour/vue-library/enums";
+import { Bool } from "@endeavour/vue-library/enums";
+import type { Match, QueryRequest, SearchResultSummary, Where } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";

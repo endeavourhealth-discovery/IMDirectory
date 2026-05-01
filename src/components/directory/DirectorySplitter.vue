@@ -44,8 +44,8 @@
 <script setup lang="ts">
 import { Ref, computed, ref } from "vue";
 
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { FilterOptions, SearchResponse } from "vue-library/interfaces";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { FilterOptions, SearchResponse } from "@endeavour/vue-library/interfaces";
 
 import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useRouter } from "vue-router";

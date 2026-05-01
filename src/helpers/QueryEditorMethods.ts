@@ -1,5 +1,5 @@
-import { Operator, Order } from "vue-library/enums";
-import type { Compare, Having, Match, Node, Orderable, Range, Where } from "vue-library/interfaces";
+import { Operator, Order } from "@endeavour/vue-library/enums";
+import type { Compare, Having, Match, Node, Orderable, Range, Where } from "@endeavour/vue-library/interfaces";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
 import { SentencePart } from "@/interfaces";

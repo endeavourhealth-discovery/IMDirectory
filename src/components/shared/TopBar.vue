@@ -150,9 +150,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
-import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "vue-library/enums";
-import { useUserStore } from "vue-library/stores";
+import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
+import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "@endeavour/vue-library/enums";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
 import Button from "primevue/button";

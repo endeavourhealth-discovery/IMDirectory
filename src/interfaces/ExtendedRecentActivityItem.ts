@@ -1,4 +1,4 @@
-import { RecentActivityItem } from "vue-library/models";
+import { RecentActivityItem } from "@endeavour/vue-library/models";
 
 export interface ExtendedRecentActivityItem extends RecentActivityItem {
   name: string;

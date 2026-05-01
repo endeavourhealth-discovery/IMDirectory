@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
-import { IM, TagSeverity } from "vue-library/enums";
-import { localStorageWithExpiry } from "vue-library/helpers";
+import { IM, TagSeverity } from "@endeavour/vue-library/enums";
+import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
 
 import { defineStore } from "pinia";
 

@@ -1,5 +1,8 @@
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { createRouter, createWebHashHistory } from "vue-router";
 
+import { SecurityService } from "@/services";
 import { useAuthStore } from "@/stores/authStore";
 
 import { setBrowserTabTitles } from "./methods/browserTabTitles";
@@ -26,8 +29,6 @@ import {
 } from "./methods/routeGuards";
 import routes from "./methods/routes";
 import { setModes } from "./methods/setModes";
-import { SecurityService } from "@/services";
-import { useUserStore } from "vue-library/stores";
 
 const router = createRouter({
   history: createWebHashHistory(),

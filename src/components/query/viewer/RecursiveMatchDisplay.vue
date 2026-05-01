@@ -124,8 +124,8 @@
 <script setup lang="ts">
 import { Ref, computed, inject, ref } from "vue";
 
-import { Bool, DisplayMode } from "vue-library/enums";
-import type { Match, Node } from "vue-library/interfaces";
+import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import type { Match, Node } from "@endeavour/vue-library/interfaces";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

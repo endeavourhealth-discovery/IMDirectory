@@ -156,9 +156,9 @@
 <script setup lang="ts">
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { Bool } from "vue-library/enums";
-import { QUERY } from "vue-library/enums";
-import type { Match, Node, QueryRequest, TTIriRef, Where } from "vue-library/interfaces";
+import { Bool } from "@endeavour/vue-library/enums";
+import { QUERY } from "@endeavour/vue-library/enums";
+import type { Match, Node, QueryRequest, TTIriRef, Where } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import { v4 } from "uuid";

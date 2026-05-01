@@ -10,7 +10,7 @@
   "bracketSameLine": false,
   "arrowParens": "avoid",
   "plugins": ["prettier-plugin-tailwindcss", "@trivago/prettier-plugin-sort-imports"],
-  "importOrder": ["^vue$", "^vue-library", "^@?\\w", "^@/", "^[./]"],
+  "importOrder": ["^vue$", "^@endeavour/vue-library", "^@?\\w", "^@/", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
 }

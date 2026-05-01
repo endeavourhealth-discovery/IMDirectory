@@ -19,8 +19,8 @@
 <script setup lang="ts">
 import { Ref, inject, onMounted, ref } from "vue";
 
-import { RDF } from "vue-library/enums";
-import type { ExtendedEntityReferenceNode, ExtendedTTEntity } from "vue-library/interfaces";
+import { RDF } from "@endeavour/vue-library/enums";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 
 import editorShapes from "@/constants/editorShapes";
 import injectionKeys from "@/injectionKeys/injectionKeys";

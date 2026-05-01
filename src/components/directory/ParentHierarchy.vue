@@ -28,8 +28,8 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import type { TTIriRef } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { MenuItem } from "primevue/menuitem";
 

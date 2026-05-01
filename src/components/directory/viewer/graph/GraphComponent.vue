@@ -21,9 +21,9 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, onUnmounted, ref, watch } from "vue";
 
-import { IM, ToastSeverity } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import { ToastOptions } from "vue-library/models";
+import { IM, ToastSeverity } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { ToastOptions } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
 import { cloneDeep } from "lodash-es";

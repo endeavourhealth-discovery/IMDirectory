@@ -1,7 +1,7 @@
 import { ComponentPublicInstance, createApp } from "vue";
 
-import { injectionKeysVueLibrary } from "vue-library";
-import { IMFontAwesomeIcon } from "vue-library/components";
+import { injectionKeysVueLibrary } from "@endeavour/vue-library";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 
 import Aura from "@primeuix/themes/aura";
 import { createPinia } from "pinia";

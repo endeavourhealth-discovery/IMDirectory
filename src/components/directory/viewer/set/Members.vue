@@ -42,9 +42,9 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { Node, Query } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Node, Query } from "@endeavour/vue-library/interfaces";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { EntityService, SetService } from "@/services";

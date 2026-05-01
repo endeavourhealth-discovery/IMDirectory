@@ -79,13 +79,13 @@
 <script setup lang="ts">
 import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import { OverlaySummary } from "vue-library/components";
-import { useSpeechToText } from "vue-library/composables";
-import { useOverlay } from "vue-library/composables";
-import { TextSearchStyle } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import type { FilterOptions } from "vue-library/interfaces";
-import type { QueryRequest, SearchResponse, SearchResultSummary } from "vue-library/interfaces";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useSpeechToText } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { TextSearchStyle } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { FilterOptions } from "@endeavour/vue-library/interfaces";
+import type { QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 

@@ -1,4 +1,4 @@
-import { IM } from "vue-library/enums";
+import { IM } from "@endeavour/vue-library/enums";
 
 import { expect, vi } from "vitest";
 

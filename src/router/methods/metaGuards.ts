@@ -1,7 +1,7 @@
 import { computed } from "vue";
 
-import { UserRole } from "vue-library/enums";
-import { useUserStore } from "vue-library/stores";
+import { UserRole } from "@endeavour/vue-library/enums";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { RouteLocationNormalized, Router } from "vue-router";
 

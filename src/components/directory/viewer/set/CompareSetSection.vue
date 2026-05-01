@@ -34,12 +34,12 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
-import { OverlaySummary } from "vue-library/components";
-import { useCopyToClipboard } from "vue-library/composables";
-import { useOverlay } from "vue-library/composables";
-import { IM, NAMESPACE } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { IM, NAMESPACE } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
 
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { useDirectService } from "@/composables/useDirectService";

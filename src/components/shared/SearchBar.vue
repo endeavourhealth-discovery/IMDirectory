@@ -50,9 +50,9 @@
 import { onMounted, ref, watch } from "vue";
 import { Ref } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { useSpeechToText } from "vue-library/composables";
-import type { FilterOptions, SearchResultSummary } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { useSpeechToText } from "@endeavour/vue-library/composables";
+import type { FilterOptions, SearchResultSummary } from "@endeavour/vue-library/interfaces";
 
 import InputGroupAddon from "primevue/inputgroupaddon";
 

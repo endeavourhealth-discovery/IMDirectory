@@ -1,6 +1,6 @@
-import { IM, RDF, RDFS } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { Argument, GenericObject } from "vue-library/interfaces";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Argument, GenericObject } from "@endeavour/vue-library/interfaces";
 
 export function mapToObject(args: Argument[]) {
   const argsAsObject = {} as Argument;
