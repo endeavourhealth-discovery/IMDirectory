@@ -86,7 +86,7 @@
           <Button label="Cancel" @click="onCancel" text />
           <Button
             v-if="selectedName && isSelectableEntity"
-            :disabled="!isSelectableEntity"
+            :disabled="!isSelectableEntity || validationLoading"
             data-testid="search-dialog-select-button"
             label="Select"
             :loading="validationLoading"

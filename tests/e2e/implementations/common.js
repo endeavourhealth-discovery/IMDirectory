@@ -93,6 +93,11 @@ step("Click <text> button", async text => {
   await pw.page.waitForLoadState("networkidle");
 });
 
+step("Click first instance of <text> button", async text => {
+  await pw.page.getByRole("button", { name: text }).nth(0).click();
+  await pw.page.waitForLoadState("networkidle");
+});
+
 step("Type <text> into <input>", async (text, input) => {
   await pw.page.getByPlaceholder(input).fill(text);
 });
@@ -119,4 +124,34 @@ step("Select <text> result", async text => {
 
 step("Click dialog confirm", async () => {
   await pw.page.locator(".p-confirmdialog").locator(".p-confirmdialog-accept-button").click();
+});
+
+step("Expand <text> in tree", async text => {
+  await pw.page.getByRole("treeitem").getByText(text).locator("..").locator("..").locator("..").getByRole("button").click();
+  await pw.page.waitForLoadState("networkidle");
+});
+
+step("Select <text> in tree", async text => {
+  const reg = new RegExp("^" + text + "$");
+  await pw.page.locator(".p-tree-node-content").filter({ hasText: reg }).locator("..").click();
+  await pw.page.waitForLoadState("networkidle");
+});
+
+step("Click edit button", async () => {
+  await pw.page.waitForSelector('[data-testid="edit-button"]', { state: "visible" });
+  const edit = await pw.page.locator(".entity-buttons-container").locator('[data-testid="edit-button"]');
+  await edit.click();
+  await pw.page.waitForSelector(".editor-layout-container");
+});
+
+step("Click menu item <text>", async text => {
+  const reg = new RegExp("^" + text + "$");
+  await pw.page.waitForSelector(".p-menu-item-link", { state: "visible" });
+  const item = await pw.page.locator(".p-menu-item-link").filter({ hasText: reg });
+  await item.click();
+});
+
+step("Check <n> instance of <text> option", async (n, text) => {
+  const reg = new RegExp("^" + text + "$");
+  await pw.page.getByLabel(text).nth(parseInt(n)).check();
 });
