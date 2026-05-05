@@ -23,6 +23,7 @@ import { useDirectService } from "./composables/useDirectService";
 import { worker } from "./mocks/browser";
 import router from "./router";
 import { EntityService, UserService } from "./services";
+import { UserRole } from "@endeavour/vue-library/enums";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -34,6 +35,7 @@ declare module "axios" {
 declare module "vue-router" {
   interface RouteMeta {
     requiresLicense?: boolean;
+    requiresRole?: UserRole[];
     transition?: string;
     mode?: "in-out" | "out-in" | "default" | undefined;
     transitionDelay?: string;
