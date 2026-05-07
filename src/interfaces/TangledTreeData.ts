@@ -1,4 +1,4 @@
-import { TTIriRef } from "./AutoGen";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 export default interface TangledTreeData {
   id: string;

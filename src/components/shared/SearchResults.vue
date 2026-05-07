@@ -75,13 +75,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { FilterOptions } from "@/interfaces";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM } from "@endeavour/vue-library/enums";
+import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { cloneDeep } from "lodash-es";
-import { QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
 
 interface Props {
   searchTerm: string;

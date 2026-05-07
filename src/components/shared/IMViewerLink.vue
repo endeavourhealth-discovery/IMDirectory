@@ -23,11 +23,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
-import { DirectService } from "../../services";
-import OverlaySummary from "./OverlaySummary.vue";
-import setupOverlay from "@/composables/setupOverlay";
+import { onUnmounted, ref, watch } from "vue";
+
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+
 import { cloneDeep } from "lodash-es";
+
+import { useDirectService } from "@/composables/useDirectService";
 
 interface Props {
   iri: string;
@@ -45,6 +48,10 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
+onUnmounted(() => {
+  hideOverlay();
+});
+
 const vLinkMenu = ref();
 const items = ref([
   { label: "Select", icon: "fa-duotone fa-list-tree", command: () => emit("navigateTo", props.iri) },
@@ -54,8 +61,8 @@ const items = ref([
     command: () => directService.view(props.iri)
   }
 ]);
-const { OS, showOverlay, hideOverlay } = setupOverlay();
-const directService = new DirectService();
+const { OS, showOverlay, hideOverlay } = useOverlay();
+const directService = useDirectService();
 
 function onNodeContext(event: MouseEvent) {
   vLinkMenu.value.show(event);

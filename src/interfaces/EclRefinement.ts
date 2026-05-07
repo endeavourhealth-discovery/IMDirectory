@@ -1,4 +1,4 @@
-import { SearchResultSummary } from "./AutoGen";
+import type { SearchResultSummary } from "@endeavour/vue-library/interfaces";
 
 export interface EclRefinement {
   type: string;

@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 </script>
 
 <style scoped></style>

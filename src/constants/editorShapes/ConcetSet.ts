@@ -1,5 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY, XSD } from "@/vocabulary";
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
+import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
 const ConceptSetShape: FormGenerator = {
   iri: EDITOR.CONCEPT_SET_SHAPE,
@@ -250,6 +250,13 @@ const ConceptSetShape: FormGenerator = {
                   order: 1,
                   minCount: 0,
                   builderChild: true,
+                  isValidEntity: { iri: QUERY.IS_VALID_TYPE },
+                  isValidArguments: [
+                    {
+                      valueIri: { iri: IM.FOLDER },
+                      parameter: "type"
+                    }
+                  ],
                   componentType: {
                     iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
@@ -342,6 +349,23 @@ const ConceptSetShape: FormGenerator = {
               validationErrorMessage: "Set definition is not valid",
               path: {
                 iri: IM.DEFINITION
+              }
+            },
+            {
+              comment: "avoid replaced by",
+              order: 3,
+              datatype: {
+                iri: XSD.BOOLEAN
+              },
+              name: "Avoid replaced by",
+              showTitle: true,
+              maxCount: 1,
+              path: {
+                iri: IM.AVOID_REPLACED_BY
+              },
+              minCount: 0,
+              componentType: {
+                iri: COMPONENT.CHECKBOX_DISPLAY
               }
             }
           ]

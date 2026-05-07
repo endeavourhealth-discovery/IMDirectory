@@ -1,6 +1,14 @@
 <template>
   <div id="address-file-workflow">
-    <FileUpload mode="advanced" :maxFileSize="12000000" customUpload @uploader="handleFileUpload" chooseLabel="Browse" accept=".txt,.EncryptedSalt" :multiple="true" />
+    <FileUpload
+      mode="advanced"
+      :maxFileSize="12000000"
+      customUpload
+      @uploader="handleFileUpload"
+      chooseLabel="Browse"
+      accept=".txt,.EncryptedSalt"
+      :multiple="true"
+    />
     <div id="address-file-instructions">
       <p>
         The address file to be uploaded must contain two columns separated by a single tab character with a .txt extension<br />
@@ -8,7 +16,9 @@
         The first column is a unique numeric row id<br />
         The second column is an address string including a postcode at the end with a comma separating the address from the postcode<br />
         The third column is the postal region (not mandatory, but useful when you don't know the address candidates postcode)<br />
-        Use the fourth column to specify the search priority for the address in that row: R for Residential, C for Commercial, or N for Neutral.  A Neutral (N) search will return both residential and commercial results, but will prioritize residential matches.  If the column is left blank, a Residential (R) search will be performed by default.<br /><br />
+        Use the fourth column to specify the search priority for the address in that row: R for Residential, C for Commercial, or N for Neutral. A Neutral (N)
+        search will return both residential and commercial results, but will prioritize residential matches. If the column is left blank, a Residential (R)
+        search will be performed by default.<br /><br />
         Example records:<br />
         1[tab]10 Downing St,Westminster,London,SW1A2AA<br />
         2[tab]10 Downing St,Westminster,London[tab]SW<br />
@@ -21,10 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from "primevue/usetoast";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 
 import FileUpload from "primevue/fileupload";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { useToast } from "primevue/usetoast";
+
 import UprnService from "@/services/UprnService";
 
 const toast = useToast();
@@ -38,7 +49,7 @@ const handleFileUpload = async (event: any) => {
       try {
         const result = await UprnService.upload(formData);
         if (result) {
-          if (result.upload.status === "OK") {
+          if (result.upload?.status === "OK") {
             console.log("File uploaded successfully");
             toast.add({ severity: "success", summary: "Success", detail: "File uploaded successfully" });
           } else {

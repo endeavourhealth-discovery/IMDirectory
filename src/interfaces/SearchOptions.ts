@@ -1,5 +1,4 @@
-import { Page, SearchBinding, TTIriRef } from "./AutoGen";
-import { FilterOptions } from "./FilterOptions";
+import type { FilterOptions, Page, SearchBinding, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 export interface SearchOptions extends FilterOptions {
   isA?: TTIriRef[];

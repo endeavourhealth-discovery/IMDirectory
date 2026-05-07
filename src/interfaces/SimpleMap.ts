@@ -3,4 +3,6 @@ export interface SimpleMap {
   code: string;
   name: string;
   scheme: string;
+  alternativeCode?: string;
+  codeId?: string;
 }

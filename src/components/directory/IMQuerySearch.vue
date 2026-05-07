@@ -1,18 +1,20 @@
 <template>
   <div id="query-search-container">
     <h3 class="title">IM language search</h3>
-    <h5 class="info">IMQuery definition:</h5>
-    <div class="text-copy-container">
-      <Textarea v-model="imQueryString" id="query-string-container" placeholder="Enter query definition here" data-testid="query-string" />
-      <Button
-        :disabled="!imQueryString.length"
-        icon="fa-solid fa-copy"
-        v-tooltip.left="'Copy to clipboard'"
-        v-clipboard:copy="copyToClipboard()"
-        v-clipboard:success="onCopy"
-        v-clipboard:error="onCopyError"
-        data-testid="copy-to-clipboard-button"
-      />
+    <div class="input-container">
+      <h5 class="info">IMQuery definition:</h5>
+      <div class="text-copy-container">
+        <Textarea v-model="imQueryString" id="query-string-container" placeholder="Enter query definition here" data-testid="query-string" />
+        <Button
+          :disabled="!imQueryString.length"
+          icon="fa-solid fa-copy"
+          v-tooltip.left="'Copy to clipboard'"
+          v-clipboard:copy="copyToClipboard()"
+          v-clipboard:success="onCopy"
+          v-clipboard:error="onCopyError"
+          data-testid="copy-to-clipboard-button"
+        />
+      </div>
     </div>
     <div class="button-container">
       <Button label="Format" @click="format" severity="help" :disabled="!imQueryString.length" data-testid="search-button" />
@@ -32,13 +34,16 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
-import { QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@/models";
-import { ToastSeverity } from "@/enums";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { ToastSeverity } from "@endeavour/vue-library/enums";
+import type { QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import { ToastOptions } from "@endeavour/vue-library/models";
+
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { useToast } from "primevue/usetoast";
+
 import ResultsTable from "../shared/ResultsTable.vue";
 
 const emit = defineEmits<{
@@ -48,7 +53,7 @@ const emit = defineEmits<{
 
 const toast = useToast();
 const imQueryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(imQueryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(imQueryString);
 const imQuery: Ref<QueryRequest | undefined> = ref();
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
@@ -95,7 +100,8 @@ function format() {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  grow: 100;
+  flex-grow: 100;
+  margin-right: 1rem;
 }
 
 .info {
@@ -116,11 +122,24 @@ function format() {
   overflow: auto;
 }
 
+.input-container {
+  width: 98%;
+  flex: 0 1 auto;
+  overflow: auto;
+}
+
 .text-copy-container {
   width: 100%;
   display: flex;
   flex-flow: row;
   align-items: center;
   margin: 0 0 1rem 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
 }
 </style>

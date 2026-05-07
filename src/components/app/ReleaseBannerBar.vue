@@ -10,7 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { GithubRelease } from "@/interfaces";
+import type { GithubRelease } from "@endeavour/vue-library/interfaces";
+
 import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {

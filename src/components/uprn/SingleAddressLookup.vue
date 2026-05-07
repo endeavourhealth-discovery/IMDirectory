@@ -20,30 +20,15 @@
     <!-- Radio buttons section -->
     <div class="radio-group">
       <div class="radio-option">
-        <input
-          type="radio"
-          id="residential"
-          value="100"
-          v-model="searchType"
-        />
+        <input type="radio" id="residential" value="100" v-model="searchType" />
         <label for="residential">Residential</label>
       </div>
       <div class="radio-option">
-        <input
-          type="radio"
-          id="commercial"
-          value="010"
-          v-model="searchType"
-        />
+        <input type="radio" id="commercial" value="010" v-model="searchType" />
         <label for="commercial">Commercial</label>
       </div>
       <div class="radio-option">
-        <input
-          type="radio"
-          id="both"
-          value="001"
-          v-model="searchType"
-        />
+        <input type="radio" id="both" value="001" v-model="searchType" />
         <label for="both">Residential or Commercial (residential takes precedence)</label>
       </div>
     </div>
@@ -53,27 +38,27 @@
     <div v-if="!loading" class="data-table-container">
       <table v-if="searchResults" class="data-table">
         <thead>
-        <tr>
-          <th>Field</th>
-          <th>Value</th>
-        </tr>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
         </thead>
 
         <tbody>
-        <tr v-for="(value, key) in searchResults" :key="key">
-          <td>
-            <span v-tooltip="getDefinition(key)">{{ variableToReadable(key) }}</span>
-          </td>
-          <td v-if="isObject(value)">
-            <tr v-for="[subKey, subValue] of Object.entries(value)" :key="subKey">
-              <td>
-                <span v-tooltip="getDefinition(subKey, key)">{{ variableToReadable(subKey) }}</span>
-              </td>
-              <td>{{ subValue }}</td>
-            </tr>
-          </td>
-          <td v-else>{{ value }}</td>
-        </tr>
+          <tr v-for="(value, key) in searchResults" :key="key">
+            <td>
+              <span v-tooltip="getDefinition(key)">{{ variableToReadable(key) }}</span>
+            </td>
+            <td v-if="isObject(value)">
+              <tr v-for="[subKey, subValue] of Object.entries(value)" :key="subKey">
+                <td>
+                  <span v-tooltip="getDefinition(subKey, key)">{{ variableToReadable(subKey) }}</span>
+                </td>
+                <td>{{ subValue }}</td>
+              </tr>
+            </td>
+            <td v-else>{{ value }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -82,12 +67,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watch } from "vue";
-import UprnService from "@/services/UprnService";
+import { Ref, computed, ref, watch } from "vue";
+
+import { isObject } from "@endeavour/vue-library/helpers";
+
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
+
 import { UprnSearchResponse } from "@/interfaces";
-import { isObject } from "@/helpers/DataTypeCheckers";
+import UprnService from "@/services/UprnService";
 
 const toast = useToast();
 

@@ -38,11 +38,15 @@
 </template>
 
 <script setup lang="ts">
-import { useSharedStore } from "@/stores/sharedStore";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { Ref, onMounted, ref } from "vue";
+
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { REPO } from "@endeavour/vue-library/enums";
+
 import { useRouter } from "vue-router";
-import { onMounted, ref, Ref } from "vue";
+
 import { GithubService } from "@/services";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const sharedStore = useSharedStore();
 const router = useRouter();
@@ -54,7 +58,7 @@ onMounted(async () => {
 });
 
 async function getCurrentVersion() {
-  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
+  const latestRelease = await GithubService.getLatestRelease(REPO.IM_DIRECTORY);
   if (latestRelease && latestRelease.version) currentVersion.value = latestRelease.version;
 }
 

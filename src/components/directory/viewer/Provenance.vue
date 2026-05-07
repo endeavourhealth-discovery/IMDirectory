@@ -70,11 +70,13 @@
 </template>
 
 <script setup lang="ts">
-import { EntityService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { onMounted, ref, Ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
+
+import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { EntityService } from "@/services";
 
 interface Provenane {
   prov: string;
@@ -97,7 +99,7 @@ const selectedProvenance = ref();
 const provItem = ref();
 const jsonDisplay = ref();
 
-const labels = ref({
+const labels: Ref<Record<string, string>> = ref({
   iri: "Iri:",
   [RDF.TYPE]: "Type:",
   [RDFS.LABEL]: "Name:",

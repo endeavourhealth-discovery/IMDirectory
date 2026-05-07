@@ -19,9 +19,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref } from "vue";
-import { RDFS, OWL } from "@/vocabulary";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { Ref, computed, onMounted, ref } from "vue";
+
+import { OWL, RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 
 interface Props {
   title?: string;

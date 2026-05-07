@@ -37,7 +37,7 @@
                 </div>
               </TabPanel>
               <TabPanel value="1">
-                <QueryDisplay :definition="value" :eclQuery="true" />
+                <QueryDisplay :queryDefinition="eclQuery.query" :eclQuery="true" />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -63,7 +63,6 @@
     <ECLBuilder
       v-if="showDialog"
       :showDialog="showDialog"
-      :eclString="lastValidEcl"
       :query="eclQuery.query"
       :showNames="showNames"
       @eclSubmitted="updatefromBuilder"
@@ -80,22 +79,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, inject, nextTick, onMounted, ref, Ref, watch } from "vue";
-import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
-import AddByCodeList from "./setDefinition/AddByCodeList.vue";
-import { EditorMode } from "@/enums";
-import { EclService } from "@/services";
+import { ComputedRef, Ref, computed, inject, nextTick, onMounted, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+
 import { cloneDeep, isEqual, last } from "lodash-es";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ECLQueryRequest, PropertyShape, SearchResultSummary } from "@/interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { showVerificationDialog, showValidationMessage } from "@/composables/eclValidator";
 import { useDialog } from "primevue/usedialog";
-import { IM } from "@/vocabulary";
+
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import MembersPreview from "@/components/directory/viewer/set/MembersPreview.vue";
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { useEclValidator } from "@/composables/useEclValidator";
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EclService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 
 interface Props {
   shape: PropertyShape;
@@ -104,11 +108,14 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const dialogStore = useDialogStore();
 const validationDialog = useDialog();
 const eclQuery: Ref<ECLQueryRequest> = ref({ status: { valid: true } } as ECLQueryRequest);
 const importMenu = ref();
 const ecl: Ref<string> = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ecl);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(ecl);
+const { showValidationMessage, showVerificationDialog } = useEclValidator();
 const showDialog = ref(false);
 const showAddByCodeListDialog = ref(false);
 const showAddByFileDialog = ref(false);
@@ -139,17 +146,20 @@ const buttonOptions = [
 
 const debounceTimer = ref(0);
 const highlightedText = computed(() => {
-  const lines = ecl.value.split("\n");
-  if (eclQuery.value && eclQuery.value.status && !eclQuery.value.status.valid) {
-    const eclStatus = eclQuery.value.status;
-    const lineIndex = eclStatus.line! - 1;
-    const offset = eclStatus.offset!;
-    if (lines[lineIndex] && offset < lines[lineIndex].length) {
-      const line = lines[lineIndex];
-      lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
+  if (ecl.value) {
+    const lines = ecl.value.split("\n");
+    if (eclQuery.value && eclQuery.value.status && !eclQuery.value.status.valid) {
+      const eclStatus = eclQuery.value.status;
+      const lineIndex = eclStatus.line! - 1;
+      const offset = eclStatus.offset!;
+      if (lines[lineIndex] && offset < lines[lineIndex].length) {
+        const line = lines[lineIndex];
+        lines[lineIndex] = line.slice(0, offset) + '<span class="error-char">' + line[offset] + "</span>" + line.slice(offset + 1);
+      }
     }
+    return lines.map(line => line || "&nbsp;").join("<br/>");
   }
-  return lines.map(line => line || "&nbsp;").join("<br/>");
+  return "";
 });
 
 if (forceValidation) {
@@ -177,6 +187,9 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 }
 
 watch(ecl, newValue => {
+  if (!ecl.value) {
+    eclQuery.value.query = {};
+  }
   if (!initialised.value) {
     initialised.value = true;
     return;
@@ -224,12 +237,13 @@ async function showOrHideNames() {
 }
 
 function previewExpansion() {
-  showMembersDialog.value = !showMembersDialog.value;
+  if (eclQuery.value.query && eclQuery.value.query.invalid) showInvalidAlert();
+  else showMembersDialog.value = !showMembersDialog.value;
 }
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as TTEntity;
+    const result = {} as ExtendedTTEntity;
     if (eclQuery.value && eclQuery.value.query) {
       result[key] = JSON.stringify(eclQuery.value.query);
     }
@@ -253,7 +267,20 @@ function toggleMenuOptions(event: MouseEvent) {
 }
 
 function showBuilder(): void {
-  showDialog.value = true;
+  if (eclQuery.value.query && eclQuery.value.query.invalid) showInvalidAlert();
+  else showDialog.value = true;
+}
+
+async function showInvalidAlert() {
+  await dialogStore.open(AlertDialog, {
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-exclamation",
+      title: "Warning",
+      text: "Invalid ECL. Please fix or remove ecl before using builder.",
+      confirmButtonText: "Close"
+    }
+  });
 }
 
 function showAddByCodeList(): void {
@@ -286,6 +313,9 @@ function processCodeList(data: SearchResultSummary[]) {
 async function updatefromBuilder(builderQuery: ECLQueryRequest): Promise<void> {
   eclQuery.value = await EclService.getECLFromQuery(builderQuery.query!, showNames.value);
   ecl.value = eclQuery.value.ecl!;
+  if (!ecl.value) {
+    eclQuery.value.query = {};
+  }
   lastValidEcl.value = ecl.value;
   showDialog.value = false;
 }

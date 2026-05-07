@@ -10,9 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import setupTerms from "@/composables/setupTerms";
-import { SearchTermCode } from "@/interfaces/AutoGen";
-import { onMounted, Ref, watch } from "vue";
+import { Ref, onMounted, watch } from "vue";
+
+import type { SearchTermCode } from "@endeavour/vue-library/interfaces";
+
+import { useTerms } from "@/composables/useTerms";
 
 interface Props {
   entityIri: string;
@@ -27,7 +29,7 @@ watch(
   }
 );
 
-const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: (iri: string) => void } = setupTerms();
+const { terms, getTerms }: { terms: Ref<SearchTermCode[]>; getTerms: (iri: string) => void } = useTerms();
 
 onMounted(() => {
   getTerms(props.entityIri);

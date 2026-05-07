@@ -1,6 +1,5 @@
 <template>
   <div id="search-results-main-container">
-    <span>first = {{ first }}</span>
     <DataTable
       :paginator="true"
       :paginatorTemplate="'PrevPageLink NextPageLink RowsPerPageDropdown'"
@@ -36,6 +35,7 @@
                 <span data-testid="total-results">{{ totalCount }}</span>
                 <span>)</span>
               </span>
+              <span v-else>0 found</span>
             </div>
             <Button
               :disabled="!searchResults.length"
@@ -93,36 +93,49 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { DirectService, EclService, EntityService, QueryService } from "@/services";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
-import BatteryBar from "./BatteryBar.vue";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import setupDownloadFile from "@/composables/downloadFile";
-import { useUserStore } from "@/stores/userStore";
-import { cloneDeep } from "lodash-es";
-import setupOverlay from "@/composables/setupOverlay";
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialog } from "primevue/usedialog";
-import { DownloadByQueryOptions, EclSearchRequest, QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
-import { DownloadSettings, ExtendedSearchResultSummary, FilterOptions, Namespace, SearchOptions } from "@/interfaces";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { useFilterStore } from "@/stores/filterStore";
-import { buildIMQueryFromFilters } from "@/composables/buildQuery";
-import { MenuItem } from "primevue/menuitem";
-import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { nextTick } from "vue";
+
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { BatteryBar } from "@endeavour/vue-library/components";
+import { useDownloadFile } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { TextSearchStyle } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@endeavour/vue-library/helpers";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import {
+  DownloadByQueryOptions,
+  ECLQueryRequest,
+  ExtendedSearchResultSummary,
+  QueryRequest,
+  SearchResponse,
+  SearchResultSummary
+} from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, Namespace } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
+import { cloneDeep } from "lodash-es";
+import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import DataTable from "primevue/datatable";
+import { MenuItem } from "primevue/menuitem";
+import { useDialog } from "primevue/usedialog";
+
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { DownloadSettings, SearchOptions } from "@/interfaces";
+import { EclService, EntityService, QueryService, UserService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
+
+import DownloadByQueryOptionsDialog from "./dialogs/DownloadByQueryOptionsDialog.vue";
 
 interface Props {
   searchTerm?: string;
   updateSearch?: boolean;
   imQuery?: QueryRequest;
-  eclQuery?: EclSearchRequest;
+  eclQuery?: ECLQueryRequest;
   pageSize?: number;
   disablePageDropdown?: boolean;
   showSelect?: boolean;
@@ -154,10 +167,10 @@ const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
 const filterStore = useFilterStore();
 const searchLoading: Ref<boolean> = ref(false);
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 const schemes: Ref<Namespace[]> = ref([]);
-const directService = new DirectService();
+const directService = useDirectService();
 
 const selected: Ref<ExtendedSearchResultSummary> = ref({} as ExtendedSearchResultSummary);
 const pageCache = ref<Record<number, ExtendedSearchResultSummary[] | undefined>>({});
@@ -170,6 +183,7 @@ const rows = ref(props.pageSize ? props.pageSize : 25);
 const rowsOriginal = ref(20);
 const searchTable = ref<InstanceType<typeof DataTable> | null>(null);
 const pageForcer = ref(1000);
+const total: Ref<number> = ref(0);
 const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Select",
@@ -192,7 +206,7 @@ const rClickOptions: Ref<MenuItem[]> = ref([
 ]);
 const showDownloadOptions = ref(false);
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 const contextMenu = ref();
 
@@ -218,7 +232,7 @@ watch(
 
 async function onSearch() {
   searchLoading.value = true;
-  const response = await search(page.value + 1, rows.value, page.value == 0 ? TextSearchStyle.autocomplete : TextSearchStyle.all,undefined);
+  const response = await search(page.value + 1, rows.value, page.value == 0 ? TextSearchStyle.autocomplete : TextSearchStyle.all, undefined);
   emit("searchResultsUpdated", response);
   const lastSearchTerm = props.searchTerm;
   if (response?.entities && isArrayHasLength(response.entities)) {
@@ -227,13 +241,12 @@ async function onSearch() {
   }
   searchLoading.value = false;
   if (!props.eclQuery && lastSearchTerm === props.searchTerm && page.value == 0) {
-    let offset= undefined;
-    let rowsLeft= rows.value;
+    let offset = undefined;
+    let lefttoDo = 0;
     if (response?.entities) {
       offset = response.entities.length;
-      rowsLeft = rows.value - offset;
     }
-    search(2, rowsLeft,TextSearchStyle.all,offset).then(slow => {
+    search(2, rows.value, TextSearchStyle.all, offset).then(slow => {
       addSearchResults(slow);
       pageCache.value[page.value] = searchResults.value;
       emit("searchResultsUpdated", response);
@@ -246,7 +259,7 @@ function updateRows(newRows: number) {
   onSearch();
 }
 
-async function search(pageNumber: number, pageSize: number, searchStyle: TextSearchStyle,offset?: number) {
+async function search(pageNumber: number, pageSize: number, searchStyle: TextSearchStyle, offset?: number) {
   let response = undefined;
   if (props.eclQuery) {
     props.eclQuery.page = pageNumber;
@@ -257,15 +270,13 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
       props.imQuery.textSearch = props.searchTerm;
       props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
       props.imQuery.textSearchStyle = searchStyle;
-      if (offset)
-        props.imQuery.page.offset = offset;
+      if (offset) props.imQuery.page.offset = offset;
       response = await QueryService.queryIMSearch(props.imQuery);
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
       searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
-      if (offset)
-        searchOptions.page.offset = offset;
+      if (offset) searchOptions.page.offset = offset;
       const imQuery = buildIMQueryFromFilters(searchOptions);
       imQuery.textSearchStyle = searchStyle;
       response = await QueryService.queryIMSearch(imQuery);
@@ -278,7 +289,7 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
 
 async function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
-  await userStore.updateFavourites(selected.value.iri);
+  await userStore.updateFavourites(selected.value.iri, UserService);
 }
 function getNameDisplay(data: ExtendedSearchResultSummary): string {
   const name = data.bestMatch ? data.bestMatch : data.name;
@@ -295,6 +306,7 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
     //if (searchResults.value && searchResults.value.length) addSearchResults(searchResponse);
     searchResults.value = mapSearchResults(searchResponse);
     if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.count ?? 0;
+    if (searchResponse.count) total.value = searchResponse.count;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
@@ -368,7 +380,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     data: { title: "Downloading", text: "Preparing your download..." }
   });
   let downloadQuery: QueryRequest | undefined;
-  let eclSearchRequest: EclSearchRequest | undefined;
+  let eclSearchRequest: ECLQueryRequest | undefined;
   if (props.eclQuery) {
     eclSearchRequest = cloneDeep(props.eclQuery);
     eclSearchRequest.page = 1;

@@ -2,7 +2,7 @@
   <div id="landing-page-container">
     <div id="landing-content">
       <div id="shortcuts-container">
-        <h2>Quick links</h2>
+        <h2 class="title">Quick links</h2>
         <div class="shortcuts">
           <template v-for="(shortcut, index) of shortcuts" v-bind:key="index">
             <Shortcut
@@ -25,21 +25,22 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import { DirectService } from "@/services";
-import { IM, SHACL } from "@/vocabulary";
-import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
-import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
-import Favourites from "@/components/directory/landingPage/Favourites.vue";
-import { Namespace } from "@/vocabulary/Namespace";
 
-const directService = new DirectService();
+import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType } from "@endeavour/vue-library/helpers";
+
+import Favourites from "@/components/directory/landingPage/Favourites.vue";
+import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";
+import Shortcut from "@/components/directory/landingPage/Shortcut.vue";
+import { useDirectService } from "@/composables/useDirectService";
+
+const directService = useDirectService();
 
 const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; command?: () => void; color: string; size: number; newTab?: boolean }[]> = ref([
   {
     label: "Ontology",
     icon: getFAIconFromType([{ iri: IM.CONCEPT }]),
-    command: () => directService.select(Namespace.IM + "HealthModelOntology"),
+    command: () => directService.select(NAMESPACE.IM + "HealthModelOntology"),
     color: getColourFromType([{ iri: IM.CONCEPT }]),
     size: 4
   },
@@ -134,5 +135,12 @@ const shortcuts: Ref<{ label: string; icon: string | string[]; url?: string; com
   flex-flow: row wrap;
   padding: 0.5rem;
   gap: 1.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
 }
 </style>

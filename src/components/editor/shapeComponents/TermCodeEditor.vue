@@ -21,13 +21,16 @@
 
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
-import { EditorMode } from "@/enums";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDFS } from "@/vocabulary";
-import { useFilterStore } from "@/stores/filterStore";
+
+import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
+
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { useFilterStore } from "@/stores/filterStore";
 
 const props = defineProps<{
   shape: PropertyShape;

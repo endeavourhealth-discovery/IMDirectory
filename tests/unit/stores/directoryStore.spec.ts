@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, vi } from "vitest";
+import type { SearchResponse } from "@endeavour/vue-library/interfaces";
+
 import { createTestingPinia } from "@pinia/testing";
-import { SearchResponse } from "@/interfaces/AutoGen";
-import { useDirectoryStore } from "@/stores/directoryStore";
+import { beforeEach, describe, expect, vi } from "vitest";
 import { it } from "vitest";
 import { afterAll } from "vitest";
+
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 describe("state", () => {
   beforeEach(() => {

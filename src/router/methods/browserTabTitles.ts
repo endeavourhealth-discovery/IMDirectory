@@ -1,8 +1,10 @@
+import { nextTick } from "vue";
+
+import { RouteLocationNormalized } from "vue-router";
+
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useQueryStore } from "@/stores/queryStore";
-import { nextTick } from "vue";
-import { RouteLocationNormalized } from "vue-router";
 
 export async function setBrowserTabTitles(to: RouteLocationNormalized) {
   const APP_TITLE = "IM";

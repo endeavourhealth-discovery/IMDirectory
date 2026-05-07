@@ -57,22 +57,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, watch } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes, isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { ExtendedEntityReferenceNode, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { EntityService, DirectService } from "@/services";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { getNamesAsStringFromTypes } from "@/helpers/ConceptTypeMethods";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { useDirectoryStore } from "@/stores/directoryStore";
-import { useUserStore } from "@/stores/userStore";
-import setupOverlay from "@/composables/setupOverlay";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { MenuItem } from "primevue/menuitem";
-import { ExtendedEntityReferenceNode } from "@/interfaces/ExtendedAutoGen";
+
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { EntityService, UserService } from "@/services";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const props = defineProps<{
   entityIri: string;
@@ -86,8 +87,8 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const { OS, showOverlay, hideOverlay } = setupOverlay();
-const directService = new DirectService();
+const { OS, showOverlay, hideOverlay } = useOverlay();
+const directService = useDirectService();
 
 watch(
   () => props.entityIri,
@@ -188,7 +189,7 @@ function onRowContextMenu(event: MouseEvent, data: { data: ExtendedEntityReferen
 }
 
 async function updateFavourites(iri: string) {
-  await userStore.updateFavourites(iri);
+  await userStore.updateFavourites(iri, UserService);
 }
 
 function onRowSelect(event: { data: ExtendedEntityReferenceNode }) {

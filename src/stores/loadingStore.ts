@@ -1,33 +1,51 @@
-import { defineStore } from "pinia";
-import { LoadingState } from "./types/loadingState";
+import { ref } from "vue";
 
-export const useLoadingStore = defineStore("loading", {
-  state: (): LoadingState => ({
-    viewsLoading: false,
-    directoryLoading: false,
-    authLoading: false,
-    uprnLoading: false,
-    adminToolboxLoading: false,
-    workflowLoading: false
-  }),
-  actions: {
-    updateViewsLoading(bool: boolean) {
-      this.viewsLoading = bool;
-    },
-    updateDirectoryLoading(bool: boolean) {
-      this.directoryLoading = bool;
-    },
-    updateAuthLoading(bool: boolean) {
-      this.authLoading = bool;
-    },
-    updateUprnLoading(bool: boolean) {
-      this.uprnLoading = bool;
-    },
-    updateAdminToolboxLoading(bool: boolean) {
-      this.adminToolboxLoading = bool;
-    },
-    updateWorkflowLoading(bool: boolean) {
-      this.workflowLoading = bool;
-    }
+import { defineStore } from "pinia";
+
+export const useLoadingStore = defineStore("loading", () => {
+  const viewsLoading = ref<boolean>(false);
+  const directoryLoading = ref<boolean>(false);
+  const authLoading = ref<boolean>(false);
+  const uprnLoading = ref<boolean>(false);
+  const adminToolboxLoading = ref<boolean>(false);
+  const workflowLoading = ref<boolean>(false);
+
+  function updateViewsLoading(bool: boolean) {
+    viewsLoading.value = bool;
   }
+
+  function updateDirectoryLoading(bool: boolean) {
+    directoryLoading.value = bool;
+  }
+
+  function updateAuthLoading(bool: boolean) {
+    authLoading.value = bool;
+  }
+
+  function updateUprnLoading(bool: boolean) {
+    uprnLoading.value = bool;
+  }
+
+  function updateAdminToolboxLoading(bool: boolean) {
+    adminToolboxLoading.value = bool;
+  }
+
+  function updateWorkflowLoading(bool: boolean) {
+    workflowLoading.value = bool;
+  }
+
+  return {
+    adminToolboxLoading,
+    authLoading,
+    directoryLoading,
+    uprnLoading,
+    viewsLoading,
+    workflowLoading,
+    updateAdminToolboxLoading,
+    updateAuthLoading,
+    updateDirectoryLoading,
+    updateUprnLoading,
+    updateViewsLoading,
+    updateWorkflowLoading
+  };
 });

@@ -25,17 +25,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, ComputedRef, computed } from "vue";
-import { EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { processArguments } from "@/helpers/EditorMethods";
-import { byName } from "@/helpers/Sorters";
-import { mapToObject } from "@/helpers/Transforms";
-import { FunctionService, QueryService } from "@/services";
-import { RDFS } from "@/vocabulary";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { RDFS } from "@endeavour/vue-library/enums";
+import { byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+
 import { cloneDeep, isEqual } from "lodash-es";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@/interfaces/AutoGen";
+
+import { EditorMode } from "@/enums";
+import { processArguments } from "@/helpers/EditorMethods";
+import { mapToObject } from "@/helpers/Transforms";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { FunctionService, QueryService } from "@/services";
 
 const props = defineProps<{
   shape: PropertyShape;

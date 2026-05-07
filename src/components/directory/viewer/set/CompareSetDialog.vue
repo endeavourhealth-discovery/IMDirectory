@@ -32,9 +32,12 @@
 </template>
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
-import CompareSetSection from "./CompareSetSection.vue";
-import { Concept, SearchResultSummary } from "@/interfaces/AutoGen";
+
+import type { Concept, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+
 import { SetService } from "@/services";
+
+import CompareSetSection from "./CompareSetSection.vue";
 
 defineProps<{
   setIriA: string;

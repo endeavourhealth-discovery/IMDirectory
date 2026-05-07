@@ -1,8 +1,11 @@
-import { http, HttpResponse } from "msw";
-import { IM } from "@/vocabulary";
-import { fakerFactory } from "@/mocks/fakerFactory";
+import { IM } from "@endeavour/vue-library/enums";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+
+import { faker } from "@faker-js/faker";
 import { isArray } from "lodash-es";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { HttpResponse, http } from "msw";
+
+import * as fakerFactory from "@/mocks/fakerFactory";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 
@@ -55,36 +58,30 @@ export const handlersFaker = [
   http.get(apiUrl + "entity/public/partial", ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
-    const entityValue = {} as { [x: string]: string | readonly string[] | undefined | null };
-    if (iri) entityValue.iri = iri;
-    if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax"))
-      entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
-    if (predicatesArray && isArray(predicatesArray) && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
-      entityValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = null;
-    const entity = fakerFactory.entity.create(entityValue) as TTEntity;
+    const entity = fakerFactory.entity.create({
+      iri: iri as string,
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": null,
+      "http://www.w3.org/2000/01/rdf-schema#label": null
+    }) as ExtendedTTEntity;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });
     return HttpResponse.json(entity);
   }),
-  http.get(apiUrl + "entity/public/parents", () => {
-    return HttpResponse.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]);
+  http.get(apiUrl + "entity/public/parents", async () => {
+    const parents = await fakerFactory.iriRef.createMany(2, () => ({ iri: faker.internet.url(), name: faker.lorem.sentence() }));
+    return HttpResponse.json(fakerFactory.entitySummaryRandomMany(2));
   }),
-  http.get(apiUrl + "entity/public/childrenPaged", () => {
-    const children = [
-      fakerFactory.entitySummary.create(),
-      fakerFactory.entitySummary.create(),
-      fakerFactory.entitySummary.create(),
-      fakerFactory.entitySummary.create()
-    ];
-    return HttpResponse.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4 }));
+  http.get(apiUrl + "entity/public/childrenPaged", async () => {
+    const children = await fakerFactory.entitySummaryRandomMany(4);
+    return HttpResponse.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4, pageSize: 25, currentPage: 1 }));
   }),
   http.get(apiUrl + "entity/public/summary", ({ params }) => {
     const { iri } = params;
     if (iri && typeof iri === "string") {
-      const found = fakerFactory.entitySummary.findFirst({ where: { iri: { equals: iri } } });
+      const found = fakerFactory.entitySummary.findFirst(q => q.where({ iri: iri }));
       if (found) return HttpResponse.json(found);
-      else return HttpResponse.json(fakerFactory.pagedChildren.create());
+      else return HttpResponse.json(fakerFactory.pagedChildrenRandom());
     } else
       return new HttpResponse(
         JSON.stringify({

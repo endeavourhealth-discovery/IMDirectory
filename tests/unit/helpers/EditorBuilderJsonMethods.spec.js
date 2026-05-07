@@ -1,12 +1,13 @@
+import { describe, expect, it } from "vitest";
+
 import { ComponentType, EditorMode } from "@/enums";
-import { addItem, addNextOptions, generateNewComponent, genNextOptions, updateItem, updatePositions } from "@/helpers/EditorBuilderJsonMethods";
-import { fakerFactory } from "@/mocks/fakerFactory";
-import { describe, it, expect } from "vitest";
+import { addItem, addNextOptions, genNextOptions, generateNewComponent, updateItem, updatePositions } from "@/helpers/EditorBuilderJsonMethods";
+import * as fakerFactory from "@/mocks/fakerFactory";
 
 describe("EditorBuilderJsonMethods", () => {
   describe("generateNewComponent", () => {
-    it("generates a component", () => {
-      const shape = fakerFactory.propertyShape.create();
+    it("generates a component", async () => {
+      const shape = await fakerFactory.propertyShapeRandom();
       expect(
         generateNewComponent(ComponentType.ENTITY_DROPDOWN, 1, {}, shape, { minus: true, plus: true, up: true, down: true }, EditorMode.CREATE, false)
       ).toEqual({
@@ -28,8 +29,8 @@ describe("EditorBuilderJsonMethods", () => {
   });
 
   describe("genNextOptions", () => {
-    it("generates next options", () => {
-      const shape = fakerFactory.propertyShape.create();
+    it("generates next options", async () => {
+      const shape = await fakerFactory.propertyShapeRandom();
       expect(genNextOptions(1, ComponentType.ENTITY_AUTO_COMPLETE, shape, EditorMode.EDIT)).toEqual({
         id: "addNext_2",
         json: {},
@@ -47,10 +48,12 @@ describe("EditorBuilderJsonMethods", () => {
   });
 
   describe("updatePositions", () => {
-    it("updates positions", () => {
-      const component = fakerFactory.componentDetails.create({ position: 4 });
+    it("updates positions", async () => {
+      const component = await fakerFactory.componentDetailsRandom();
+      component.position = 4;
       expect(component.position).toEqual(4);
-      const component2 = fakerFactory.componentDetails.create({ position: 6 });
+      const component2 = await fakerFactory.componentDetailsRandom();
+      component2.position = 6;
       expect(component2.position).toBe(6);
       const build = [component, component2];
       updatePositions(build);
@@ -60,13 +63,13 @@ describe("EditorBuilderJsonMethods", () => {
   });
 
   describe("updateItem", () => {
-    it("updatesItem", () => {
-      const component = fakerFactory.componentDetails.create({ position: 2 });
-      const build = [
-        fakerFactory.componentDetails.create({ position: 0 }),
-        fakerFactory.componentDetails.create({ position: 1 }),
-        fakerFactory.componentDetails.create({ position: 2 })
-      ];
+    it("updatesItem", async () => {
+      const component = await fakerFactory.componentDetailsRandom();
+      component.position = 2;
+      const build = [await fakerFactory.componentDetailsRandom(), await fakerFactory.componentDetailsRandom(), await fakerFactory.componentDetailsRandom()];
+      build[0].position = 0;
+      build[1].position = 1;
+      build[2].position = 2;
       expect(build[2]).not.toEqual(component);
       updateItem(component, build);
       expect(build[2]).toEqual(component);
@@ -74,12 +77,13 @@ describe("EditorBuilderJsonMethods", () => {
   });
 
   describe("addNextOptions", () => {
-    it("addsNextOptions ___ not last not addNext", () => {
-      const build = [
-        fakerFactory.componentDetails.create({ type: ComponentType.ENTITY_SEARCH, position: 0 }),
-        fakerFactory.componentDetails.create({ type: ComponentType.ARRAY_BUILDER, position: 1 })
-      ];
-      const shape = fakerFactory.propertyShape.create();
+    it("addsNextOptions ___ not last not addNext", async () => {
+      const build = [await fakerFactory.componentDetailsRandom(), await fakerFactory.componentDetailsRandom()];
+      build[0].position = 0;
+      build[0].type = ComponentType.ENTITY_SEARCH;
+      build[1].position = 1;
+      build[1].type = ComponentType.ARRAY_BUILDER;
+      const shape = await fakerFactory.propertyShapeRandom();
       const result = addNextOptions(
         { previousComponentType: ComponentType.ENTITY_AUTO_COMPLETE, previousPosition: 0, selectedOption: ComponentType.ENTITY_COMBOBOX },
         build,
@@ -103,12 +107,13 @@ describe("EditorBuilderJsonMethods", () => {
       expect(build[1]).toEqual(result);
     });
 
-    it("addsNextOptions ___ not last is addNext", () => {
-      const build = [
-        fakerFactory.componentDetails.create({ type: ComponentType.ENTITY_SEARCH, position: 0 }),
-        fakerFactory.componentDetails.create({ type: ComponentType.ADD_NEXT, position: 1 })
-      ];
-      const shape = fakerFactory.propertyShape.create();
+    it("addsNextOptions ___ not last is addNext", async () => {
+      const build = [await fakerFactory.componentDetailsRandom(), await fakerFactory.componentDetailsRandom()];
+      build[0].type = ComponentType.ENTITY_SEARCH;
+      build[0].position = 0;
+      build[1].type = ComponentType.ADD_NEXT;
+      build[1].position = 1;
+      const shape = await fakerFactory.propertyShapeRandom();
       const result = addNextOptions(
         { previousComponentType: ComponentType.ENTITY_AUTO_COMPLETE, previousPosition: 0, selectedOption: ComponentType.ENTITY_COMBOBOX },
         build,
@@ -134,10 +139,12 @@ describe("EditorBuilderJsonMethods", () => {
   });
 
   describe("addItem", () => {
-    it("addsItem", () => {
+    it("addsItem", async () => {
       const itemToAdd = { selectedType: ComponentType.ENTITY_MULTI_SEARCH, position: 1, value: { id: "itemToAddId" } };
-      const build = [fakerFactory.componentDetails.create({ position: 0 }), fakerFactory.componentDetails.create({ position: 1 })];
-      const shape = fakerFactory.propertyShape.create();
+      const build = [await fakerFactory.componentDetailsRandom(), fakerFactory.componentDetailsRandom()];
+      build[0].position = 0;
+      build[1].position = 1;
+      const shape = await fakerFactory.propertyShapeRandom();
       addItem(itemToAdd, build, { minus: true, plus: true, up: true, down: true }, shape, EditorMode.EDIT, false);
       expect(build.length).toBe(3);
       expect(build[1].value.id).toEqual(itemToAdd.value.id);

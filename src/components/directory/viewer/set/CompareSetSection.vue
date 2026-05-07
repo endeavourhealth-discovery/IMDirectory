@@ -5,7 +5,7 @@
       <AutocompleteSearchBar
         v-if="header !== 'Shared members '"
         v-model:selected="modelSelectedSet"
-        :root-entities="[Namespace.IM + 'Sets']"
+        :root-entities="[NAMESPACE.IM + 'Sets']"
         :im-query="searchQuery"
       />
       <div v-if="isArrayHasLength(members)">Total members ({{ members.length }})</div>
@@ -32,19 +32,21 @@
 </template>
 
 <script setup lang="ts">
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import setupOverlay from "@/composables/setupOverlay";
-import { buildIMQueryFromFilters } from "@/composables/buildQuery";
-import { DirectService, EntityService } from "@/services";
-import { useFilterStore } from "@/stores/filterStore";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { FilterOptions, SearchOptions } from "@/interfaces";
-import { Concept, QueryRequest, SearchResultSummary } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { IM, NAMESPACE } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { Namespace } from "@/vocabulary/Namespace";
+import { useDirectService } from "@/composables/useDirectService";
+import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { EntityService } from "@/services";
+import { useFilterStore } from "@/stores/filterStore";
 
 const props = defineProps<{
   header: string;
@@ -59,8 +61,8 @@ const emit = defineEmits<{
   "update:selectedSet": [payload: SearchResultSummary | undefined];
 }>();
 
-const directService = new DirectService();
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const directService = useDirectService();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const menu = ref();
@@ -68,7 +70,7 @@ const menu = ref();
 const selected: Ref<Concept | undefined> = ref();
 const searchQuery: Ref<QueryRequest | undefined> = ref();
 const loading = ref(true);
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 
 const rClickItems = ref([
   {

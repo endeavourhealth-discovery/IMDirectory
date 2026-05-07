@@ -44,14 +44,17 @@
 </template>
 
 <script setup lang="ts">
-import { EntityService } from "@/services";
-import type { TreeNode } from "primevue/treenode";
-import { onMounted, Ref, ref, watch } from "vue";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM, SHACL } from "@/vocabulary";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { Ref, onMounted, ref, watch } from "vue";
+
+import { IM, SHACL } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { GenericObject } from "@endeavour/vue-library/interfaces";
+
 import { isArray } from "lodash-es";
-import { GenericObject } from "@/interfaces/GenericObject";
+import type { TreeNode } from "primevue/treenode";
+
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;

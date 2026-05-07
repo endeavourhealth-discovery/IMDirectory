@@ -15,8 +15,10 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
+
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
+
 import JSONEditor from "./JSONEditor.vue";
 
 const emit = defineEmits<{

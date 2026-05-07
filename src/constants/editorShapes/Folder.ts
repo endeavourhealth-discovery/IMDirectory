@@ -1,5 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, VALIDATION, QUERY, IM_FUNCTION } from "@/vocabulary";
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
+import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
 const FolderShape: FormGenerator = {
   iri: EDITOR.FOLDER_SHAPE,

@@ -17,21 +17,23 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { onMounted, ref } from "vue";
-import { IM, RDFS } from "@/vocabulary";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+
 import { EntityService } from "@/services";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
 
 interface Props {
-  concept: TTEntity;
+  concept: ExtendedTTEntity;
 }
 
 const props = defineProps<Props>();
 
 const expression = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(expression);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(expression);
 
 const loading = ref(true);
 onMounted(async () => await init());

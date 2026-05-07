@@ -8,6 +8,7 @@
       v-model:selected="selectedResult"
       :im-query="queryRequest"
       :root-entities="rootEntities"
+      :validEntityQuery="isValidEntity"
       @dragenter.prevent
       @dragover.prevent
       @drop="dropReceived"
@@ -19,19 +20,20 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { RDFS, ToastSeverity } from "@endeavour/vue-library/enums";
+import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { GenericObject, PropertyShape, QueryRequest } from "@endeavour/vue-library/interfaces";
+
 import { cloneDeep, isEqual } from "lodash-es";
-import { TTIriRef, SearchResultSummary } from "@/interfaces/AutoGen";
-import { EditorMode, ToastSeverity } from "@/enums";
-import { isObjectHasKeys, isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { isTTIriRef } from "@/helpers/TypeGuards";
-import { QueryService, EntityService } from "@/services";
-import { RDFS } from "@/vocabulary";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, QueryRequest } from "@/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
-import { GenericObject } from "@/interfaces/GenericObject";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService, QueryService } from "@/services";
 
 const toast = useToast();
 
@@ -109,6 +111,7 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
+const isValidEntity: Ref<QueryRequest | undefined> = ref(undefined);
 const rootEntities: Ref<string[]> = ref([]);
 
 watch(selectedResult, async (newValue, oldValue) => {
@@ -128,6 +131,12 @@ async function init() {
     }
     queryRequest.value.argument = props.shape.argument;
   }
+  if (props.shape.isValidEntity) {
+    isValidEntity.value = { query: { iri: props.shape.isValidEntity.iri } };
+    if (props.shape.isValidArguments) {
+      isValidEntity.value.argument = props.shape.isValidArguments;
+    } else isValidEntity.value.argument = props.shape.isValidArguments;
+  }
   if (props.value && isObjectHasKeys(props.value)) {
     await updateSelectedResult(props.value);
   } else {
@@ -146,7 +155,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
     const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
-  } else if (isTTIriRef(data)) {
+  } else if (TypeGuards.isTTIriRef(data)) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {

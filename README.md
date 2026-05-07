@@ -1,23 +1,16 @@
 # IMDirectory
 
-![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/version.svg)
-![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/build.svg)
-![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/unit-test.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IMDirectory&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMDirectory)
+## Current status
+
+| Environment | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Live        | ![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-live/version.svg) ![Build](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-live/build.svg) ![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-live/unit-test.svg) ![E2E Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-live/e2e-test.svg)                                                                                                                                                         |
+| UAT         | ![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-uat/version.svg) ![Build](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-uat/build.svg) ![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-uat/unit-test.svg) ![E2E Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-uat/e2e-test.svg)                                                                                                                                                             |
+| Dev         | ![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-dev/version.svg) ![Build](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-dev/build.svg) ![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-dev/unit-test.svg) ![E2E Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory-dev/e2e-test.svg) [![Sonar](https://sonarcloud.io/api/project_badges/measure?project=IMDirectory&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=IMDirectory) |
 
 ## Project setup
 
 **The proxy expects the IMAPI to be running on localhost:8080**
-
-### node, npm, pnpm
-
-IMDirectory uses [node](https://nodejs.org/en), [npm](https://www.npmjs.com/) and [pnpm](https://pnpm.io/). Current recommended compatable versions are:
-
-| Package | Version |
-| ------- | ------- |
-| node    | 18.17.0 |
-| npm     | 9.6.7   |
-| pnpm    | 9.11.0  |
 
 ### Fontawesome
 
@@ -39,8 +32,6 @@ In project root add file
 
 File should contain:
 
-    CYPRESS_LOGIN_USERNAME="username for IMDirectory account cypress will use"
-    CYPRESS_LOGIN_PASSWORD="password for IMDirectory account cypress will use"
     VITE_HOSTING_MODE="public" || "private"
 
 ### Compiles and hot-reloads for development
@@ -83,7 +74,7 @@ Unit test using vitest
 pnpm test:unit
 ```
 
-E2E test using cypress
+E2E test
 
 ```console
 pnpm test:e2e

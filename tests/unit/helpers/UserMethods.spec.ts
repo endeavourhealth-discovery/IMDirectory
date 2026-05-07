@@ -1,6 +1,7 @@
-import { verifyIsEmail, verifyPasswordsMatch, verifyIsFirstName, verifyIsUsername, checkPasswordStrength, verifyIsLastName } from "@/helpers/UserMethods";
+import { describe, expect, it } from "vitest";
+
 import { PasswordStrength } from "@/enums";
-import { describe, it, expect } from "vitest";
+import { checkPasswordStrength, verifyIsEmail, verifyIsFirstName, verifyIsLastName, verifyIsUsername, verifyPasswordsMatch } from "@/helpers/UserMethods";
 
 describe("verifyIsEmail", () => {
   it("should fail if empty", () => {

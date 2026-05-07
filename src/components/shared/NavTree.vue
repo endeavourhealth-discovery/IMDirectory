@@ -33,7 +33,6 @@
         </div>
       </template>
     </Tree>
-    <small class="p-1">CTRL+click to open in new tab</small>
     <OverlaySummary ref="OS" />
     <Dialog :closable="false" :modal="true" :visible="newFolder !== null" header="New folder">
       <InputText v-model="newFolderName" autofocus type="text" @keyup.enter="createFolder" />
@@ -42,28 +41,31 @@
         <Button :disabled="creating || !newFolderName" :icon="newFolderIcon" label="Create" @click="createFolder" />
       </template>
     </Dialog>
+    <small class="mt-auto">CTRL+click to open in new tab</small>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import OverlaySummary from "./OverlaySummary.vue";
-import { useToast } from "primevue/usetoast";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { byKey } from "@/helpers/Sorters";
-import { EntityService, FilerService } from "@/services";
-import { IM } from "@/vocabulary";
-import type { TreeNode } from "primevue/treenode";
-import setupTree from "@/composables/setupTree";
-import { useUserStore } from "@/stores/userStore";
-import { useConfirm } from "primevue/useconfirm";
-import createNew from "@/composables/createNew";
-import { TTIriRef, UserRole } from "@/interfaces/AutoGen";
-import setupOverlay from "@/composables/setupOverlay";
+import { Ref, computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useTree } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { IM } from "@endeavour/vue-library/enums";
+import { UserRole } from "@endeavour/vue-library/enums";
+import { byKey, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { cloneDeep } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
-import { checkExists } from "@/composables/createNew";
+import type { TreeNode } from "primevue/treenode";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+
+import { useCreateNew } from "@/composables/useCreateNew";
+import { EntityService, FilerService } from "@/services";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -98,9 +100,8 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
 const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
-  setupTree(emit, props.childLength ? props.childLength : 40);
-const { getCreateOptions }: { getCreateOptions: (newFolderName: Ref<string>, newFolder: Ref<TreeNode | null>, node: TreeNode) => Promise<MenuItem[]> } =
-  createNew();
+  useTree(favourites, emit, props.childLength ? props.childLength : 40);
+const { getCreateOptions, checkExists } = useCreateNew();
 
 const loading = ref(true);
 const overlayLocation: Ref<MouseEvent | undefined> = ref();
@@ -114,7 +115,7 @@ const newFolderIcon = computed(() => {
 });
 
 const menu = ref();
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 watch(
   () => props.findInTree,
@@ -163,7 +164,7 @@ async function init() {
   loading.value = true;
   if (isArrayHasLength(props.rootEntities)) await addRootEntitiesToTree();
   else await addParentFoldersToRoot();
-  //if (props.selectedIri) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
+  if (props.selectedIri && props.findInTree) await findPathToNode(props.selectedIri, loading, "hierarchy-tree-bar-container");
   loading.value = false;
 }
 
@@ -204,8 +205,9 @@ async function addRootEntitiesToTree() {
 async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
+  const hasPermission = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
 
-  if (!currentUser.value || !currentUser.value.roles.includes(UserRole.ADMIN)) return;
+  if (!currentUser.value || !hasPermission) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
   selectedNode.value = node;

@@ -31,14 +31,19 @@
 </template>
 
 <script setup lang="ts">
-import { enumToArray } from "@/helpers/Converters";
-import { RoleRequest, Task, UserRole } from "@/interfaces/AutoGen";
-import AdminService from "@/services/AdminService";
-import WorkflowService from "@/services/WorkflowService";
-import { useUserStore } from "@/stores/userStore";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { UserRole } from "@endeavour/vue-library/enums";
+import type { RoleRequest, Task } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
-import { computed, onMounted, ref, Ref, watch } from "vue";
+
+import SecurityService from "@/services/SecurityService";
+import WorkflowService from "@/services/WorkflowService";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 import TaskViewer from "./TaskViewer.vue";
 
 interface Props {
@@ -47,6 +52,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
 
@@ -79,7 +85,7 @@ watch(selectedRole, newValue => {
 });
 
 async function setOptions() {
-  roleOptions.value = (await AdminService.getGroups()) as UserRole[];
+  roleOptions.value = (await SecurityService.adminGetGroups()) as UserRole[];
 }
 
 function setValuesFromRoleRequest(roleRequest: RoleRequest) {
@@ -115,10 +121,13 @@ async function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateRoleRequest(updatedRoleRequest).then(async () => {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Role request successfully updated."
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" } },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Role request successfully updated."
+            }
           });
         });
 

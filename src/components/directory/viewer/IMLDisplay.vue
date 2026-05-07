@@ -31,9 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import { IMLLanguage } from "@/interfaces/AutoGen";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import type { IMLLanguage } from "@endeavour/vue-library/interfaces";
 
 interface Props {
   iml: IMLLanguage;
@@ -49,7 +50,7 @@ const keywords = props.iml.keywords!;
 const booleans = props.iml.booleans!;
 const alerts = props.iml.alerts!;
 const parsedLines: Ref<Lines[]> = ref([]);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(ref(props.iml.text!));
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(ref(props.iml.text!));
 
 function parseLines() {
   parsedLines.value = [];
@@ -62,6 +63,14 @@ function parseLines() {
       const match = line.match(/^(.*?)(?<!https?:)\/\/(.*)$/);
       if (match) [, line, comment] = match;
       line = line.trim();
+      if (line === ">>") {
+        indentLevel++;
+        continue;
+      }
+      if (line === "<<") {
+        indentLevel--;
+        continue;
+      }
       const words = [];
       if (line.includes('"')) {
         words.push(line);
@@ -73,15 +82,6 @@ function parseLines() {
         indent: indentLevel,
         comment: comment
       });
-      if (/[{(]$/.test(line)) {
-        indentLevel++;
-      } else if (line.endsWith(":")) {
-        indentLevel++;
-        then = true;
-      } else if (/[})]$/.test(line) || then) {
-        then = false;
-        indentLevel = Math.max(0, indentLevel - 1);
-      }
     }
   }
 }
@@ -98,7 +98,7 @@ function init() {
 
 <style scoped>
 .keyword {
-  color: #c678dd; /* purple for keywords */
+  color: #c678dd;
   font-weight: bold;
 }
 .word::after {
@@ -113,6 +113,9 @@ function init() {
 
 .operator {
   color: #7591bf;
+}
+.alert {
+  color: darkmagenta;
 }
 
 .language-text {

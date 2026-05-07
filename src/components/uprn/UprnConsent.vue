@@ -12,16 +12,16 @@
         <div class="attribution-container">
           <h3>Attribution statement</h3>
           <p>
-            This code is available to use under the AGPL-3.0 License (see LICENSE file) and may not be used unless in compliance with the License,
-            and with the following attribution against any outputs created from the use of this code including the assignment of UPRNs, geo-coordinates or any
-            pseudonymised or other data based on these.
+            This code is available to use under the AGPL-3.0 License (see LICENSE file) and may not be used unless in compliance with the License, and with the
+            following attribution against any outputs created from the use of this code including the assignment of UPRNs, geo-coordinates or any pseudonymised
+            or other data based on these.
           </p>
           <p>
             This service/work/research acknowledges the use of the Open Access Discovery Programme UPRN-match Address Matching Algorithm (current version 6)
             which is licensed under AGPL-3.0 License and can be accessed <Button link href="https://github.com/endeavourhealth-discovery/ASSIGN">here</Button>.
             The current version number can be found
             <Button link as="a" class="p-0" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking"
-            >here</Button
+              >here</Button
             >.
           </p>
           <p>
@@ -47,7 +47,7 @@
             with relevant residential property classification codes in Ordnance Survey AddressBase Premium are matched to by the algorithm. Documentation of the
             method can be found
             <Button link as="a" class="p-0" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking"
-            >here</Button
+              >here</Button
             >.
           </p>
           <p>
@@ -63,7 +63,7 @@
           <p>
             The algorithm error rates and description of match qualifiers can also be found
             <Button link as="a" class="p-0" href="https://wiki.discoverydataservice.org/index.php?title=UPRN_address_matching_algorithm#Best_fit_ranking"
-            >here</Button
+              >here</Button
             >.
           </p>
           <p>
@@ -89,10 +89,13 @@
 </template>
 
 <script setup lang="ts">
-import { useSharedStore } from "@/stores/sharedStore";
-import { useUserStore } from "@/stores/userStore";
 import { computed } from "vue";
+
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { useRouter } from "vue-router";
+
+import { useSharedStore } from "@/stores/sharedStore";
 
 const userStore = useUserStore();
 const router = useRouter();

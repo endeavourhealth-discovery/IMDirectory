@@ -1,7 +1,7 @@
-import { TTEntity } from "./ExtendedAutoGen";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 
 export interface ConceptAggregate {
-  children: TTEntity[];
-  concept: TTEntity;
-  parents: TTEntity[];
+  children: ExtendedTTEntity[];
+  concept: ExtendedTTEntity;
+  parents: ExtendedTTEntity[];
 }

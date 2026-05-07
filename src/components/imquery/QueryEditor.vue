@@ -24,24 +24,40 @@
       </div>
     </template>
     <BaseTypeEditor v-model:match="query" />
-    <span v-if="query.typeOf" v-for="operator in operators" :key="operator">
-      <span v-if="query[operator]">
-        <span v-for="(nestedMatch, index) in query[operator]" :key="index">
-          <BooleanMatchEditor
-            v-model:match="query[operator][index]"
-            :rootBool="true"
-            :depth="0"
-            v-model:parentMatch="query"
-            :parentIndex="parentIndex"
-            :clauseIndex="index"
-            :parentOperator="operator as Bool"
-            :baseType="query.typeOf!"
-            @activateInput="activeInputId = $event"
-            @rationalise="rationaliseBooleans"
-          />
-        </span>
-      </span>
-    </span>
+    <template v-if="query.typeOf">
+      <BooleanMatchEditor
+        v-model:match="query"
+        :rootBool="true"
+        :depth="0"
+        v-model:parent="query"
+        :parentIndex="parentIndex"
+        :index="0"
+        :baseType="query.typeOf!"
+        @activateInput="activeInputId = $event"
+        @rationalise="rationaliseBooleans"
+      />
+    </template>
+    <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
+      <div><strong>Dataset entries:</strong></div>
+      <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
+        <DataSetEditor
+          :index="index"
+          :query="query"
+          v-model:match="query.columnGroup[index]"
+          @delete-group="onDeleteGroup(index)"
+          @save-column-group="saveColumnGroup"
+        />
+      </template>
+    </template>
+    <Button
+      label="Add Dataset entry"
+      icon="fa-solid fa-plus"
+      severity="secondary"
+      class="addColumnGroup-btn"
+      @click="addColumnGroup"
+      data-testid="query-editor-add-column-button"
+    />
+
     <template #footer>
       <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
       <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
@@ -50,44 +66,58 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, provide, readonly, nextTick } from "vue";
-import QueryService from "@/services/QueryService";
-import { useDialog } from "primevue/usedialog";
-import Swal from "sweetalert2";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { Bool, Match, Query } from "@/interfaces/AutoGen";
-import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
+import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import type { Match, Query } from "@endeavour/vue-library/interfaces";
+
+import { value } from "jsonpath";
+import { cloneDeep, isEqual } from "lodash-es";
+import Button from "primevue/button";
+import type { TreeNode } from "primevue/treenode";
+import { v4 } from "uuid";
+
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
+import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
+import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
+import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
+import { usePropertyTree } from "@/composables/usePropertyTree";
+import QueryService from "@/services/QueryService";
+import { useDialogStore } from "@/stores/dialogStore";
 import { useQueryStore } from "@/stores/queryStore";
-import { useFilterStore } from "@/stores/filterStore";
-import CohortEditor from "@/components/imquery/CohortEditor.vue";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
+
 interface Props {
   showDialog?: boolean;
+  sourceQuery: Query;
 }
 const props = defineProps<Props>();
-const query = defineModel<Query>("query", { default: {} });
+const query: Ref<Query> = ref(cloneDeep(props.sourceQuery));
 const emit = defineEmits<{
   querySubmitted: [payload: Query];
   eclConversionError: [payload: { error: boolean; message: string }];
   closeDialog: [];
 }>();
 
-const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
 const activeInputId = ref("");
 const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
-const operators = ["rule", "and", "or", "not"] as const;
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(queryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(queryString);
 const loading = ref(true);
 const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
-const nodeRefMap = ref<{ [key: string]: any }>({});
-const queryStore = useQueryStore();
-provide("query", query);
+const { createFeatureTree } = usePropertyTree();
+const rootNodes: Ref<TreeNode[]> = ref([]);
+const keepAs: Ref<Match[]> = ref([]);
+provide("keepAs", keepAs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
@@ -107,9 +137,21 @@ onMounted(async () => {
 function toggle(event: any) {
   op.value.toggle(event);
 }
+function onDeleteGroup(index: number) {
+  if (query.value.columnGroup && query.value.columnGroup.length > 0) query.value.columnGroup.splice(index, 1);
+}
+function addColumnGroup() {
+  if (!query.value.columnGroup) query.value.columnGroup = [];
+  const match = { uuid: v4(), draft: true } as Match;
+  query.value.columnGroup.push(match);
+}
+function saveColumnGroup(index: number, match: Match) {
+  query.value.columnGroup![index] = match;
+}
+
+function cancelEditGroup() {}
 
 async function init() {
-  queryStore.createReturnMap(query.value);
   loading.value = false;
 }
 function createDefaultBuild() {
@@ -129,22 +171,24 @@ function closeBuilderDialog(): void {
 
 async function displayValidationMessage(invalid: boolean | undefined) {
   if (!invalid) {
-    await Swal.fire({
-      icon: "success",
-      title: "Success",
-      backdrop: true,
-      showClass: { popup: "swal-popup" },
-      text: "All entities are valid.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-check",
+        title: "Success",
+        text: "All entities are valid.",
+        confirmButtonText: "Close"
+      }
     });
   } else {
-    await Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: "Invalid values found. Please review your entries.",
+        confirmButtonText: "Close"
+      }
     });
   }
 }
@@ -191,6 +235,10 @@ function stripValidation(build: any) {
   flex-direction: column;
   flex: 1 1 auto;
   overflow: auto;
+}
+.addColumnGroup-btn {
+  align-self: flex-start;
+  width: 220px;
 }
 
 .ecl-builder-dialog-header {

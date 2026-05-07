@@ -8,28 +8,15 @@
         :rootBaseEntities="rootBaseEntities"
         v-model:base-cohort-query="baseCohortQuery"
         @updateBaseType="updateBaseType($event)"
-        @cancel="editMode = false"
+        @cancel="onCancel"
         @navigateTo="emit('navigateTo', $event)"
       />
     </div>
-    <template v-if="match.is">
-      <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
-        <span v-if="index > 0" class="or">or</span>
-        <span v-else class="field">in</span>
-        <IMViewerLink
-          v-if="item.iri"
-          :iri="item.iri"
-          :action="editMode ? 'view' : 'select'"
-          :label="item.name"
-          @navigateTo="(iri: string) => emit('navigateTo', iri)"
-        />
-      </template>
-    </template>
     <div v-if="!editMode" class="edit-button">
       <Button
         type="button"
         icon="fa-solid fa-pen-to-square"
-        label="Edit denominator"
+        label="Edit base type"
         data-testid="edit-base-type-button"
         :severity="hoverEditClause ? 'success' : 'secondary'"
         :outlined="!hoverEditClause"
@@ -42,33 +29,22 @@
         @mouseout="hoverEditClause = false"
       />
     </div>
-    <div v-if="!editMode && !hasBoolGroups(match)" class="add-button">
-      <Button
-        type="button"
-        icon="fa-solid fa-plus"
-        label="Add clause"
-        data-testid="add-clause-button"
-        :severity="hoverAddClause ? 'success' : 'secondary'"
-        :outlined="!hoverAddClause"
-        :class="!hoverAddClause && 'hover-button'"
-        @click="addMatch()"
-        @mouseover="hoverAddClause = true"
-        @mouseout="hoverAddClause = false"
-      />
-    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Ref, ref, watch, computed, onMounted } from "vue";
-import { IM, RDF, RDFS, SHACL } from "@/vocabulary";
-import { Match, SearchResultSummary, QueryRequest } from "@/interfaces/AutoGen";
-import { EntityService, QueryService } from "@/services";
-import { addMatchToParent, buildIMQueryFromFilters, hasBoolGroups } from "@/composables/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM, NAMESPACE, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import type { Match, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+
 import Button from "primevue/button";
+
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });
@@ -76,8 +52,8 @@ const rootBaseEntities: Ref<string[]> = ref([]);
 const hoverEditClause = ref(false);
 const hoverAddClause = ref(false);
 const baseType: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const cohortFilterOptions: Ref<SearchOptions> = ref({
-  types: [{ iri: IM.QUERY }, { iri: SHACL.NODESHAPE }],
+const baseTypeFilterOptions: Ref<SearchOptions> = ref({
+  types: [{ iri: SHACL.NODESHAPE }],
   status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
   schemes: []
 });
@@ -86,7 +62,7 @@ const baseCohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 const emit = defineEmits<{
   (event: "node-selected", query: any): void;
   (event: "navigateTo", iri: string): void;
-  (event: "onCancel", visible: boolean): void;
+  (event: "cancel"): void;
 }>();
 
 onMounted(async () => {
@@ -94,15 +70,15 @@ onMounted(async () => {
 });
 
 async function init() {
-  rootBaseEntities.value = await EntityService.getChildEntities(IM.DEFAULT_COHORTS);
-  baseCohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
+  rootBaseEntities.value = await EntityService.getChildEntities(IM.HEALTH_RECORDS);
+  baseCohortQuery.value = buildIMQueryFromFilters(baseTypeFilterOptions.value);
   if (match.value.typeOf) {
     baseType.value.iri = match.value.typeOf!.iri!;
     baseType.value.name = match.value.typeOf.name;
   } else {
-    baseType.value.iri = IM.NAMESPACE + "Patient";
+    baseType.value.iri = NAMESPACE.IM + "Patient";
     baseType.value.name = "Patients";
-    match.value.typeOf = { iri: IM.NAMESPACE + "Patient", name: "Patients" };
+    match.value.typeOf = { iri: NAMESPACE.IM + "Patient", name: "Patients" };
   }
 }
 
@@ -113,6 +89,11 @@ function addMatch() {
   } else addMatchToParent({}, match.value);
 }
 
+function onCancel() {
+  editMode.value = false;
+  emit("cancel");
+}
+
 async function updateBaseType(newBaseType?: SearchResultSummary) {
   if (newBaseType) {
     baseType.value.iri = newBaseType.iri;
@@ -121,13 +102,19 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
     if (selectedBaseType.type[0].iri === IM.QUERY) {
       const parentCohort = await QueryService.getQueryFromIri(selectedBaseType.iri);
       match.value.typeOf = parentCohort.typeOf;
-      match.value.is = [
-        {
-          iri: selectedBaseType.iri,
-          name: selectedBaseType.name,
-          cohort: true
-        }
-      ];
+      const denominator = {
+        is: [
+          {
+            iri: selectedBaseType.iri,
+            name: selectedBaseType.name,
+            cohort: true
+          }
+        ]
+      } as Match;
+      if (match.value.and) {
+        if (match.value.and[0].is) match.value.and[0] = denominator;
+        else match.value.and.unshift(denominator);
+      } else match.value.and = [denominator];
     } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
   }
   editMode.value = false;

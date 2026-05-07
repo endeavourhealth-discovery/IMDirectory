@@ -1,8 +1,9 @@
 import { defineComponent } from "vue";
-import { mount } from "@vue/test-utils";
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import { vi } from "vitest";
+
 import { createTestingPinia } from "@pinia/testing";
+import { mount } from "@vue/test-utils";
+import { vi } from "vitest";
+import { RouteRecordRaw, createRouter, createWebHashHistory } from "vue-router";
 
 export function createTestRouter(routes?: RouteRecordRaw[], mockPush?: any, mockGo?: any, mockBack?: any, mockForward?: any) {
   const router = createRouter({

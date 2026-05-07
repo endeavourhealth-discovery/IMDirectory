@@ -1,24 +1,30 @@
-import { defineStore } from "pinia";
-import { CreatorState } from "@/stores/types/creatorState";
-import { useUserStore } from "@/stores/userStore";
-import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { ref } from "vue";
 
-export const useCreatorStore = defineStore("creator", {
-  state: (): CreatorState => ({
-    creatorSavedEntity: localStorageWithExpiry.getItem("creatorSavedEntity") ?? {},
-    creatorHasChanges: false
-  }),
-  actions: {
-    updateCreatorSavedEntity(entity: TTEntity | undefined) {
-      if (useUserStore().cookiesOptionalAccepted) {
-        this.creatorSavedEntity = entity;
-        if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("creatorSavedEntity", entity);
-        else localStorage.removeItem("creatorSavedEntity");
-      }
-    },
-    updateCreatorHasChanges(bool: boolean) {
-      this.creatorHasChanges = bool;
+import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
+import { defineStore } from "pinia";
+
+export const useCreatorStore = defineStore("creator", () => {
+  const creatorSavedEntity = ref<any>(localStorageWithExpiry.getItem("creatorSavedEntity") ?? {});
+  const creatorHasChanges = ref<boolean>(false);
+
+  function updateCreatorSavedEntity(entity: ExtendedTTEntity | undefined) {
+    if (useUserStore().cookiesOptionalAccepted) {
+      creatorSavedEntity.value = entity;
+      if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("creatorSavedEntity", entity);
+      else localStorage.removeItem("creatorSavedEntity");
     }
   }
+
+  function updateCreatorHasChanges(bool: boolean) {
+    creatorHasChanges.value = bool;
+  }
+  return {
+    creatorHasChanges,
+    creatorSavedEntity,
+    updateCreatorHasChanges,
+    updateCreatorSavedEntity
+  };
 });

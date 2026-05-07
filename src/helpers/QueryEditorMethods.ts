@@ -1,118 +1,21 @@
-import { Node, Order, RelativeTo, Where, Assignable, Match, Path, HasPaths } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
-import { Orderable } from "@/stores/types/orderable";
-import { useQueryStore } from "@/stores/queryStore";
+import { Operator, Order } from "@endeavour/vue-library/enums";
+import type { Compare, Having, Match, Node, Orderable, Range, Where } from "@endeavour/vue-library/interfaces";
 
-export const relativityOptions = [
-  {
-    label: "Relative value",
-    value: "relative",
-    tooltip: "The date or time or value is relative to the value of a parameter or result of another query"
-  },
-  {
-    label: "Absolute value",
-    value: "absolute",
-    tooltip: "The date time or value is not relative to any other value"
-  },
-  {
-    label: "Relative range",
-    value: "relativeRange",
-    tooltip: "The range of date or time or value is relative to the value of a parameter or result of another query"
-  },
-  {
-    label: "Absolute range",
-    value: "absoluteRange",
-    tooltip: "The range of date time or value is not relative to any other value"
-  },
-  { label: "is not recorded", value: "isNull", tooltip: "Test for absence of value" },
-  { label: "is recorded", name: "notNull", tooltip: "Test for presence of any value" }
-];
-
-export const offsetOptions = [
-  { label: "relative to", value: "0" },
-  { label: "prior to", value: "-" },
-  { label: "after", value: "+" }
-];
-
-export const constraintOperatorOptions = [
-  {
-    label: "--",
-    value: "",
-    tooltip: "This concept only"
-  },
-  {
-    label: "<<",
-    value: "<<",
-    tooltip: "This concept and all descendants"
-  },
-  {
-    label: "<",
-    value: "<",
-    tooltip: "Descendants of this concept but not this concept"
-  },
-  {
-    label: "^",
-    value: "^",
-    tooltip: "Member of this value set"
-  },
-  {
-    label: ">>!",
-    value: ">>!",
-    tooltip: "This concept and all ancestors"
-  }
-];
+import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
+import { SentencePart } from "@/interfaces";
+import { RelativeTo } from "@/interfaces/RelativeTo";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
-  if (key === undefined) return "conceptOnly";
+  if (key === undefined) return "descendantsOrSelfOf";
   return key.toString();
 }
 
 export function getPlainConstraintOperatorLabel(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
   if (key === undefined) return "concept only";
-  return constraintOperatorMap[key];
+  return ConstraintOperatorMap[key];
 }
-
-export type ConstraintOperatorKey = keyof typeof constraintOperatorMap;
-
-export const constraintOperatorMap = {
-  descendantsOrSelfOf: "+ children",
-  descendantsOf: "children only",
-  memberOf: "member of",
-  conceptOnly: "concept only"
-};
-
-export const plainConstraintOperatorOptions = [
-  {
-    label: "concept only",
-    value: "conceptOnly",
-    tooltip: "This concept only, not including descendants"
-  },
-  {
-    label: "+children",
-    value: "descendantsOrSelfOf",
-    tooltip: "This concept and all descendants"
-  },
-  {
-    label: "children only",
-    value: "descendantsOf",
-    tooltip: "Descendants of this concept but not this concept"
-  }
-];
-
-export const nodeInclusionOptions = [
-  {
-    label: "Include",
-    value: "Include",
-    tooltip: "Include concept (default)"
-  },
-  {
-    label: "Exclude",
-    value: "Exclude",
-    tooltip: "Exclude this from set"
-  }
-];
 
 export function getDateFromString(date: string): Date {
   if (date) {
@@ -130,196 +33,14 @@ export function getDateFromString(date: string): Date {
   return new Date();
 }
 
-export const operatorOptions = (valueType: string): any[] => {
-  return [
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "on" : "equal",
-      value: "=",
-      tooltip: "exactly equal to value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "on or after" : "greater or equal to",
-      value: ">=",
-      tooltip: "inclusive of value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "on or before" : "less than or equal to",
-      value: "<=",
-      tooltip: "inclusive of value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "after" : "greater than",
-      value: ">",
-      tooltip: "exclusive of value"
-    },
-    {
-      label: (IM.DATE + IM.TIME).includes(valueType) ? "before" : "less than",
-      value: "<",
-      tooltip: "exclusive of value"
-    }
-  ];
-};
-
-export function getWhereDisplay(where: Where, valueType: string): string {
-  let result = "";
-  const relative = where.relativeTo;
-  const isTime = valueType === IM.DATE || valueType === IM.TIME;
-  if (where.range) {
-    result = "between ";
-    result = result.concat(assignDisplay(where, where.range.from, relative, isTime));
-    result = result.concat(" and ");
-    result = result.concat(assignDisplay(where, where.range.to, relative, isTime));
-  } else {
-    result = result.concat(assignDisplay(where, where, relative, isTime));
-  }
-  if (relative) result = result.concat(getRelativeToTerm(relative));
-  else if (where.isNull) result = result.concat("is not recorded");
-  else if (where.isNotNull) result = result.concat("is recorded");
-  return result;
-}
-
-function assignDisplay(where: Where, assign: Assignable, relative: RelativeTo | undefined, isTime: boolean): string {
-  let result = "";
-  const value = assign.value ? (assign.value.startsWith("-") ? assign.value.substring(1) : assign.value) : undefined;
-  const operator = assign.operator ? assign.operator : undefined;
-  const negative = !assign.value ? false : assign.value.startsWith("-");
-  if (value || operator) {
-    switch (operator) {
-      case "=":
-        result = result.concat("exactly ");
-        break;
-      case ">=":
-        result = result.concat(isTime ? "on or after " : "equal to or greater than ");
-        break;
-      case "<=":
-        result = result.concat(isTime ? "on or before " : "equal to or less than ");
-        break;
-      case ">":
-        result = result.concat(isTime ? "after " : "greater than ");
-        break;
-      case "<":
-        result = result.concat(isTime ? "before " : "less than ");
-    }
-    if (!value) {
-      if (!relative) result = result.concat("0");
-    }
-    if (value) {
-      if (!relative && negative) result = result.concat(getValueUnits("-" + value, where.units?.name));
-      else result = result.concat(getValueUnits(value, where.units?.name));
-      if (relative) {
-        if (negative) {
-          result = result.concat(isTime ? "prior to " : "below ");
-        } else {
-          result = result.concat(isTime ? "after " : "above ");
-        }
-      }
-    }
-  }
-  return result;
-}
-
-function getValueUnits(value: string | undefined, units: string | undefined): string {
-  if (!value) return "";
-  return units ? value + " " + units + " " : value + " ";
-}
-
-function getRelativeToTerm(relativeTo: RelativeTo): string {
-  if (relativeTo.nodeRef) return relativeTo.nodeRef;
-  if (relativeTo.parameter) {
-    switch (relativeTo.parameter) {
-      case "$searchDate":
-        return "Search date";
-      case "$achievementDate":
-        return "Achievement date";
-      case "$now":
-        return "Current date";
-      default:
-        return "unknown parameter";
-    }
-  }
-  return "unknown";
-}
-
-export function getInclusivityOptions(fromOrTo: "from" | "to"): any[] {
-  const results = [];
-  if (fromOrTo === "from") {
-    results.push({
-      label: " Inclusive",
-      value: ">=",
-      tooltip: "Inclusive of value"
-    });
-    results.push({
-      label: "Exclusive",
-      value: ">",
-      tooltip: "Exclusive of value"
-    });
-  }
-  if (fromOrTo === "to") {
-    results.push({
-      label: "Inclusive",
-      value: "<=",
-      tooltip: "Inclusive of value"
-    });
-    results.push({
-      label: "Exclusive",
-      value: "<",
-      tooltip: "Exclusive of value"
-    });
-  }
-  return results;
-}
-export function getPathName(nodeRef: string, match: Match): string {
-  if (!match.path) return "";
-  let flatPath = "";
-  for (const path of match.path) {
-    flatPath = flatPath + (path.name! === "" ? path.iri?.split("#")[1] : path.name);
-    if (path.variable === nodeRef) return flatPath;
-    flatPath = getPathNameFromPath(nodeRef, flatPath, path);
-  }
-  return flatPath;
-}
-
-function getPathNameFromPath(nodeRef: string, flatPath: string, path: Path): string {
-  flatPath = flatPath.concat("/");
-  if (path.path) {
-    for (const subPath of path.path) {
-      flatPath = flatPath.concat(subPath.name!);
-      if (path.variable === nodeRef) return flatPath;
-      flatPath = getPathNameFromPath(nodeRef, flatPath, path);
-    }
-  }
-  return flatPath;
-}
-export function getTypeFromClause(match: Match): string | undefined {
-  const queryStore = useQueryStore();
-  if (!match.path) {
-    if (match.nodeRef) {
-      return getTypeFromClause(queryStore.returnMap.get(match.nodeRef)!);
-    } else return undefined;
-  }
-  if (match.return && match.return.property) {
-    for (const property of match.return.property) {
-      if (property.nodeRef) return getTypeFromNodeRef(match, property.nodeRef);
-    }
-  }
-  if (match.where) {
-    const where = match.where;
-    if (where.nodeRef) return getTypeFromNodeRef(match, where.nodeRef);
-    for (const op of ["and", "or"] as const) {
-      if (where[op] && where[op][0].nodeRef) {
-        return getTypeFromNodeRef(match, where[op][0].nodeRef);
-      }
-    }
-  }
-  return undefined;
-}
-
-function getTypeFromNodeRef(aPath: HasPaths, nodeRef: string): string | undefined {
-  if (aPath.path) {
-    for (const subPath of aPath.path) {
-      if (subPath.variable === nodeRef) return subPath.typeOf!.iri!;
-      if (subPath.path) return getTypeFromNodeRef(subPath, nodeRef);
-    }
+export function getRelativeTo(where: Where): RelativeTo | undefined {
+  if (where.compare && where.compare.right) {
+    return {
+      nodeRef: where.compare.right.nodeRef,
+      iri: where.compare.right.iri,
+      parameter: where.compare.right.parameter,
+      name: where.compare.right.name
+    };
   }
   return undefined;
 }
@@ -338,10 +59,15 @@ export function getOrderOptions(orderables: Orderable[]): any[] {
       results.push({
         label: orderable[direction] + " " + orderable.name,
         value: { iri: orderable.iri, direction: direction as Order, label: orderable[direction] + " " + orderable.name },
-        tooltip: "latest from the entries following the filters"
+        tooltip: "From the entries following the filters"
       });
     }
   }
+  results.push({
+    label: "Any",
+    value: {},
+    tooltip: "Any entries following the filters"
+  });
   return results;
 }
 
@@ -353,4 +79,147 @@ function toMinutes(time: string): number {
 export function isTimeInRange(time: string, start: string, end: string): boolean {
   const t = toMinutes(time);
   return t >= toMinutes(start) && t <= toMinutes(end);
+}
+
+export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
+  if (!having) return;
+  const parts: SentencePart[] = [];
+  parts.push({ type: "text", value: "True if " + having.aggregate?.toString() + " " });
+  if (having.range) {
+    const range = buildRangeSentence(having.range);
+    if (range) parts.push(...range);
+    return parts;
+  } else {
+    if (having.operator) {
+      parts.push({ type: "text", value: getOperatorTerm(having.operator) });
+    }
+    const value = having.value && having.value != "0" ? having.value : undefined;
+    if (value) parts.push({ type: "text", value: `${value} ` });
+    return parts;
+  }
+}
+
+export function buildValueSentence(where: Where): SentencePart[] | undefined {
+  if (where.range) return buildRangeSentence(where.range);
+  return buildNonRangeSentence(where);
+}
+
+function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
+  const parts: SentencePart[] = [];
+  if (where.isNull) {
+    parts.push({ type: "text", value: "is absent" });
+    return parts;
+  }
+  if (where.notNull) {
+    parts.push({ type: "text", value: "is present" });
+    return parts;
+  }
+  const units = where.compare && where.compare.units ? where.compare.units.name : "";
+  const value = where.value && where.value != "0" ? where.value : undefined;
+  if (where.operator) {
+    parts.push({ type: "text", value: getOperatorTerm(where.operator) });
+  }
+  if (value) parts.push({ type: "text", value: `${value} ${units} ` });
+  if (where.compare) {
+    addReference(parts, where.compare);
+  }
+  return parts;
+}
+
+function buildRangeSentence(range: Range): SentencePart[] | undefined {
+  const parts: SentencePart[] = [];
+  const { from, to } = range;
+  const units = from.compare && from.compare.units ? from.compare.units.name : "";
+  const fromVal = from.value && from.value != "0" ? from.value : undefined;
+  const toVal = to.value;
+  parts.push({ type: "text", value: " is between " });
+  let inclusive = false;
+  if (from.operator) {
+    if (from.operator === Operator.gte || from.operator === Operator.lte) inclusive = true;
+  }
+  parts.push({ type: "text", value: `${fromVal} ${units} ` });
+  if (inclusive) parts.push({ type: "text", value: "(inc.) " });
+  if (from.compare && from.compare.right) {
+    if (to.compare && to.compare.right) {
+      if (from.compare.right.parameter) {
+        if (to.compare && to.compare.right && to.compare.right.parameter) {
+          if (to.compare.right.parameter !== from.compare.right.parameter) {
+            addReference(parts, from.compare);
+          }
+        }
+      }
+    } else addReference(parts, from.compare);
+  }
+  parts.push({ type: "text", value: " and " });
+  inclusive = false;
+  if (to.operator) {
+    if (to.operator === Operator.gte || to.operator === Operator.lte) inclusive = true;
+  }
+  if (!inclusive && to.operator) {
+    parts.push({ type: "text", value: getOperatorTerm(to.operator) });
+  }
+  parts.push({ type: "text", value: `${toVal} ${units} ` });
+  if (inclusive) parts.push({ type: "text", value: "(inc.) " });
+  if (to.compare) {
+    addReference(parts, to.compare);
+  }
+  return parts;
+}
+
+function addReference(parts: SentencePart[], compare: Compare) {
+  if (compare.units) {
+    parts.push({ type: "text", value: "relative to " });
+  }
+  const source = compare.right!;
+  if (source.parameter) {
+    parts.push({
+      type: "parameter",
+      value: source.name
+    });
+  } else {
+    if (source.name) {
+      parts.push({
+        type: "field",
+        value: source.name
+      });
+    }
+    parts.push({ type: "text", value: " of " });
+    parts.push({
+      type: "nodeRef",
+      value: source.nodeRef
+    });
+  }
+}
+function getOperatorTerm(operator: Operator): string {
+  switch (operator) {
+    case "=":
+      return "= ";
+      break;
+    case ">=":
+      return "equal to or greater than ";
+      break;
+    case "<=":
+      return "equal to or less than ";
+      break;
+    case ">":
+      return "greater than ";
+      break;
+    case "<":
+      return "less than ";
+      break;
+    case "startsWith":
+      return "starts with ";
+      break;
+    case "contains":
+      return "contains ";
+    case "isTrue":
+      return "is true ";
+    default:
+      return (operator as string) + " ";
+  }
+}
+export function getIsOperator(nodes: Node[], eclQuery: boolean | undefined) {
+  if (eclQuery) return "=";
+  if (nodes.length === 1) return "is";
+  else return "in";
 }

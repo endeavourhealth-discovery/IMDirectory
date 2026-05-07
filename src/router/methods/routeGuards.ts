@@ -1,11 +1,12 @@
-import {AuthService, EntityService} from "@/services";
+import { isObjectHasKeys, urlToIri } from "@endeavour/vue-library/helpers";
+
+import { RouteLocationNormalized, Router } from "vue-router";
+
+import { EntityService, SecurityService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useQueryStore } from "@/stores/queryStore";
-import { urlToIri } from "@/helpers/Converters";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { RouteLocationNormalized, Router } from "vue-router";
 
 export function directoryGuard(iri: string | string[], to: RouteLocationNormalized) {
   if (to.matched.some(record => record.name === "Directory") && iri) {
@@ -73,8 +74,7 @@ export async function pageNotFoundFromEditor(to: RouteLocationNormalized, router
 export async function viewerIriExistsGuard(to: RouteLocationNormalized, router: Router) {
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
     const iri = to.params.selectedIri as string;
-      await AuthService.getCurrentAuthenticatedUser();
-      try {
+    try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {
         await router.push({ name: "EntityNotFound", params: { iri: iri } });

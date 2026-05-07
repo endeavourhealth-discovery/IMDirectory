@@ -1,51 +1,72 @@
-import { defineStore } from "pinia";
-import { EditorState } from "@/stores/types/editorState";
-import { useUserStore } from "@/stores/userStore";
-import { EntityService } from "@/services";
-import { RDFS } from "@/vocabulary";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import localStorageWithExpiry from "@/helpers/LocalStorageWithExpiry";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { ref } from "vue";
 
-export const useEditorStore = defineStore("editor", {
-  state: (): EditorState => ({
-    editorIri: localStorageWithExpiry.getItem("editorSelectedIri"),
-    editorSavedEntity: localStorageWithExpiry.getItem("editorSavedEntity") ?? {},
-    editorHasChanges: false,
-    findInEditorTreeIri: "",
-    refreshEditorTree: false,
-    eclEditorSavedString: localStorageWithExpiry.getItem("eclEditorSavedString") ?? ""
-  }),
-  actions: {
-    updateEditorIri(iri: string) {
-      this.editorIri = iri;
-      if (useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSelectedIri", iri);
-    },
-    async getConceptName(): Promise<string> {
-      if (this.editorIri) {
-        const result = await EntityService.getPartialEntity(this.editorIri, [RDFS.LABEL]);
-        if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
-      }
-      return "";
-    },
-    updateEditorSavedEntity(entity: TTEntity | undefined) {
-      this.editorSavedEntity = entity;
-      if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSavedEntity", entity);
-      else localStorage.removeItem("editorSavedEntity");
-    },
-    updateEditorHasChanges(bool: boolean) {
-      this.editorHasChanges = bool;
-    },
-    updateFindInEditorTreeIri(iri: string) {
-      this.findInEditorTreeIri = iri;
-    },
-    updateRefreshTree() {
-      this.refreshEditorTree = !this.refreshEditorTree;
-    },
-    updateEclEditorSavedString(ecl: string) {
-      this.eclEditorSavedString = ecl;
-      if (ecl && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("eclEditorSavedString", ecl);
-      else localStorage.removeItem("eclEditorSavedString");
-    }
+import { RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
+import { defineStore } from "pinia";
+
+import { EntityService } from "@/services";
+
+export const useEditorStore = defineStore("editor", () => {
+  const editorIri = ref<string>(localStorageWithExpiry.getItem("editorSelectedIri"));
+  const editorSavedEntity = ref<ExtendedTTEntity | undefined>(localStorageWithExpiry.getItem("editorSavedEntity") ?? {});
+  const editorHasChanges = ref<boolean>(false);
+  const findInEditorTreeIri = ref<string>("");
+  const refreshEditorTree = ref<boolean>(false);
+  const eclEditorSavedString = ref<string>(localStorageWithExpiry.getItem("eclEditorSavedString") ?? "");
+
+  function updateEditorIri(iri: string) {
+    editorIri.value = iri;
+    if (useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSelectedIri", iri);
   }
+
+  async function getConceptName(): Promise<string> {
+    if (editorIri.value) {
+      const result = await EntityService.getPartialEntity(editorIri.value, [RDFS.LABEL]);
+      if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+    }
+    return "";
+  }
+
+  function updateEditorSavedEntity(entity: ExtendedTTEntity | undefined) {
+    editorSavedEntity.value = entity;
+    if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSavedEntity", entity);
+    else localStorage.removeItem("editorSavedEntity");
+  }
+
+  function updateEditorHasChanges(bool: boolean) {
+    editorHasChanges.value = bool;
+  }
+
+  function updateFindInEditorTreeIri(iri: string) {
+    findInEditorTreeIri.value = iri;
+  }
+
+  function updateRefreshTree() {
+    refreshEditorTree.value = !refreshEditorTree.value;
+  }
+
+  function updateEclEditorSavedString(ecl: string) {
+    eclEditorSavedString.value = ecl;
+    if (ecl && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("eclEditorSavedString", ecl);
+    else localStorage.removeItem("eclEditorSavedString");
+  }
+  return {
+    eclEditorSavedString,
+    editorHasChanges,
+    editorIri,
+    editorSavedEntity,
+    findInEditorTreeIri,
+    refreshEditorTree,
+    updateEclEditorSavedString,
+    updateEditorHasChanges,
+    updateEditorIri,
+    updateEditorSavedEntity,
+    updateFindInEditorTreeIri,
+    updateRefreshTree,
+    getConceptName
+  };
 });

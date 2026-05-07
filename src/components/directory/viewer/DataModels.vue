@@ -41,19 +41,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, watch } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { IM, SHACL } from "@endeavour/vue-library/enums";
+import { getColourFromType } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { IM, SHACL } from "@/vocabulary";
-import { DataModelService } from "@/services";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
-import { useUserStore } from "@/stores/userStore";
-import setupOverlay from "@/composables/setupOverlay";
-import { getColourFromType } from "@/helpers/ConceptTypeVisuals";
 import { DataTableRowSelectEvent } from "primevue/datatable";
+
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import { DataModelService } from "@/services";
+import { useDirectoryStore } from "@/stores/directoryStore";
+
 interface UIDataModel extends TTIriRef {
   type?: TTIriRef[];
   icon?: string[];
@@ -69,7 +73,7 @@ const emit = defineEmits<{
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 watch(
   () => props.entityIri,

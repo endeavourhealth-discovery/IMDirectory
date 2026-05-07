@@ -70,6 +70,7 @@
                 @selected-updated="updateSelectedFromIri"
                 @go-to-search-results="goToSearchResults"
               />
+              <span>Show the ecl search</span>
               <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
               <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
             </div>
@@ -82,7 +83,7 @@
       <div class="im-dialog-footer">
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>
         <div class="button-footer">
-          <Button label="Cancel" @click="modelShowDialog = false" text />
+          <Button label="Cancel" @click="onCancel" text />
           <Button
             v-if="selectedName && isSelectableEntity"
             :disabled="!isSelectableEntity"
@@ -98,20 +99,22 @@
   </Dialog>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from "vue";
-import SearchBar from "@/components/shared/SearchBar.vue";
-import SearchResults from "@/components/shared/SearchResults.vue";
-import NavTree from "@/components/shared/NavTree.vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
+import { SplitterResizeEndEvent } from "primevue/splitter";
+
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
-import { cloneDeep } from "lodash-es";
+import NavTree from "@/components/shared/NavTree.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
+import SearchResults from "@/components/shared/SearchResults.vue";
 import { EntityService, QueryService } from "@/services";
-import { QueryRequest, SearchResultSummary, SearchResponse } from "@/interfaces/AutoGen";
-import { IM, RDFS } from "@/vocabulary";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { FilterOptions } from "@/interfaces";
-import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useLoadingStore } from "@/stores/loadingStore";
 
@@ -123,6 +126,7 @@ interface Props {
   quickTypeFiltersAllowed?: string[];
   selectedQuickTypeFilter?: string;
   showFilters?: boolean;
+  validEntityQuery?: QueryRequest;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -131,6 +135,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   updateSelectedFilters: [payload: FilterOptions];
+  cancel: [];
 }>();
 
 const modelShowDialog = defineModel<boolean>("showDialog", { required: true });
@@ -143,6 +148,7 @@ const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
+const loading = ref(true);
 const searchLoading = ref(false);
 const treeIri = ref("");
 const searchTerm = ref(props.searchTerm ?? "");
@@ -187,6 +193,10 @@ onMounted(() => {
   searchTerm.value = props.searchTerm ?? "";
   initSelection();
 });
+function onCancel() {
+  modelShowDialog.value = false;
+  emit("cancel");
+}
 
 function updateSplitter(event: SplitterResizeEndEvent) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
@@ -257,10 +267,12 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (props.imQuery) {
-    const imQuery = cloneDeep(props.imQuery);
-    imQuery.askIri = detailsIri.value;
-    return await QueryService.askQuery(imQuery);
+  if (props.validEntityQuery) {
+    const existing = props.validEntityQuery.argument!.find(a => a.parameter === "entity");
+    if (existing) {
+      existing.valueIri = { iri: detailsIri.value };
+    } else props.validEntityQuery.argument!.push({ parameter: "entity", valueIri: { iri: detailsIri.value } });
+    return await QueryService.askQuery(props.validEntityQuery);
   }
   return true;
 }

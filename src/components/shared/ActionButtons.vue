@@ -35,7 +35,6 @@
       @click="(event: MouseEvent) => toEdit(event, iri)"
       v-tooltip.top="'Edit'"
       data-testid="edit-button"
-      :disabled="!editAllowed"
     />
     <Button
       v-if="show('download')"
@@ -89,15 +88,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { DirectService, EntityService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { useUserStore } from "@/stores/userStore";
-import { useDialog } from "primevue/usedialog";
+
+import { useDownloadFile } from "@endeavour/vue-library/composables";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
-import setupDownloadFile from "@/composables/downloadFile";
+import { useDialog } from "primevue/usedialog";
+
+import { useDirectService } from "@/composables/useDirectService";
+import { EntityService, UserService } from "@/services";
+
 import LoadingDialog from "./dynamicDialogs/LoadingDialog.vue";
 
-const directService = new DirectService();
+const directService = useDirectService();
 const confirmDlg = useConfirm();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
@@ -128,7 +132,7 @@ onMounted(() => {
 });
 
 const dynamicDialog = useDialog();
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 
 const loadingFavourites = ref(false);
 
@@ -163,7 +167,7 @@ function isFavourite(iri: string) {
 async function updateFavourites(event: MouseEvent, iri: string) {
   event.stopPropagation();
   loadingFavourites.value = true;
-  await userStore.updateFavourites(iri);
+  await userStore.updateFavourites(iri, UserService);
   loadingFavourites.value = false;
 }
 
@@ -179,7 +183,7 @@ async function viewEntity(event: MouseEvent, iri: string) {
 
 async function toEdit(event: MouseEvent, iri: string) {
   event.stopPropagation();
-  await directService.edit(iri, true);
+  await directService.edit(iri, false);
 }
 
 function confirmDownload() {

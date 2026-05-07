@@ -73,18 +73,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
-import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { ConceptAggregate, TreeParent } from "@/interfaces";
-import { RDF, RDFS } from "@/vocabulary";
-import { EntityService } from "@/services";
-import setupTree from "@/composables/setupTree";
-import OverlaySummary from "./OverlaySummary.vue";
+import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
+import { useUserStore } from "@endeavour/vue-library";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useTree } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { RDF, RDFS } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/interfaces";
+
 import type { TreeNode } from "primevue/treenode";
-import setupOverlay from "@/composables/setupOverlay";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
+
+import { ConceptAggregate, TreeParent } from "@/interfaces";
+import { EntityService } from "@/services";
 
 interface Props {
   entityIri: string;
@@ -100,8 +103,15 @@ const emit = defineEmits<{
   rowSelected: [payload: TreeNode | undefined];
 }>();
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = setupTree(emit, 20);
-const { showOverlay, hideOverlay, OS } = setupOverlay();
+const userStore = useUserStore();
+const favourites = computed(() => userStore.favourites);
+
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = useTree(
+  favourites,
+  emit,
+  20
+);
+const { showOverlay, hideOverlay, OS } = useOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);
@@ -160,7 +170,12 @@ async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = false;
 }
 
-function createTree(concept: TTEntity, parentHierarchy: ExtendedEntityReferenceNode[], children: ExtendedEntityReferenceNode[], parentPosition: number) {
+function createTree(
+  concept: ExtendedTTEntity,
+  parentHierarchy: ExtendedEntityReferenceNode[],
+  children: ExtendedEntityReferenceNode[],
+  parentPosition: number
+) {
   loading.value = true;
   const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
   children.forEach(child => {

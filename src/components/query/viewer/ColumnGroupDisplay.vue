@@ -1,57 +1,58 @@
 <template>
   <div :style="{ paddingLeft: '1rem' }">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-if="dataSet.name">Name : {{ dataSet.name }}</div>
-    <div v-if="dataSet.return">
-      <span v-if="dataSet.return.as">Group : {{ dataSet.return.as }}</span>
-    </div>
-    <div v-else>{{ parentQuery.typeOf?.name }} internal id</div>
+    <div v-if="datasetEntry.name">Name : {{ datasetEntry.name }}</div>
 
-    <div v-if="dataSet.return">
-      <div v-if="dataSet.and || dataSet.or || dataSet.where || dataSet.is">
-        <span>filter:</span>
+    <div v-if="datasetEntry.return">
+      <div v-if="datasetEntry.and || datasetEntry.or || datasetEntry.where || datasetEntry.is">
         <Button text :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="matchToggle" />
         <RecursiveMatchDisplay
           v-if="matchExpand"
           :inline="false"
-          :match="dataSet"
+          :match="datasetEntry"
           :key="index"
           :clause-index="index"
+          :parentIndex="0"
           :depth="1"
           :operator="Bool.and"
           :expanded="false"
-          :parent-match="dataSet"
+          :parent-match="datasetEntry"
+          :baseType="baseType"
         />
       </div>
-      <span v-if="dataSet.orderBy">{{ dataSet.orderBy.description }}</span>
-      <div v-if="dataSet.return">
-        <ReturnColumns :select="dataSet.return" class="pl-8" :parentQuery="parentQuery" />
+      <span v-if="datasetEntry.orderBy">{{ datasetEntry.orderBy.description }}</span>
+      <div v-if="datasetEntry.return">
+        <ReturnColumns :select="datasetEntry.return" class="pl-8" :parentQuery="parentQuery" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Bool, DisplayMode, Match, Query } from "@/interfaces/AutoGen";
-import { onMounted, watch, ref } from "vue";
-import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
-import ReturnColumns from "./ReturnColumns.vue";
+import { onMounted, ref, watch } from "vue";
+
+import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import type { Match, Node, Query } from "@endeavour/vue-library/interfaces";
+
 import { QueryService } from "@/services";
+
+import RecursiveMatchDisplay from "./RecursiveMatchDisplay.vue";
+import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
+import ReturnColumns from "./ReturnColumns.vue";
 
 interface Props {
   matchExpanded: boolean;
   returnExpanded: boolean;
   index: number;
   editMode?: boolean;
-  match: Match;
+  baseType: Node;
 }
 
 const props = defineProps<Props>();
 const parentQuery = defineModel<Query>("parentQuery", { default: {} });
+const datasetEntry = defineModel<Match>("datasetEntry", { default: {} });
 const matchExpand = ref(false);
 const loading = ref(false);
-const dataSet = ref({ ...props.match });
 
 onMounted(async () => {
   await init();
@@ -61,14 +62,9 @@ function matchToggle() {
 }
 
 async function init() {
-  dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
+  matchExpand.value = props.matchExpanded;
+  datasetEntry.value = await QueryService.getQueryDisplayFromQuery(datasetEntry.value, DisplayMode.ORIGINAL);
 }
-watch(
-  () => props.match,
-  async () => {
-    dataSet.value = await QueryService.getQueryDisplayFromQuery(dataSet.value, DisplayMode.ORIGINAL);
-  }
-);
 </script>
 
 <style scoped></style>

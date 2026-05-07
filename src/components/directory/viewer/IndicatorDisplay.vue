@@ -28,16 +28,13 @@
           @navigateTo="(iri: string) => emit('navigateTo', iri)"
         />
       </div>
-      <div v-if="indicator.dataset && indicator.dataset.columnGroup">
-        <span>Output the following columns :</span>
-        <ColumnGroupDisplay
-          v-for="(nestedColumnGroup, index) of indicator.dataset.columnGroup"
-          :match="nestedColumnGroup"
-          :key="`nestedQuery-${index}`"
-          :matchExpanded="false"
-          :returnExpanded="true"
-          :index="index"
-          :parentQuery="indicator.dataset"
+      <div v-if="indicator.dataset">
+        <span class="field"> Results dataset: </span>
+        <IMViewerLink
+          v-if="indicator.dataset.iri"
+          :iri="indicator.dataset.iri"
+          :label="indicator.dataset.name"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
         />
       </div>
     </div>
@@ -45,21 +42,17 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
-import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { QueryService } from "@/services";
-import { Argument, ArgumentReference, IMLLanguage, Bool, DisplayMode, Query, Indicator } from "@/interfaces/AutoGen";
-import { computed, onMounted, provide, ref, Ref, watch } from "vue";
-import SQLDisplay from "./SQLDisplay.vue";
-import IMLDisplay from "./IMLDisplay.vue";
-import { useUserStore } from "@/stores/userStore";
+import { Ref, computed, onMounted, provide, ref, watch } from "vue";
+
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Indicator } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
-import ArgumentDisplay from "@/components/queryRunner/ArgumentDisplay.vue";
-import ArgumentDisplayDialog from "@/components/queryRunner/ArgumentDisplayDialog.vue";
+
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { QueryService } from "@/services";
 
 interface Props {
   entityIri?: string;

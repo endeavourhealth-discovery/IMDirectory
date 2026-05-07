@@ -1,9 +1,8 @@
-import { GenericObject } from "@/interfaces/GenericObject";
+import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { TypeGuards, enumToArray, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+
 import { ComponentType } from "../enums";
-import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
-import { enumToArray } from "./Converters";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { isTTIriRef } from "./TypeGuards";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
@@ -17,6 +16,39 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
   return result;
 }
 
+export function updateRangeQuery(rangeQuery: QueryRequest, rangeType: string) {
+  if (rangeQuery.query && rangeQuery.query.where && rangeQuery.query.where.and) {
+    const andClauses = rangeQuery.query.where.and;
+    const typeClause = andClauses.find(clause => clause.iri === RDF.TYPE);
+    if (typeClause) {
+      if (rangeType === "concept") typeClause.is = [{ iri: IM.CONCEPT }, { iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }];
+      else if (rangeType === "datatype") {
+        typeClause.is = [{ iri: RDFS.DATATYPE }];
+      } else if (rangeType === "shape") {
+        typeClause.is = [{ iri: SHACL.NODESHAPE }];
+      }
+    }
+  }
+}
+
+export const propertyRangeTypes = [
+  {
+    label: "concept",
+    value: "concept",
+    tooltip: "The range is a concept or set"
+  },
+  {
+    label: "datatype",
+    value: "datatype",
+    tooltip: "The range is a simple or complex data type"
+  },
+  {
+    label: "shape",
+    value: "shape",
+    tooltip: "The range is a data model shape "
+  }
+];
+
 function processArgument(property: PropertyShape, key: string, value: any, argResult: any, valueVariableMap?: Map<string, any>) {
   if (key === "valueVariable") {
     let foundValueVariable: any = null;
@@ -26,10 +58,11 @@ function processArgument(property: PropertyShape, key: string, value: any, argRe
     } else if (valueVariableMap && valueVariableMap.has(value)) {
       foundValueVariable = valueVariableMap.get(value);
     }
-    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item))) argResult["valueIriList"] = foundValueVariable;
+    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => TypeGuards.isTTIriRef(item)))
+      argResult["valueIriList"] = foundValueVariable;
     else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
       argResult["valueDataList"] = foundValueVariable;
-    else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
+    else if (TypeGuards.isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
     else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
     else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
     else argResult[key] = foundValueVariable;

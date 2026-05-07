@@ -46,26 +46,23 @@
 </template>
 
 <script lang="ts">
-import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
-import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
-import TabLayout from "@/components/editor/shapeComponents/TabLayout.vue";
+import { defineComponent } from "vue";
+
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
-import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
-import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
-import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
-import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
-import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
-import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
-import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
+import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
-import { defineComponent } from "vue";
-import { setupValidity } from "@/composables/setupValidity";
-import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
-import { handleFocusChange } from "@/composables/useAutocompleteRegistry";
-import { useDialog } from "primevue/usedialog";
+import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
+import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
+import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import TabLayout from "@/components/editor/shapeComponents/TabLayout.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
+import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
 
 export default defineComponent({
   components: {
@@ -89,36 +86,48 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, onUnmounted, onBeforeUnmount, provide, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, onUnmounted, provide, ref, watch } from "vue";
+
+import { IM, RDF } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
+import { cloneDeep } from "lodash-es";
+import { useDialog } from "primevue/usedialog";
+import "vue-json-pretty/lib/styles.css";
+import { useRoute, useRouter } from "vue-router";
+
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useRoute, useRouter } from "vue-router";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import { cloneDeep } from "lodash-es";
-import Swal, { SweetAlertResult } from "sweetalert2";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
-import { setupEditorShape } from "@/composables/setupEditorShape";
-import "vue-json-pretty/lib/styles.css";
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
+import { useDirectService } from "@/composables/useDirectService";
+import { useEditorEntity } from "@/composables/useEditorEntity";
+import { useEditorShape } from "@/composables/useEditorShape";
+import { useValidity } from "@/composables/useValidity";
+import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM, RDF } from "@/vocabulary";
-import { DirectService, EntityService, SetService } from "@/services";
+import { processComponentType } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService, SetService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { processComponentType } from "@/helpers/EditorMethods";
-import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
+const dialogStore = useDialogStore();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
+const userStore = useUserStore();
 const dynamicDialog = useDialog();
 const autocompletes = new Map<HTMLElement, () => void>();
-const directService = new DirectService();
+const directService = useDirectService();
 const { fetchEntity, editorEntity, editorEntityOriginal, editorIri, entityName, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } =
-  setupEditorEntity(EditorMode.EDIT, updateType);
-const { shape, getShapesCombined, groups, processShape } = setupEditorShape();
+  useEditorEntity(EditorMode.EDIT, updateType);
+const { shape, getShapesCombined, groups, processShape } = useEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -131,9 +140,11 @@ const {
   removeValidationCheckStatus,
   validationChecksCompleted,
   checkValidity
-} = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
+} = useValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = useValueVariableMap();
+const { handleFocusChange } = useAutocompleteRegistry();
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
+const currentUser = computed(() => userStore.currentUser);
 
 const loading = ref(true);
 const showSidebar = ref(false);
@@ -177,6 +188,9 @@ onUnmounted(() => {
 
 onMounted(async () => {
   loading.value = true;
+  if (currentUser.value && currentUser.value.namespaces.length < 1) {
+    await router.push({ name: "AccessDenied" });
+  }
   document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();
   await fetchEntity();
@@ -233,6 +247,7 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
 }
 
 function submit(): void {
+  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
@@ -245,79 +260,88 @@ function submit(): void {
         forceValidation.value = false;
         verificationDialog.close();
         if (isValidEntity(editorEntity.value)) {
-          await Swal.fire({
-            icon: "info",
-            title: "Confirm save",
-            text: "Are you sure you want to save your changes?",
-            showCancelButton: true,
-            confirmButtonText: "Save",
-            reverseButtons: true,
-            confirmButtonColor: "#2196F3",
-            cancelButtonColor: "#607D8B",
-            showLoaderOnConfirm: true,
-            allowOutsideClick: () => !Swal.isLoading(),
-            backdrop: true,
-            preConfirm: async () => {
-              if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET]) || isObjectHasKeys(editorEntityOriginal.value, [IM.HAS_SUBSET])) {
-                await SetService.updateSubsetsFromSuper(editorEntity.value);
-                delete editorEntity.value[IM.HAS_SUBSET];
-              }
-              const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
-              if (res) {
-                editorStore.updateEditorSavedEntity(undefined);
-                return res;
-              } else Swal.showValidationMessage("Error saving entity to server.");
-            }
-          }).then(async (result: SweetAlertResult) => {
-            if (result.isConfirmed) {
-              await Swal.fire({
-                title: "Success",
-                text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
-                icon: "success",
+          await dialogStore
+            .open(AlertDialog, {
+              props: { modal: true, style: { width: "30vw" }, closable: false },
+              data: {
+                icon: "fa-regular fa-circle-info",
+                title: "Confirm save",
+                text: "Are you sure you want to save your changes?",
                 showCancelButton: true,
+                confirmButtonText: "Save",
                 reverseButtons: true,
-                confirmButtonText: "Open in Viewer",
-                confirmButtonColor: "#2196F3",
-                cancelButtonColor: "#607D8B"
-              }).then(async (result: SweetAlertResult) => {
-                if (result.isConfirmed) {
-                  await directService.view(editorEntity.value[IM.ID]);
-                } else {
-                  await fetchEntity();
+                preConfirm: async () => {
+                  if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET]) || isObjectHasKeys(editorEntityOriginal.value, [IM.HAS_SUBSET])) {
+                    await SetService.updateSubsetsFromSuper(editorEntity.value);
+                    delete editorEntity.value[IM.HAS_SUBSET];
+                  }
+                  const res = await EntityService.updateEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
+                  if (res) {
+                    editorStore.updateEditorSavedEntity(undefined);
+                    return res;
+                  } else dialogStore.setError("Error saving entity to server.");
                 }
-              });
-            }
-          });
+              }
+            })
+            .then(async (result: any) => {
+              if (result?.confirm) {
+                await dialogStore
+                  .open(AlertDialog, {
+                    props: { modal: true, style: { width: "30vw" }, closable: false },
+                    data: {
+                      title: "Success",
+                      text: "Entity: " + editorEntity.value[IM.ID] + " has been updated.",
+                      icon: "fa-regular fa-circle-check",
+                      showCancelButton: true,
+                      reverseButtons: true,
+                      confirmButtonText: "Open in Viewer"
+                    }
+                  })
+                  .then(async result => {
+                    if (result.confirm) {
+                      await directService.view(editorEntity.value[IM.ID]);
+                    } else {
+                      await fetchEntity();
+                    }
+                  });
+              }
+            });
         } else {
-          await Swal.fire({
-            icon: "warning",
-            title: "Warning",
-            text: "Invalid values found. Please review your entries.",
-            confirmButtonText: "Close",
-            confirmButtonColor: "#689F38"
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-exclamation",
+              title: "Warning",
+              text: "Invalid values found. Please review your entries.",
+              confirmButtonText: "Close"
+            }
           });
         }
       } else {
         forceValidation.value = false;
         verificationDialog.close();
-        await Swal.fire({
-          icon: "error",
-          title: "Timeout",
-          text: "Validation timed out. Please contact an admin for support.",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#689F38"
+        await dialogStore.open(AlertDialog, {
+          props: { modal: true, style: { width: "30vw" }, closable: false },
+          data: {
+            icon: "fa-regular fa-circle-exclamation",
+            title: "Warning",
+            text: "Invalid values found. Please review your entries.",
+            confirmButtonText: "Close"
+          }
         });
       }
     })
     .catch(async () => {
       forceValidation.value = false;
       verificationDialog.close();
-      await Swal.fire({
-        icon: "error",
-        title: "Timeout",
-        text: "Validation timed out. Please contact an admin for support.",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(AlertDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-xmark",
+          title: "Timeout",
+          text: "Validation timed out. Please contact an admin for support",
+          confirmButtonText: "Close"
+        }
       });
     });
 }
@@ -330,22 +354,25 @@ function processEntityValue(property: PropertyShape) {
 }
 
 async function closeEditor() {
-  await Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
-    showCancelButton: true,
-    confirmButtonText: "Close",
-    reverseButtons: true,
-    confirmButtonColor: "#D32F2F",
-    cancelButtonColor: "#607D8B",
-    customClass: { confirmButton: "swal-reset-button" }
-  }).then(async (result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      if (window.history.state.back === null) await router.push({ name: "Folder", params: { selectedIri: editorIri } });
-      else router.go(-1);
-    }
-  });
+  editorStore.updateEditorHasChanges(false);
+  await dialogStore
+    .open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+        showCancelButton: true,
+        confirmButtonText: "Close",
+        reverseButtons: true
+      }
+    })
+    .then(async result => {
+      if (result.confirm) {
+        if (window.history.state.back === null) await router.push({ name: "Folder", params: { selectedIri: editorIri } });
+        else router.go(-1);
+      }
+    });
 }
 </script>
 

@@ -37,10 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
+
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+
 import { TermCode } from "@/interfaces";
-import { DataTypeCheckers } from "@/helpers";
-const { isArrayHasLength } = DataTypeCheckers;
 
 interface Props {
   label?: string;

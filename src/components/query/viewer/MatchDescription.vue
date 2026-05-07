@@ -5,7 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { Match } from "@/interfaces/AutoGen";
+import type { Match } from "@endeavour/vue-library/interfaces";
+
 interface Props {
   match: Match;
   depth: number;

@@ -1,6 +1,7 @@
+import { computed } from "vue";
+
 import { StatusService } from "@/services";
 import { useSharedStore } from "@/stores/sharedStore";
-import { computed } from "vue";
 
 export async function setModes() {
   const sharedStore = useSharedStore();

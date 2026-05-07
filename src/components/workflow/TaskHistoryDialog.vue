@@ -23,8 +23,8 @@
 </template>
 
 <script setup lang="ts">
-import { formatDateTime } from "@/helpers/Datetime/FormatDateTime";
-import { TaskHistory } from "@/interfaces/AutoGen";
+import { formatDateTime } from "@endeavour/vue-library/helpers";
+import type { TaskHistory } from "@endeavour/vue-library/interfaces";
 
 interface Props {
   showDialog: boolean;

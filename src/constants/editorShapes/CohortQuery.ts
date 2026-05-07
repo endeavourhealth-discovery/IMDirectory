@@ -1,5 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY, XSD } from "@/vocabulary";
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
+import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
 const CohortQueryShape: FormGenerator = {
   iri: EDITOR.COHORT_QUERY_SHAPE,
@@ -173,6 +173,13 @@ const CohortQueryShape: FormGenerator = {
                   order: 1,
                   minCount: 0,
                   builderChild: true,
+                  isValidEntity: { iri: QUERY.IS_VALID_TYPE },
+                  isValidArguments: [
+                    {
+                      valueIri: { iri: IM.FOLDER },
+                      parameter: "type"
+                    }
+                  ],
                   componentType: {
                     iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },
@@ -191,6 +198,59 @@ const CohortQueryShape: FormGenerator = {
                   ],
                   path: {
                     iri: IM.IS_CONTAINED_IN
+                  }
+                }
+              ]
+            },
+            {
+              label: "Property group - child of in array builder",
+              name: "Child query of",
+              showTitle: true,
+              order: 6,
+              minCount: 0,
+              componentType: {
+                iri: COMPONENT.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              validation: {
+                iri: VALIDATION.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'isContainedIn'.",
+              path: {
+                iri: IM.IS_CHILD_OF
+              },
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 0,
+                  builderChild: true,
+                  isValidEntity: { iri: QUERY.IS_VALID_TYPE },
+                  isValidArguments: [
+                    {
+                      valueIri: { iri: IM.QUERY },
+                      parameter: "type"
+                    }
+                  ],
+                  componentType: {
+                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
+                  },
+                  select: [
+                    {
+                      iri: QUERY.SEARCH_ALLOWABLE_CHILD_OF
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        iri: IM.QUERY
+                      },
+                      parameter: "value"
+                    }
+                  ],
+                  path: {
+                    iri: IM.IS_CHILD_OF
                   }
                 }
               ]

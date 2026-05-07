@@ -54,27 +54,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useUserStore } from "@/stores/userStore";
-import { ExtendedSearchResultSummary } from "@/interfaces";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedSearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { cloneDeep } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { DirectService, EntityService } from "@/services";
-import setupOverlay from "@/composables/setupOverlay";
-import { RDF, RDFS } from "@/vocabulary";
-import { useDirectoryStore } from "@/stores/directoryStore";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { useConfirm } from "primevue/useconfirm";
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { EntityService, UserService } from "@/services";
+import { useDirectoryStore } from "@/stores/directoryStore";
+
+const { OS, showOverlay, hideOverlay } = useOverlay();
 
 const confirm = useConfirm();
-const directService = new DirectService();
+const directService = useDirectService();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const userFavourites = computed(() => userStore.favourites);
@@ -146,7 +147,7 @@ function confirmClearFavourites() {
 }
 
 async function clearFavourites() {
-  await userStore.clearFavourites();
+  await userStore.clearFavourites(UserService);
 }
 </script>
 

@@ -1,12 +1,16 @@
-import { SimpleMap, TermCode } from "@/interfaces";
-import Env from "./Env";
+import type { ConceptContextMap } from "@endeavour/vue-library/interfaces";
+
 import axios from "axios";
-import { ConceptContextMap } from "@/interfaces/AutoGen";
-const API_URL = Env.API + "api/concept";
+
+import { SimpleMap, TermCode } from "@/interfaces";
+
+import Env from "./Env";
+
+const API_URL = Env.API + "api/concept/protected";
 
 const ConceptService = {
   async getMatchedFrom(iri: string): Promise<SimpleMap[]> {
-    return await axios.get(API_URL + "/public/matchedFrom", {
+    return await axios.get(API_URL + "/matchedFrom", {
       params: {
         iri: iri
       }
@@ -14,7 +18,7 @@ const ConceptService = {
   },
 
   async getMatchedTo(iri: string): Promise<SimpleMap[]> {
-    return await axios.get(API_URL + "/public/matchedTo", {
+    return await axios.get(API_URL + "/matchedTo", {
       params: {
         iri: iri
       }
@@ -22,13 +26,13 @@ const ConceptService = {
   },
 
   async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
-    return await axios.get(API_URL + "/public/termCode", {
+    return await axios.get(API_URL + "/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
   },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
-    return await axios.get(API_URL + "/public/conceptContextMaps", {
+    return await axios.get(API_URL + "/conceptContextMaps", {
       params: { iri: conceptIri }
     });
   }

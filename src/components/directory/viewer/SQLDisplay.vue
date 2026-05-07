@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
+
 import Prism from "prismjs";
 import "prismjs/components/prism-sql.js";
 import "prismjs/plugins/line-numbers/prism-line-numbers";

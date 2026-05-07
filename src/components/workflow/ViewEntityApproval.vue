@@ -37,21 +37,22 @@
 </template>
 
 <script setup lang="ts">
-import { enumToArray } from "@/helpers/Converters";
-import { ApprovalType, EntityApproval, RoleRequest, Task, UserRole } from "@/interfaces/AutoGen";
-import AdminService from "@/services/AdminService";
-import WorkflowService from "@/services/WorkflowService";
-import { useUserStore } from "@/stores/userStore";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { ApprovalType } from "@endeavour/vue-library/enums";
+import type { EntityApproval, Task } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { useConfirm } from "primevue/useconfirm";
-import Swal from "sweetalert2";
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import TaskViewer from "./TaskViewer.vue";
-import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
+
+import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
+import WorkflowService from "@/services/WorkflowService";
+import { useDialogStore } from "@/stores/dialogStore";
+
+import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 import EntityDiffDialog from "./EntityDiffDialog.vue";
+import TaskViewer from "./TaskViewer.vue";
 
 interface Props {
   id: string;
@@ -59,6 +60,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const dialogStore = useDialogStore();
 const userStore = useUserStore();
 const confirm = useConfirm();
 
@@ -102,7 +104,7 @@ async function setOptions() {
 
 async function getEntity() {
   if (entityApproval.value?.approvalType === ApprovalType.EDIT && entityApproval.value?.entityIri) {
-    const { editorEntity } = setupEditorEntity(EditorMode.EDIT, () => {});
+    const { editorEntity } = useEditorEntity(EditorMode.EDIT, () => {});
     originalEntity.value = { ...editorEntity.value };
   }
 }
@@ -140,10 +142,13 @@ async function updateTask(task: Task) {
           history: task.history
         };
         await WorkflowService.updateEntityApproval(updatedEntityApproval).then(async () => {
-          await Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Entity approval successfully updated."
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" } },
+            data: {
+              icon: "fa-regular fa-circle-check",
+              title: "Success",
+              text: "Entity approval successfully updated."
+            }
           });
         });
 

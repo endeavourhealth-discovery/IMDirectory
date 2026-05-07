@@ -27,13 +27,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, ref, Ref } from "vue";
-import TopBar from "@/components/shared/TopBar.vue";
-import SearchBar from "@/components/shared/SearchBar.vue";
-import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
+import { ComputedRef, Ref, computed, ref } from "vue";
+
+import type { FilterOptions } from "@endeavour/vue-library/interfaces";
+
 import { useRouter } from "vue-router";
+
+import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
+import TopBar from "@/components/shared/TopBar.vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { FilterOptions } from "@/interfaces";
 
 const router = useRouter();
 const filterStore = useFilterStore();
@@ -42,7 +45,7 @@ const updateSearch: Ref<boolean> = ref(false);
 const storeSelectedFilterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilterOptions);
 
 async function onSelectedFiltersUpdated(filters: FilterOptions) {
-  filterStore.updateSelectedFilterOptions(filters);
+  filterStore.updateWithDefaultFilterOptions(storeSelectedFilterOptions.value, filters);
   if (directorySearchTerm.value && directorySearchTerm.value.length > 2) await toSearch();
 }
 

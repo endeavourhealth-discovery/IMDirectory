@@ -19,22 +19,24 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
+import { Ref, computed, onMounted, onUnmounted, ref, watch } from "vue";
+
+import { IM, ToastSeverity } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { ToastOptions } from "@endeavour/vue-library/models";
+
 import * as d3 from "d3";
-import svgPanZoom from "svg-pan-zoom";
 import { cloneDeep } from "lodash-es";
-import { TTGraphData } from "@/interfaces";
-import { DataTypeCheckers, GraphTranslator } from "@/helpers";
-import { EntityService } from "@/services";
-import { IM } from "@/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@/models";
-import { ToastSeverity } from "@/enums";
+import svgPanZoom from "svg-pan-zoom";
+
+import { GraphTranslator } from "@/helpers";
+import { TTGraphData } from "@/interfaces";
+import { EntityService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
 interface Props {
   data: TTGraphData;

@@ -122,18 +122,17 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, Ref, watch } from "vue";
-import SimpleMaps from "./SimpleMaps.vue";
-import { ChartMapNode, ChartTableNode, MapItem, Namespace, SimpleMap, SimpleMapIri } from "@/interfaces";
-import { DataTypeCheckers, Sorters } from "@/helpers";
-import { ConceptService, EntityService } from "@/services";
-import { IM } from "@/vocabulary";
-import { Context } from "@/interfaces/Context";
-import { ConceptContextMap } from "@/interfaces/AutoGen";
-import { GenericObject } from "@/interfaces/GenericObject";
+import { Ref, onMounted, ref, watch } from "vue";
 
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
-const { byPriority, byScheme } = Sorters;
+import { IM } from "@endeavour/vue-library/enums";
+import { byPriority, byScheme, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ConceptContextMap, GenericObject, Namespace } from "@endeavour/vue-library/interfaces";
+
+import { ChartMapNode, ChartTableNode, MapItem, SimpleMap, SimpleMapIri } from "@/interfaces";
+import { Context } from "@/interfaces/Context";
+import { ConceptService, EntityService } from "@/services";
+
+import SimpleMaps from "./SimpleMaps.vue";
 
 interface Props {
   entityIri: string;
@@ -303,7 +302,9 @@ function generateSimpleMapsNodes(simpleMaps: SimpleMap[], location: string, posi
       name: mapItem.name,
       iri: mapItem.iri,
       scheme: mapItem.scheme,
-      code: mapItem.code
+      code: mapItem.code,
+      alternativeCode: mapItem.alternativeCode,
+      codeId: mapItem.codeId
     });
   });
   simpleMapsList.sort(byScheme);

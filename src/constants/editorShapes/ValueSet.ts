@@ -1,5 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS, XSD, EDITOR, COMPONENT, IM_FUNCTION, VALIDATION, QUERY } from "@/vocabulary";
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
+import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
 const ValueSetShape: FormGenerator = {
   iri: EDITOR.VALUE_SET_SHAPE,
@@ -335,6 +335,23 @@ const ValueSetShape: FormGenerator = {
               validationErrorMessage: "Set definition is not valid",
               path: {
                 iri: IM.DEFINITION
+              }
+            },
+            {
+              comment: "avoid replaced by",
+              order: 3,
+              datatype: {
+                iri: XSD.BOOLEAN
+              },
+              name: "Avoid replaced by",
+              showTitle: true,
+              maxCount: 1,
+              path: {
+                iri: IM.AVOID_REPLACED_BY
+              },
+              minCount: 0,
+              componentType: {
+                iri: COMPONENT.CHECKBOX_DISPLAY
               }
             }
           ]

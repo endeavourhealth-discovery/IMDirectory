@@ -34,8 +34,9 @@
 </template>
 
 <script lang="ts">
-import BuilderChildWrapper from "./BuilderChildWrapper.vue";
 import { defineComponent } from "vue";
+
+import BuilderChildWrapper from "./BuilderChildWrapper.vue";
 
 export default defineComponent({
   components: { BuilderChildWrapper }
@@ -43,16 +44,19 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, ComputedRef } from "vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { SHACL } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+
 import { cloneDeep, isEqual } from "lodash-es";
-import { ComponentDetails } from "@/interfaces";
-import { PropertyShape } from "@/interfaces/AutoGen";
+
 import { ComponentType, EditorMode } from "@/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { addItem, generateNewComponent, updateItem, updatePositions } from "@/helpers/EditorBuilderJsonMethods";
 import { processComponentType } from "@/helpers/EditorMethods";
-import { generateNewComponent, updatePositions, addItem, updateItem } from "@/helpers/EditorBuilderJsonMethods";
-import { SHACL } from "@/vocabulary";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { ComponentDetails } from "@/interfaces";
 
 interface Props {
   shape: PropertyShape;

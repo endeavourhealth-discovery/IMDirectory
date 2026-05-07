@@ -77,9 +77,11 @@
 </template>
 
 <script setup lang="ts">
-import TopBar from "@/components/shared/TopBar.vue";
 import { ref } from "vue";
+
 import { useRouter } from "vue-router";
+
+import TopBar from "@/components/shared/TopBar.vue";
 
 const router = useRouter();
 
@@ -87,7 +89,7 @@ const appName = ref("Information Model");
 
 async function goBack() {
   if (window.history.length > 2) router.back();
-  else await router.push({ name: "LandingPage" });
+  else await router.push("/directory");
 }
 </script>
 

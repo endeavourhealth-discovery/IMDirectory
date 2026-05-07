@@ -1,6 +1,7 @@
-import { SetService, Env } from "@/services";
 import axios from "axios";
-import { vi, expect, it, beforeEach, describe } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { Env, SetService } from "@/services";
 
 describe("SetService.ts ___ axios success", () => {
   beforeEach(() => {
@@ -12,7 +13,7 @@ describe("SetService.ts ___ axios success", () => {
   it("can publish", async () => {
     const result = await SetService.publish("testIri");
     expect(axios.get).toBeCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/publish", {
+    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/private/publish", {
       params: { iri: "testIri" }
     });
     expect(result).toBe("axios get return");
@@ -21,7 +22,7 @@ describe("SetService.ts ___ axios success", () => {
   it("can get IMV1", async () => {
     const result = await SetService.IMV1("testIri");
     expect(axios.get).toBeCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/public/export", { params: { iri: "testIri" }, responseType: "blob" });
+    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/protected/export", { params: { iri: "testIri" }, responseType: "blob" });
     expect(result).toBe("axios get return");
   });
 });

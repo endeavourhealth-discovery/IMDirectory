@@ -7,27 +7,31 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { EntityService } from "@/services";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IM } from "@/vocabulary";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
+
+import { EntityService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;
 }>();
 
 const entityJSON = ref({ entity: {}, predicates: {} });
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 const loading = ref(false);
 
 onMounted(async () => {
   loading.value = true;
   const response = await EntityService.getBundleByPredicateExclusions(props.entityIri, [IM.HAS_MEMBER]);
   if (isObjectHasKeys(response, ["entity"])) {
-    if (isObjectHasKeys(response.entity, [IM.DEFINITION])) response.entity[IM.DEFINITION] = JSON.parse(response.entity[IM.DEFINITION]);
-    else if (isObjectHasKeys(response.entity, [IM.HAS_DATASET])) {
+    if (isObjectHasKeys(response.entity, [IM.DEFINITION]) && typeof response.entity[IM.DEFINITION] === "string") {
+      response.entity[IM.DEFINITION] = JSON.parse(response.entity[IM.DEFINITION]);
+    } else if (isObjectHasKeys(response.entity, [IM.HAS_DATASET]) && typeof response.entity[IM.HAS_DATASET] === "string") {
       response.entity[IM.HAS_DATASET] = JSON.parse(response.entity[IM.HAS_DATASET]);
     }
     entityJSON.value = Object.freeze(response);

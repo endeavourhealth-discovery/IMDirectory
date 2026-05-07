@@ -17,12 +17,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted, inject } from "vue";
-import { EntityService } from "@/services";
-import { RDF } from "@/vocabulary";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { Ref, inject, onMounted, ref } from "vue";
+
+import { RDF } from "@endeavour/vue-library/enums";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+
 import editorShapes from "@/constants/editorShapes";
-import { ExtendedEntityReferenceNode, TTEntity } from "@/interfaces/ExtendedAutoGen";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService } from "@/services";
 
 interface Props {
   showTypeSelector?: boolean;
@@ -49,7 +51,7 @@ async function setOptions() {
 }
 
 function typeSelected(data: ExtendedEntityReferenceNode) {
-  const result: TTEntity = {};
+  const result: ExtendedTTEntity = {};
   result[RDF.TYPE] = [{ iri: data.iri, name: data.name }];
   if (entityUpdate) entityUpdate(result);
   props.updateShowTypeSelector(false);

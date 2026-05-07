@@ -13,6 +13,16 @@
             fixed-width
           />
           <IMViewerLink :iri="node.data.iri" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" :action="'select'" />
+          <span v-if="node.data.inversePath">
+            <span class="greyed-out mx-2">(inverse property=</span>
+            <IMViewerLink
+              :iri="node.data.inversePath.iri"
+              :label="node.data.inversePath.name"
+              @navigateTo="(iri: string) => emit('navigateTo', iri)"
+              :action="'select'"
+            />
+            <span>)</span>
+          </span>
         </div>
       </template>
       <template #type="{ node }: any">
@@ -46,16 +56,17 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, Ref, ref, watch } from "vue";
-import { DataModelService } from "@/services";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { Ref, onMounted, ref, watch } from "vue";
+
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { GenericObject, PropertyRange, PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+
 import type { TreeNode } from "primevue/treenode";
+
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM, RDFS, RDF } from "@/vocabulary";
-import { PropertyShape, TTIriRef, PropertyRange } from "@/interfaces/AutoGen";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { GenericObject } from "@/interfaces/GenericObject";
+import { DataModelService } from "@/services";
 
 const props = defineProps<{
   entityIri: string;
@@ -268,7 +279,7 @@ function createPropertyNode(property: PropertyShape, index: number, propertyList
       range = property.datatype;
       if (property.datatype.type) rangeType = property.datatype.type;
     }
-
+    let inversePath = property.inversePath;
     let name = property.path.name;
     if (property.hasValue) {
       const value = property.hasValueType?.iri === RDFS.RESOURCE ? property.hasValue.name : property.hasValue;
@@ -288,7 +299,8 @@ function createPropertyNode(property: PropertyShape, index: number, propertyList
           cardinality: cardinality,
           typeIcon: getFAIconFromType([propertyType]),
           color: getColourFromType([propertyType]),
-          iri: property.path.iri
+          iri: property.path.iri,
+          inversePath: inversePath
         },
         type: "property"
       } as TreeNode;
@@ -323,5 +335,9 @@ async function getDataModelPropertiesDisplay(iri: string, parentKey: string): Pr
   width: 1.25em !important;
   height: 1.25em !important;
   flex: 0 0 auto;
+}
+.greyed-out {
+  opacity: 0.6;
+  pointer-events: none;
 }
 </style>

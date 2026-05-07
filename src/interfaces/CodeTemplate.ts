@@ -1,4 +1,4 @@
-import { GenericObject } from "./GenericObject";
+import type { GenericObject } from "@endeavour/vue-library/interfaces";
 
 export interface CodeTemplate {
   name: string;

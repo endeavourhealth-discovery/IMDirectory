@@ -3,45 +3,51 @@
     <span class="columns-prefix">Columns :</span>
     <span>{{ columnNames.join(",") }}</span>
     <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle"></Button>
-    <RecursiveReturnDisplay v-if="propertyExpand" :select="select" :parentQuery="parentQuery" />
+    <RecursiveReturnDisplay v-if="propertyExpand" :select="select" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { Return, Query } from "@/interfaces/AutoGen";
-import { onMounted, Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
+
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Query, Return } from "@endeavour/vue-library/interfaces";
+
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 
 interface Props {
-  select: Return;
+  select: Return[];
   parentQuery: Query;
+  expand?: boolean;
 }
 const props = defineProps<Props>();
-const editSelect = ref({ ...props.select });
 const propertyExpand = ref(false);
 const columnNames: Ref<string[]> = ref([]);
 
 onMounted(() => {
-  getColumnNamesFromReturn(editSelect.value);
+  getColumnNamesFromReturn(props.select);
+  if (props.expand) propertyExpand.value = props.expand;
 });
 
 function toggle() {
   propertyExpand.value = !propertyExpand.value;
 }
 
-function getColumnNamesFromReturn(select: Return) {
-  if (select.as) columnNames.value.push(select.as);
-  if (select.function && select.function.name) columnNames.value.push(select.function.name);
-  if (select.property && isArrayHasLength(select.property)) {
-    for (const property of select.property) {
-      if (property.return) {
-        getColumnNamesFromReturn(property.return);
-      } else {
-        if (property.as) {
-          columnNames.value.push(property.as);
-        } else columnNames.value.push(property.name ? property.name : "->");
-      }
+function getColumnNamesFromReturn(select: Return[]) {
+  if (isArrayHasLength(select)) {
+    for (const property of select) {
+      if (property.function && property.function.name) columnNames.value.push(property.function.name);
+      getColumnNamesFromProperty(property);
+    }
+  }
+}
+function getColumnNamesFromProperty(property: Return) {
+  if (property.as) {
+    columnNames.value.push(property.as);
+  } else columnNames.value.push(property.name ? property.name : "->");
+  if (property.return) {
+    for (const subProperty of property.return) {
+      getColumnNamesFromProperty(subProperty);
     }
   }
 }

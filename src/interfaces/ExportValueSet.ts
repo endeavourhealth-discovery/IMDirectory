@@ -1,4 +1,5 @@
-import { TTIriRef } from "./AutoGen";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+
 import { ValueSetMember } from "./ValueSetMember";
 
 export interface ExportValueSet {

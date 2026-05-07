@@ -51,27 +51,24 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+
 import TypeSelector from "@/components/creator/TypeSelector.vue";
-import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
-import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
-import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
-import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
-import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
-import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
-import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
-import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
-import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
-import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
+import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
-import { QueryService } from "@/services";
-import { defineComponent } from "vue";
-import { setupValidity } from "@/composables/setupValidity";
-import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
-import { useDialog } from "primevue/usedialog";
+import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
+import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
+import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
+import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
+import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
 
 export default defineComponent({
   components: {
@@ -96,25 +93,36 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { onUnmounted, onMounted, computed, ref, Ref, watch, provide, ComputedRef } from "vue";
+import { ComputedRef, Ref, computed, onMounted, onUnmounted, provide, ref, watch } from "vue";
+
+import { DisplayMode } from "@endeavour/vue-library/enums";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
+import { cloneDeep } from "lodash-es";
+import { useDialog } from "primevue/usedialog";
+import { useRoute, useRouter } from "vue-router";
+
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { cloneDeep } from "lodash-es";
-import Swal, { SweetAlertResult } from "sweetalert2";
-import { setupEditorEntity } from "@/composables/setupEditorEntity";
-import { setupEditorShape } from "@/composables/setupEditorShape";
-import { useRoute, useRouter } from "vue-router";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyShape, TTIriRef } from "@/interfaces/AutoGen";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { useDirectService } from "@/composables/useDirectService";
+import { useEditorEntity } from "@/composables/useEditorEntity";
+import { useEditorShape } from "@/composables/useEditorShape";
+import { useValidity } from "@/composables/useValidity";
+import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { EditorMode } from "@/enums";
-import { IM, RDF, RDFS } from "@/vocabulary";
-import { DirectService, EntityService, SetService } from "@/services";
+import { processComponentType } from "@/helpers/EditorMethods";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { QueryService } from "@/services";
+import { EntityService, SecurityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
+import { useDialogStore } from "@/stores/dialogStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import { processComponentType } from "@/helpers/EditorMethods";
 
 interface Props {
   type?: TTIriRef;
@@ -125,12 +133,14 @@ const props = defineProps<Props>();
 const route = useRoute();
 const router = useRouter();
 const dynamicDialog = useDialog();
+const dialogStore = useDialogStore();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
+const userStore = useUserStore();
 const filterStore = useFilterStore();
-const directService = new DirectService();
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
+const currentUser = computed(() => userStore.currentUser);
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -141,11 +151,11 @@ function onShowSidebar() {
   editorStore.updateFindInEditorTreeIri("");
 }
 
-const { editorEntity, editorEntityOriginal, processEntity, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } = setupEditorEntity(
+const { editorEntity, editorEntityOriginal, processEntity, findPrimaryType, updateEntity, deleteEntityKey, checkForChanges } = useEditorEntity(
   EditorMode.CREATE,
   updateType
 );
-const { shape, getShape, getShapesCombined, groups, processShape } = setupEditorShape();
+const { shape, getShape, getShapesCombined, groups, processShape } = useEditorShape();
 const {
   editorValidity,
   updateValidity,
@@ -159,8 +169,8 @@ const {
   validationChecksCompleted,
   checkValidity,
   checkExists
-} = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
+} = useValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = useValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
@@ -187,6 +197,9 @@ onUnmounted(() => {
 
 onMounted(async () => {
   loading.value = true;
+  if (currentUser.value && currentUser.value.namespaces.length < 1) {
+    await router.push({ name: "AccessDenied" });
+  }
   await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
   if (isObjectHasKeys(creatorSavedEntity.value, ["iri"])) {
@@ -208,6 +221,17 @@ onMounted(async () => {
     if (propertyIri && valueIri) {
       const propertyIriFixed = removeEndSlash(propertyIri as string);
       const valueIriFixed = removeEndSlash(valueIri as string);
+      if (typeIriFixed === IM.QUERY && propertyIriFixed === IM.IS_CHILD_OF) {
+        const baseQuery = await QueryService.getDisplayFromQueryIri(valueIriFixed, DisplayMode.LOGICAL);
+        editorEntity.value[IM.DEFINITION] = JSON.stringify({
+          typeOf: baseQuery.typeOf,
+          and: [
+            {
+              is: [{ iri: valueIriFixed, cohort: true }]
+            }
+          ]
+        });
+      }
       if (propertyIriFixed === IM.DEFINITION) {
         const newValue = await QueryService.getQueryDisplay(valueIriFixed, false);
         editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
@@ -249,45 +273,52 @@ function removeEndSlash(urlProp: string) {
 }
 
 async function showEntityFoundWarning() {
-  await Swal.fire({
-    title: "Unsaved creator entity found",
-    html:
-      "<span>Local saved entity found. Would you like to continue creating this entity?</span><br/><br/><span>iri: " +
-      creatorSavedEntity.value?.iri +
-      "</span><br/><span>name: " +
-      creatorSavedEntity.value?.[RDFS.LABEL] +
-      "</span>",
-    showCloseButton: false,
-    showCancelButton: true,
-    cancelButtonText: "No",
-    confirmButtonText: "Yes",
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    reverseButtons: true
-  }).then(async result => {
-    if (result.isConfirmed) {
-      editorEntityOriginal.value = {};
-      editorEntity.value = cloneDeep(processEntity(creatorSavedEntity.value));
-      currentStep.value = 1;
-    } else {
-      await Swal.fire({
-        title: "Delete saved entity",
-        text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.iri + ". Are you sure you want to continue?",
+  await dialogStore
+    .open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        title: "Unsaved creator entity found",
+        html:
+          "<span>Local saved entity found. Would you like to continue creating this entity?</span><br/><br/><span>iri: " +
+          creatorSavedEntity.value?.iri +
+          "</span><br/><span>name: " +
+          creatorSavedEntity.value?.[RDFS.LABEL] +
+          "</span>",
         showCloseButton: false,
         showCancelButton: true,
-        cancelButtonText: "Cancel",
-        confirmButtonText: "Delete local entity",
-        confirmButtonColor: "#EF4444"
-      }).then(async result => {
-        if (result.isConfirmed) {
-          editorEntityOriginal.value = {};
-          editorEntity.value = {};
-        } else {
-          await showEntityFoundWarning();
-        }
-      });
-    }
-  });
+        cancelButtonText: "No",
+        confirmButtonText: "Yes",
+        reverseButtons: true
+      }
+    })
+    .then(async (result: any) => {
+      if (result?.confirm) {
+        editorEntityOriginal.value = {};
+        editorEntity.value = cloneDeep(processEntity(creatorSavedEntity.value));
+        currentStep.value = 1;
+      } else {
+        await dialogStore
+          .open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              title: "Delete saved entity",
+              text: "Continuing will delete locally saved entity with iri: " + creatorSavedEntity.value?.iri + ". Are you sure you want to continue?",
+              showCloseButton: false,
+              showCancelButton: true,
+              cancelButtonText: "Cancel",
+              confirmButtonText: "Delete local entity"
+            }
+          })
+          .then(async result => {
+            if (result.confirm) {
+              editorEntityOriginal.value = {};
+              editorEntity.value = {};
+            } else {
+              await showEntityFoundWarning();
+            }
+          });
+      }
+    });
 }
 
 watch(
@@ -326,6 +357,7 @@ async function submit(): Promise<void> {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
   });
+  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
   constructValidationCheckStatus(shape.value);
   forceValidation.value = true;
   validationChecksCompleted()
@@ -333,85 +365,100 @@ async function submit(): Promise<void> {
       forceValidation.value = false;
       verificationDialog.close();
       if (isValidEntity(editorEntity.value)) {
-        await Swal.fire({
-          icon: "info",
-          title: "Confirm create",
-          text: "Are you sure you want to create this entity?",
-          showCancelButton: true,
-          confirmButtonText: "Create",
-          reverseButtons: true,
-          confirmButtonColor: "#689F38",
-          cancelButtonColor: "#607D8B",
-          showLoaderOnConfirm: true,
-          allowOutsideClick: () => !Swal.isLoading(),
-          preConfirm: async () => {
-            if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
-              await SetService.updateSubsetsFromSuper(editorEntity.value);
-              delete editorEntity.value[IM.HAS_SUBSET];
-            }
-            const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
-            if (res) {
-              creatorStore.updateCreatorSavedEntity(undefined);
-              return res;
-            } else Swal.showValidationMessage("Error creating entity from server.");
-          }
-        }).then(async (result: SweetAlertResult) => {
-          if (result.isConfirmed) {
-            await Swal.fire({
-              title: "Success",
-              text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
-              icon: "success",
+        await dialogStore
+          .open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-info",
+              title: "Confirm create",
+              text: "Are you sure you want to create this entity?",
               showCancelButton: true,
+              confirmButtonText: "Create",
               reverseButtons: true,
-              confirmButtonText: "Open in Viewer",
-              confirmButtonColor: "#2196F3",
-              cancelButtonColor: "#607D8B"
-            }).then(async (result: SweetAlertResult) => {
-              if (result.isConfirmed) {
-                await directService.view(editorEntity.value[IM.ID]);
-              } else {
-                await directService.edit(editorEntity.value[IM.ID], true);
+              preConfirm: async () => {
+                if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
+                  await SetService.updateSubsetsFromSuper(editorEntity.value);
+                  delete editorEntity.value[IM.HAS_SUBSET];
+                }
+                const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
+                console.log(res);
+                if (res) {
+                  creatorStore.updateCreatorSavedEntity(undefined);
+                  return res;
+                } else {
+                  dialogStore.setError("Error creating entity from server.");
+                }
               }
-            });
-          }
-        });
+            }
+          })
+          .then(async (result: any) => {
+            if (result?.confirm) {
+              await dialogStore
+                .open(AlertDialog, {
+                  props: { modal: true, style: { width: "30vw" }, closable: false },
+                  data: {
+                    title: "Success",
+                    text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
+                    icon: "fa-regular fa-circle-check",
+                    reverseButtons: true,
+                    confirmButtonText: "Close creator"
+                  }
+                })
+                .then(async result => {
+                  if (result.confirm) {
+                    window.onbeforeunload = null;
+                    // If added via addEventListener
+                    window.removeEventListener("beforeunload", beforeWindowUnload);
+                    setTimeout(() => {
+                      window.close();
+                    }, 0);
+                  }
+                });
+            }
+          });
       } else {
-        await Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "Invalid values found. Please review your entries.",
-          confirmButtonText: "Close",
-          confirmButtonColor: "#689F38"
+        await dialogStore.open(AlertDialog, {
+          props: { modal: true, style: { width: "30vw" }, closable: false },
+          data: {
+            icon: "fa-regular fa-circle-exclamation",
+            title: "Warning",
+            text: "Invalid values found. Please review your entries.",
+            confirmButtonText: "Close"
+          }
         });
       }
     })
     .catch(async () => {
-      await Swal.fire({
-        icon: "error",
-        title: "Timeout",
-        text: "Validation timed out. Please contact an admin for support",
-        confirmButtonText: "Close",
-        confirmButtonColor: "#689F38"
+      await dialogStore.open(AlertDialog, {
+        props: { modal: true, style: { width: "30vw" }, closable: false },
+        data: {
+          icon: "fa-regular fa-circle-xmark",
+          title: "Timeout",
+          text: "Validation timed out. Please contact an admin for support",
+          confirmButtonText: "Close"
+        }
       });
     });
 }
 
 async function closeCreator() {
-  await Swal.fire({
-    icon: "warning",
-    title: "Warning",
-    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
-    showCancelButton: true,
-    confirmButtonText: "Close",
-    reverseButtons: true,
-    confirmButtonColor: "#D32F2F",
-    cancelButtonColor: "#607D8B",
-    customClass: { confirmButton: "swal-reset-button" }
-  }).then(async (result: SweetAlertResult) => {
-    if (result.isConfirmed) {
-      await router.push({ name: "LandingPage" });
-    }
-  });
+  await dialogStore
+    .open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-exclamation",
+        title: "Warning",
+        text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+        showCancelButton: true,
+        confirmButtonText: "Close",
+        reverseButtons: true
+      }
+    })
+    .then(async result => {
+      if (result.confirm) {
+        await router.push("/directory");
+      }
+    });
 }
 
 function processEntityValue(property: PropertyShape) {

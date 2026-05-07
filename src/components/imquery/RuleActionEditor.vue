@@ -19,9 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import { getRuleActionOptions, getRuleAction, setRuleAction, getRuleActionLabel } from "@/composables/buildQuery";
-import { Match } from "@/interfaces/AutoGen";
-import { onMounted, ref, Ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
+
+import type { Match } from "@endeavour/vue-library/interfaces";
+
+import { getRuleAction, getRuleActionLabel, getRuleActionOptions, setRuleAction } from "@/helpers/buildQuery";
 
 const ruleAction: Ref<string> = ref("");
 const match = defineModel<Match>("rule", { default: {} });

@@ -27,8 +27,10 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
-import TopBar from "@/components/shared/TopBar.vue";
+
 import { useRouter } from "vue-router";
+
+import TopBar from "@/components/shared/TopBar.vue";
 
 const router = useRouter();
 
@@ -57,7 +59,7 @@ const userCookiesData: Ref<{ cookie: string; name: string; purpose: string }[]> 
 
 async function goBack() {
   if (window.history.length > 2) router.back();
-  else await router.push({ name: "LandingPage" });
+  else await router.push("/directory");
 }
 </script>
 

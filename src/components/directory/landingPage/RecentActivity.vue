@@ -20,20 +20,20 @@
       >
         <template #empty> No recent activity </template>
         <Column field="name" header="Name">
-          <template #body="{ data }: { data: RecentActivityItem }">
+          <template #body="{ data }: { data: ExtendedRecentActivityItem }">
             <div class="activity-name-icon-container">
               <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon pr-2" :style="data.color" fixed-width />
-              <span class="activity-name flex-1 pl-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
+              <span class="activity-name flex-1 pl-1" @mouseover="overlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.name }}</span>
             </div>
           </template>
         </Column>
         <Column field="latestActivity" header="Latest activity">
-          <template #body="{ data }: { data: RecentActivityItem }">
+          <template #body="{ data }: { data: ExtendedRecentActivityItem }">
             <span class="activity-message" v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</span>
           </template>
         </Column>
         <Column :exportable="false">
-          <template #body="{ data }: { data: RecentActivityItem }">
+          <template #body="{ data }: { data: ExtendedRecentActivityItem }">
             <div class="action-buttons-container">
               <ActionButtons
                 v-if="data.iri"
@@ -52,34 +52,38 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useUserStore } from "@/stores/userStore";
-import { RecentActivityItem } from "@/interfaces";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { getDisplayFromDate } from "@/helpers/UtilityMethods";
+import { Ref, computed, onActivated, onMounted, ref, watch } from "vue";
 
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import { RecentActivityItem } from "@endeavour/vue-library/models";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { cloneDeep, isArray } from "lodash-es";
-import { TTIriRef } from "@/interfaces/AutoGen";
-import { DirectService, EntityService } from "@/services";
-import setupOverlay from "@/composables/setupOverlay";
-import { RDF, RDFS } from "@/vocabulary";
-import { useDirectoryStore } from "@/stores/directoryStore";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { useConfirm } from "primevue/useconfirm";
 
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import { useDirectService } from "@/composables/useDirectService";
+import { getDisplayFromDate } from "@/helpers/UtilityMethods";
+import { ExtendedRecentActivityItem } from "@/interfaces/ExtendedRecentActivityItem";
+import { EntityService, UserService } from "@/services";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
-const directService = new DirectService();
+const { OS, showOverlay, hideOverlay } = useOverlay();
+
+const directService = useDirectService();
 const directoryStore = useDirectoryStore();
 const confirm = useConfirm();
 const userStore = useUserStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
-const selected: Ref<RecentActivityItem> = ref({} as RecentActivityItem);
-const activities: Ref<RecentActivityItem[]> = ref([]);
+const selected: Ref<ExtendedRecentActivityItem> = ref({} as ExtendedRecentActivityItem);
+const activities: Ref<ExtendedRecentActivityItem[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
+const selectedRecent: Ref<boolean> = ref(false);
 
 watch(
   () => cloneDeep(recentLocalActivity.value),
@@ -87,6 +91,9 @@ watch(
 );
 
 onMounted(async () => await init());
+onActivated(() => {
+  selectedRecent.value = false;
+});
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -94,7 +101,14 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
+function overlay(event: MouseEvent, data: any) {
+  if (selectedRecent.value) return;
+  showOverlay(event, data);
+}
+
 async function onRowSelect(event: { data: RecentActivityItem }) {
+  selectedRecent.value = true;
+  hideOverlay();
   await directService.select(event.data.iri);
 }
 
@@ -116,10 +130,10 @@ async function getRecentActivityDetails() {
   const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
-  const temp: RecentActivityItem[] = [];
+  const temp: ExtendedRecentActivityItem[] = [];
 
   for (const rla of recentLocalActivity.value) {
-    const clone = { ...rla };
+    const clone = { ...rla } as ExtendedRecentActivityItem;
 
     let result = null;
     if (results && isArray(results)) result = results.find(r => r.iri === rla.iri);
@@ -158,7 +172,7 @@ function confirmClearRecentActivity() {
 }
 
 async function clearRecentActivity() {
-  await userStore.clearRecentLocalActivity();
+  await userStore.clearRecentLocalActivity(UserService);
 }
 </script>
 

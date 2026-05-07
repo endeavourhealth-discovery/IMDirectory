@@ -1,10 +1,12 @@
-import { expect, vi } from "vitest";
-import testData from "./setupEditorShape.testData";
-import { mountComposable } from "../TestMethods";
+import { IM } from "@endeavour/vue-library/enums";
 
-import { setupEditorShape } from "@/composables/setupEditorShape";
-import { IM } from "@/vocabulary";
+import { expect, vi } from "vitest";
+
+import { useEditorShape } from "@/composables/useEditorShape";
 import ConceptShape from "@/constants/editorShapes/Concept";
+
+import { mountComposable } from "../TestMethods";
+import testData from "./setupEditorShape.testData";
 
 describe("setupShape", () => {
   let wrapper;
@@ -15,13 +17,13 @@ describe("setupShape", () => {
     });
 
     it("gets shape from a type iri ___ success", () => {
-      wrapper = mountComposable(setupEditorShape);
+      wrapper = mountComposable(useEditorShape);
       const shape = wrapper.vm.getShape(IM.CONCEPT);
       expect(shape).toEqual(ConceptShape);
     });
 
     it("gets shape from a type iri ___ fail", () => {
-      wrapper = mountComposable(setupEditorShape, undefined);
+      wrapper = mountComposable(useEditorShape, undefined);
       expect(() => wrapper.vm.getShape("testErrorTypeIri")).toThrowError("No editor shape found for type: testErrorTypeIri");
     });
   });
@@ -31,7 +33,7 @@ describe("setupShape", () => {
       const startShape = { ...testData.CONCEPT_SHAPE };
       const shapeToAdd = { ...testData.CONCEPT_SET_SHAPE };
       expect(startShape.property.length).toBe(4);
-      wrapper = mountComposable(setupEditorShape);
+      wrapper = mountComposable(useEditorShape);
       wrapper.vm.addToShape(startShape, shapeToAdd);
       expect(startShape.property.length).toBe(5);
       expect(startShape.property[0]).toEqual(testData.CONCEPT_SHAPE.property[0]);

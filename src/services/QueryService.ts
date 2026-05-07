@@ -1,82 +1,85 @@
-import Env from "./Env";
-import { QueryResponse } from "@/interfaces";
-import axios from "axios";
+import { DisplayMode } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import {
-  DBEntry,
-  DisplayMode,
+  ArgumentReference,
+  ExtendedTTEntity,
+  IMLLanguage,
+  Indicator,
   Match,
   PathQuery,
   Query,
   QueryRequest,
-  RequeueQueryRequest,
-  SearchResponse,
-  ArgumentReference,
-  IMLLanguage,
-  Indicator
-} from "@/interfaces/AutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
-const API_URL = Env.API + "api/query";
+  Return,
+  SearchResponse
+} from "@endeavour/vue-library/interfaces";
+
+import axios from "axios";
+
+import { QueryResponse } from "@/interfaces";
+
+import Env from "./Env";
+
+const API_URL = Env.API + "api/query/protected";
 
 const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
-    if (controller) return await axios.post(API_URL + "/public/queryIM", query, { signal: controller.signal, raw: raw });
-    else return await axios.post(API_URL + "/public/queryIM", query, { raw: raw });
+    if (controller) return await axios.post(API_URL + "/queryIM", query, { signal: controller.signal, raw: raw });
+    else return await axios.post(API_URL + "/queryIM", query, { raw: raw });
   },
   async flattenBooleans(query: Query | Match): Promise<Query | Match> {
-    return await axios.post(API_URL + "/public/flattenBooleans", query);
+    return await axios.post(API_URL + "/flattenBooleans", query);
   },
   async optimiseECLQuery(query: Query): Promise<Query> {
-    return await axios.post(API_URL + "/public/optimiseECLQuery", query);
+    return await axios.post(API_URL + "/optimiseECLQuery", query);
   },
 
   async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
-    return await axios.post(API_URL + "/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+    return await axios.post(API_URL + "/queryIMSearch", query, { signal: controller?.signal, raw: raw });
   },
 
   async pathQuery(pathQuery: PathQuery, controller?: AbortController, raw: boolean = false): Promise<{ match: Match[] }> {
-    return await axios.post(API_URL + "/public/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
+    return await axios.post(API_URL + "/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
   },
 
   async askQuery(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<boolean> {
-    return await axios.post(API_URL + "/public/askQueryIM", query, { signal: controller?.signal, raw: raw });
+    return await axios.post(API_URL + "/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
   async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
-    return await axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
+    return await axios.get(API_URL + "/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
   },
 
   async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
-    return await axios.post(API_URL + "/public/queryDisplayFromQuery", { query: query, displayMode: displayMode });
+    return await axios.post(API_URL + "/queryDisplayFromQuery", { query: query, displayMode: displayMode });
   },
 
   async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
-    return await axios.get(API_URL + "/public/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
+    return await axios.get(API_URL + "/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
   },
   async getQueryFromIri(iri: string): Promise<Query> {
-    return await axios.get(API_URL + "/public/queryFromIri", { params: { queryIri: iri } });
+    return await axios.get(API_URL + "/queryFromIri", { params: { queryIri: iri } });
   },
 
   async getDisplayFromIndicatorIri(iri: string): Promise<Indicator> {
-    return await axios.get(API_URL + "/public/indicatorDisplay", { params: { queryIri: iri } });
+    return await axios.get(API_URL + "/indicatorDisplay", { params: { queryIri: iri } });
   },
 
   async expandCohort(queryIri: string, cohortIri: string, displayMode: DisplayMode): Promise<Query> {
-    return await axios.get(API_URL + "/public/expandCohort", { params: { queryIri: queryIri, cohortIri: cohortIri, displayMode: displayMode } });
+    return await axios.get(API_URL + "/expandCohort", { params: { queryIri: queryIri, cohortIri: cohortIri, displayMode: displayMode } });
   },
 
   async getDefaultQuery(): Promise<Query> {
-    return await axios.get(API_URL + "/public/defaultQuery");
+    return await axios.get(API_URL + "/defaultQuery");
   },
   async generateQuerySQL(queryIri: string, lang?: string): Promise<string> {
-    return await axios.get(API_URL + "/public/sql", { params: { queryIri: queryIri, lang: lang } });
+    return await axios.get(API_URL + "/sql", { params: { queryIri: queryIri, lang: lang } });
   },
 
   async generateQueryIML(queryIri: string): Promise<IMLLanguage> {
-    return await axios.get(API_URL + "/public/imlFromIri", { params: { queryIri: queryIri } });
+    return await axios.get(API_URL + "/imlFromIri", { params: { queryIri: queryIri } });
   },
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
-    return await axios.post(API_URL + "/public/sql", query);
+    return await axios.post(API_URL + "/sql", query);
   },
 
   async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<boolean> {
@@ -84,48 +87,12 @@ const QueryService = {
     return (
       isObjectHasKeys(queryResponse, ["entities"]) &&
       isArrayHasLength(queryResponse.entities) &&
-      queryResponse.entities.some((entity: TTEntity) => entity.iri === selectedIri)
+      queryResponse.entities.some((entity: ExtendedTTEntity) => entity.iri === selectedIri)
     );
   },
 
   async addQueryToRunnerQueue(queryRequest: QueryRequest): Promise<void> {
-    return axios.post(API_URL + "/addToQueue", queryRequest);
-  },
-
-  async getQueryQueue(page: number, size: number): Promise<{ totalCount: number; result: DBEntry[]; currentPage: number; pageSize: number }> {
-    return axios.get(API_URL + "/userQueryQueue", { params: { page: page, size: size } });
-  },
-
-  async getQueryQueueByStatus(
-    status: string,
-    page: number,
-    size: number
-  ): Promise<{ result: DBEntry[]; totalCount: number; pageSize: number; currentPage: number }> {
-    return axios.get(API_URL + "/userQueryQueueByStatus", {
-      params: { status: status, page: page, size: size }
-    });
-  },
-
-  async deleteFromQueryQueue(id: string): Promise<void> {
-    return axios.delete(API_URL + "/deleteFromQueue", {
-      params: { id: id }
-    });
-  },
-
-  async cancelQuery(id: string): Promise<void> {
-    return axios.post(API_URL + "/cancelQuery", { value: id });
-  },
-
-  async requeueQuery(request: RequeueQueryRequest): Promise<void> {
-    return axios.post(API_URL + "/requeueQuery", request);
-  },
-
-  async getQueryResults(request: QueryRequest): Promise<string[]> {
-    return axios.post(API_URL + "/getQueryResults", request);
-  },
-
-  async killActiveQuery(): Promise<void> {
-    return axios.post(API_URL + "/killActiveQuery");
+    return axios.post(Env.QUERY_RUNNER + "/api/queue/job/add", queryRequest);
   },
 
   async testRunQuery(request: QueryRequest): Promise<string[]> {
@@ -133,7 +100,14 @@ const QueryService = {
   },
 
   async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
-    return axios.post(API_URL + "/findRequestMissingArguments", request);
+    return axios.post(API_URL + "/public/findRequestMissingArguments", request);
+  },
+  async validateQuery(query: Query): Promise<Query> {
+    return await axios.post(API_URL + "/validateQuery", query);
+  },
+
+  async getNestedReturns(match: Match): Promise<Return[]> {
+    return await axios.post(API_URL + "/nestedReturns", { match: match });
   }
 };
 

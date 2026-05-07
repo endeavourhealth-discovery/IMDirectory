@@ -13,13 +13,14 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import EntityComboBox from "./EntityComboBox.vue";
 import EntityDropdown from "./EntityDropdown.vue";
 import EntitySearch from "./EntitySearch.vue";
-import TextInput from "./TextInput.vue";
 import TextDisplay from "./TextDisplay.vue";
-import { defineComponent } from "vue";
+import TextInput from "./TextInput.vue";
 
 export default defineComponent({
   components: { EntityAutoComplete, EntityComboBox, EntityDropdown, EntitySearch, TextDisplay, TextInput }
@@ -27,12 +28,13 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+
+import { TypeGuards, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+
 import { EditorMode } from "@/enums";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { processComponentType } from "@/helpers/EditorMethods";
-import { isPropertyShape } from "@/helpers/TypeGuards";
-import { PropertyShape } from "@/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {
@@ -65,10 +67,10 @@ onMounted(() => {
 });
 
 function processEntityValue(property: PropertyShape) {
-  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path.iri])) {
+  if (props.value && isObjectHasKeys(props.value) && TypeGuards.isPropertyShape(property) && isObjectHasKeys(props.value, [property.path.iri])) {
     return props.value[property.path.iri];
   }
-  if (editorEntity && isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path.iri])) {
+  if (editorEntity && TypeGuards.isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path.iri])) {
     return editorEntity[property.path.iri];
   }
   return undefined;

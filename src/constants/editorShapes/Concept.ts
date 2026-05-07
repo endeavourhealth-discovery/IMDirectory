@@ -1,6 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { RDF, IM, RDFS, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION, XSD } from "@/vocabulary";
-import { SCHEME } from "@/vocabulary/SCHEME";
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, NAMESPACE, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
+import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
 const ConceptShape: FormGenerator = {
   iri: EDITOR.CONCEPT_SHAPE,
@@ -220,7 +219,7 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                iri: SCHEME.IM1
+                iri: NAMESPACE.IM1
               },
               minCount: 0,
               componentType: {
@@ -298,6 +297,13 @@ const ConceptShape: FormGenerator = {
                   order: 1,
                   minCount: 0,
                   builderChild: true,
+                  isValidEntity: { iri: QUERY.IS_VALID_TYPE },
+                  isValidArguments: [
+                    {
+                      valueIri: { iri: IM.FOLDER },
+                      parameter: "type"
+                    }
+                  ],
                   componentType: {
                     iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
                   },

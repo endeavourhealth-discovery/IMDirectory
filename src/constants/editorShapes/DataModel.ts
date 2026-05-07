@@ -1,5 +1,5 @@
-import { FormGenerator } from "@/interfaces/AutoGen";
-import { IM, RDF, RDFS, SHACL, XSD, EDITOR, COMPONENT, IM_FUNCTION, QUERY, VALIDATION } from "@/vocabulary";
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, SHACL, VALIDATION, XSD } from "@endeavour/vue-library/enums";
+import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
 const DataModelShape: FormGenerator = {
   iri: EDITOR.DATA_MODEL_SHAPE,
@@ -264,6 +264,13 @@ const DataModelShape: FormGenerator = {
                 {
                   comment: "selects an entity based on select query",
                   order: 1,
+                  isValidEntity: { iri: QUERY.IS_VALID_TYPE },
+                  isValidArguments: [
+                    {
+                      valueIri: { iri: IM.FOLDER },
+                      parameter: "type"
+                    }
+                  ],
                   select: [
                     {
                       iri: QUERY.SEARCH_ALLOWABLE_CONTAINED_IN

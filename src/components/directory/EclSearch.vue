@@ -1,38 +1,40 @@
 <template>
   <div id="ecl-search-container">
     <h3 class="title">Expression constraints language search</h3>
-    <h5 class="info">ECL expression:</h5>
-    <div class="text-copy-container">
-      <div class="ecl-panel">
-        <div class="ecl-container">
-          <div class="html-preview" v-html="highlightedText" ref="highlightDiv" />
-          <Textarea
-            v-model="eclQueryString"
-            id="query-string-container"
-            placeholder="Enter expression here or use the ECL builder to generate your search..."
-            data-testid="query-string"
-            class="transparent-textarea"
-            @keydown="onKeyDown"
-            @keyup="onKeyUp"
-          />
-          <Button
-            class="copy-button self-start"
-            :disabled="!eclQueryString.length"
-            icon="fa-solid fa-copy"
-            v-tooltip.left="'Copy to clipboard'"
-            v-clipboard:copy="copyToClipboard()"
-            v-clipboard:success="onCopy"
-            v-clipboard:error="onCopyError"
-            data-testid="copy-to-clipboard-button"
-          />
-        </div>
+    <div class="input-container">
+      <h5 class="info">ECL expression:</h5>
+      <div class="text-copy-container">
+        <div class="ecl-panel">
+          <div class="ecl-container">
+            <div class="html-preview" v-html="highlightedText" ref="highlightDiv" />
+            <Textarea
+              v-model="eclQueryString"
+              id="query-string-container"
+              placeholder="Enter expression here or use the ECL builder to generate your search..."
+              data-testid="query-string"
+              class="transparent-textarea"
+              @keydown="onKeyDown"
+              @keyup="onKeyUp"
+            />
+            <Button
+              class="copy-button self-start"
+              :disabled="!eclQueryString.length"
+              icon="fa-solid fa-copy"
+              v-tooltip.left="'Copy to clipboard'"
+              v-clipboard:copy="copyToClipboard()"
+              v-clipboard:success="onCopy"
+              v-clipboard:error="onCopyError"
+              data-testid="copy-to-clipboard-button"
+            />
+          </div>
 
-        <div v-if="setDefinition.status!.valid">
-          <label for="">Show names</label>
-          <Checkbox v-model="showNames" :binary="true" />
-        </div>
-        <div class="error-message" v-if="!setDefinition.status!.valid">
-          Invalid ECL : line {{ setDefinition.status!.line }}, offset {{ setDefinition.status!.offset }} -> {{ setDefinition.status!.message }}
+          <div v-if="setDefinition.status!.valid">
+            <label for="">Show names </label>
+            <Checkbox v-model="showNames" :binary="true" class="checkbox" />
+          </div>
+          <div class="error-message" v-if="!setDefinition.status!.valid">
+            Invalid ECL : line {{ setDefinition.status!.line }}, offset {{ setDefinition.status!.offset }} -> {{ setDefinition.status!.message }}
+          </div>
         </div>
       </div>
     </div>
@@ -57,17 +59,19 @@
     </div>
     <div class="results-container">
       <ResultsTable
+        v-if="setDefinition && setDefinition.query"
         v-model:loading="searchLoading"
         :update-search="updateSearch"
-        :ecl-query="eclQuery"
+        :ecl-query="setDefinition"
+        :page-size="12"
         @rowSelected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
         @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
     </div>
     <ECLBuilder
-      v-if="showDialog"
+      v-if="showDialog && setDefinition && setDefinition.query"
       :showDialog="showDialog"
-      :eclString="lastValidEcl"
+      :query="setDefinition.query"
       @eclSubmitted="updateECL"
       @closeDialog="showDialog = false"
       :key="builderKey"
@@ -76,17 +80,18 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, computed, onMounted } from "vue";
-import ECLBuilder from "@/components/directory/topbar/eclSearch/ECLBuilder.vue";
-import { EclSearchRequest, TTIriRef, SearchResultSummary, ECLQueryRequest } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
-import { EclService } from "@/services";
-import { byName } from "@/helpers/Sorters";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM } from "@endeavour/vue-library/enums";
+import { byName } from "@endeavour/vue-library/helpers";
+import type { ECLQueryRequest, GenericObject, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+
+import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { EclService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import { GenericObject } from "@/interfaces/GenericObject";
 
 const emit = defineEmits<{
   locateInTree: [payload: string];
@@ -98,13 +103,12 @@ const editorStore = useEditorStore();
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
 const eclQueryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(eclQueryString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(eclQueryString);
 const showDialog = ref(false);
 const showNames = ref(false);
 const eclErrorMessage = ref("");
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
-const eclQuery: Ref<EclSearchRequest | undefined> = ref();
 const keysPressed: GenericObject = {};
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
@@ -184,6 +188,9 @@ function updateECL(eclQuery: ECLQueryRequest): void {
 }
 
 function showBuilder(): void {
+  if (lastValidEcl.value === "") {
+    if (!setDefinition.value.query) setDefinition.value.query = {};
+  }
   builderKey.value = Math.round(Math.random() * 1000);
   showDialog.value = true;
 }
@@ -191,11 +198,12 @@ function showBuilder(): void {
 async function onSearch(): Promise<void> {
   if (eclQueryString.value) {
     const imQuery = await EclService.getQueryFromECL(eclQueryString.value);
-    eclQuery.value = {
-      eclQuery: imQuery.query,
+    setDefinition.value = {
+      query: imQuery.query,
       includeLegacy: false,
+      status: imQuery.status,
       statusFilter: selectedStatus.value
-    } as EclSearchRequest;
+    } as ECLQueryRequest;
     updateSearch.value = !updateSearch.value;
   }
 }
@@ -213,13 +221,15 @@ function setFilterDefaults() {
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
+  margin: 1rem;
 }
 
 #query-string-container {
   width: 100%;
   height: 10rem;
   overflow: auto;
-  grow: 100;
+  flex-grow: 100;
+  margin-right: 1rem;
 }
 
 .info {
@@ -236,6 +246,7 @@ function setFilterDefaults() {
 
 .results-container {
   width: 100%;
+  min-height: 40rem;
   flex: 0 1 auto;
   overflow: auto;
 }
@@ -268,7 +279,6 @@ function setFilterDefaults() {
 
 .ecl-panel {
   flex: 1 1 auto;
-  min-height: 30rem;
   display: flex;
   flex-flow: column nowrap;
   gap: 0.5rem;
@@ -304,8 +314,25 @@ function setFilterDefaults() {
 .copy-button {
   display: flex;
   flex-flow: row;
+  margin-left: 1rem;
 }
 .transparent-textarea {
-  min-height: 30rem;
+  min-height: 15rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.input-container {
+  width: 98%;
+  flex: 0 1 auto;
+}
+
+.checkbox {
+  margin: 2rem;
 }
 </style>

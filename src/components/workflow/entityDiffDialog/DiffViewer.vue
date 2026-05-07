@@ -35,11 +35,11 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref, computed } from "vue";
+import { computed, provide, ref } from "vue";
 
 import Segment from "./Segment.vue";
-import getSegments from "./utils/get-segment";
 import { ViewerProps } from "./types";
+import getSegments from "./utils/get-segment";
 
 const props = withDefaults(defineProps<ViewerProps>(), {
   texts: () => ({

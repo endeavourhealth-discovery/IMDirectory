@@ -17,8 +17,10 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+
 import { EclService } from "@/services";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 
 interface Props {
   definition: string;
@@ -27,7 +29,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const eclString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(eclString);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(eclString);
 
 const loading = ref(true);
 onMounted(async () => await init());

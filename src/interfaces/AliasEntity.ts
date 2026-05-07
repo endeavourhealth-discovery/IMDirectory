@@ -1,4 +1,4 @@
-import { TTIriRef } from "./AutoGen";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 export interface AliasEntity {
   iri?: string;

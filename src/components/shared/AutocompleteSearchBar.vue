@@ -69,6 +69,7 @@
       :quick-type-filters-allowed="quickTypeFiltersAllowed"
       :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
       :selected-quick-type-filter="selectedQuickTypeFilter"
+      :validEntityQuery="validEntityQuery"
       @update-selected-filters="(filters: FilterOptions) => $emit('updateSelectedFilters', filters)"
     />
     <OverlaySummary ref="OS" />
@@ -76,17 +77,22 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch, nextTick, computed, onBeforeUnmount } from "vue";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import { FilterOptions } from "@/interfaces";
-import { QueryRequest, SearchResponse, SearchResultSummary, TextSearchStyle } from "@/interfaces/AutoGen";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import setupSpeechToText from "@/composables/setupSpeechToText";
+import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useSpeechToText } from "@endeavour/vue-library/composables";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { TextSearchStyle } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { FilterOptions } from "@endeavour/vue-library/interfaces";
+import type { QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+
 import { cloneDeep, debounce, isEqual } from "lodash-es";
-import setupOverlay from "@/composables/setupOverlay";
+
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 import { EntityService, QueryService } from "@/services";
-import { registerAutocomplete, unregisterAutocomplete } from "@/composables/useAutocompleteRegistry";
+
 interface Props {
   selected?: SearchResultSummary;
   filterOptions?: FilterOptions;
@@ -98,6 +104,7 @@ interface Props {
   allowBrowserAutocomplete?: boolean;
   setupSearch?: () => Promise<QueryRequest>;
   setupRootEntities?: () => Promise<string[]>;
+  validEntityQuery?: QueryRequest;
 }
 
 const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowBrowserAutocomplete: false });
@@ -116,9 +123,10 @@ const showDialog = ref(false);
 const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
 const searchLoading: Ref<boolean> = ref(false);
 const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
-const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const { listening, toggleListen } = useSpeechToText(searchText, searchPlaceholder);
+const { registerAutocomplete, unregisterAutocomplete } = useAutocompleteRegistry();
 const selectedIndex: Ref<number> = ref(-1);
-const { OS, showOverlay, hideOverlay } = setupOverlay();
+const { OS, showOverlay, hideOverlay } = useOverlay();
 const listBoxSelected: Ref<SearchResultSummary | undefined> = ref();
 const searchInput = ref<any>(null);
 const localRootEntities = ref<string[]>([]);
@@ -246,6 +254,7 @@ async function doSearch(event: any) {
 
 async function onEnter(event: KeyboardEvent) {
   if (listBoxSelected.value) onListBoxOptionClick(listBoxSelected.value);
+  else await doSearch(event);
 }
 function select(event: KeyboardEvent) {
   if (isArrayHasLength(results.value?.entities))

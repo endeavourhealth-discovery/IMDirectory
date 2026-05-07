@@ -1,37 +1,21 @@
-import { AuthService, UserService } from "@/services";
+import { computed } from "vue";
+
+import { UserRole } from "@endeavour/vue-library/enums";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { RouteLocationNormalized, Router } from "vue-router";
-import { directToLogin } from "./intercepts";
-import { useUserStore } from "@/stores/userStore";
+
 import { useSharedStore } from "@/stores/sharedStore";
-import { UserRole } from "@/enums";
+
+import { directToLogin } from "./intercepts";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    const { user } = await AuthService.getCurrentAuthenticatedUser();
-    if (!user) {
-      if (from.name === "Logout") {
-        await router.push({ name: "LandingPage" });
-        return false;
-      } else {
-        await directToLogin(router);
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
-    const { user } = await AuthService.getCurrentAuthenticatedUser();
-    if (!user?.roles.includes(UserRole.ADMIN)) {
-      if (from.name === "Logout") {
-        await router.push({ name: "LandingPage" });
-        return false;
-      } else {
-        await directToLogin(router);
-        return true;
-      }
+    const userStore = useUserStore();
+    const isLoggedIn = computed(() => userStore.isLoggedIn);
+    if (!isLoggedIn.value) {
+      await directToLogin(router);
+      return true;
     }
   }
   return false;
@@ -39,39 +23,28 @@ export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLoca
 
 export async function requiresReAuth(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresReAuth)) {
-    if (!(from.name === "Login" || from.name === "MFALogin")) {
-      console.log("requires re-authentication");
-      await directToLogin(router);
-      return true;
-    }
+    await directToLogin(router);
+    return true;
   }
   return false;
 }
 
-export async function requiresCreateRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  if (to.matched.some(record => record.meta.requiresCreateRole)) {
+export async function requiresRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
+  if (to.meta.requiresRole && to.meta.requiresRole.length > 0) {
     const userStore = useUserStore();
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    if (status !== 200) {
+    const isLoggedIn = computed(() => userStore.isLoggedIn);
+    if (!isLoggedIn.value) {
       await directToLogin(router);
-      return true;
-    } else if (!userStore.currentUser?.roles?.includes(UserRole.CREATOR)) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
       return true;
     }
-  }
-  return false;
-}
 
-export async function requiresEditRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  if (to.matched.some(record => record.meta.requiresEditRole)) {
-    const userStore = useUserStore();
-    const { status } = await AuthService.getCurrentAuthenticatedUser();
-    if (status !== 200) {
-      await directToLogin(router);
-      return true;
-    } else if (!userStore.currentUser?.roles?.includes(UserRole.EDITOR)) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
+    const currentUser = computed(() => userStore.currentUser);
+    const hasPermission: boolean = to.meta.requiresRole.some(r => currentUser.value?.roles.includes(r));
+
+    if (hasPermission) {
+      return false;
+    } else {
+      await router.push({ name: "AccessDenied", params: { requiredAccess: to.meta.requiresRole.toString(), accessType: "role" } });
       return true;
     }
   }
@@ -98,7 +71,7 @@ export async function requiresOrganisation(iri: string | string[], to: RouteLoca
   if (to.matched.some(record => record.meta.requiresOrganisation)) {
     const userStore = useUserStore();
     let isEditAllowed = false;
-    if (userStore.isLoggedIn) isEditAllowed = await UserService.canUserEdit(iri as string);
+    if (userStore.isLoggedIn) isEditAllowed = userStore.currentUser?.roles.includes(UserRole.EDITOR)!!;
     if (!isEditAllowed) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
       return true;

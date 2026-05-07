@@ -6,7 +6,7 @@
         <ArrayObjectNamesToStringWithLabel v-if="subsetOf" :data="subsetOf" label="Subset of" />
         <ArrayObjectNamesToStringWithLabel v-if="subclassOf" :data="subclassOf" label="Subclass of" />
         <div class="buttons-container">
-          <template v-if="checkAuthorization()">
+          <template v-if="hasPermissionSetPublish">
             <Button :loading="isPublishing" data-testid="publishButton" label="Publish" type="button" @click="publish"></Button>
           </template>
           <Button
@@ -91,28 +91,31 @@
 </template>
 
 <script lang="ts" setup>
-import Members from "./Members.vue";
-import CompareSetDialog from "./CompareSetDialog.vue";
-import SubsetDisplay from "./SubsetDisplay.vue";
+import { ComputedRef, Ref, computed, markRaw, onMounted, ref, watch } from "vue";
+
+import { ArrayObjectNamesToStringWithLabel } from "@endeavour/vue-library/components";
+import { useDownloadFile } from "@endeavour/vue-library/composables";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { ToastSeverity, UserRole } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "@endeavour/vue-library/interfaces";
+import { ToastOptions } from "@endeavour/vue-library/models";
+import { useUserStore } from "@endeavour/vue-library/stores";
+
+import { useDialog } from "primevue/usedialog";
+import { useToast } from "primevue/usetoast";
+
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
-import { computed, ComputedRef, markRaw, onMounted, Ref, ref } from "vue";
-import { EntityService, SetService } from "@/services";
-import { IM, RDFS } from "@/vocabulary";
-import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@/models";
-import { ToastSeverity } from "@/enums";
-import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialog } from "primevue/usedialog";
-import setupDownloadFile from "@/composables/downloadFile";
-import { useUserStore } from "@/stores/userStore";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
 import { DownloadSettings } from "@/interfaces";
-import { SetExportRequest, SetOptions, UserRole } from "@/interfaces/AutoGen";
-import { TTEntity } from "@/interfaces/ExtendedAutoGen";
+import { EntityService, SetService } from "@/services";
+
+import CompareSetDialog from "./CompareSetDialog.vue";
+import Members from "./Members.vue";
+import SubsetDisplay from "./SubsetDisplay.vue";
 
 const props = defineProps<{
   entityIri: string;
@@ -129,7 +132,7 @@ const subclassOf = ref();
 const active: Ref<string[]> = ref([]);
 const showCompareSetDialog = ref(false);
 const showMembers = ref(false);
-const { downloadFile } = setupDownloadFile(window, document);
+const { downloadFile } = useDownloadFile(window, document);
 const userStore = useUserStore();
 const showSubsumedBy = ref(true);
 const currentUser = computed(() => userStore.currentUser);
@@ -138,11 +141,18 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const entity: Ref<TTEntity> = ref({});
+const entity: Ref<ExtendedTTEntity> = ref({});
+const hasPermissionSetPublish = ref(false);
 
-const { copyObjectToClipboard } = setupCopyToClipboard();
+const { copyObjectToClipboard } = useCopyToClipboard();
 
 const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
+
+watch(currentUser, async () => {
+  if (isLoggedIn.value) {
+    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+  } else hasPermissionSetPublish.value = false;
+});
 
 onMounted(async () => {
   active.value = ["0", "1", "2"];
@@ -166,6 +176,9 @@ onMounted(async () => {
     showSubsumedBy.value = false;
   }
   if (!hasDefinition.value) showMembers.value = true;
+  if (isLoggedIn.value) {
+    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+  }
 });
 
 async function onCopy(event: MouseEvent) {
@@ -259,12 +272,6 @@ function getFileName(label: string, format: string) {
     label = label.substring(0, 100);
   }
   return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + format;
-}
-
-function checkAuthorization() {
-  if (isLoggedIn.value && currentUser.value) {
-    return currentUser.value.roles.includes(UserRole.PUBLISHER);
-  } else return false;
 }
 
 function publish() {

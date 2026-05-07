@@ -17,7 +17,7 @@
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
     <div v-if="!loading">
-      <QueryEditor v-if="showEditor" :showDialog="showEditor" v-model:query="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" :sourceQuery="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
     </div>
     <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <SQLDisplay :sql="sql" />
@@ -33,23 +33,26 @@
         <Button data-testid="close-button" label="Close" @click="showSql = false" />
       </template>
     </Dialog>
-    <TestQueryResults :show-dialog="showTestQueryResults" :test-query-results="queryTestResults" />
+    <!--    <TestQueryResults :show-dialog="showTestQueryResults" :test-query-results="queryTestResults" />-->
   </div>
 </template>
 
 <script lang="ts" setup>
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import { EditorMode } from "@/enums";
-import { DisplayMode, PropertyShape, Query, QueryRequest } from "@/interfaces/AutoGen";
-import { IM } from "@/vocabulary";
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
+
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { DisplayMode } from "@endeavour/vue-library/enums";
+import { IM } from "@endeavour/vue-library/enums";
+import type { PropertyShape, Query, QueryRequest } from "@endeavour/vue-library/interfaces";
+
 import { cloneDeep } from "lodash-es";
-import { EntityService, QueryService } from "@/services";
-import setupCopyToClipboard from "@/composables/setupCopyToClipboard";
-import TestQueryResults from "@/components/queryRunner/TestQueryResults.vue";
+
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
-import QueryEditor from "@/components/imquery/QueryEditor.vue";
 import SQLDisplay from "@/components/directory/viewer/SQLDisplay.vue";
+import QueryEditor from "@/components/imquery/QueryEditor.vue";
+import { EditorMode } from "@/enums";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EntityService, QueryService } from "@/services";
 
 interface Props {
   mode: EditorMode;
@@ -90,7 +93,7 @@ const showSql: Ref<boolean> = ref(false);
 const sql: Ref<string> = ref("");
 const queryTestResults: Ref<string[]> = ref([]);
 const showTestQueryResults = ref(false);
-const { copyToClipboard, onCopy, onCopyError } = setupCopyToClipboard(sql);
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(sql);
 
 const key = props.shape.path.iri;
 

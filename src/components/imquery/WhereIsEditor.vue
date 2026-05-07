@@ -1,138 +1,118 @@
 <template>
   <div class="set-container">
-    <div v-if="property.is && property.is.length > 0" v-for="(node, index) in property.is" :key="index" class="concept-container">
-      <div class="set-member-container">
-        <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
-        <span v-if="node.description" v-html="node.description"></span>
-        <IMViewerLink v-if="node.iri" :iri="node.iri" :label="node.name" :action="'view'" />
-        <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
-      </div>
-      <Select
-        v-if="setMembers.length === 0"
-        style="width: 10.5rem; min-height: 2.3rem"
-        :disabled="!isConstraintEditable(node)"
-        :modelValue="getPlainConstraintOperatorValue(node)"
-        :options="plainConstraintOperatorOptions"
-        option-label="label"
-        option-value="value"
-        @update:modelValue="val => setConstraintOperator(node, val)"
-      >
-        <template #value="slotProps">
-          <div v-if="slotProps.value" class="flex items-center">
-            <div>{{ getPlainConstraintOperatorLabel(node) }}</div>
-          </div>
-        </template>
-        <template #option="slotProps">
-          <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-            <div>{{ slotProps.option.label }}</div>
-          </div>
-        </template>
-      </Select>
-      <div>
-        <Button
-          @click.stop="deleteNode(index)"
-          :class="!hoverDeleteNode && 'hover-button'"
-          :severity="hoverDeleteNode ? 'danger' : 'secondary'"
-          :outlined="!hoverDeleteNode"
-          icon="fa-solid fa-trash"
-          @mouseover="hoverDeleteNode = true"
-          @mouseout="hoverDeleteNode = false"
-        />
-      </div>
-    </div>
-    <div class="concept-container">
-      <template v-if="setMembers.length === 0">
-        <div class="selected-member-container">
-          <div class="node-inclusion">
-            <Select
-              style="width: 8.5rem; min-height: 2.3rem"
-              v-model="nodeInclusion"
-              :options="nodeInclusionOptions"
-              option-label="label"
-              option-value="value"
-              @change="updateNodeInclusion"
-            >
-              <template #value="slotProps">
-                <div v-if="slotProps.value" class="flex items-center">
-                  <div>{{ nodeInclusion }}</div>
-                </div>
-              </template>
-              <template #option="slotProps">
-                <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-                  <div>{{ slotProps.option.label }}</div>
-                </div>
-              </template>
-            </Select>
-          </div>
-          <div class="auto-complete-container">
-            <AutocompleteSearchBar
-              ref="searchBar"
-              v-model:selected="selected"
-              :im-query="imQueryForConceptSearch"
-              :root-entities="[IM.ONTOLOGY_PARENT_FOLDER, IM.CONCEPT_SET_PARENT_FOLDER]"
-              @update:selected="updateIsIri"
-            />
-
-            <template v-if="searchBar?.searchText && node.name">
-              <Button
-                v-if="searchBar?.searchText && searchBar.searchText !== node.name"
-                label="?"
-                class="sync-warning"
-                severity="danger"
-                v-tooltip="'Revert'"
-                @click="searchBar.searchText = node.name!"
-              />
-            </template>
-          </div>
-        </div>
-      </template>
-      <template v-if="setMembers.length > 0">
-        <div class="selected-member-container">
+    <template v-if="property.is && property.is.length > 0" v-for="(node, index) in property.is" :key="index" class="concept-container">
+      <div class="concept-container flex items-end gap-2">
+        <div class="node-inclusion">
           <Select
-            style="width: 90rem; min-height: 2.3rem"
-            v-model="selectedMember"
-            :options="setMembers"
-            option-label="name"
-            option-value="iri"
-            @change="updateWithSetMember"
+            style="width: 8.5rem; min-height: 2.3rem"
+            :model-value="getNodeInclusion(node)"
+            :options="NodeInclusionOptions"
+            option-label="label"
+            option-value="value"
+            @update:model-value="(val: string) => updateNodeInclusion(node, val)"
           >
             <template #value="slotProps">
               <div v-if="slotProps.value" class="flex items-center">
-                <div>{{ selectedMember.name }}</div>
+                <div>{{ getNodeInclusion(node) }}</div>
               </div>
             </template>
             <template #option="slotProps">
               <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-                <div>{{ slotProps.option.name }}</div>
+                <div>{{ slotProps.option.label }}</div>
               </div>
             </template>
           </Select>
         </div>
-      </template>
-      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    </div>
+        <div v-if="node.iri" class="auto-complete-container">
+          <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
+
+          <IMViewerLink v-if="node.iri" :iri="node.iri" :label="node.name" :action="'view'" />
+          <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
+        </div>
+        <div v-if="!node.iri" class="auto-complete-container">
+          <AutocompleteSearchBar
+            ref="searchBar"
+            v-model:selected="selected"
+            :im-query="imQueryForConceptSearch"
+            :root-entities="[IM.ONTOLOGY_PARENT_FOLDER, IM.CONCEPT_SET_PARENT_FOLDER]"
+            @update:selected="updateIsIri(node)"
+          />
+        </div>
+        <div>
+          <Select
+            style="width: 10.5rem; min-height: 2.3rem"
+            :disabled="!isConstraintEditable(node)"
+            :modelValue="getPlainConstraintOperatorValue(node)"
+            :options="PlainConstraintOperatorOptions"
+            option-label="label"
+            option-value="value"
+            @update:modelValue="(val: string) => setConstraintOperator(node, val)"
+          >
+            <template #value="slotProps">
+              <div v-if="slotProps.value" class="flex items-center">
+                <div>{{ getPlainConstraintOperatorLabel(node) }}</div>
+              </div>
+            </template>
+            <template #option="slotProps">
+              <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+                <div>{{ slotProps.option.label }}</div>
+              </div>
+            </template>
+          </Select>
+        </div>
+        <div>
+          <Button
+            @click.stop="deleteNode(index)"
+            :class="!hoverDeleteNode[index] && 'hover-button'"
+            :severity="hoverDeleteNode[index] ? 'danger' : 'secondary'"
+            :outlined="!hoverDeleteNode[index]"
+            icon="fa-solid fa-trash"
+            @mouseover="hoverDeleteNode[index] = true"
+            @mouseout="hoverDeleteNode[index] = false"
+          />
+        </div>
+        <div v-if="index === property.is.length - 1 && property.is[index].iri">
+          <Button
+            type="button"
+            icon="fa-solid fa-plus"
+            label="Add concept"
+            data-testid="add-clause-button"
+            :severity="hoverAddNode ? 'success' : 'secondary'"
+            :outlined="!hoverAddNode"
+            :class="!hoverAddNode && 'hover-button'"
+            @click="addConcept"
+            class="px-2 py-1"
+            @mouseover="hoverAddNode = true"
+            @mouseout="hoverAddNode = false"
+          />
+        </div>
+        <div v-else>
+          <Button disabled class="pointer-events-none invisible" :severity="'secondary'" style="width: 8.5rem; height: 2.3rem; padding: 0" />
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, watch, computed } from "vue";
-import { IM } from "@/vocabulary";
-import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
-import { QueryRequest, SearchResultSummary, Node, Where, Pageable } from "@/interfaces/AutoGen";
-import { useFilterStore } from "@/stores/filterStore";
-import { SearchOptions } from "@/interfaces";
-import { buildIMQueryFromFilters, setConstraintOperator } from "@/composables/buildQuery";
-import {
-  plainConstraintOperatorOptions,
-  nodeInclusionOptions,
-  getPlainConstraintOperatorLabel,
-  getPlainConstraintOperatorValue
-} from "@/helpers/QueryEditorMethods";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getTypeIcon, getIconColor } from "@/helpers/ConceptTypeVisuals";
-import { UIProperty } from "@/interfaces";
-import SetService from "@/services/SetService";
+import { Ref, computed, onMounted, ref, watch } from "vue";
+
+import { IM } from "@endeavour/vue-library/enums";
+import { getIconColor, getTypeIcon } from "@endeavour/vue-library/helpers";
+import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+
 import Button from "primevue/button";
+
+import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { NodeInclusionOptions } from "@/constants/queryEditor/NodeInclusionOptions";
+import { PlainConstraintOperatorOptions } from "@/constants/queryEditor/PlainConstraintOperatorOptions";
+import { getPlainConstraintOperatorLabel, getPlainConstraintOperatorValue } from "@/helpers/QueryEditorMethods";
+import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
+import { SearchOptions } from "@/interfaces";
+import SetService from "@/services/SetService";
+import { useFilterStore } from "@/stores/filterStore";
+
 interface Props {
   parent?: any;
   uiProperty: UIProperty;
@@ -140,20 +120,25 @@ interface Props {
 const props = defineProps<Props>();
 const searchBar = ref<{ searchText: string } | null>(null);
 const property = defineModel<Where>("property", { default: {} });
+const emit = defineEmits(["updateProperty"]);
 const node: Ref<Node> = ref({} as Node);
-const nodeInclusion: Ref<string> = ref("Include");
 const filterStore = useFilterStore();
 const coreSchemes = computed(() => filterStore.coreSchemes);
 const loading = ref(false);
-const hoverDeleteNode = ref(false);
+const hoverDeleteNode = ref<boolean[]>(Array(property!.value.is!.length).fill(false));
 const selected: Ref<SearchResultSummary> = ref({ iri: node.value.iri, name: node.value.name } as SearchResultSummary);
 const selectedMember: Ref<Node> = ref({});
 const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
-const setMembers: Ref<Node[]> = ref([]);
-
+const hoverAddNode = ref(false);
+const showAddConcept = ref(false);
 onMounted(() => {
   init();
 });
+
+function getNodeInclusion(node: Node): string {
+  if (node.exclude) return "exclude";
+  else return "include";
+}
 
 function isConstraintEditable(node: Node): boolean {
   if (node) {
@@ -167,13 +152,19 @@ function isConstraintEditable(node: Node): boolean {
 
 async function init() {
   buildIMQueryForConceptSearch();
-  if (props.uiProperty && props.uiProperty.setMemberCount > 0 && props.uiProperty.setMemberCount < 11) {
+
+  if (
+    props.uiProperty &&
+    props.uiProperty.setMemberCount &&
+    props.uiProperty.setMemberCount > 0 &&
+    props.uiProperty.setMemberCount < 11 &&
+    props.uiProperty.valueType
+  ) {
     const pagedMembers = await SetService.getMembers(props.uiProperty.valueType, false, 1, 11);
-    if (pagedMembers.result) setMembers.value = pagedMembers.result;
   }
 }
-function updateNodeInclusion(e: { value: string }) {
-  node.value.exclude = e.value !== "include";
+function updateNodeInclusion(node: Node, val: string) {
+  node.exclude = val !== "include";
 }
 
 function buildIMQueryForConceptSearch() {
@@ -190,31 +181,24 @@ function buildIMQueryForConceptSearch() {
 
 function deleteNode(index: number) {
   property.value.is?.splice(index, 1);
+  if (property.value.is?.length === 0) property.value.is = [{} as Node];
+}
+function addConcept() {
+  property.value.is?.push({} as Node);
+  showAddConcept.value = true;
 }
 
-function updateIsIri() {
+function updateIsIri(node: Node) {
   if (selected.value) {
-    node.value.iri = selected.value.iri;
-    node.value.name = selected.value.name;
-    node.value.type = selected.value.type[0].iri;
-    setConstraintOperator(node.value, node.value.type === IM.CONCEPT ? "descendantsOrSelfOf" : "memberOf");
+    node.iri = selected.value.iri;
+    node.name = selected.value.name;
+    node.type = selected.value.type[0].iri;
+    property.value.invalid = false;
+    setConstraintOperator(node, node.type === IM.CONCEPT ? "descendantsOrSelfOf" : "memberOf");
     if (!property.value.is) property.value.is = [];
-    property.value.is.push(node.value);
-    node.value = {};
     selected.value = {} as SearchResultSummary;
-  }
-}
-
-function updateWithSetMember() {
-  if (selectedMember.value && setMembers.value.length > 0) {
-    const selectedNode = setMembers.value.find(node => node.iri! === selectedMember.value);
-    if (selectedNode) {
-      node.value = selectedNode;
-      if (!property.value.is) property.value.is = [];
-      property.value.is.push(node.value);
-      node.value = {};
-      selected.value = {} as SearchResultSummary;
-    }
+    showAddConcept.value = false;
+    emit("updateProperty", property.value);
   }
 }
 </script>
@@ -241,7 +225,7 @@ function updateWithSetMember() {
 }
 .auto-complete-container {
   flex: 1 1 0%;
-  min-width: 84rem;
+  min-width: 40rem;
 }
 
 .sync-warning {

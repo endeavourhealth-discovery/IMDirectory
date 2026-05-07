@@ -47,14 +47,16 @@
 </template>
 
 <script setup lang="ts">
-import Filters from "@/components/shared/Filters.vue";
-import { ref, watch, onMounted } from "vue";
-import { FilterOptions } from "@/interfaces";
-import { SearchResultSummary } from "@/interfaces/AutoGen";
-import setupSpeechToText from "@/composables/setupSpeechToText";
+import { onMounted, ref, watch } from "vue";
 import { Ref } from "vue";
+
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { useSpeechToText } from "@endeavour/vue-library/composables";
+import type { FilterOptions, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+
 import InputGroupAddon from "primevue/inputgroupaddon";
-import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
+
+import Filters from "@/components/shared/Filters.vue";
 
 interface Props {
   showFilters: boolean;
@@ -83,7 +85,7 @@ const buttonActions = ref([
 ]);
 const searchPlaceholder: Ref<string> = ref("Search");
 const searchLoading: Ref<boolean> = ref(false);
-const { listening, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
+const { listening, toggleListen } = useSpeechToText(searchText, searchPlaceholder);
 const filtersOP = ref();
 const debounce = ref(0);
 

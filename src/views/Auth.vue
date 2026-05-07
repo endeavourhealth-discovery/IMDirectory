@@ -11,9 +11,10 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
+
 import ButtonBar from "@/components/auth/ButtonBar.vue";
 import { useLoadingStore } from "@/stores/loadingStore";
-import { computed } from "vue";
 
 const loadingStore = useLoadingStore();
 const authLoading = computed(() => loadingStore.authLoading);

@@ -15,8 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { Order, OrderLimit } from "@/interfaces/AutoGen";
-import { IM, RDFS, SHACL } from "@/vocabulary";
+import { Order } from "@endeavour/vue-library/enums";
+import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import type { OrderLimit } from "@endeavour/vue-library/interfaces";
 
 defineProps<{
   functionTemplates: any;
