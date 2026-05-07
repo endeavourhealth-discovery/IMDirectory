@@ -30,10 +30,7 @@ export async function requiresReAuth(to: RouteLocationNormalized, from: RouteLoc
 }
 
 export async function requiresRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  console.log("Requires Role");
   if (to.meta.requiresRole && to.meta.requiresRole.length > 0) {
-    console.log("Yes : ");
-    console.log(to.meta.requiresRole);
     const userStore = useUserStore();
     const isLoggedIn = computed(() => userStore.isLoggedIn);
     if (!isLoggedIn.value) {
