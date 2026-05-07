@@ -63,9 +63,9 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
-import { IM, IM_FUNCTION, NAMESPACE, RDF, RDFS } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { Match, Node, TTIriRef } from "vue-library/interfaces";
+import { IM, IM_FUNCTION, NAMESPACE, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";

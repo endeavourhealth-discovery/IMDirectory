@@ -1,4 +1,5 @@
 import { RouteRecordRaw } from "vue-router";
+import { UserRole } from "@endeavour/vue-library/enums";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -77,7 +78,7 @@ const routes: Array<RouteRecordRaw> = [
         name: "Admin",
         component: () => import("@/views/AdminToolbox.vue"),
         redirect: { name: "AdminHome" },
-        meta: { requiresAdmin: true },
+        meta: { requiresRole: [UserRole.ADMIN] },
         children: [
           {
             path: "home",
@@ -97,7 +98,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Creator.vue"),
         meta: {
           requiresAuth: true,
-          requiresCreateRole: true,
+          requiresRole: [UserRole.CREATOR, UserRole.ADMIN],
           title: "Creator"
         }
       },
@@ -107,7 +108,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           requiresAuth: true,
           requiresLicense: true,
-          requiresEditRole: true,
+          requiresRole: [UserRole.EDITOR, UserRole.ADMIN],
           requiresOrganisation: true
         },
         children: [
@@ -170,6 +171,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Uprn.vue"),
         redirect: { name: "SingleAddressLookup" },
         meta: {
+          requiresRole: [UserRole.UPRN, UserRole.ADMIN],
           requiresAuth: true,
           requiresUprnAgreement: true
         },

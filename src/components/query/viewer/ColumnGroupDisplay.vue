@@ -31,8 +31,8 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 
-import { Bool, DisplayMode } from "vue-library/enums";
-import type { Match, Node, Query } from "vue-library/interfaces";
+import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import type { Match, Node, Query } from "@endeavour/vue-library/interfaces";
 
 import { QueryService } from "@/services";
 

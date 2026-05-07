@@ -69,7 +69,7 @@
 <script setup lang="ts">
 import { Ref, computed, ref, watch } from "vue";
 
-import { isObject } from "vue-library/helpers";
+import { isObject } from "@endeavour/vue-library/helpers";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";

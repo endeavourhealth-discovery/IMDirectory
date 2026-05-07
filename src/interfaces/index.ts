@@ -18,7 +18,6 @@ import { ExtendedRecentActivityItem } from "./ExtendedRecentActivityItem";
 import { Field } from "./Field";
 import { FieldDto } from "./FieldDto";
 import { GenericType } from "./GenericType";
-import { GithubRelease } from "./GithubRelease";
 import GraphData from "./GraphData";
 import { HistoryItem } from "./HistoryItem";
 import { MapItem } from "./MapItem";
@@ -76,7 +75,6 @@ export {
   type Field,
   type FieldDto,
   type GenericType,
-  type GithubRelease,
   type TangledTreeData,
   type AllowableChildProperty,
   type CustomAlert,

@@ -107,8 +107,8 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
-import { Bool, IM, NAMESPACE } from "vue-library/enums";
-import type { Match, Node, NodeShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { Bool, IM, NAMESPACE } from "@endeavour/vue-library/enums";
+import type { Match, Node, NodeShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";

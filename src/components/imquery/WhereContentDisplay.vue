@@ -51,9 +51,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-import { Bool, IM } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import type { Node, Where } from "vue-library/interfaces";
+import { Bool, IM } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Node, Where } from "@endeavour/vue-library/interfaces";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

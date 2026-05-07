@@ -20,7 +20,7 @@
       />
       <span class="clause-label">Check to add to import list</span>
     </span>
-    <ValueSentenceDisplay v-if="match.having &&havingSentence" :value-sentence="havingSentence" />
+    <ValueSentenceDisplay v-if="match.having && havingSentence" :value-sentence="havingSentence" />
     <template v-for="(nestedQuery, index) in boolGroup" :key="`nestedQueryDisplay-${index}`">
       <RecursiveMatchDisplay
         :match="nestedQuery"
@@ -46,8 +46,8 @@
 <script setup lang="ts">
 import { Ref, computed, inject, ref } from "vue";
 
-import { Bool } from "vue-library/enums";
-import type { Match, Node } from "vue-library/interfaces";
+import { Bool } from "@endeavour/vue-library/enums";
+import type { Match, Node } from "@endeavour/vue-library/interfaces";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";

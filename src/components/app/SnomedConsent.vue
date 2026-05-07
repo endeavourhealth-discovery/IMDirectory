@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { useUserStore } from "vue-library/stores";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";

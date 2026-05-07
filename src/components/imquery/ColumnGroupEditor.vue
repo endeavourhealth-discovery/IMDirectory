@@ -72,10 +72,10 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import { DisplayMode } from "vue-library/enums";
-import { IM } from "vue-library/enums";
-import type { Match, Node, Return } from "vue-library/interfaces";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { DisplayMode } from "@endeavour/vue-library/enums";
+import { IM } from "@endeavour/vue-library/enums";
+import type { Match, Node, Return } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";

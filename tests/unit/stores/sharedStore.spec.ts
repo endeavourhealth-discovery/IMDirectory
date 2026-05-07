@@ -1,4 +1,4 @@
-import { useUserStore } from "vue-library/stores";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, vi } from "vitest";

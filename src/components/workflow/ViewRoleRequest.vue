@@ -33,9 +33,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { UserRole } from "vue-library/enums";
-import type { RoleRequest, Task } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { UserRole } from "@endeavour/vue-library/enums";
+import type { RoleRequest, Task } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 

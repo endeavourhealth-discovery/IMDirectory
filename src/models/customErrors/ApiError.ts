@@ -1,4 +1,4 @@
-import { dateNow, timeNow } from "vue-library/helpers";
+import { dateNow, timeNow } from "@endeavour/vue-library/helpers";
 
 export default class ApiError extends Error {
   status: number;

@@ -18,9 +18,9 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { TTBundle } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTBundle } from "@endeavour/vue-library/interfaces";
 
 import { GraphTranslator } from "@/helpers";
 import { TTGraphData } from "@/interfaces";

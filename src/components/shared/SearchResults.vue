@@ -77,8 +77,8 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
-import { IM } from "vue-library/enums";
-import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

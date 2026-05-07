@@ -65,7 +65,6 @@ declare module 'vue' {
     DirectoryViewerModelChart: typeof import('./src/components/directory/viewer/ModelChart.vue')['default']
     DirectoryViewerProvenance: typeof import('./src/components/directory/viewer/Provenance.vue')['default']
     DirectoryViewerQueryDisplay: typeof import('./src/components/directory/viewer/QueryDisplay.vue')['default']
-    DirectoryViewerQueryDisplayTestQueryResults: typeof import('@/components/query/viewer/TestQueryResults.vue')['default']
     DirectoryViewerSetCompareSetDialog: typeof import('./src/components/directory/viewer/set/CompareSetDialog.vue')['default']
     DirectoryViewerSetCompareSetSection: typeof import('./src/components/directory/viewer/set/CompareSetSection.vue')['default']
     DirectoryViewerSetDefinition: typeof import('./src/components/directory/viewer/set/SetDefinition.vue')['default']

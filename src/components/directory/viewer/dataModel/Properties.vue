@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 
 import { DataTableExpandedRows } from "primevue/datatable";
 

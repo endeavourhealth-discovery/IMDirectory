@@ -1,5 +1,5 @@
-import { NAMESPACE } from "vue-library/enums";
-import type { ExtendedTTEntity, TTDocument } from "vue-library/interfaces";
+import { NAMESPACE } from "@endeavour/vue-library/enums";
+import type { ExtendedTTEntity, TTDocument } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

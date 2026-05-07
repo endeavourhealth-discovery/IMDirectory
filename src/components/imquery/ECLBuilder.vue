@@ -69,9 +69,9 @@
 <script setup lang="ts">
 import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { ECLQueryRequest, Match, Node, Query } from "vue-library/interfaces";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ECLQueryRequest, Match, Node, Query } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";

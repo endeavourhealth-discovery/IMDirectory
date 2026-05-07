@@ -46,9 +46,9 @@ export default defineComponent({
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { SHACL } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { PropertyShape } from "vue-library/interfaces";
+import { SHACL } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep, isEqual } from "lodash-es";
 

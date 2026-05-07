@@ -37,8 +37,8 @@
 <script lang="ts" setup>
 import { Ref, nextTick, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import type { Match, Node, Path } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import type { Match, Node, Path } from "@endeavour/vue-library/interfaces";
 
 import { TreeSelectionKeys } from "primevue/tree";
 import type { TreeNode } from "primevue/treenode";

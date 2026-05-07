@@ -1,4 +1,4 @@
-import type { SearchResponse } from "vue-library/interfaces";
+import type { SearchResponse } from "@endeavour/vue-library/interfaces";
 
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, vi } from "vitest";

@@ -1,4 +1,4 @@
-import type { GenericObject, TTIriRef } from "vue-library/interfaces";
+import type { GenericObject, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 export interface TreeNode extends GenericObject {
   key: string;

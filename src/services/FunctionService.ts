@@ -1,5 +1,5 @@
-import { isArrayHasLength } from "vue-library/helpers";
-import type { Argument } from "vue-library/interfaces";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Argument } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

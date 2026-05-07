@@ -10,8 +10,8 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { stringAscending } from "vue-library/helpers";
-import type { PropertyShape } from "vue-library/interfaces";
+import { stringAscending } from "@endeavour/vue-library/helpers";
+import type { PropertyShape } from "@endeavour/vue-library/interfaces";
 
 import { ComponentType, EditorMode } from "@/enums";
 import { ComponentDetails, NextComponentSummary } from "@/interfaces";

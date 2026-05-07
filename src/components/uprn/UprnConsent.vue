@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { useUserStore } from "vue-library/stores";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useRouter } from "vue-router";
 

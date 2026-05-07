@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref } from "vue";
 
-import { useUserStore } from "vue-library/stores";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useToast } from "primevue/usetoast";
 

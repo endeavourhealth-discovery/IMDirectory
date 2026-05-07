@@ -63,8 +63,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { Bool } from "vue-library/enums";
-import type { Match } from "vue-library/interfaces";
+import { Bool } from "@endeavour/vue-library/enums";
+import type { Match } from "@endeavour/vue-library/interfaces";
 
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

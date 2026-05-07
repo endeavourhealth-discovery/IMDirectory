@@ -35,8 +35,8 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { IM, NAMESPACE, RDF, RDFS, SHACL } from "vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary } from "vue-library/interfaces";
+import { IM, NAMESPACE, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import type { Match, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 

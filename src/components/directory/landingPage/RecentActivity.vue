@@ -54,14 +54,14 @@
 <script setup lang="ts">
 import { Ref, computed, onActivated, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { OverlaySummary } from "vue-library/components";
-import { useOverlay } from "vue-library/composables";
-import { RDF, RDFS } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "vue-library/helpers";
-import type { TTIriRef } from "vue-library/interfaces";
-import { RecentActivityItem } from "vue-library/models";
-import { useUserStore } from "vue-library/stores";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import { RecentActivityItem } from "@endeavour/vue-library/models";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep, isArray } from "lodash-es";
 import { useConfirm } from "primevue/useconfirm";

@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, ref } from "vue";
 
-import { isArrayHasLength } from "vue-library/helpers";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 
 import * as d3 from "d3";
 import { DSVRowArray } from "d3";

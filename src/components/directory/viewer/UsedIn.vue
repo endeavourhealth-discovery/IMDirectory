@@ -37,11 +37,11 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { OverlaySummary } from "vue-library/components";
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { useOverlay } from "vue-library/composables";
-import { RDF, RDFS } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
+import { RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType } from "@endeavour/vue-library/helpers";
 
 import { DataTableRowSelectEvent } from "primevue/datatable";
 

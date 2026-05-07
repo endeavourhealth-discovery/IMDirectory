@@ -1,4 +1,4 @@
-import { TTIriRef } from "vue-library";
+import { TTIriRef } from "@endeavour/vue-library";
 
 export type RelativeTo = {
   nodeRef?: string;

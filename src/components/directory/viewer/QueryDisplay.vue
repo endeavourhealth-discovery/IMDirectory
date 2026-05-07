@@ -85,9 +85,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
-import { Bool, DisplayMode } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { Argument, Node, Query, QueryRequest } from "vue-library/interfaces";
+import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { Argument, Node, Query, QueryRequest } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

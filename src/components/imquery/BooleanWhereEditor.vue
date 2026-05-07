@@ -89,8 +89,8 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { Bool } from "vue-library/enums";
-import type { Match, Node, UIProperty, Where } from "vue-library/interfaces";
+import { Bool } from "@endeavour/vue-library/enums";
+import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";

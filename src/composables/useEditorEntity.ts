@@ -1,8 +1,8 @@
 import { Ref, computed, ref } from "vue";
 
-import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { TTIriRef } from "vue-library/interfaces";
+import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { isEqual } from "lodash-es";
 

@@ -33,9 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { Bool } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import type { Return } from "vue-library/interfaces";
+import { Bool } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Return } from "@endeavour/vue-library/interfaces";
 
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";

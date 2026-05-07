@@ -28,10 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { IM, RDF, RDFS } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
-import type { ExtendedTTEntity } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 

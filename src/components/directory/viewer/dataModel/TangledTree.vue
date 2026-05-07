@@ -17,8 +17,8 @@
 <script setup lang="ts">
 import { Ref, onMounted, reactive, ref, watch } from "vue";
 
-import { isArrayHasLength } from "vue-library/helpers";
-import type { TTIriRef } from "vue-library/interfaces";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import * as d3 from "d3";
 import { cloneDeep } from "lodash-es";

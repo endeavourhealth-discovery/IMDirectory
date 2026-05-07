@@ -7,6 +7,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import { REPO } from "@endeavour/vue-library/enums";
+
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { GithubService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -16,7 +18,7 @@ const loading = ref(false);
 
 async function updateGithubConfig() {
   loading.value = true;
-  await GithubService.updateGithubConfig()
+  await GithubService.updateGithubConfig(REPO.IM_DIRECTORY)
     .then(async () => {
       await dialogStore.open(AlertDialog, {
         props: { modal: true, style: { width: "30vw" }, closable: false },

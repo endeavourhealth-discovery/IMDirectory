@@ -161,10 +161,10 @@
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { IM, NAMESPACE, RDF, RDFS, SHACL, SNOMED, XSD } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { IM, NAMESPACE, RDF, RDFS, SHACL, SNOMED, XSD } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

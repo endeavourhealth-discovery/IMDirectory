@@ -22,10 +22,10 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { RDFS, ToastSeverity } from "vue-library/enums";
-import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { SearchResultSummary, TTIriRef } from "vue-library/interfaces";
-import type { GenericObject, PropertyShape, QueryRequest } from "vue-library/interfaces";
+import { RDFS, ToastSeverity } from "@endeavour/vue-library/enums";
+import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { GenericObject, PropertyShape, QueryRequest } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep, isEqual } from "lodash-es";
 import { useToast } from "primevue/usetoast";

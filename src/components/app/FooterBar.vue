@@ -40,7 +40,8 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { REPO } from "@endeavour/vue-library/enums";
 
 import { useRouter } from "vue-router";
 
@@ -57,7 +58,7 @@ onMounted(async () => {
 });
 
 async function getCurrentVersion() {
-  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
+  const latestRelease = await GithubService.getLatestRelease(REPO.IM_DIRECTORY);
   if (latestRelease && latestRelease.version) currentVersion.value = latestRelease.version;
 }
 

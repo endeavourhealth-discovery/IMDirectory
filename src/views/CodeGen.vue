@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { XSD } from "vue-library/enums";
+import { XSD } from "@endeavour/vue-library/enums";
 
 import { cloneDeep, debounce } from "lodash-es";
 import { useToast } from "primevue/usetoast";

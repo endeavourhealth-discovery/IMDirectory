@@ -23,9 +23,11 @@
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
-import { useChangeFontSize, useChangeThemeOptions } from "vue-library/composables";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { useUserStore } from "vue-library/stores";
+import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
+import { REPO } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { GithubRelease } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
@@ -45,7 +47,6 @@ import DevBanner from "./components/app/DevBanner.vue";
 import FooterBar from "./components/app/FooterBar.vue";
 import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
-import { GithubRelease } from "./interfaces";
 import { setModes } from "./router/methods/setModes";
 import { useLoadingStore } from "./stores/loadingStore";
 
@@ -136,7 +137,7 @@ async function setThemeOptions() {
 
 async function setShowReleaseBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
-  latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
+  latestRelease.value = await GithubService.getLatestRelease(REPO.IM_DIRECTORY);
   let currentVersion = "v0.0.0";
   if (latestRelease.value?.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {

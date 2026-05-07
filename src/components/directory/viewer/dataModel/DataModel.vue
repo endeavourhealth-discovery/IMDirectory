@@ -58,10 +58,10 @@
 <script lang="ts" setup>
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { IM, RDF, RDFS } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import type { GenericObject, PropertyRange, PropertyShape, TTIriRef } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { GenericObject, PropertyRange, PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import type { TreeNode } from "primevue/treenode";
 

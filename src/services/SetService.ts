@@ -1,5 +1,5 @@
-import type { ECLQueryRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "vue-library/interfaces";
-import type { ExtendedTTEntity } from "vue-library/interfaces";
+import type { ECLQueryRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

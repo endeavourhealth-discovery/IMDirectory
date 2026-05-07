@@ -158,19 +158,26 @@
     </Dialog>
   </div>
   <div v-if="editMatch.is">
-    <CohortEditor v-model:match="editMatch"  :parentOperator="parentOperator" :editMode="editCohort" @updateCohort="onSave" @updateClauses="onUpdateClauses" @cancel="cancel" />
+    <CohortEditor
+      v-model:match="editMatch"
+      :parentOperator="parentOperator"
+      :editMode="editCohort"
+      @updateCohort="onSave"
+      @updateClauses="onUpdateClauses"
+      @cancel="cancel"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { Ref, inject, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "vue-library/components";
-import { useCopyToClipboard } from "vue-library/composables";
-import { Bool, DisplayMode } from "vue-library/enums";
-import { IM } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import type { Match, Node, NodeShape, Return, TTIriRef } from "vue-library/interfaces";
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import { IM } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Match, Node, NodeShape, Return, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";

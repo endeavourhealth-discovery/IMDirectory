@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 
-import { useUserStore } from "vue-library/stores";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useRoute, useRouter } from "vue-router";
 

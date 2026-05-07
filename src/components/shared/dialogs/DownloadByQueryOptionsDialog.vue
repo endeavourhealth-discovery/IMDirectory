@@ -94,9 +94,9 @@
 <script lang="ts" setup>
 import { Ref, computed, ref, watch } from "vue";
 
-import { IM, SNOMED } from "vue-library/enums";
-import { NAMESPACE } from "vue-library/enums";
-import type { TTIriRef } from "vue-library/interfaces";
+import { IM, SNOMED } from "@endeavour/vue-library/enums";
+import { NAMESPACE } from "@endeavour/vue-library/enums";
+import type { TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { DownloadSettings } from "@/interfaces";
 import { useFilterStore } from "@/stores/filterStore";

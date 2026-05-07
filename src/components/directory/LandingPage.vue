@@ -26,8 +26,8 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 
-import { IM, NAMESPACE, SHACL } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType } from "vue-library/helpers";
+import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType } from "@endeavour/vue-library/helpers";
 
 import Favourites from "@/components/directory/landingPage/Favourites.vue";
 import RecentActivity from "@/components/directory/landingPage/RecentActivity.vue";

@@ -71,9 +71,9 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import { IM, QUERY, RDF, RDFS } from "vue-library/enums";
-import { TypeGuards, byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObjectHasKeys } from "vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, SearchResultSummary, TTIriRef } from "vue-library/interfaces";
+import { IM, QUERY, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { TypeGuards, byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { cloneDeep, isEqual } from "lodash-es";

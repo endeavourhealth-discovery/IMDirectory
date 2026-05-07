@@ -88,10 +88,10 @@ export default defineComponent({
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, onUnmounted, provide, ref, watch } from "vue";
 
-import { IM, RDF } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { PropertyShape, TTIriRef } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { IM, RDF } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";

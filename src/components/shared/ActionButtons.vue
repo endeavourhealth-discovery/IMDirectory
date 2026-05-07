@@ -89,9 +89,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
-import { useDownloadFile } from "vue-library/composables";
-import { isArrayHasLength } from "vue-library/helpers";
-import { useUserStore } from "vue-library/stores";
+import { useDownloadFile } from "@endeavour/vue-library/composables";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 import { useDialog } from "primevue/usedialog";
