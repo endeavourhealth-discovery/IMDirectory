@@ -33,7 +33,8 @@ const SecurityService = {
   },
 
   async getUser(raw?: boolean): Promise<User> {
-    return await axios.get(API_URL + "/private/user", { raw: raw });
+    const user: any = await axios.get(API_URL + "/private/user", { raw: raw });
+    return user.data ? user.data : user;
   },
 
   async getProfileUrl(): Promise<string> {
