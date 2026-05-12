@@ -1,26 +1,27 @@
 import type { ECLQueryRequest, Query } from "@endeavour/vue-library/interfaces";
 
-import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as fakerFactory from "@/mocks/fakerFactory";
 import { EclService, Env } from "@/services";
 
+import api from "../../../src/services/api";
+
 describe("EclService ___ axios success", () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    axios.get = vi.fn().mockResolvedValue("axios get return");
-    axios.post = vi.fn().mockResolvedValue("axios post return");
+    api.get = vi.fn().mockResolvedValue("axios get return");
+    api.post = vi.fn().mockResolvedValue("axios post return");
   });
 
   it("can get ECLSearch", async () => {
     const fakerResults = [await fakerFactory.conceptSummaryRandom()];
-    axios.post = vi.fn().mockResolvedValue({ entities: fakerResults, count: fakerResults.length, page: 1 });
+    api.post = vi.fn().mockResolvedValue({ entities: fakerResults, count: fakerResults.length, page: 1 });
     const controller = new AbortController();
     const eclSearchRequest: ECLQueryRequest = { query: { is: [{ iri: "testString" }] }, includeLegacy: false, limit: 1000 };
     const result = await EclService.ECLSearch(eclSearchRequest, controller);
-    expect(axios.post).toBeCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/eclSearch", eclSearchRequest, {
+    expect(api.post).toBeCalledTimes(1);
+    expect(api.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/eclSearch", eclSearchRequest, {
       signal: controller.signal
     });
     expect(result).toEqual({ entities: fakerResults, count: fakerResults.length, page: 1 });
@@ -29,8 +30,8 @@ describe("EclService ___ axios success", () => {
   it("can getEcl", async () => {
     const testQuery: Query = { is: [{ iri: "testEntity" }] };
     const result = await EclService.getEcl(testQuery);
-    expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/ecl", { query: testQuery });
+    expect(api.post).toHaveBeenCalledTimes(1);
+    expect(api.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/ecl", { query: testQuery });
     expect(result).toBe("axios post return");
   });
 });

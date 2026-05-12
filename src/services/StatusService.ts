@@ -1,16 +1,15 @@
-import axios from "axios";
-
 import Env from "./Env";
+import api from "./api";
 
 const API_URL = Env.API + "api/status/public";
 
 const StatusService = {
   async isPublicMode(): Promise<boolean> {
-    return await axios.get(API_URL + "/isPublicMode");
+    return await api.get(API_URL + "/isPublicMode");
   },
 
   async isDevMode(): Promise<boolean> {
-    return await axios.get(API_URL + "/isDevMode");
+    return await api.get(API_URL + "/isDevMode");
   }
 };
 

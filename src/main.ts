@@ -2,9 +2,9 @@ import { ComponentPublicInstance, createApp } from "vue";
 
 import { injectionKeysVueLibrary } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { UserRole } from "@endeavour/vue-library/enums";
 
 import Aura from "@primeuix/themes/aura";
-import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
 import ConfirmationService from "primevue/confirmationservice";
 import DialogService from "primevue/dialogservice";
@@ -23,14 +23,7 @@ import { useDirectService } from "./composables/useDirectService";
 import { worker } from "./mocks/browser";
 import router from "./router";
 import { EntityService, UserService } from "./services";
-import { UserRole } from "@endeavour/vue-library/enums";
-
-declare module "axios" {
-  export interface AxiosRequestConfig {
-    raw?: boolean;
-    silent?: boolean;
-  }
-}
+import pinia from "./stores";
 
 declare module "vue-router" {
   interface RouteMeta {
@@ -46,8 +39,6 @@ declare module "vue-router" {
 if (import.meta.env.MODE === "mock") {
   await worker.start();
 }
-
-const pinia = createPinia();
 
 const app = createApp(App)
   .use(pinia)
