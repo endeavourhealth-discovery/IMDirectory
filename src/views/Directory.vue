@@ -18,16 +18,16 @@
     <div id="app-content-container">
       <DirectorySplitter
         :searchTerm="directorySearchTerm"
-        :updateSearch="updateSearch"
         :selected-filter-options="storeSelectedFilterOptions"
+        :updateSearch="updateSearch"
         @selected-filters-updated="onSelectedFiltersUpdated"
       />
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ComputedRef, Ref, computed, ref } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, Ref, ref } from "vue";
 
 import type { FilterOptions } from "@endeavour/vue-library/interfaces";
 

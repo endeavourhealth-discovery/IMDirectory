@@ -1,13 +1,14 @@
 <template>
   <Dialog
     :draggable="false"
-    :style="{ width: '45vw', height: '45vh', minWidth: '45vw', minHeight: '45vh' }"
+    :style="{ width: '65vw', height: '65vh', minWidth: '65vw', minHeight: '65vh' }"
     :visible="showPropertySelector"
     closable
     maximizable
     modal
+    @hide="onCancel"
   >
-    <template>
+    <template #default>
       <div class="tree-scroll-container" @click.stop>
         <Tree
           v-model:expandedKeys="expandedKeys"
@@ -45,11 +46,16 @@
         </Tree>
       </div>
     </template>
+    <template #footer>
+      <div class="button-footer">
+        <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
+      </div>
+    </template>
   </Dialog>
 </template>
 
 <script lang="ts" setup>
-import { Ref, inject, onMounted, ref } from "vue";
+import { inject, onMounted, Ref, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
@@ -59,7 +65,6 @@ import type { TreeNode } from "primevue/treenode";
 
 import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
 import { DataModelService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   baseType: Node;
@@ -69,7 +74,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const dialogStore = useDialogStore();
+const showPropertySelector = defineModel<boolean>("showPropertySelector", { default: false });
 const expandedKeys = ref<Record<string, boolean>>({});
 const expandedReturnKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
@@ -115,6 +120,10 @@ async function onReturnNodeExpand(node: any) {
 
 async function onMatchNodeExpand(node: any) {
   await expandNode(node, "match");
+}
+function onCancel() {
+  showPropertySelector.value = false;
+  emit("cancel");
 }
 </script>
 

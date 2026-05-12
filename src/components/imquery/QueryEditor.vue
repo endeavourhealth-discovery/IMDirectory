@@ -2,24 +2,24 @@
   <ProgressSpinner v-if="loading" />
   <Dialog
     v-if="!loading"
-    :visible="showDialog"
-    :modal="true"
+    id="query-builder-dialog"
+    :auto-z-index="true"
     :closable="false"
+    :contentStyle="{ flexGrow: '100', display: 'flex', flexDirection: 'column' }"
     :maximizable="true"
+    :modal="true"
     :style="{
       minWidth: '90vw',
       minHeight: '90vh',
       display: 'flex',
       flexFlow: 'column nowrap'
     }"
-    :contentStyle="{ flexGrow: '100', display: 'flex', flexDirection: 'column' }"
-    :auto-z-index="true"
-    id="query-builder-dialog"
+    :visible="showDialog"
   >
     <template #header>
       <div class="ecl-builder-dialog-header">
         <strong>Query definition builder:</strong>
-        <Button icon="fa-regular fa-circle-question" text rounded-sm @click="toggle" />
+        <Button icon="fa-regular fa-circle-question" rounded-sm text @click="toggle" />
         <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
@@ -27,12 +27,12 @@
     <template v-if="query.typeOf">
       <BooleanMatchEditor
         v-model:match="query"
-        :rootBool="true"
-        :depth="0"
         v-model:parent="query"
-        :parentIndex="parentIndex"
-        :index="0"
         :baseType="query.typeOf!"
+        :depth="0"
+        :index="0"
+        :parentIndex="parentIndex"
+        :rootBool="true"
         @activateInput="activeInputId = $event"
         @rationalise="rationaliseBooleans"
       />
@@ -41,52 +41,47 @@
       <div><strong>Dataset entries:</strong></div>
       <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
         <DataSetEditor
+          v-model:match="query.columnGroup[index]"
           :index="index"
           :query="query"
-          v-model:match="query.columnGroup[index]"
           @delete-group="onDeleteGroup(index)"
           @save-column-group="saveColumnGroup"
         />
       </template>
     </template>
     <Button
-      label="Add Dataset entry"
-      icon="fa-solid fa-plus"
-      severity="secondary"
       class="addColumnGroup-btn"
-      @click="addColumnGroup"
       data-testid="query-editor-add-column-button"
+      icon="fa-solid fa-plus"
+      label="Add Dataset entry"
+      severity="secondary"
+      @click="addColumnGroup"
     />
 
     <template #footer>
-      <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
-      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
+      <Button data-testid="cancel-ecl-builder-button" icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeBuilderDialog" />
+      <Button class="p-button-primary" data-testid="ecl-ok-button" icon="fa-solid fa-check" label="OK" @click="submit" />
     </template>
   </Dialog>
 </template>
 
-<script setup lang="ts">
-import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
+<script lang="ts" setup>
+import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import type { Match, Query } from "@endeavour/vue-library/interfaces";
 
-import { value } from "jsonpath";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
-import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
 import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
-import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
 import { usePropertyTree } from "@/composables/usePropertyTree";
 import QueryService from "@/services/QueryService";
 import { useDialogStore } from "@/stores/dialogStore";
-import { useQueryStore } from "@/stores/queryStore";
 
 import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
@@ -116,7 +111,7 @@ const op = ref();
 const parentIndex = ref(0);
 const { createFeatureTree } = usePropertyTree();
 const rootNodes: Ref<TreeNode[]> = ref([]);
-const keepAs: Ref<Match[]> = ref([]);
+const keepAs: Ref<Record<string, Match>> = ref({});
 provide("keepAs", keepAs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));

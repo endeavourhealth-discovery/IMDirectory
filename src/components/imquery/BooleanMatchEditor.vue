@@ -2,13 +2,12 @@
   <template v-if="showEditor && editMatch">
     <MatchEditor
       v-if="showEditor"
-      :match="editMatch"
-      :showEditor="showEditor"
+      v-model:showEditor="showEditor"
       :baseType="baseType"
-      :from="from"
-      :depth="depth"
       :clauseIndex="index"
+      :depth="depth"
       :editCohort="editMatch && !!editMatch.is"
+      :match="editMatch"
       :parentOperator="parentOperator"
       @cancel="cancelEditMatch"
       @deleteMatch="onDeleteMatchList"
@@ -22,25 +21,25 @@
       <div class="match-clause-inner">
         <div v-if="canCheck" class="group-checkbox">
           <Checkbox
-            :inputId="'group' + index"
-            name="Group"
-            binary
             v-model="subgroupCheck"
-            data-testid="group-checkbox"
-            @update:modelValue="onCheckGroupChange"
             v-tooltip="'Select to build boolean subgroup'"
+            :inputId="'group' + index"
+            binary
+            data-testid="group-checkbox"
+            name="Group"
+            @update:modelValue="onCheckGroupChange"
           />
         </div>
         <BooleanEditor
           v-model:clause="match"
-          v-model:parent="parent"
-          :parentType="'Match'"
-          :index="index"
           v-model:group="group"
-          :parentOperator="parentOperator as Bool"
-          :operator="operator"
-          :rootBool="rootBool"
+          v-model:parent="parent"
           :clauseType="'Match'"
+          :index="index"
+          :operator="operator"
+          :parentOperator="parentOperator as Bool"
+          :parentType="'Match'"
+          :rootBool="rootBool"
         />
       </div>
       <div>
@@ -49,25 +48,25 @@
           <BooleanMatchEditor
             v-model:match="boolGroup![subIndex]"
             v-model:parent="match"
-            :depth="depth + 1"
-            :baseType="baseType"
-            :parentOperator="operator as Bool"
-            :parentIndex="index"
-            :index="subIndex"
-            :canCheck="boolGroup!.length > 2"
             v-model:parentGroup="group"
-            @updateBool="updateBool"
-            @deleteMatch="onDeleteMatch(subIndex)"
+            :baseType="baseType"
+            :canCheck="boolGroup!.length > 2"
+            :depth="depth + 1"
+            :index="subIndex"
+            :parentIndex="index"
+            :parentOperator="operator as Bool"
             :rootBool="false"
+            @deleteMatch="onDeleteMatch(subIndex)"
+            @updateBool="updateBool"
           />
         </div>
       </div>
       <div>
-        <Button type="button" icon="fa-solid fa-plus" label="Add clause" data-testid="add-clause-button" class="add-button" @click="menu.toggle($event)" />
+        <Button class="add-button" data-testid="add-clause-button" icon="fa-solid fa-plus" label="Add clause" type="button" @click="menu.toggle($event)" />
         <Menu ref="menu" :model="addItems" popup />
       </div>
     </div>
-    <div v-else class="match-clause-outer" @drop="onDrop($event, match, parent, index, 'Match')" @dragover="onDragOver($event, 'Match')">
+    <div v-else class="match-clause-outer" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
       <div v-if="match.nodeRef">
         <span class="from">from</span>
         <span class="node-ref">{{ match.nodeRef }}</span>
@@ -75,41 +74,41 @@
       <div class="match-clause-inner">
         <div>
           <Button
+            draggable="true"
             icon="drag-icon fa-solid fa-grip-vertical"
             severity="secondary"
             text
-            draggable="true"
-            @dragstart="onDragStart(match, parent, index, 'Match')"
             @dragend="onDragEnd()"
+            @dragstart="onDragStart(match, parent, index, 'Match')"
           />
         </div>
         <div v-if="canCheck" class="group-checkbox">
           <Checkbox
-            :inputId="'group' + index"
-            name="Group"
-            binary
             v-model="subgroupCheck"
-            data-testid="group-checkbox"
-            @update:modelValue="onCheckGroupChange"
             v-tooltip="'Select to build boolean subgroup'"
+            :inputId="'group' + index"
+            binary
+            data-testid="group-checkbox"
+            name="Group"
+            @update:modelValue="onCheckGroupChange"
           />
         </div>
         <span v-if="displayOperator" :class="parentOperator">{{ displayOperator }}</span>
         <div class="match-display">
-          <MatchContentDisplay :match="match" :parentMatch="parent" :from="from" :depth="depth" :clauseIndex="index" />
+          <MatchContentDisplay :clauseIndex="index" :depth="depth" :from="from" :match="match" :parentMatch="parent" />
         </div>
         <div class="edit-button">
           <Button
-            type="button"
+            class="add-button"
+            data-testid="edit-clause-button"
             icon="fa-solid fa-pen-to-square"
             label="Edit clause"
-            data-testid="edit-clause-button"
-            class="add-button"
+            type="button"
             @click="editMatchClause()"
           />
         </div>
         <div>
-          <Button @click.stop="deleteMatch" class="delete-button" icon="fa-solid fa-trash" />
+          <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteMatch" />
         </div>
       </div>
       <div v-if="parentOperator === Bool.rule">
@@ -117,22 +116,20 @@
       </div>
     </div>
     <div v-if="rootBool && !boolGroup">
-      <Button type="button" icon="fa-solid fa-plus" label="Add clause" data-testid="add-clause-button" class="add-button" @click="menu.toggle($event)" />
+      <Button class="add-button" data-testid="add-clause-button" icon="fa-solid fa-plus" label="Add clause" type="button" @click="menu.toggle($event)" />
       <Menu ref="menu" :model="addItems" popup />
     </div>
   </template>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, inject, onMounted, ref } from "vue";
+<script lang="ts" setup>
+import { computed, inject, onMounted, Ref, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Match, Node } from "@endeavour/vue-library/interfaces";
 
-import { isEqual } from "lodash-es";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
-import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
@@ -140,8 +137,14 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import { addMatchToParent, checkGroupChange, getBoolGroup, getBooleanOperator, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
-import { QueryService } from "@/services";
+import {
+  addMatchToParent,
+  checkGroupChange,
+  getBooleanOperator,
+  getBoolGroup,
+  getDisplayOperator,
+  updateBooleans
+} from "@/helpers/buildQuery";
 
 interface Props {
   isVariable?: boolean;
@@ -175,7 +178,7 @@ const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
   { label: "Add query reference or import clause", icon: "pi pi-users", command: () => addCohort() }
 ];
-const keepAs = inject("keepAs") as Ref<Match[]>;
+const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
 
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
@@ -194,8 +197,9 @@ function init() {
 }
 
 function updateKeepAs(match: Match) {
-  keepAs.value = keepAs.value.filter(m => m !== match);
-  if (match.node) keepAs.value.push(match);
+  if (match.node) {
+    keepAs.value[match.node] = match;
+  }
 }
 
 function onDeleteMatchList() {

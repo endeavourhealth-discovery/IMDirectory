@@ -44,6 +44,7 @@
           <div>Select features and properties from left</div>
           <BooleanWhereEditor
             v-if="match.where"
+            :key="match.where ? match.where.uuid : 'no-where'"
             v-model:parent="match"
             v-model:where="match.where"
             :base-type="baseType"
@@ -118,18 +119,34 @@
             @updateProperty="onUpdate"
           />
         </div>
+        <div v-else-if="editingWhen" class="column-selector">
+          <div>Add properties to test from left</div>
+          <BooleanWhereEditor
+            v-if="when && when.where"
+            :key="'test'"
+            v-model:parent="match"
+            v-model:where="when.where"
+            :base-type="baseType"
+            :index="0"
+            :match="match"
+            :parentIndex="0"
+            :rootBool="true"
+            @deleteWhere="emit('deleteWhenWhere')"
+            @updateProperty="onUpdateWhen"
+          />
+        </div>
       </SplitterPanel>
     </Splitter>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Ref, onMounted, ref } from "vue";
+import { Ref, inject, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, NodeShape } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, NodeShape, When } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";
@@ -138,7 +155,7 @@ import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
 import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
-import { addFilter, getOrderables, setDefiningProperty } from "@/helpers/buildQuery";
+import { addFilter, addWhereToWhen, getOrderables, setMandatoryWheres } from "@/helpers/buildQuery";
 import { DataModelService, QueryService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -154,10 +171,15 @@ interface Props {
   editingThen?: boolean;
   parentOperator?: Bool;
   editingWhere?: boolean;
+  editingWhen?: boolean;
+  returnIndex?: number;
+  whenIndex?: number;
 }
 
 const props = defineProps<Props>();
 const match: Ref<Match> = defineModel<Match>("match", { default: {} });
+const when = defineModel<When>("when", { default: {} });
+
 const emit = defineEmits<{
   (event: "saveChanges", match: Match): void;
   (event: "updateMatch"): void;
@@ -169,6 +191,7 @@ const emit = defineEmits<{
   (event: "deleteThen"): void;
   (event: "deleteWhere"): void;
   (event: "editTest"): void;
+  (event: "deleteWhenWhere"): void;
 }>();
 const dialogStore = useDialogStore();
 const orderables: Ref<any[] | undefined> = ref();
@@ -181,12 +204,29 @@ const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
 const edited = ref(false);
+const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
 const typeNodes: Ref<TreeNode[]> = ref([]);
 const nodeShape: Ref<NodeShape | undefined> = ref();
+const keepAsNode: Ref<string | undefined> = ref(match.value.node);
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 onMounted(async () => {
   await init();
 });
+function onInput() {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = setTimeout(() => {
+    emit("updateMatch");
+  }, 1000);
+  updateKeepAs();
+}
+function updateKeepAs() {
+  if (keepAsNode.value) delete keepAs.value[keepAsNode.value];
+  keepAsNode.value = match.value.node;
+  if (match.value.node) keepAs.value[match.value.node] = match.value;
+}
 
 async function init() {
   loading.value = true;
@@ -217,8 +257,10 @@ async function onNodeSelect(node: any) {
   }
   if (node.type === "property") {
     addFilter(match.value, node, props.editingThen);
+    if (props.editingWhen && when.value) addWhereToWhen(when.value, match.value, node);
+    else addFilter(match.value, node, props.editingThen);
   }
-  setDefiningProperty(match.value, nodeShape.value!);
+  setMandatoryWheres(match.value, nodeShape.value!);
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   edited.value = true;
   setOrderables();
@@ -236,7 +278,10 @@ async function onUpdate() {
   edited.value = true;
   emit("updateMatch");
 }
-
+async function onUpdateWhen() {
+  edited.value = true;
+  emit("updateMatch");
+}
 async function onMatchNodeExpand(node: any) {
   await expandNode(node, "match");
 }
@@ -269,6 +314,7 @@ function updateOrderable(value: any) {
     orderable.value = value;
     match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
   }
+  emit("updateMatch");
 }
 </script>
 

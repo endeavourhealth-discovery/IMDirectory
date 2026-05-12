@@ -175,9 +175,7 @@ async function showInvalid(match: Match) {
 }
 
 async function saveChanges(): Promise<boolean> {
-  editMatch.value.keepClauses = keepAs.value;
   const matchCheck = await QueryService.validateQuery(editMatch.value);
-  delete editMatch.value.keepClauses;
   if (matchCheck.invalid) {
     editMatch.value.draft = true;
     await showInvalid(matchCheck);

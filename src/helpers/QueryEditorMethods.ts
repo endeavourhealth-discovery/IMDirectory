@@ -216,8 +216,10 @@ function getOperatorTerm(operator: Operator): string {
       break;
     case "contains":
       return "contains ";
-    case "isTrue":
-      return "is true ";
+    case "isNull":
+      return "is not recorded ";
+    case "notNull":
+      return "is recorded ";
     default:
       return (operator as string) + " ";
   }

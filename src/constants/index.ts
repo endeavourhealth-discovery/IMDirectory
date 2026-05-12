@@ -1,5 +1,4 @@
 import { Avatars } from "./Avatars";
-import { CompareOptions } from "./queryEditor/CompareOptions";
 import { ConstraintOperatorMap } from "./queryEditor/ConstraintOperatorMap";
 import { ConstraintOperatorOptions } from "./queryEditor/ConstraintOperatorOptions";
 import { NodeInclusionOptions } from "./queryEditor/NodeInclusionOptions";
@@ -10,7 +9,6 @@ import { RangeValueOptions } from "./queryEditor/RangeValueOptions";
 
 export {
   Avatars,
-  CompareOptions,
   ConstraintOperatorOptions,
   OffsetOptions,
   RangeValueOptions,

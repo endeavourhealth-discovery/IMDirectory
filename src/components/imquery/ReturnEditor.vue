@@ -1,183 +1,232 @@
 <template>
-  <div class="flex justify-between items-center mb-2">
-    <div class="flex gap-2">
-      <div class="as-editor font-bold">Return as</div>
+  <div class="return-editor">
+    <div class="return-column-editor">
+      <div class="as-editor font-bold">Column name</div>
       <div class="property-display font-bold">Property / Logic</div>
     </div>
-    <div class="flex gap-2">
-      <Button icon="fa-solid fa-check" label="Add truth value" size="small" text @click="addTruthValue" />
-      <Button icon="fa-solid fa-plus" label="Add column" size="small" @click="addColumn" />
-    </div>
-  </div>
-  <template v-for="(item, index) in returns" :key="index">
-    <div class="return-item mb-4 p-2 border rounded">
-      <div class="return-column-editor items-center gap-2 mb-2">
+    <template v-if="match.return">
+      <div v-for="(item, rIndex) in match.return" :key="rIndex" class="return-column-editor">
         <div class="as-editor">
           <InputText v-model="item.as" class="w-full" placeholder="Column name" />
         </div>
         <div class="property-display flex items-center gap-2">
           <template v-if="!item.case">
-            <span v-if="item.nodeRef" class="font-medium">{{ getPathName(match, item.nodeRef) }}</span>
-            <IMViewerLink v-else-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-            <FunctionClauseDisplay v-else-if="item.function" :functionClause="item.function" />
-            <span v-else class="text-gray-400 italic">No property selected</span>
-            <Button
-              :label="item.iri || item.nodeRef ? '' : 'Select property'"
-              icon="fa-solid fa-tree"
-              size="small"
-              text
-              @click="emit('showPropertyTree', item)"
-            />
-          </template>
-          <template v-else>
-            <span class="font-medium">Case statement</span>
-          </template>
-        </div>
-        <div class="flex gap-2 ml-auto">
-          <Button v-if="!item.case" icon="fa-solid fa-code-branch" label="Add case" size="small" text @click="addCase(item)" />
-          <Button icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeReturn(index)" />
-        </div>
-      </div>
-      <template v-if="item.return">
-        <span>{</span>
-        <ReturnEditor v-model:returns="item.return" :match="match" />
-        <span>}</span>
-      </template>
-      <template v-if="item.case">
-        <div v-for="(when, whenIndex) in item.case.when" :key="whenIndex" class="pl-4 pt-2">
-          <div class="flex flex-col gap-2 border-l-2 pl-2">
-            <div class="flex items-center gap-2">
-              <span>if</span>
-              <span v-if="when.exists" class="pl-2">exists</span>
-              <Button v-if="!when.where" icon="fa-solid fa-tree" label="Select property" size="small" text @click="emit('showPropertyTreeForWhen', when)" />
+            <template v-if="item.nodeRef">
+              <span v-if="item.nodeRef" class="font-medium">{{ getPathName(match, item.nodeRef) }}</span>
+            </template>
+            <template v-else-if="item.iri">
+              <IMViewerLink :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+              <template v-if="uiProperties[item.iri]">
+                <Select
+                  v-model="units"
+                  :options="uiProperties[item.iri].unitOptions"
+                  option-label="name"
+                  option-value="iri"
+                  placeholder="re"
+                  type="text"
+                  @update:model-value="updateUnits(rIndex)"
+                />
+              </template>
+            </template>
+            <template v-else-if="item.function">
+              <FunctionClauseDisplay :functionClause="item.function" />
+            </template>
+            <span v-else>
               <Button
-                v-if="(item.iri || when.where?.iri) && !when.where"
-                label="Test value"
+                :label="item.iri || item.nodeRef ? '' : 'Select property'"
+                class="add-button"
+                icon="fa-solid fa-tree"
                 size="small"
                 text
-                @click="
-                  when.where = when.where || { iri: item.iri, nodeRef: item.nodeRef };
-                  delete when.exists;
-                "
+                @click="openPropertySelector(item)"
               />
               <Button
-                v-if="when.where"
-                label="Test exists"
+                v-if="!item.case"
+                class="add-button"
+                icon="fa-solid fa-code-branch"
+                label="or Add conditional values (case)"
                 size="small"
                 text
-                @click="
-                  when.exists = true;
-                  delete when.where;
-                "
+                @click="addCase(rIndex)"
               />
-              <span class="pl-2">then</span>
-              <InputText v-model="when.then" class="ml-2" placeholder="Value" style="width: 10rem" />
-              <Button icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeWhen(item, whenIndex)" />
-            </div>
-            <div v-if="when.where" class="pl-4">
-              <BooleanWhereEditor
-                v-model:where="when.where"
-                :baseType="{ iri: match.typeOf?.iri || '' }"
-                :index="whenIndex"
-                :match="match"
-                :parentIndex="0"
-                :rootBool="true"
-                @addProperty="emit('addProperty', when.where)"
-              />
-            </div>
+            </span>
+          </template>
+        </div>
+
+        <div v-if="item.case" class="case-editor">
+          <div v-for="(when, whenIndex) in item.case.when" :key="whenIndex" class="case-display">
+            <span class="gap-2">if</span>
+            <span v-if="when.exists" class="pl-2">exists</span>
+            <template v-else-if="when.where">
+              <WhereContentDisplay :depth="0" :index="0" :where="when.where" />
+            </template>
+            <span class="pl-2">then</span>
+            <InputText v-model="when.then" class="ml-2" placeholder="Value" style="width: 10rem" />
+            <Button class="delete-button" icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeWhen(rIndex, whenIndex)" />
+            <span class="pl-4 pt-2 flex items-center gap-2">
+              <Button icon="fa-solid fa-plus" label="Add when" size="small" text @click="addWhen(rIndex)" />
+            </span>
+          </div>
+          <div class="pl-4 pt-2">
+            <span class="pl-2">else</span>
+            <InputText v-model="item.case.else" class="ml-2" placeholder="Else value" style="width: 10rem" />
           </div>
         </div>
-        <div class="pl-4 pt-2 flex items-center gap-2">
-          <Button icon="fa-solid fa-plus" label="Add when" size="small" text @click="addWhen(item)" />
+        <template v-if="item.return">
+          <span>{</span>
+          <ReturnEditor v-model:returns="item.return" :baseType="baseType" :match="match" />
+          <span>}</span>
+        </template>
+        <div class="flex gap-2 ml-auto">
+          <Button class="delete-button" icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeReturn(rIndex)" />
         </div>
-        <div class="pl-4 pt-2">
-          <span class="pl-2">else</span>
-          <InputText v-model="item.case.else" class="ml-2" placeholder="Else value" style="width: 10rem" />
-        </div>
-      </template>
+      </div>
+    </template>
+    <div>
+      <Button class="add-button" icon="fa-solid fa-plus" label="Add column" size="small" @click="addColumn" />
     </div>
-  </template>
+    <div>
+      <Button class="add-button" icon="fa-solid fa-check" label="Add truth value" size="small" text @click="addTruthValue" />
+    </div>
+  </div>
+
+  <PropertySelector
+    v-if="showPropertySelector && selectedReturn"
+    v-model:match="match"
+    v-model:return="selectedReturn"
+    v-model:showPropertySelector="showPropertySelector"
+    :baseType="baseType"
+    @cancel="showPropertySelector = false"
+    @selectedProperty="onSelectedProperty"
+  />
+
+  <WhenEditor
+    v-if="showWhenEditor"
+    v-model:match="match"
+    v-model:showCaseConditionEditor="showWhenEditor"
+    v-model:when="selectedWhen"
+    :baseType="baseType"
+    @cancel="showWhenEditor = false"
+    @saveCondition="onSaveWhenWhere"
+  />
 </template>
 
 <script lang="ts" setup>
-import type { Match, Return, Where } from "@endeavour/vue-library/interfaces";
+import { Ref, ref } from "vue";
+
+import type { Match, Node, Return, TTIriRef, UIProperty, When, Where } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
+import { TreeNode } from "primevue/treenode";
 
-import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
+import PropertySelector from "@/components/imquery/PropertySelector.vue";
+import WhenEditor from "@/components/imquery/WhenEditor.vue";
+import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getPathName } from "@/helpers/buildQuery";
+import { DataModelService } from "@/services";
 
 interface Props {
-  match: Match;
+  baseType: Node;
 }
 const props = defineProps<Props>();
-const returns = defineModel<Return[]>("returns", { default: [] });
+const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];
   addProperty: [where: Where];
-  showPropertyTree: [item: Return];
-  showPropertyTreeForWhen: [when: any];
+  updateMatch: [];
 }>();
 
+const uiProperties: Ref<Record<string, UIProperty>> = ref({});
+const showPropertySelector = ref(false);
+const showWhenEditor = ref(false);
+const selectedReturn = ref<Return | undefined>();
+const selectedWhen: Ref<When | undefined> = ref();
+const units: Ref<string | undefined> = ref();
+let returnIndex: number = 0;
+let whenIndex: number = 0;
+
+async function onSelectedProperty(node: TreeNode) {
+  const uiProperty = await DataModelService.getUIProperty(node.data.typeOf, node.data.iri);
+  if (uiProperty) {
+    uiProperties.value[node.data.iri!] = uiProperty;
+  }
+}
+
+function updateUnits(rIndex: number) {
+  if (!match.value.return) return;
+  match.value.return[rIndex].units = { iri: units.value } as TTIriRef;
+  emit("updateMatch");
+}
 function addColumn() {
-  returns.value.push({ as: "new_column" } as Return);
+  if (!match.value.return) match.value.return = [];
+  const returnIndex = match.value.return.length - 1;
+  match.value.return.push({ as: "new_column_" + returnIndex } as Return);
+  emit("updateMatch");
 }
 
 function addTruthValue() {
-  returns.value.push({
+  if (!match.value.return) match.value.return = [];
+  match.value.return.push({
     as: "matched",
     case: {
       when: [{ exists: true, then: "1" }],
       else: "0"
     }
   } as Return);
+  emit("updateMatch");
 }
 
 function removeReturn(index: number) {
-  returns.value.splice(index, 1);
+  match.value.return!.splice(index, 1);
+  selectedWhen.value = undefined;
+  emit("updateMatch");
 }
 
-function addCase(item: Return) {
-  const when = { then: "" } as any;
-  if (item.iri) {
-    when.where = { iri: item.iri, nodeRef: item.nodeRef };
-  } else {
-    when.exists = true;
+function openPropertySelector(item: Return) {
+  selectedReturn.value = item;
+  showPropertySelector.value = true;
+}
+async function onSaveWhenWhere(when: When) {
+  const ret = match.value?.return?.[returnIndex];
+  const whenArr = ret?.case?.when;
+  if (!whenArr || !whenArr[whenIndex]) return;
+  whenArr[whenIndex] = when;
+  emit("updateMatch");
+}
+
+function addCase(rIndex: number) {
+  if (match.value.return && match.value.return[rIndex]) match.value.return[returnIndex].case = { when: [], else: "" };
+  addWhen(rIndex);
+}
+
+function addWhen(rIndex: number) {
+  returnIndex = rIndex;
+  let ret = match.value?.return?.[returnIndex];
+  if (ret) {
+    if (!ret.case) ret.case = { when: [], else: "" };
+    if (!ret.case.when) ret.case.when = [];
+    selectedWhen.value = { then: "" };
+    ret.case.when.push(selectedWhen.value);
+    whenIndex = ret.case.when.length - 1;
+    showWhenEditor.value = true;
   }
-  item.case = {
-    when: [when],
-    else: ""
-  };
+  emit("updateMatch");
 }
 
-function addWhen(item: Return) {
-  if (item.case) {
-    const when = { then: "" } as any;
-    if (item.iri) {
-      when.where = { iri: item.iri, nodeRef: item.nodeRef };
-    } else {
-      when.exists = true;
-    }
-    if (!item.case.when) item.case.when = [];
-    item.case.when.push(when);
-  }
-}
-
-function removeWhen(item: Return, index: number) {
-  if (item.case && item.case.when) {
-    item.case.when.splice(index, 1);
-    if (item.case.when.length === 0) {
-      delete item.case;
-    }
+function removeWhen(rIndex: number, wIndex: number) {
+  showWhenEditor.value = false;
+  match.value.return![rIndex]!.case!.when!.splice(wIndex, 1);
+  if (match.value.return![rIndex]!.case!.when!.length === 0) {
+    delete match.value.return![rIndex]!.case;
   }
 }
 </script>
 
 <style scoped>
-.returns-editor {
+.return-editor {
   max-height: 90%;
   display: flex;
   flex-direction: column;
@@ -189,10 +238,33 @@ function removeWhen(item: Return, index: number) {
   width: 100%;
   flex-direction: row;
 }
+.case-editor {
+  display: flex;
+  flex-direction: column;
+}
+.case-display {
+  display: flex;
+  flex-direction: row;
+}
 .property-display {
-  flex: 1;
+  display: flex;
+  flex-direction: row;
 }
 .as-editor {
   width: 15rem;
+}
+.add-button,
+.delete-button {
+  color: #444444; /* text */
+  background-color: #f0f0f0; /* greyish default */
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.add-button:hover,
+.add-button:focus {
+  background-color: #a5d6a7;
 }
 </style>

@@ -5,6 +5,7 @@
     </div>
     <div v-if="uiProperty.valueType === XSD.STRING" class="property-input-container">
       <Select
+        v-model:model-value="where.operator"
         :options="[
           { id: '=', name: 'is' },
           { id: 'startsWith', name: 'starts with' },
@@ -12,20 +13,20 @@
           { id: 'notNull', name: 'is recorded' },
           { id: 'isNull', name: 'is not recorded' }
         ]"
-        optionValue="id"
         optionLabel="name"
-        v-model:model-value="where.operator"
+        optionValue="id"
+        placeholder="is"
       />
-      <InputText type="text" v-model:model-value="where.value" data-testid="property-value-input" />
+      <InputText v-model:model-value="where.value" data-testid="property-value-input" type="text" />
     </div>
     <div v-else-if="uiProperty.valueType === XSD.BOOLEAN" class="property-input-container">
-      <Select :options="booleanOptions" option-label="name" option-value="value" v-model:model-value="where.value" />
+      <Select v-model:model-value="where.value" :options="booleanOptions" option-label="name" option-value="value" />
     </div>
     <div v-else class="where-relative-container">
       <div class="relative-buttons">
         <span class="field">
           <span v-for="opt in RangeValueOptions" :key="opt.value" class="gap-1">
-            <RadioButton v-model="rangeOrValue" :value="opt.value" :inputId="opt.value" @update:modelValue="updateRangeOrValue" />
+            <RadioButton v-model="rangeOrValue" :inputId="opt.value" :value="opt.value" @update:modelValue="updateRangeOrValue" />
             <label :for="opt.value" class="field">{{ opt.label }}</label>
           </span>
         </span>
@@ -33,33 +34,33 @@
     </div>
     <div v-if="rangeOrValue === RangeOrValue.SingleValue" class="value-editor">
       <ValueEditor
-        :ui-property="uiProperty"
         v-model:assignable="where"
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
+        :ui-property="uiProperty"
         @updateAssignable="updateWhereDisplay(where)"
       />
     </div>
     <div v-else-if="rangeOrValue === RangeOrValue.Range && where.range && where.range.from && where.range.to" class="value-editor">
       <span class="range-label">between</span>
       <ValueEditor
-        :ui-property="uiProperty"
         v-model:assignable="where.range.from"
         v-model:where="where"
+        :fromOrTo="'from'"
         :qualifier="where.qualifier"
         :refresh="refresh"
-        :fromOrTo="'from'"
+        :ui-property="uiProperty"
         @updateAssignable="updateWhereDisplay(where.range.from)"
       />
       <span class="range-label">and</span>
       <ValueEditor
-        :ui-property="uiProperty"
         v-model:assignable="where.range.to"
         v-model:where="where"
+        :fromOrTo="'to'"
         :qualifier="where.qualifier"
         :refresh="refresh"
-        :fromOrTo="'to'"
+        :ui-property="uiProperty"
         @updateAssignable="updateWhereDisplay(where.range.to)"
       />
     </div>
@@ -68,13 +69,13 @@
       <Select
         v-model="qualifierIri"
         :options="qualifierOptions"
+        :placeholder="'no function on ' + where.name"
         optionLabel="displayName"
         optionValue="iri"
-        :placeholder="'no function on ' + where.name"
         @update:modelValue="updateQualifier"
       >
         <template #option="slotProps">
-          <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+          <div v-tooltip="slotProps.option.tooltip" class="flex items-center" style="min-height: 1rem">
             <div>{{ slotProps.option.displayName }}</div>
           </div>
         </template>
@@ -83,12 +84,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, onMounted, Ref, ref, watch } from "vue";
 
-import { IM, XSD } from "@endeavour/vue-library/enums";
-import { Operator } from "@endeavour/vue-library/enums";
-import type { Assignable, Match, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+import { Operator, XSD } from "@endeavour/vue-library/enums";
+import type { Assignable, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

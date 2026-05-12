@@ -148,6 +148,7 @@ declare module 'vue' {
     ImqueryTypeSelector: typeof import('./src/components/imquery/TypeSelector.vue')['default']
     ImqueryValueEditor: typeof import('./src/components/imquery/ValueEditor.vue')['default']
     ImqueryValueSentenceDisplay: typeof import('./src/components/imquery/ValueSentenceDisplay.vue')['default']
+    ImqueryWhenEditor: typeof import('./src/components/imquery/WhenEditor.vue')['default']
     ImqueryWhereContentDisplay: typeof import('./src/components/imquery/WhereContentDisplay.vue')['default']
     ImqueryWhereEditor: typeof import('./src/components/imquery/WhereEditor.vue')['default']
     ImqueryWhereIsEditor: typeof import('./src/components/imquery/WhereIsEditor.vue')['default']

@@ -76,10 +76,9 @@ import type { Match, Node, NodeShape, TTIriRef } from "@endeavour/vue-library/in
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
-
 import WhereEditor from "@/components/imquery/WhereEditor.vue";
 import { getBooleanOperator } from "@/helpers/buildQuery";
-import { DataModelService, EntityService, QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 
 interface Props {
   baseType: Node;
@@ -109,7 +108,7 @@ const activeTab = ref("main");
 const edited = ref(false);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
-const keepAs = inject("keepAs") as Ref<Match[]>;
+const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
 const whereOperator = computed(() => {
   return getBooleanOperator("Where", match.value.then ? match.value.then : match.value.where);
 });
@@ -157,9 +156,11 @@ function updateScore() {
   emit("updateMatch");
 }
 function updateKeepAs(oldVal: Match, newVal: Match) {
-  if (oldVal.node != newVal.node) {
-    keepAs.value = keepAs.value.filter(m => m !== match);
-    if (newVal.node) keepAs.value.push(newVal);
+  if (oldVal.node) {
+    delete keepAs.value[oldVal.node];
+  }
+  if (newVal.node) {
+    keepAs.value[newVal.node] = newVal;
   }
 }
 

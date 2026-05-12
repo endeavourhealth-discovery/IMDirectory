@@ -1,14 +1,14 @@
 <template>
   <div class="set-container">
-    <template v-if="property.is && property.is.length > 0" v-for="(node, index) in property.is" :key="index" class="concept-container">
+    <template v-for="(node, index) in property.is" v-if="property.is && property.is.length > 0" :key="index" class="concept-container">
       <div class="concept-container flex items-end gap-2">
         <div class="node-inclusion">
           <Select
-            style="width: 8.5rem; min-height: 2.3rem"
             :model-value="getNodeInclusion(node)"
             :options="NodeInclusionOptions"
             option-label="label"
             option-value="value"
+            style="width: 8.5rem; min-height: 2.3rem"
             @update:model-value="(val: string) => updateNodeInclusion(node, val)"
           >
             <template #value="slotProps">
@@ -17,7 +17,7 @@
               </div>
             </template>
             <template #option="slotProps">
-              <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+              <div v-tooltip="slotProps.option.tooltip" class="flex items-center" style="min-height: 1rem">
                 <div>{{ slotProps.option.label }}</div>
               </div>
             </template>
@@ -26,7 +26,7 @@
         <div v-if="node.iri" class="auto-complete-container">
           <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
 
-          <IMViewerLink v-if="node.iri" :iri="node.iri" :label="node.name" :action="'view'" />
+          <IMViewerLink v-if="node.iri" :action="'view'" :iri="node.iri" :label="node.name" />
           <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
         </div>
         <div v-if="!node.iri" class="auto-complete-container">
@@ -40,12 +40,12 @@
         </div>
         <div>
           <Select
-            style="width: 10.5rem; min-height: 2.3rem"
             :disabled="!isConstraintEditable(node)"
             :modelValue="getPlainConstraintOperatorValue(node)"
             :options="PlainConstraintOperatorOptions"
             option-label="label"
             option-value="value"
+            style="width: 10.5rem; min-height: 2.3rem"
             @update:modelValue="(val: string) => setConstraintOperator(node, val)"
           >
             <template #value="slotProps">
@@ -54,48 +54,28 @@
               </div>
             </template>
             <template #option="slotProps">
-              <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+              <div v-tooltip="slotProps.option.tooltip" class="flex items-center" style="min-height: 1rem">
                 <div>{{ slotProps.option.label }}</div>
               </div>
             </template>
           </Select>
         </div>
         <div>
-          <Button
-            @click.stop="deleteNode(index)"
-            :class="!hoverDeleteNode[index] && 'hover-button'"
-            :severity="hoverDeleteNode[index] ? 'danger' : 'secondary'"
-            :outlined="!hoverDeleteNode[index]"
-            icon="fa-solid fa-trash"
-            @mouseover="hoverDeleteNode[index] = true"
-            @mouseout="hoverDeleteNode[index] = false"
-          />
+          <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteNode(index)" />
         </div>
         <div v-if="index === property.is.length - 1 && property.is[index].iri">
-          <Button
-            type="button"
-            icon="fa-solid fa-plus"
-            label="Add concept"
-            data-testid="add-clause-button"
-            :severity="hoverAddNode ? 'success' : 'secondary'"
-            :outlined="!hoverAddNode"
-            :class="!hoverAddNode && 'hover-button'"
-            @click="addConcept"
-            class="px-2 py-1"
-            @mouseover="hoverAddNode = true"
-            @mouseout="hoverAddNode = false"
-          />
+          <Button class="add-button" data-testid="add-clause-button" icon="fa-solid fa-plus" label="Add concept" type="button" @click="addConcept" />
         </div>
         <div v-else>
-          <Button disabled class="pointer-events-none invisible" :severity="'secondary'" style="width: 8.5rem; height: 2.3rem; padding: 0" />
+          <Button :severity="'secondary'" class="pointer-events-none invisible" disabled style="width: 8.5rem; height: 2.3rem; padding: 0" />
         </div>
       </div>
     </template>
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { getIconColor, getTypeIcon } from "@endeavour/vue-library/helpers";
@@ -124,12 +104,8 @@ const emit = defineEmits(["updateProperty"]);
 const node: Ref<Node> = ref({} as Node);
 const filterStore = useFilterStore();
 const coreSchemes = computed(() => filterStore.coreSchemes);
-const loading = ref(false);
-const hoverDeleteNode = ref<boolean[]>(Array(property!.value.is!.length).fill(false));
 const selected: Ref<SearchResultSummary> = ref({ iri: node.value.iri, name: node.value.name } as SearchResultSummary);
-const selectedMember: Ref<Node> = ref({});
 const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
-const hoverAddNode = ref(false);
 const showAddConcept = ref(false);
 onMounted(() => {
   init();
@@ -203,7 +179,25 @@ function updateIsIri(node: Node) {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
+.add-button,
+.delete-button {
+  color: #444444; /* text */
+  background-color: #f0f0f0; /* greyish default */
+  border: 1px solid #ccc;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.add-button:hover,
+.add-button:focus {
+  background-color: #a5d6a7;
+}
+.delete-button:hover,
+.delete-button:focus {
+  background-color: red;
+}
 .set-container {
   flex: 1 0 0%;
   display: flex;

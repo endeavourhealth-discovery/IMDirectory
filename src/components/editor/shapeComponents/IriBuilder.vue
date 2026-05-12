@@ -7,23 +7,24 @@
       </div>
       <div class="content-container">
         <Select
-          :disabled="disableSchemeEdit"
-          class="dropdown"
           v-model="selectedDropdownOption"
+          :disabled="disableSchemeEdit"
           :options="dropdownOptions"
-          optionLabel="name"
+          class="dropdown"
           data-testid="iri-builder-dropdown"
+          optionLabel="name"
         />
         <span v-if="includePrefix" class="prefix">{{ prefix }}</span>
         <InputText
+          v-model="userInput"
+          :class="invalid && showValidation && 'invalid'"
           :disabled="disableCodeEdit"
           class="p-inputtext-lg input-text"
-          :class="invalid && showValidation && 'invalid'"
-          v-model="userInput"
-          type="text"
           data-testid="iri-builder-input"
+          type="text"
+          @blur="handleBlur"
         />
-        <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
+        <ProgressSpinner v-if="loading" class="loading-icon" strokeWidth="8" style="height: 2rem; width: 2rem" />
       </div>
       <span>{{ selectedDropdownOption ? selectedDropdownOption.iri : "" }}{{ prefix ? prefix : "" }}{{ userInput }}</span>
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
@@ -31,10 +32,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { IM, NAMESPACE, RDFS } from "@endeavour/vue-library/enums";
+import { NAMESPACE, RDFS } from "@endeavour/vue-library/enums";
 import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
 
@@ -138,8 +139,6 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
     if (updateValidity) {
       if (props.shape.builderChild) {
         hasData();
-      } else if (userInput.value) {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       }
       showValidation.value = true;
     }
@@ -166,8 +165,6 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
     if (updateValidity) {
       if (props.shape.builderChild) {
         hasData();
-      } else {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       }
       showValidation.value = true;
     }
@@ -265,6 +262,11 @@ function hasData() {
   if (!userInput.value) {
     invalid.value = true;
     validationErrorMessage.value = props.shape.validationErrorMessage ?? "Missing data. ";
+  }
+}
+async function handleBlur() {
+  if (userInput.value && props.shape && updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   }
 }
 </script>
