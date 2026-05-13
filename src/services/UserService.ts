@@ -1,6 +1,6 @@
-import { PrimeVueColors, PrimeVuePresetThemes } from "vue-library/enums";
-import type { RecentActivityItemDto } from "vue-library/interfaces";
-import { NamespacePermission, User } from "vue-library/models";
+import { PrimeVueColors, PrimeVuePresetThemes } from "@endeavour/vue-library/enums";
+import type { RecentActivityItemDto } from "@endeavour/vue-library/interfaces";
+import { NamespacePermission, User } from "@endeavour/vue-library/models";
 
 import axios from "axios";
 

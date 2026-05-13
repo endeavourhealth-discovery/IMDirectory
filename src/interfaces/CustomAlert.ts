@@ -1,4 +1,4 @@
-import { User } from "vue-library/models";
+import { User } from "@endeavour/vue-library/models";
 
 export interface CustomAlert {
   status: number;

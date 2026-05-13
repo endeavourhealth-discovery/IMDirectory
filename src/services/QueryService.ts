@@ -1,5 +1,5 @@
-import { DisplayMode } from "vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
+import { DisplayMode } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import {
   ArgumentReference,
   ExtendedTTEntity,
@@ -11,7 +11,7 @@ import {
   QueryRequest,
   Return,
   SearchResponse
-} from "vue-library/interfaces";
+} from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

@@ -43,9 +43,9 @@
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { IM, NAMESPACE, RDFS, SNOMED } from "vue-library/enums";
-import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "vue-library/interfaces";
+import { IM, NAMESPACE, RDFS, SNOMED } from "@endeavour/vue-library/enums";
+import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep, isArray } from "lodash-es";
 

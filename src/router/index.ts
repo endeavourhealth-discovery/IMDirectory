@@ -1,16 +1,17 @@
+import { useUserStore } from "@endeavour/vue-library/stores";
+
 import { createRouter, createWebHashHistory } from "vue-router";
 
+import { SecurityService } from "@/services";
 import { useAuthStore } from "@/stores/authStore";
 
 import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import { endRouterLoading, startRouterLoading } from "./methods/loading";
 import {
-  requiresAdmin,
   requiresAuthGuard,
-  requiresCreateRole,
-  requiresEditRole,
   requiresOrganisation,
   requiresReAuth,
+  requiresRole,
   requiresSnomedLicense,
   requiresUprnAgreement
 } from "./methods/metaGuards";
@@ -26,8 +27,6 @@ import {
 } from "./methods/routeGuards";
 import routes from "./methods/routes";
 import { setModes } from "./methods/setModes";
-import { SecurityService } from "@/services";
-import { useUserStore } from "vue-library/stores";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -54,13 +53,9 @@ router.beforeEach(async (to, from) => {
   let routedByGuard: boolean;
   routedByGuard = await requiresAuthGuard(to, from, router);
   if (routedByGuard) return false;
-  routedByGuard = await requiresAdmin(to, from, router);
-  if (routedByGuard) return false;
   routedByGuard = await requiresReAuth(to, from, router);
   if (routedByGuard) return false;
-  routedByGuard = await requiresCreateRole(to, from, router);
-  if (routedByGuard) return false;
-  routedByGuard = await requiresEditRole(to, from, router);
+  routedByGuard = await requiresRole(to, from, router);
   if (routedByGuard) return false;
   requiresSnomedLicense(to);
   requiresUprnAgreement(to);

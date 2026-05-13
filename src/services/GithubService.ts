@@ -1,5 +1,5 @@
-import { REPO } from "vue-library/enums";
-import type { GithubRelease } from "vue-library/interfaces";
+import { REPO } from "@endeavour/vue-library/enums";
+import type { GithubRelease } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

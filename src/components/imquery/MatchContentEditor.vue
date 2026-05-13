@@ -102,7 +102,7 @@
       </span>
       <Button data-testid="add-test-button" class="add-button" label="Add related feature" @click="addLinked" />
     </div>
-    <div v-if="(match.where || match.orderBy) &&parentOperator && parentOperator===Bool.or">
+    <div v-if="(match.where || match.orderBy) && parentOperator && parentOperator === Bool.or">
       <span class="description">Optionally assign score if true</span>
       <InputText v-model="match.score" type="text" class="match-score" @update:model-value="updateScore" />
     </div>
@@ -112,19 +112,19 @@
 <script lang="ts" setup>
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { useCopyToClipboard } from "vue-library/composables";
-import { IM } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import type { Match, Node, NodeShape, TTIriRef} from "vue-library/interfaces";
-import {Bool} from "vue-library/enums";
-import { cloneDeep, isEqual } from "lodash-es";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { Bool, IM } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Match, Node, NodeShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+
+import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
-import { createNodeVariable, getBooleanOperator, getOrderables } from "@/helpers/buildQuery";
+import { getBooleanOperator, getOrderables } from "@/helpers/buildQuery";
 import { EntityService } from "@/services";
 
 interface Props {
@@ -134,7 +134,7 @@ interface Props {
   isStep?: boolean;
   nodeShape: NodeShape;
   editingThen?: boolean;
-  parentOperator? : Bool
+  parentOperator?: Bool;
 }
 
 const props = defineProps<Props>();
@@ -319,7 +319,6 @@ function onDeleteThen() {
 .keep-as-reference {
   padding-right: 1rem;
 }
-
 
 .match-score {
   width: 20rem;

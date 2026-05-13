@@ -39,7 +39,7 @@
 <script lang="ts" setup>
 import { ComputedRef, computed, onMounted, ref, watch } from "vue";
 
-import { useUserStore } from "vue-library/stores";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useSharedStore } from "@/stores/sharedStore";
 

@@ -61,9 +61,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { Operator } from "vue-library/enums";
-import { IM, XSD } from "vue-library/enums";
-import type { Assignable, Match, TTIriRef, UIProperty, Where } from "vue-library/interfaces";
+import { Operator } from "@endeavour/vue-library/enums";
+import { IM, XSD } from "@endeavour/vue-library/enums";
+import type { Assignable, Match, TTIriRef, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { CompareOptions } from "@/constants";

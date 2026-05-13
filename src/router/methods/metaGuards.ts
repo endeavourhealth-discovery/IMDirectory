@@ -1,7 +1,7 @@
 import { computed } from "vue";
 
-import { UserRole } from "vue-library/enums";
-import { useUserStore } from "vue-library/stores";
+import { UserRole } from "@endeavour/vue-library/enums";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { RouteLocationNormalized, Router } from "vue-router";
 
@@ -21,25 +21,6 @@ export async function requiresAuthGuard(to: RouteLocationNormalized, from: Route
   return false;
 }
 
-export async function requiresAdmin(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
-    const userStore = useUserStore();
-    const currentUser = computed(() => userStore.currentUser);
-    const isLoggedIn = computed(() => userStore.isLoggedIn);
-    const hasPermission: boolean = currentUser.value?.roles.includes(UserRole.ADMIN)!!;
-    if (!isLoggedIn.value) {
-      await directToLogin(router);
-      return true;
-    } else if (!hasPermission) {
-      await router.push({ name: "AccessDenied" });
-      return true;
-    } else {
-      return false;
-    }
-  }
-  return false;
-}
-
 export async function requiresReAuth(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
   if (to.matched.some(record => record.meta.requiresReAuth)) {
     await directToLogin(router);
@@ -48,39 +29,23 @@ export async function requiresReAuth(to: RouteLocationNormalized, from: RouteLoc
   return false;
 }
 
-export async function requiresCreateRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  if (to.matched.some(record => record.meta.requiresCreateRole)) {
+export async function requiresRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
+  if (to.meta.requiresRole && to.meta.requiresRole.length > 0) {
     const userStore = useUserStore();
-    const currentUser = computed(() => userStore.currentUser);
     const isLoggedIn = computed(() => userStore.isLoggedIn);
-    const hasPermission: boolean = currentUser.value?.roles.includes(UserRole.CREATOR)!!;
     if (!isLoggedIn.value) {
       await directToLogin(router);
       return true;
-    } else if (!hasPermission) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
-      return true;
-    } else {
-      return false;
     }
-  }
-  return false;
-}
 
-export async function requiresEditRole(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
-  if (to.matched.some(record => record.meta.requiresEditRole)) {
-    const userStore = useUserStore();
     const currentUser = computed(() => userStore.currentUser);
-    const isLoggedIn = computed(() => userStore.isLoggedIn);
-    const hasPermission: boolean = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
-    if (!isLoggedIn.value) {
-      await directToLogin(router);
-      return true;
-    } else if (!hasPermission) {
-      await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
-      return true;
-    } else {
+    const hasPermission: boolean = to.meta.requiresRole.some(r => currentUser.value?.roles.includes(r));
+
+    if (hasPermission) {
       return false;
+    } else {
+      await router.push({ name: "AccessDenied", params: { requiredAccess: to.meta.requiresRole.toString(), accessType: "role" } });
+      return true;
     }
   }
   return false;

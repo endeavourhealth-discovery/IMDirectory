@@ -93,15 +93,15 @@
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, markRaw, onMounted, ref, watch } from "vue";
 
-import { ArrayObjectNamesToStringWithLabel } from "vue-library/components";
-import { useDownloadFile } from "vue-library/composables";
-import { useCopyToClipboard } from "vue-library/composables";
-import { IM, RDFS } from "vue-library/enums";
-import { ToastSeverity, UserRole } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "vue-library/interfaces";
-import { ToastOptions } from "vue-library/models";
-import { useUserStore } from "vue-library/stores";
+import { ArrayObjectNamesToStringWithLabel } from "@endeavour/vue-library/components";
+import { useDownloadFile } from "@endeavour/vue-library/composables";
+import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { ToastSeverity, UserRole } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "@endeavour/vue-library/interfaces";
+import { ToastOptions } from "@endeavour/vue-library/models";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useDialog } from "primevue/usedialog";
 import { useToast } from "primevue/usetoast";

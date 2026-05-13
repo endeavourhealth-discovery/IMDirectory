@@ -1,4 +1,4 @@
-import { isObjectHasKeys, urlToIri } from "vue-library/helpers";
+import { isObjectHasKeys, urlToIri } from "@endeavour/vue-library/helpers";
 
 import { RouteLocationNormalized, Router } from "vue-router";
 

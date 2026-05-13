@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 
-import type { DBEntry } from "vue-library/interfaces";
+import type { DBEntry } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

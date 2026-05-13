@@ -126,9 +126,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { Browser, OperatingSystem, TaskModule } from "vue-library/enums";
-import type { BugReport, Task } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { Browser, OperatingSystem, TaskModule } from "@endeavour/vue-library/enums";
+import type { BugReport, Task } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 

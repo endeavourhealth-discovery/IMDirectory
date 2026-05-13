@@ -15,9 +15,9 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IM, QUERY, RDFS, SHACL } from "vue-library/enums";
-import { isArrayHasLength } from "vue-library/helpers";
-import type { QueryRequest, TTIriRef } from "vue-library/interfaces";
+import { IM, QUERY, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { EntityService, QueryService } from "@/services";
 

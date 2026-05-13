@@ -1,4 +1,4 @@
-import { UserSchema } from "vue-library";
+import { UserSchema } from "@endeavour/vue-library";
 
 import { faker } from "@faker-js/faker";
 import { Collection } from "@msw/data";

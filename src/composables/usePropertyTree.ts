@@ -1,8 +1,8 @@
 import { Ref, ref } from "vue";
 
-import { IM, RDF, RDFS, SHACL } from "vue-library/enums";
-import { getColourFromType, getFAIconFromType, isArrayHasLength } from "vue-library/helpers";
-import type { Match, Node, NodeShape, PropertyShape, TTIriRef, Where } from "vue-library/interfaces";
+import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { Match, Node, NodeShape, PropertyShape, TTIriRef, Where } from "@endeavour/vue-library/interfaces";
 
 import type { TreeNode } from "primevue/treenode";
 

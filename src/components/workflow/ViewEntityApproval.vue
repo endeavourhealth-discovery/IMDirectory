@@ -39,9 +39,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { ApprovalType } from "vue-library/enums";
-import type { EntityApproval, Task } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { ApprovalType } from "@endeavour/vue-library/enums";
+import type { EntityApproval, Task } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 

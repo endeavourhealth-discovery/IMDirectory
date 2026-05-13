@@ -1,4 +1,4 @@
-import { Operator } from "vue-library";
+import { Operator } from "@endeavour/vue-library";
 
 export const OperatorOptions: { label: string; value: Operator; tooltip: string }[] = [
   {

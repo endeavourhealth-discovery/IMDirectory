@@ -1,5 +1,5 @@
-import { UserRole } from "vue-library/enums";
-import { User } from "vue-library/models";
+import { UserRole } from "@endeavour/vue-library/enums";
+import { User } from "@endeavour/vue-library/models";
 
 import axios from "axios";
 
@@ -33,7 +33,8 @@ const SecurityService = {
   },
 
   async getUser(raw?: boolean): Promise<User> {
-    return await axios.get(API_URL + "/private/user", { raw: raw });
+    const user: any = await axios.get(API_URL + "/private/user", { raw: raw });
+    return user.data ? user.data : user;
   },
 
   async getProfileUrl(): Promise<string> {

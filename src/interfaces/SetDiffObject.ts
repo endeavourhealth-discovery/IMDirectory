@@ -1,4 +1,4 @@
-import type { Concept } from "vue-library/interfaces";
+import type { Concept } from "@endeavour/vue-library/interfaces";
 
 export interface SetDiffObject {
   membersA: Concept[];

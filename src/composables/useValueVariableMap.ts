@@ -1,7 +1,7 @@
 import { Ref, ref } from "vue";
 
-import { isArrayHasLength } from "vue-library/helpers";
-import type { PropertyShape } from "vue-library/interfaces";
+import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import type { PropertyShape } from "@endeavour/vue-library/interfaces";
 
 export function useValueVariableMap() {
   const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());

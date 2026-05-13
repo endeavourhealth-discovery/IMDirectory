@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 
-import type { Match, Node, Query } from "vue-library/interfaces";
+import type { Match, Node, Query } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import { v4 } from "uuid";

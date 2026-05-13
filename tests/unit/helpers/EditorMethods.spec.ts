@@ -1,5 +1,5 @@
-import { COMPONENT } from "vue-library/enums";
-import type { PropertyShape } from "vue-library/interfaces";
+import { COMPONENT } from "@endeavour/vue-library/enums";
+import type { PropertyShape } from "@endeavour/vue-library/interfaces";
 
 import { describe, expect, it } from "vitest";
 

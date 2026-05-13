@@ -1,4 +1,4 @@
-import type { ConceptContextMap } from "vue-library/interfaces";
+import type { ConceptContextMap } from "@endeavour/vue-library/interfaces";
 
 import axios from "axios";
 

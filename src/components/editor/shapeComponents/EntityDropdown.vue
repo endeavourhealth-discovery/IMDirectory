@@ -22,9 +22,9 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { RDFS } from "vue-library/enums";
-import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "vue-library/interfaces";
+import { RDFS } from "@endeavour/vue-library/enums";
+import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

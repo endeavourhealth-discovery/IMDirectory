@@ -1,10 +1,10 @@
 import { ref } from "vue";
 
-import { RDFS } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import { localStorageWithExpiry } from "vue-library/helpers";
-import type { ExtendedTTEntity } from "vue-library/interfaces";
-import { useUserStore } from "vue-library/stores";
+import { RDFS } from "@endeavour/vue-library/enums";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { defineStore } from "pinia";
 

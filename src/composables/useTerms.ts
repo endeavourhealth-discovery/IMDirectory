@@ -1,6 +1,6 @@
 import { Ref, ref } from "vue";
 
-import type { SearchTermCode } from "vue-library/interfaces";
+import type { SearchTermCode } from "@endeavour/vue-library/interfaces";
 
 import { ConceptService } from "@/services";
 

@@ -89,9 +89,8 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { Bool } from "vue-library/enums";
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { Match, Node, UIProperty, Where } from "vue-library/interfaces";
+import { Bool } from "@endeavour/vue-library/enums";
+import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -164,7 +163,7 @@ async function init() {
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);
-      if (isObjectHasKeys(selectedWhere.value, ["propertyType"]) && selectedWhere.value.propertyType === "class" && !where.value.is) where.value.is = [{}];
+      if (selectedWhere.value!.propertyType === "class" && !where.value.is) where.value.is = [{}];
     }
     pathPropertyName.value = getPathPropertyNames(props.match, where.value);
   }

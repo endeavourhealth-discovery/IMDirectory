@@ -25,8 +25,8 @@
 <script lang="ts" setup>
 import { onUnmounted, ref, watch } from "vue";
 
-import { OverlaySummary } from "vue-library/components";
-import { useOverlay } from "vue-library/composables";
+import { OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay } from "@endeavour/vue-library/composables";
 
 import { cloneDeep } from "lodash-es";
 

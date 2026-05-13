@@ -28,8 +28,8 @@ export default defineComponent({
 <script setup lang="ts">
 import { Ref, inject, onMounted, ref } from "vue";
 
-import { isObjectHasKeys } from "vue-library/helpers";
-import type { PropertyShape } from "vue-library/interfaces";
+import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { PropertyShape } from "@endeavour/vue-library/interfaces";
 
 import { MenuItem } from "primevue/menuitem";
 import TabPanel from "primevue/tabpanel";

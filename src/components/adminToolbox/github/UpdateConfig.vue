@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-import { REPO } from "vue-library/enums";
+import { REPO } from "@endeavour/vue-library/enums";
 
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { GithubService } from "@/services";

@@ -86,9 +86,9 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
-import { IM, XSD } from "vue-library/enums";
-import { Operator } from "vue-library/enums";
-import type { Assignable, Match, UIProperty, Where } from "vue-library/interfaces";
+import { IM, XSD } from "@endeavour/vue-library/enums";
+import { Operator } from "@endeavour/vue-library/enums";
+import type { Assignable, Match, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 

@@ -1,5 +1,5 @@
-import { IM } from "vue-library/enums";
-import type { ExtendedTTEntity } from "vue-library/interfaces";
+import { IM } from "@endeavour/vue-library/enums";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 
 import { faker } from "@faker-js/faker";
 import { isArray } from "lodash-es";
