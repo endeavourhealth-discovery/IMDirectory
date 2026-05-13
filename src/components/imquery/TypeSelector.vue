@@ -89,6 +89,5 @@ async function init() {
 
 function nodeExpand() {}
 const onNodeSelect = (node: any) => {
-  console.log(node);
 };
 </script>

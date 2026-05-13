@@ -357,88 +357,99 @@ async function submit(): Promise<void> {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
   });
-  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
-  constructValidationCheckStatus(shape.value);
-  forceValidation.value = true;
-  validationChecksCompleted()
-    .then(async () => {
-      forceValidation.value = false;
-      verificationDialog.close();
-      if (isValidEntity(editorEntity.value)) {
-        await dialogStore
-          .open(AlertDialog, {
-            props: { modal: true, style: { width: "30vw" }, closable: false },
-            data: {
-              icon: "fa-regular fa-circle-info",
-              title: "Confirm create",
-              text: "Are you sure you want to create this entity?",
-              showCancelButton: true,
-              confirmButtonText: "Create",
-              reverseButtons: true,
-              preConfirm: async () => {
-                if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
-                  await SetService.updateSubsetsFromSuper(editorEntity.value);
-                  delete editorEntity.value[IM.HAS_SUBSET];
-                }
-                const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
-                console.log(res);
-                if (res) {
-                  creatorStore.updateCreatorSavedEntity(undefined);
-                  return res;
-                } else {
-                  dialogStore.setError("Error creating entity from server.");
+  if (editorEntity.value[IM.ID]) {
+    const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
+    constructValidationCheckStatus(shape.value);
+    forceValidation.value = true;
+    validationChecksCompleted()
+      .then(async () => {
+        forceValidation.value = false;
+        verificationDialog.close();
+        if (isValidEntity(editorEntity.value)) {
+          await dialogStore
+            .open(AlertDialog, {
+              props: { modal: true, style: { width: "30vw" }, closable: false },
+              data: {
+                icon: "fa-regular fa-circle-info",
+                title: "Confirm create",
+                text: "Are you sure you want to create this entity?",
+                showCancelButton: true,
+                confirmButtonText: "Create",
+                reverseButtons: true,
+                preConfirm: async () => {
+                  if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
+                    await SetService.updateSubsetsFromSuper(editorEntity.value);
+                    delete editorEntity.value[IM.HAS_SUBSET];
+                  }
+                  const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin, namespace: namespace });
+                  console.log(res);
+                  if (res) {
+                    creatorStore.updateCreatorSavedEntity(undefined);
+                    return res;
+                  } else {
+                    dialogStore.setError("Error creating entity from server.");
+                  }
                 }
               }
-            }
-          })
-          .then(async (result: any) => {
-            if (result?.confirm) {
-              await dialogStore
-                .open(AlertDialog, {
-                  props: { modal: true, style: { width: "30vw" }, closable: false },
-                  data: {
-                    title: "Success",
-                    text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
-                    icon: "fa-regular fa-circle-check",
-                    reverseButtons: true,
-                    confirmButtonText: "Close creator"
-                  }
-                })
-                .then(async result => {
-                  if (result.confirm) {
-                    window.onbeforeunload = null;
-                    // If added via addEventListener
-                    window.removeEventListener("beforeunload", beforeWindowUnload);
-                    setTimeout(() => {
-                      window.close();
-                    }, 0);
-                  }
-                });
+            })
+            .then(async (result: any) => {
+              if (result?.confirm) {
+                await dialogStore
+                  .open(AlertDialog, {
+                    props: { modal: true, style: { width: "30vw" }, closable: false },
+                    data: {
+                      title: "Success",
+                      text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
+                      icon: "fa-regular fa-circle-check",
+                      reverseButtons: true,
+                      confirmButtonText: "Close creator"
+                    }
+                  })
+                  .then(async result => {
+                    if (result.confirm) {
+                      window.onbeforeunload = null;
+                      // If added via addEventListener
+                      window.removeEventListener("beforeunload", beforeWindowUnload);
+                      router.back();
+                    }
+                  });
+              }
+            });
+        } else {
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-exclamation",
+              title: "Warning",
+              text: "Invalid values found. Please review your entries.",
+              confirmButtonText: "Close"
             }
           });
-      } else {
+        }
+      })
+      .catch(async () => {
         await dialogStore.open(AlertDialog, {
           props: { modal: true, style: { width: "30vw" }, closable: false },
           data: {
-            icon: "fa-regular fa-circle-exclamation",
-            title: "Warning",
-            text: "Invalid values found. Please review your entries.",
+            icon: "fa-regular fa-circle-xmark",
+            title: "Timeout",
+            text: "Validation timed out. Please contact an admin for support",
             confirmButtonText: "Close"
           }
         });
-      }
-    })
-    .catch(async () => {
-      await dialogStore.open(AlertDialog, {
-        props: { modal: true, style: { width: "30vw" }, closable: false },
-        data: {
-          icon: "fa-regular fa-circle-xmark",
-          title: "Timeout",
-          text: "Validation timed out. Please contact an admin for support",
-          confirmButtonText: "Close"
-        }
       });
+  } else {
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-xmark",
+        title: "Warning",
+        text: "No IRI assigned",
+        confirmButtonText: "Close"
+      }
     });
+    verificationDialog.close();
+  }
 }
 
 async function closeCreator() {

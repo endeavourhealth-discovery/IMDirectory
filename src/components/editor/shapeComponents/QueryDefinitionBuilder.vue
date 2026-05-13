@@ -9,14 +9,14 @@
       </div>
       <div class="query-editor-container flex flex-col gap-4">
         <div class="query-editor flex flex-col p-2">
-          <QueryDisplay :showSqlButton="false" :queryDefinition="queryDefinition" :showDataset="true" />
+          <QueryDisplay :queryDefinition="queryDefinition" :showDataset="true" :showSqlButton="false" />
         </div>
       </div>
     </div>
     <div class="validate-error-container"></div>
     <span v-if="validationErrorMessage && showValidation" class="validate-error"> {{ validationErrorMessage }}</span>
     <div v-if="!loading">
-      <QueryEditor v-if="showEditor" :showDialog="showEditor" :sourceQuery="queryDefinition" @querySubmitted="updateQuery" @closeDialog="cancelEditor" />
+      <QueryEditor v-if="showEditor" :showDialog="showEditor" :sourceQuery="queryDefinition" @closeDialog="cancelEditor" @querySubmitted="updateQuery" />
     </div>
     <Dialog :modal="true" :style="{ width: '80vw' }" :visible="showSql" header="SQL (Postgres)" @update:visible="showSql = false">
       <SQLDisplay :sql="sql" />
@@ -37,12 +37,11 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, inject, onMounted, ref, watch } from "vue";
+import { inject, onMounted, Ref, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import { DisplayMode } from "@endeavour/vue-library/enums";
-import { IM } from "@endeavour/vue-library/enums";
-import type { PropertyShape, Query, QueryRequest } from "@endeavour/vue-library/interfaces";
+import { DisplayMode, IM } from "@endeavour/vue-library/enums";
+import type { PropertyShape, Query } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 
@@ -123,6 +122,7 @@ async function init() {
   } else {
     queryDefinition.value = await generateDefaultQuery();
     originalDefinition.value = cloneDeep(queryDefinition.value);
+    editorEntity.value[IM.DEFINITION.toString()] = JSON.stringify(cloneDeep(queryDefinition.value));
   }
 }
 

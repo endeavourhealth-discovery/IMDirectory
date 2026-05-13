@@ -24,9 +24,10 @@ type PropertyTreeNode = {
   parentKey?: string;
   ascending?: string;
   descending?: string;
-  definingProperty?: boolean;
   returnType?: string;
   inversePath?: TTIriRef;
+  minCount?: number;
+  maxCount?: number;
 };
 
 export function usePropertyTree() {
@@ -86,13 +87,14 @@ export function usePropertyTree() {
         path: pNode.path,
         range: pNode.range,
         parentKey: pNode.parentKey,
-        definingProperty: pNode.definingProperty,
         ascending: pNode.ascending,
         descending: pNode.descending,
         rangeType: pNode.rangeType,
         returnType: pNode.returnType,
         inversePath: pNode.inversePath,
-        typeOf: pNode.typeOf
+        typeOf: pNode.typeOf,
+        minCount: pNode.minCount,
+        maxCount: pNode.maxCount
       },
       loading: false,
       children: [] as TreeNode[],
@@ -150,6 +152,7 @@ export function usePropertyTree() {
       }
     } else if (property.node) {
       range = property.node.iri;
+      rangeType = property.node.type!.iri;
     }
 
     let name = property.path.name;
@@ -169,10 +172,11 @@ export function usePropertyTree() {
       parentKey: parentKey,
       ascending: property.ascending,
       descending: property.descending,
-      definingProperty: property.definingProperty,
       returnType: returnType,
       inversePath: property.inversePath,
-      typeOf: typeOf
+      typeOf: typeOf,
+      minCount: property.minCount,
+      maxCount: property.maxCount
     });
     propertyNode.leaf = true;
     if (rangeType === SHACL.NODESHAPE) {
@@ -202,7 +206,6 @@ export function usePropertyTree() {
       parentKey: parentKey,
       ascending: property.ascending,
       descending: property.descending,
-      definingProperty: property.definingProperty,
       inversePath: property.inversePath,
       typeOf: property.node!.iri
     });
