@@ -3,26 +3,7 @@
     <div>
       <ValueSentenceDisplay v-if="valueSentence" :value-sentence="valueSentence" />
     </div>
-    <div v-if="uiProperty.valueType === XSD.STRING" class="property-input-container">
-      <Select
-        v-model:model-value="where.operator"
-        :options="[
-          { id: '=', name: 'is' },
-          { id: 'startsWith', name: 'starts with' },
-          { id: 'contains', name: 'contains' },
-          { id: 'notNull', name: 'is recorded' },
-          { id: 'isNull', name: 'is not recorded' }
-        ]"
-        optionLabel="name"
-        optionValue="id"
-        placeholder="is"
-      />
-      <InputText v-model:model-value="where.value" data-testid="property-value-input" type="text" />
-    </div>
-    <div v-else-if="uiProperty.valueType === XSD.BOOLEAN" class="property-input-container">
-      <Select v-model:model-value="where.value" :options="booleanOptions" option-label="name" option-value="value" />
-    </div>
-    <div v-else class="where-relative-container">
+    <div v-if="uiProperty.valueType != XSD.STRING" class="where-relative-container">
       <div class="relative-buttons">
         <span class="field">
           <span v-for="opt in RangeValueOptions" :key="opt.value" class="gap-1">
@@ -85,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
 import type { Assignable, UIProperty, Where } from "@endeavour/vue-library/interfaces";

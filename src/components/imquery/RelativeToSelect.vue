@@ -39,9 +39,11 @@
 <script lang="ts" setup>
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
+import { DisplayMode } from "@endeavour/vue-library";
 import type { Match, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import { getRelativePropertyOptions, getRelativeToOptions, injectReturn } from "@/helpers/buildQuery";
+import { QueryService } from "@/services";
 
 interface Props {
   propertyIri: string;
@@ -54,11 +56,10 @@ const assignable = defineModel<Where>("assignable", { default: {} });
 const emit = defineEmits(["updateCompare"]);
 const showTreeSearch: Ref<boolean> = ref(false);
 const relativeTo: Ref<string | undefined> = ref();
-const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
 const relativeToOptions = computed(() => getRelativeToOptions(props.uiProperty.valueType, keepAs.value));
 const relativeProperty: Ref<string> = ref("");
 const relativePropertyOptions: Ref<any[]> = ref([]);
-const relativeMatch: Ref<Match | undefined> = ref();
 
 onMounted(() => {
   initValues();
@@ -69,31 +70,41 @@ watch(
   () => initValues()
 );
 
-async function updateRelativeTo(relativeTo: string) {
+async function updateRelativeTo(relative: string) {
+  relativeTo.value = relative;
   if (!assignable.value.compare) assignable.value.compare = {};
   if (!assignable.value.compare.right) assignable.value.compare.right = {};
-  relativeMatch.value = keepAs.value[relativeTo];
-  if (relativeMatch.value) {
+  const relativeMatch: Ref<Match> = keepAs.value[relativeTo.value];
+  if (relativeMatch) {
     assignable.value.compare.right.nodeRef = relativeMatch.value.node;
     delete assignable.value.compare.right.parameter;
     relativePropertyOptions.value = await getRelativePropertyOptions(relativeMatch.value, props.uiProperty.valueType);
+    if (relativePropertyOptions.value.length === 0) {
+      return;
+    }
     relativeProperty.value = relativePropertyOptions.value[0].value;
+    await updateRelativeProperty(relativeProperty.value);
   } else {
-    assignable.value.compare.right.parameter = relativeTo;
+    assignable.value.compare.right.parameter = relativeTo.value;
     delete assignable.value.compare.right.nodeRef;
   }
   emit("updateCompare");
 }
 
-function updateRelativeProperty(relativeIri: any) {
-  if (assignable.value.compare && assignable.value.compare.right) {
-    const right = assignable.value.compare.right;
-    if (relativeMatch.value) {
-      right.iri = relativeIri;
-      relativeProperty.value = relativeIri;
-      const ref = relativeIri.substring(relativeIri.lastIndexOf("#") + 1);
-      injectReturn(relativeMatch.value, relativeIri, ref);
-      emit("updateCompare");
+async function updateRelativeProperty(relativeIri: any) {
+  if (relativeTo.value) {
+    if (assignable.value.compare && assignable.value.compare.right) {
+      const right = assignable.value.compare.right;
+      const relativeMatch = keepAs.value[relativeTo.value];
+      if (relativeMatch) {
+        right.iri = relativeIri;
+        relativeProperty.value = relativeIri;
+        const ref = relativeIri.substring(relativeIri.lastIndexOf("#") + 1);
+        injectReturn(relativeMatch.value, relativeIri, ref);
+        const updatedMatch = await QueryService.getQueryDisplayFromQuery(relativeMatch.value, DisplayMode.ORIGINAL);
+        Object.assign(keepAs.value[relativeTo.value].value, updatedMatch);
+        emit("updateCompare");
+      }
     }
   }
 }
@@ -103,15 +114,19 @@ function cancel() {
 }
 
 async function initValues() {
-  if (assignable.value.compare && assignable.value.compare.right) {
-    if (assignable.value.compare.right.parameter) {
-      relativeTo.value = relativeToOptions.value.find(opt => opt.value === assignable.value.compare!.right!.parameter!).value;
-    } else if (assignable.value.compare.right.nodeRef) {
-      relativeMatch.value = keepAs.value[assignable.value.compare.right.nodeRef];
-      relativeTo.value = assignable.value.compare.right.nodeRef;
-      if (assignable.value.compare.right.iri) relativeProperty.value = assignable.value.compare.right.iri;
-      relativePropertyOptions.value = await getRelativePropertyOptions(relativeMatch.value, props.uiProperty.valueType);
-    } else relativeTo.value = relativeToOptions.value[0].value;
+  if (relativeToOptions.value.length > 0) {
+    if (assignable.value.compare && assignable.value.compare.right) {
+      if (assignable.value.compare.right.parameter) {
+        relativeTo.value = relativeToOptions.value.find(opt => opt.value === assignable.value.compare!.right!.parameter!).value;
+      } else if (assignable.value.compare.right.nodeRef) {
+        const relativeMatch = keepAs.value[assignable.value.compare.right.nodeRef];
+        relativeTo.value = assignable.value.compare.right.nodeRef;
+        if (assignable.value.compare.right.iri) relativeProperty.value = assignable.value.compare.right.iri;
+        if (relativeMatch.value) {
+          relativePropertyOptions.value = await getRelativePropertyOptions(relativeMatch.value, props.uiProperty.valueType);
+        }
+      } else relativeTo.value = relativeToOptions.value[0].value;
+    }
   }
 }
 </script>

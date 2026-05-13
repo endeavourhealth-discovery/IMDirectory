@@ -1,3 +1,5 @@
+import { Ref } from "vue";
+
 import { Operator } from "@endeavour/vue-library";
 import { Bool, IM, RDF, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
@@ -853,7 +855,7 @@ function getReturnFields(returnFields: Return[]): string {
   }
   return "";
 }
-export function getRelativeToOptions(valueType: string, keepAs: Record<string, Match>): any[] {
+export function getRelativeToOptions(valueType: string, keepAs: Record<string, Ref<Match>>): any[] {
   const options = [];
   if (valueType === IM.DATE) {
     options.push({

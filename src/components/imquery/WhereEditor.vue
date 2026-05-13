@@ -86,7 +86,7 @@
             </div>
             <div v-if="(match.where || match.orderBy) && !editingThen">
               <span class="keep-as-reference">Keep as reference</span>
-              <InputText v-model="match.node" type="text" />
+              <InputText v-model="match.node" type="text" @input="onInput" />
             </div>
             <span v-if="match.orderBy">
               <Button v-if="!match.then" class="add-button" data-testid="add-test-button" label="Add further test on the results" @click="emit('addTest')" />
@@ -204,7 +204,7 @@ const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
 const edited = ref(false);
-const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
 const typeNodes: Ref<TreeNode[]> = ref([]);
 const nodeShape: Ref<NodeShape | undefined> = ref();
 const keepAsNode: Ref<string | undefined> = ref(match.value.node);
@@ -225,7 +225,7 @@ function onInput() {
 function updateKeepAs() {
   if (keepAsNode.value) delete keepAs.value[keepAsNode.value];
   keepAsNode.value = match.value.node;
-  if (match.value.node) keepAs.value[match.value.node] = match.value;
+  if (match.value.node) keepAs.value[match.value.node] = match;
 }
 
 async function init() {
@@ -256,7 +256,6 @@ async function onNodeSelect(node: any) {
     }
   }
   if (node.type === "property") {
-    addFilter(match.value, node, props.editingThen);
     if (props.editingWhen && when.value) addWhereToWhen(when.value, match.value, node);
     else addFilter(match.value, node, props.editingThen);
   }

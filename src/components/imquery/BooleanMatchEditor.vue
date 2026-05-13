@@ -178,7 +178,7 @@ const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
   { label: "Add query reference or import clause", icon: "pi pi-users", command: () => addCohort() }
 ];
-const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
 
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
@@ -192,13 +192,13 @@ onMounted(() => {
 });
 
 function init() {
-  updateKeepAs(match.value);
+  updateKeepAs();
   if (match.value.draft) editMatchClause();
 }
 
-function updateKeepAs(match: Match) {
-  if (match.node) {
-    keepAs.value[match.node] = match;
+function updateKeepAs() {
+  if (match.value.node) {
+    keepAs.value[match.value.node] = match;
   }
 }
 
@@ -208,7 +208,7 @@ function onDeleteMatchList() {
 }
 
 function deleteMatch() {
-  updateKeepAs(match.value);
+  updateKeepAs();
   showEditor.value = false;
   emit("deleteMatch");
 }
@@ -247,7 +247,7 @@ async function saveEditMatch(editedMatch: Match) {
   showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
-  updateKeepAs(match.value);
+  updateKeepAs();
   showEditor.value = false;
 }
 

@@ -11,8 +11,8 @@
     <div class="value-input-container">
       <Select
         :modelValue="operator"
-        :options="OperatorOptions"
-        :placeholder="operator ? operator.toString() : OperatorOptions[0].label"
+        :options="operatorOptions"
+        :placeholder="operator ? operator.toString() : operatorOptions[0].label"
         data-testid="operator-selector"
         option-label="label"
         option-value="value"
@@ -64,11 +64,9 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
 import type { Assignable, Compare, Match, TTIriRef, UIProperty, Where } from "@endeavour/vue-library/interfaces";
-
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
-import { OperatorOptions } from "@/constants/queryEditor/OperatorOptions";
-import { RangeOrValue, Relativity } from "@/enums";
-import { getCompareOptions, getRelativeToOptions } from "@/helpers/buildQuery";
+import { Relativity } from "@/enums";
+import { getCompareOptions, getOperatorOptions, getRelativeToOptions } from "@/helpers/buildQuery";
 
 enum ValueType {
   date,
@@ -87,16 +85,15 @@ const assignable = defineModel<Assignable>("assignable", { default: {} });
 const where = defineModel<Where>("where", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();
-const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
 const operator = ref(Operator.eq);
 const compareOptions = computed(() => {
   return getCompareOptions(props.uiProperty.valueType);
 });
-const offset = ref("0");
-const rangeOrValue = computed(() => {
-  if (where.value.range) return RangeOrValue.Range;
-  else return RangeOrValue.SingleValue;
-});
+const operatorOptions = computed(() => {
+  return getOperatorOptions(props.uiProperty.valueType);
+})
+
 const relativity: Ref<Relativity> = ref(assignable.value.compare ? (assignable.value.value ? Relativity.Relative : Relativity.Compare) : Relativity.Absolute);
 const units: Ref<string | undefined> = ref();
 const emit = defineEmits<{
@@ -250,6 +247,12 @@ function isNumeric(value: string | undefined): boolean {
 function updateOperator(value: Operator) {
   assignable.value.operator = value;
   operator.value = value;
+  if (value === Operator.isNull) {
+    where.value.isNull = true;
+  }
+  if (value === Operator.notNull) {
+    where.value.notNull = true;
+  }
   emit("updateAssignable");
 }
 

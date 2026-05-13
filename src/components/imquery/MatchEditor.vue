@@ -26,7 +26,6 @@
                 :depth="depth"
                 :index="clauseIndex"
                 :parentOperator="parentOperator"
-                :showEditor="showEditor"
                 @addLinked="onAddLinked"
                 @cancel="onCancelDialog"
                 @deleteMatch="deleteMatch"
@@ -35,7 +34,7 @@
               />
             </TabPanel>
             <TabPanel value="columns">
-              <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" />
+              <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -61,19 +60,18 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, Ref, ref } from "vue";
+import { Ref, ref } from "vue";
+
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, NodeShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
-import type { TreeNode } from "primevue/treenode";
 
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
-import { usePropertyTree } from "@/composables/usePropertyTree";
 import { EntityService, QueryService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -101,18 +99,9 @@ const emit = defineEmits<{
 }>();
 const dialogStore = useDialogStore();
 const activeTab = ref(props.datasetEntry ? "columns" : "filter");
-const expandedKeys = ref<Record<string, boolean>>({});
-const expandedReturnKeys = ref<Record<string, boolean>>({});
-const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const { expandNode, createModeView, getTypeNode, createFeatureTree } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
-const loading = ref(true);
 const edited = ref(false);
-const initialized = ref(false);
-const typeNodes: Ref<TreeNode[]> = ref([]);
-const keepAs = inject("keepAs") as Ref<Match[]>;
-const nodeShape: Ref<NodeShape | undefined> = ref();
 
 async function onUpdate() {
   edited.value = true;

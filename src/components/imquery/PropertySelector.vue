@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
@@ -76,7 +76,6 @@ interface Props {
 const props = defineProps<Props>();
 const showPropertySelector = defineModel<boolean>("showPropertySelector", { default: false });
 const expandedKeys = ref<Record<string, boolean>>({});
-const expandedReturnKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
 const { expandNode, createModeView, getTypeNode, createFeatureTree } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
@@ -86,10 +85,7 @@ const emit = defineEmits<{
 }>();
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
-const edited = ref(false);
-const initialized = ref(false);
 const typeNodes: Ref<TreeNode[]> = ref([]);
-const keepAs = inject("keepAs") as Ref<Match[]>;
 const nodeShape: Ref<NodeShape | undefined> = ref();
 
 onMounted(async () => {
@@ -98,8 +94,8 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false, undefined);
-  typeNodes.value = await createFeatureTree(nodeShape.value, "match");
+  nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false, true);
+  typeNodes.value = await createFeatureTree(nodeShape.value, "return");
   setupTrees("return");
   expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};

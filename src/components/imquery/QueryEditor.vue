@@ -66,20 +66,18 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
+import { Ref, onMounted, provide, readonly, ref, shallowRef, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import type { Match, Query } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
-import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
-import { usePropertyTree } from "@/composables/usePropertyTree";
 import QueryService from "@/services/QueryService";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -109,15 +107,13 @@ const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
-const { createFeatureTree } = usePropertyTree();
-const rootNodes: Ref<TreeNode[]> = ref([]);
-const keepAs: Ref<Record<string, Match>> = ref({});
+const keepAs = shallowRef<Record<string, Ref<Match>>>({});
+provide("keepAs", keepAs);
 provide("keepAs", keepAs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
 provide("childLoadingState", childLoadingState);
-
 watch(
   () => props.showDialog,
   val => {

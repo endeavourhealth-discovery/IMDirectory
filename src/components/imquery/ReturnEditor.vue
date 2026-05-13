@@ -16,7 +16,7 @@
             </template>
             <template v-else-if="item.iri">
               <IMViewerLink :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-              <template v-if="uiProperties[item.iri]">
+              <template v-if="uiProperties[item.iri] && uiProperties[item.iri].unitOptions">
                 <Select
                   v-model="units"
                   :options="uiProperties[item.iri].unitOptions"
@@ -153,6 +153,9 @@ async function onSelectedProperty(node: TreeNode) {
   if (uiProperty) {
     uiProperties.value[node.data.iri!] = uiProperty;
   }
+  selectedReturn.value!.iri = node.data.iri;
+  showPropertySelector.value = false;
+  emit("updateMatch");
 }
 
 function updateUnits(rIndex: number) {

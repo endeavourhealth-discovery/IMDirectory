@@ -72,10 +72,11 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, NodeShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
+
 import WhereEditor from "@/components/imquery/WhereEditor.vue";
 import { getBooleanOperator } from "@/helpers/buildQuery";
 import { EntityService, QueryService } from "@/services";
@@ -108,7 +109,7 @@ const activeTab = ref("main");
 const edited = ref(false);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
-const keepAs = inject("keepAs") as Ref<Record<string, Match>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
 const whereOperator = computed(() => {
   return getBooleanOperator("Where", match.value.then ? match.value.then : match.value.where);
 });
@@ -136,7 +137,7 @@ onMounted(async () => {
 watch(match.value, (newVal, oldVal) => {
   if (newVal === oldVal) return;
   edited.value = true;
-  updateKeepAs(oldVal, newVal);
+  updateKeepAs(oldVal);
 });
 async function onUpdate() {
   edited.value = true;
@@ -155,12 +156,12 @@ function updateScore() {
   edited.value = true;
   emit("updateMatch");
 }
-function updateKeepAs(oldVal: Match, newVal: Match) {
+function updateKeepAs(oldVal: Match) {
   if (oldVal.node) {
     delete keepAs.value[oldVal.node];
   }
-  if (newVal.node) {
-    keepAs.value[newVal.node] = newVal;
+  if (match.value.node) {
+    keepAs.value[match.value.node] = match;
   }
 }
 
@@ -171,7 +172,6 @@ async function init() {
   loading.value = false;
   initialized.value = true;
 }
-
 
 async function getFunctionTemplates() {
   const iri = match.value?.typeOf?.iri;
