@@ -31,10 +31,32 @@ step("Verify base type is now <text>", async text => {
   assert(base.includes(text));
 });
 
-step("Fill out <n> instance of age value <equality>, <value>, <unit>", async (n, equality, value, unit) => {
+step("Fill out <n> instance of age value <equality>, <value>", async (n, equality, value) => {
+  const reg = new RegExp("^" + equality + "$");
   const container = pw.page.locator(".value-input-container").nth(parseInt(n));
-  await container.locator(".p-inputwrapper").nth(0).click();
-  await container.locator(".p-select-option").filter({ hasText: equality }).click();
+  await container.locator(".p-inputwrapper").filter({ hasText: "equal to" }).click();
+  await pw.page.waitForTimeout(2000);
+  await pw.page.locator(".p-select-option").filter({ hasText: reg }).click();
+  await container.locator(".p-inputtext").fill(value);
+});
 
+step("Fill in description with <text>", async text => {
+  await pw.page.locator(".match-content-display").locator(".p-inputtext").nth(0).fill(text);
+});
+
+step("Search for <text> and select", async text => {
+  await pw.page.locator(".match-content-display").locator("#autocomplete-search").nth(0).fill(text);
+  await pw.page.waitForTimeout(3000);
+  await pw.page.locator(".p-listbox-option").filter({ hasText: "Prediabetes (disorder)" }).click();
+  await pw.page.locator(".p-inputwrapper").filter({ hasText: "+ children" }).click();
+  await pw.page.waitForTimeout(2000);
+  await pw.page.locator(".p-select-option").filter({ hasText: "children only" }).click();
+});
+
+step("Check <n> match checkbox", async n => {
+  await pw.page.locator(".match-clause-inner").nth(parseInt(n)).locator(".p-checkbox-input").check();
+});
+
+step("test", async () => {
   await pw.page.locator(".p-select-opon").click();
 });
