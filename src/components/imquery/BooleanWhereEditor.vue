@@ -2,43 +2,43 @@
   <div v-if="boolGroup">
     <div v-if="canCheck" class="group-checkbox">
       <Checkbox
-        :inputId="'group' + index"
-        name="Group"
-        binary
         v-model="subgroupCheck"
-        data-testid="group-checkbox"
-        @update:modelValue="onCheckGroupChange"
         v-tooltip="'Select to build boolean subgroup'"
+        :inputId="'group' + index"
+        binary
+        data-testid="group-checkbox"
+        name="Group"
+        @update:modelValue="onCheckGroupChange"
       />
     </div>
     <BooleanEditor
       v-model:clause="where"
-      v-model:parent="parent"
-      :parentType="'Match'"
-      :index="index"
       v-model:group="group"
-      :parentOperator="parentOperator as Bool"
-      :operator="operator"
-      :rootBool="rootBool"
+      v-model:parent="parent"
       :clauseType="'Match'"
+      :index="index"
+      :operator="operator"
+      :parentOperator="parentOperator as Bool"
+      :parentType="'Match'"
+      :rootBool="rootBool"
     />
 
     <div class="nested-where">
       <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
         <BooleanWhereEditor
-          :match="match"
-          v-model:where="boolGroup![subIndex]"
           v-model:parent="where"
-          :index="subIndex"
-          :parentIndex="index"
-          :baseType="baseType"
-          :rootBool="false"
-          :parentOperator="operator as Bool"
-          :show-delete="showDelete"
-          :canCheck="boolGroup!.length > 2"
           v-model:parentGroup="group"
-          @deleteWhere="onDeleteBooleanWhere(subIndex)"
+          v-model:where="boolGroup![subIndex]"
+          :baseType="baseType"
+          :canCheck="boolGroup!.length > 2"
+          :index="subIndex"
+          :match="match"
+          :parentIndex="index"
+          :parentOperator="operator as Bool"
+          :rootBool="false"
+          :show-delete="showDelete"
           @addProperty="emit('addProperty')"
+          @deleteWhere="onDeleteBooleanWhere(subIndex)"
           @updateBool="updateBool"
           @updateProperty="updateProperty"
         />
@@ -49,13 +49,13 @@
     <span class="property-label">
       <span v-if="canCheck" class="group-checkbox">
         <Checkbox
-          :inputId="'group' + index"
-          name="Group"
-          binary
           v-model="subgroupCheck"
-          data-testid="group-checkbox"
-          @update:modelValue="onCheckGroupChange"
           v-tooltip="'Select to build boolean subgroup'"
+          :inputId="'group' + index"
+          binary
+          data-testid="group-checkbox"
+          name="Group"
+          @update:modelValue="onCheckGroupChange"
         />
       </span>
       <span>{{ pathPropertyName }}</span>
@@ -72,22 +72,22 @@
       <div v-else-if="selectedWhere?.propertyType === 'datatype'">
         <WhereValueEditor
           :key="refreshCounter"
-          :ui-property="selectedWhere"
           v-model:where="where!"
           :refresh="refreshCounter"
+          :ui-property="selectedWhere"
           @updateProperty="updateProperty"
         />
       </div>
       <div class="mt-auto ml-auto flex flex-row items-end">
         <Button v-if="updated" data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
-        <Button @click.stop="deleteProperty" class="delete-button" icon="fa-solid fa-trash" />
+        <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteProperty" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, onMounted, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/interfaces";
@@ -96,18 +96,15 @@ import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
-import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
 import {
   checkGroupChange,
-  deletePropertyFromParent,
   getBoolGroup,
   getBooleanOperator,
   getDisplayOperator,
   getPathPropertyNames,
   getTypeIriFromMatch,
-  updateBooleans,
-  updateFocusConcepts
+  updateBooleans
 } from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
 
@@ -181,7 +178,10 @@ function onCheckGroupChange(e: any) {
 function onDeleteBooleanWhere(index: number) {
   if (where.value.and) {
     where.value.and.splice(index, 1);
-    if (where.value.and.length === 1) where.value = where.value.and[0];
+    if (where.value.and.length === 1) {
+      const newWhere = where.value.and[0];
+      where.value = cloneDeep(newWhere);
+    }
   } else if (where.value.or) {
     where.value.or.splice(index, 1);
     if (where.value.or.length === 1) where.value = where.value.or[0];

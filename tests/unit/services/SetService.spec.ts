@@ -1,19 +1,20 @@
-import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Env, SetService } from "@/services";
 
+import api from "../../../src/services/api";
+
 describe("SetService.ts ___ axios success", () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    axios.get = vi.fn().mockResolvedValue("axios get return");
-    axios.post = vi.fn().mockResolvedValue("axios post return");
+    api.get = vi.fn().mockResolvedValue("axios get return");
+    api.post = vi.fn().mockResolvedValue("axios post return");
   });
 
   it("can publish", async () => {
     const result = await SetService.publish("testIri");
-    expect(axios.get).toBeCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/private/publish", {
+    expect(api.get).toBeCalledTimes(1);
+    expect(api.get).toHaveBeenCalledWith(Env.API + "api/set/private/publish", {
       params: { iri: "testIri" }
     });
     expect(result).toBe("axios get return");
@@ -21,8 +22,8 @@ describe("SetService.ts ___ axios success", () => {
 
   it("can get IMV1", async () => {
     const result = await SetService.IMV1("testIri");
-    expect(axios.get).toBeCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/protected/export", { params: { iri: "testIri" }, responseType: "blob" });
+    expect(api.get).toBeCalledTimes(1);
+    expect(api.get).toHaveBeenCalledWith(Env.API + "api/set/protected/export", { params: { iri: "testIri" }, responseType: "blob" });
     expect(result).toBe("axios get return");
   });
 });

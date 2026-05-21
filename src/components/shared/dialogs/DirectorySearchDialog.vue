@@ -1,72 +1,72 @@
 <template>
   <Dialog
     v-model:visible="modelShowDialog"
-    modal
-    maximizable
-    header="Search"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
     :contentStyle="{ display: 'flex', flexDirection: 'column', height: '100%' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
+    header="Search"
+    maximizable
+    modal
     @keyup.enter="onEnter"
   >
     <div class="directory-search-dialog-content">
       <div class="search-bar">
         <SearchBar
           v-model:searchTerm="searchTerm"
-          :selected="selected"
           :imQuery="imQuery"
+          :selected="selected"
           :show-filters="false"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
           @to-search="onSearch"
         />
       </div>
-      <Splitter stateKey="directorySearchSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter" style="height: 100%; flex: 1 1 auto">
-        <SplitterPanel :size="30" :minSize="10">
+      <Splitter stateKey="directorySearchSplitterHorizontal" stateStorage="local" style="height: 100%; flex: 1 1 auto" @resizeend="updateSplitter">
+        <SplitterPanel :minSize="10" :size="30">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
               <div v-if="directoryLoading" class="loading-container flex flex-row items-center justify-center">
                 <ProgressSpinner />
               </div>
+
               <NavTree
-                :selectedIri="treeIri"
-                :root-entities="rootEntities"
-                :typeFilter="typeFilter"
-                :find-in-tree="findInDialogTree"
-                :useEmits="true"
                 :childLength="20"
+                :root-entities="rootEntities"
+                :selectedIri="treeIri"
+                :typeFilter="typeFilter"
+                :useEmits="true"
                 @found-in-tree="findInDialogTree = false"
                 @row-clicked="showDetails"
               />
             </div>
           </div>
         </SplitterPanel>
-        <SplitterPanel :size="70" :minSize="10">
+        <SplitterPanel :minSize="10" :size="70">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
               <SearchResults
                 v-if="activePage === 0"
+                :im-query="imQuery"
+                :quick-type-filters-allowed="quickTypeFiltersAllowed"
+                :search-term="searchTerm"
                 :selected="selected"
+                :selected-filter-options="selectedFilterOptions"
+                :selected-quick-type-filter="selectedQuickTypeFilter"
                 :show-filters="showFilters"
                 :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
-                :quick-type-filters-allowed="quickTypeFiltersAllowed"
-                :selected-quick-type-filter="selectedQuickTypeFilter"
                 :updateSearch="updateSearch"
-                :search-term="searchTerm"
-                :im-query="imQuery"
-                :selected-filter-options="selectedFilterOptions"
+                @searchResultsUpdated="updateSearchResults"
                 @selectedUpdated="updateSelected"
                 @locate-in-tree="locateInTree"
                 @selected-filters-updated="onSelectedFiltersUpdate"
-                @searchResultsUpdated="updateSearchResults"
               />
               <DirectoryDetails
                 v-if="activePage === 1"
-                :selected-iri="detailsIri"
-                @locateInTree="locateInTree"
-                @navigateTo="navigateTo"
-                :showSelectButton="true"
                 v-model:history="directoryHistory"
                 :searchResults
+                :selected-iri="detailsIri"
+                :showSelectButton="true"
+                @locateInTree="locateInTree"
+                @navigateTo="navigateTo"
                 @selected-updated="updateSelectedFromIri"
                 @go-to-search-results="goToSearchResults"
               />
@@ -83,32 +83,36 @@
       <div class="im-dialog-footer">
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>
         <div class="button-footer">
-          <Button label="Cancel" @click="onCancel" text />
+          <Button label="Cancel" text @click="onCancel" />
           <Button
             v-if="selectedName && isSelectableEntity"
-            :disabled="!isSelectableEntity || validationLoading"
+            :disabled="!isSelectableEntity"
+            :loading="validationLoading"
+            autofocus
             data-testid="search-dialog-select-button"
             label="Select"
-            :loading="validationLoading"
             @click="updateSelectedFromIri(detailsIri)"
-            autofocus
           />
         </div>
       </div>
     </template>
   </Dialog>
 </template>
-<script setup lang="ts">
-import { Ref, computed, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, onMounted, Ref, ref, watch } from "vue";
 
-import { IM, RDFS } from "@endeavour/vue-library/enums";
+import { RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type {
+  FilterOptions,
+  QueryRequest,
+  SearchResponse,
+  SearchResultSummary
+} from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 import { SplitterResizeEndEvent } from "primevue/splitter";
 
-import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import NavTree from "@/components/shared/NavTree.vue";

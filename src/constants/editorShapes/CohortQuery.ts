@@ -55,6 +55,7 @@ const CohortQueryShape: FormGenerator = {
               componentType: {
                 iri: COMPONENT.IRI_BUILDER
               },
+              argument: [{ parameter: "prefix", valueData: "Q_" }],
               valueVariable: "conceptIri",
               function: {
                 iri: IM_FUNCTION.GET_USER_EDITABLE_SCHEMES

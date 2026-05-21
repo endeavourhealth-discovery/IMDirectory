@@ -30,7 +30,6 @@ import type { GithubRelease } from "@endeavour/vue-library/interfaces";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
-import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { useDialog } from "primevue";
 import { useToast } from "primevue/usetoast";
 import semver from "semver";
@@ -48,15 +47,16 @@ import FooterBar from "./components/app/FooterBar.vue";
 import ReleaseBannerBar from "./components/app/ReleaseBannerBar.vue";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { setModes } from "./router/methods/setModes";
+import { setToastInstance } from "./services/toast";
 import { useLoadingStore } from "./stores/loadingStore";
 
-setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
 const dialog = useDialog();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
+setToastInstance(toast);
 const cookie = useCookies();
 const dialogStore = useDialogStore();
 const userStore = useUserStore();
@@ -150,122 +150,6 @@ async function setShowReleaseBanner() {
 
 function getLocalVersion(repoName: string): string | null {
   return localStorage.getItem(repoName + "Version");
-}
-
-function setupAxiosInterceptors(axios: AxiosInstance) {
-  axios.defaults.withCredentials = true;
-  axios.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
-    if (isLoggedIn.value) {
-      if (!request.headers) request.headers = {} as AxiosRequestHeaders;
-      request.headers.set("Graph", userStore.includeUserGraph);
-    } else if (!isLoggedIn.value && isPublicMode.value === false && !request.url?.startsWith(Env.API)) {
-      window.location.href = await SecurityService.getLoginUrl();
-    }
-    return request;
-  });
-
-  axios.interceptors.response.use(
-    (response: AxiosResponse) => {
-      return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
-    },
-    async (error: any) => {
-      if (error?.response?.config?.raw) {
-        if (error?.config?.responseType === "blob" && error?.response?.data) {
-          error.response.data = JSON.parse(await error.response.data.text());
-          return Promise.reject(error);
-        } else return Promise.reject(error);
-      }
-      if (error?.response?.status === 403) {
-        await handle403(error);
-      } else if (error?.response?.status === 401) {
-        await handle401(error);
-      } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
-        console.error(error.response.data);
-        toast.add({
-          severity: "error",
-          summary: error.response.data.code,
-          detail: error.response.data.debugMessage
-        });
-      } else if (error?.response?.status >= 500) {
-        await handle5xx(error);
-      } else if (error.code === "ERR_CANCELED") {
-        return;
-      } else {
-        return Promise.reject(error);
-      }
-    }
-  );
-}
-
-async function handle401(error: AxiosError) {
-  toast.add({
-    severity: "error",
-    summary: "Access denied",
-    detail:
-      "Insufficient clearance to access " +
-      error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
-      ". Please contact an admin to change your account security clearance if you require access to this resource."
-  });
-  await router.push({ name: "AccessDenied" }).then();
-}
-
-async function handle403(error: any) {
-  if (userStore.isLoggedIn) {
-    toast.add({
-      severity: "error",
-      summary: "Access denied",
-      detail:
-        "Insufficient clearance to access " +
-        error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
-        ". Please contact an admin to change your account security clearance if you require access to this resource."
-    });
-    await router.push({ name: "AccessDenied" }).then();
-  } else {
-    if (error.response?.data) {
-      toast.add({
-        severity: "error",
-        summary: "Access denied",
-        detail: error.response.data.debugMessage
-      });
-    } else if (error?.config?.url) {
-      toast.add({
-        severity: "error",
-        summary: "Access denied",
-        detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-      });
-    } else {
-      toast.add({
-        severity: "error",
-        summary: "Access denied"
-      });
-    }
-    if (route.path === "/user/login") {
-      console.error(error);
-    } else {
-      window.location.href = await SecurityService.getLoginUrl();
-    }
-  }
-}
-
-async function handle5xx(error: any) {
-  if (error.code === "ERR_BAD_RESPONSE") {
-    if (error.response.data.code === "OpenSearchException") {
-      toast.add({
-        severity: "error",
-        summary: "Error calling OpenSearch",
-        detail: error.response.data.debugMessage
-      });
-    } else if (error.response.data.code === "ConfigException") {
-      toast.add({
-        severity: "error",
-        summary: "Error retrieving Github releases",
-        detail: error.response.data.debugMessage
-      });
-      await router.push({ name: "ServerOffline" });
-    } else await router.push({ name: "ServerOffline" }).then();
-  } else if (error.code === "ERR_CANCELED") {
-    return;
-  }
 }
 
 function setupExternalErrorHandler() {

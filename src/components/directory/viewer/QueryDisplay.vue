@@ -29,13 +29,13 @@
                 :class="operator === Bool.rule && index > 0 ? 'rule-box' : ''"
               >
                 <RecursiveMatchDisplay
-                  :match="nestedQuery"
-                  :clause-index="index"
-                  :parent-operator="operator"
-                  :depth="1"
-                  :parent-match="query"
-                  :eclQuery="eclQuery"
                   :baseType="baseType"
+                  :clause-index="index"
+                  :depth="1"
+                  :eclQuery="eclQuery"
+                  :match="nestedQuery"
+                  :parent-match="query"
+                  :parent-operator="operator"
                 />
               </div>
             </div>
@@ -43,13 +43,13 @@
           <template v-else>
             <div>
               <RecursiveMatchDisplay
-                :match="query"
+                :baseType="baseType"
                 :clauseIndex="0"
                 :depth="0"
-                :parent-match="rootQuery"
                 :eclQuery="eclQuery"
                 :expanded="query.name === undefined"
-                :baseType="baseType"
+                :match="query"
+                :parent-match="rootQuery"
               />
             </div>
           </template>
@@ -60,30 +60,30 @@
       </div>
       <div v-if="query && query.columnGroup">
         <span>Output columns </span>
-        <Button text :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="showColumns = !showColumns"></Button>
+        <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
         <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
           <ColumnGroupDisplay
             v-for="(nestedQuery, index) in query?.columnGroup"
-            :match="nestedQuery"
             :key="`nestedQuery-${index}`"
-            :matchExpanded="false"
-            :returnExpanded="true"
-            :index="index"
-            :parentQuery="query"
+            v-model:datasetEntry="query.columnGroup[index]"
             :baseType="baseType"
+            :index="index"
+            :matchExpanded="false"
+            :parentQuery="query"
+            :returnExpanded="true"
           />
         </div>
       </div>
       <div v-if="query && query.return">
         <span>Returns:</span>
-        <ReturnColumns :select="query.return" class="pl-8" :parentQuery="query!" />
+        <ReturnColumns :parentQuery="query!" :select="query.return" class="pl-8" />
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, onMounted, provide, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, onMounted, provide, Ref, ref, watch } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
@@ -94,7 +94,7 @@ import { cloneDeep } from "lodash-es";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
-import { getBoolGroup, getBooleanOperator } from "@/helpers/buildQuery";
+import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import SQLDisplay from "./SQLDisplay.vue";

@@ -114,8 +114,12 @@ function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
     parts.push({ type: "text", value: "is present" });
     return parts;
   }
+  if (where.compare && where.compare.left) {
+    parts.push({ type: "text", value: where.compare.left.name + " " });
+  }
   const units = where.compare && where.compare.units ? where.compare.units.name : "";
-  const value = where.value && where.value != "0" ? where.value : undefined;
+  let value = undefined;
+  if (where.value && (where.value != "0" || where.operator)) value = where.value;
   if (where.operator) {
     parts.push({ type: "text", value: getOperatorTerm(where.operator) });
   }
@@ -212,8 +216,10 @@ function getOperatorTerm(operator: Operator): string {
       break;
     case "contains":
       return "contains ";
-    case "isTrue":
-      return "is true ";
+    case "isNull":
+      return "is not recorded ";
+    case "notNull":
+      return "is recorded ";
     default:
       return (operator as string) + " ";
   }

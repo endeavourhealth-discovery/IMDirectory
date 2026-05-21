@@ -1,4 +1,7 @@
-import { Bool, IM, RDF, RuleAction, SHACL } from "@endeavour/vue-library/enums";
+import { Ref } from "vue";
+
+import { Operator } from "@endeavour/vue-library";
+import { Bool, IM, RDF, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type {
   HasPaths,
@@ -13,6 +16,7 @@ import type {
   QueryRequest,
   Return,
   SearchBinding,
+  When,
   Where
 } from "@endeavour/vue-library/interfaces";
 
@@ -21,6 +25,7 @@ import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { Relativity } from "@/enums";
 import { SearchOptions } from "@/interfaces";
 import { DataModelService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -35,6 +40,54 @@ export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequ
   if (filterOptions.page) imQuery.page = filterOptions.page;
   if (filterOptions.textSearch) imQuery.textSearch = filterOptions.textSearch;
   return imQuery;
+}
+
+export function getOperatorOptions(valueType: string): any[] {
+  const options = [];
+  if (valueType != XSD.STRING) {
+    options.push({
+      label: "equal to",
+      value: Operator.eq,
+      tooltip: "exactly equal to value"
+    });
+    options.push({
+      label: "greater or equal to",
+      value: Operator.gte,
+      tooltip: "inclusive of value"
+    });
+    options.push({
+      label: "less than or equal to",
+      value: Operator.lte,
+      tooltip: "inclusive of value"
+    });
+    options.push({
+      label: "greater than",
+      value: Operator.gt,
+      tooltip: "exclusive of value"
+    });
+    options.push({
+      label: "less than",
+      value: Operator.lt,
+      tooltip: "exclusive of value"
+    });
+  } else {
+    options.push({ label: "is", value: Operator.eq });
+    options.push({ label: "starts with", value: Operator.start });
+    options.push({ label: "contains", value: Operator.contains });
+    options.push({ value: Operator.notNull, label: "is recorded" });
+    options.push({ value: Operator.isNull, name: "is not recorded" });
+  }
+  return options;
+}
+
+export function getCompareOptions(valueType: string): any[] {
+  const options = [];
+  options.push({ label: "Compare to another value", value: Relativity.Compare });
+  if (valueType != XSD.STRING) {
+    options.push({ label: "Compare with offset from another value", value: Relativity.Relative });
+  }
+  options.push({ label: "Compare with fixed value", value: Relativity.Absolute });
+  return options;
 }
 
 export async function setReturn(match: Match, keepAs: string) {
@@ -270,7 +323,7 @@ function hasWhereInWhere(where: Where, whereToFind: Where): boolean {
   return false;
 }
 
-export function addWhereToMatch(match: Match, where: Where, index?: number) {
+export function addWhereToMatch(match: Match | When, where: Where, index?: number) {
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;
@@ -558,11 +611,10 @@ export function createNodeVariable(match: Match, index: number): string {
   return nodeVariable + (index > 0 ? "_" + index : "");
 }
 
-export function setDefiningProperty(match: Match, nodeShape: NodeShape): void {
-  if (nodeShape.definingProperty) {
-    if (!hasProperty(match.where, nodeShape.definingProperty.iri)) {
-      const propertyShape = nodeShape.property?.find(property => property.path.iri === nodeShape.definingProperty!.iri);
-      if (propertyShape) {
+export function setMandatoryWheres(match: Match, nodeShape: NodeShape): void {
+  for (const propertyShape of nodeShape.property!) {
+    if (propertyShape.minCount && propertyShape.minCount > 0) {
+      if (!hasProperty(match.where, propertyShape.path.iri)) {
         const where = createWhere(propertyShape.path.iri, propertyShape.clazz, undefined);
         addWhereToMatch(match, where);
       }
@@ -582,18 +634,30 @@ export function getTypeIriFromMatch(match: Match, baseType: Node): string {
   if (match.typeOf) return match.typeOf.iri!;
   else return baseType.iri!;
 }
+export function injectReturn(match: Match, iri: string, ref: string) {
+  if (!match.return) match.return = [];
+  for (const ret of match.return) {
+    if (ret.iri === iri) return;
+  }
+  match.return.push({ iri: iri, as: ref } as Return);
+}
 
-export function addReturn(match: Match, node: TreeNode) {
+export function addReturn(match: Match, node: TreeNode, ret?: Return) {
   if (node.type === "property") {
     const fullPath = node.data.path;
     let nodeRef;
     if (fullPath) {
       nodeRef = setPathGetNodeRef(match, fullPath, true);
     }
-    const ret = { iri: node.data.iri, name: node.label, as: node.label } as Return;
+    if (!ret) {
+      ret = { iri: node.data.iri, name: node.label, as: node.label } as Return;
+      if (!match.return) match.return = [];
+      match.return.push(ret);
+    } else {
+      ret.iri = node.data.iri;
+      ret.name = node.label;
+    }
     if (nodeRef) ret.nodeRef = nodeRef;
-    if (!match.return) match.return = [];
-    match.return.push(ret);
   }
 
   match.invalid = false;
@@ -613,6 +677,21 @@ export function addFilter(match: Match, node: TreeNode, isThen: boolean): string
   }
 
   match.invalid = false;
+  return nodeRef;
+}
+
+export function addWhereToWhen(when: When, match: Match, node: TreeNode): string | undefined {
+  let nodeRef;
+  if (node.type === "property") {
+    const fullPath = node.data.path;
+    if (fullPath) {
+      nodeRef = setPathGetNodeRef(match, fullPath, true);
+    }
+    if (node.data.rangeType != SHACL.NODESHAPE) {
+      const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);
+      addWhereToMatch(when, where);
+    }
+  }
   return nodeRef;
 }
 
@@ -776,38 +855,35 @@ function getReturnFields(returnFields: Return[]): string {
   }
   return "";
 }
-export function getRelativeToOptions(keepAs: Match[]): any[] {
-  const options = [
-    {
+export function getRelativeToOptions(valueType: string, keepAs: Record<string, Ref<Match>>): any[] {
+  const options = [];
+  if (valueType === IM.DATE) {
+    options.push({
       label: "Search date",
       value: "$searchDate",
       tooltip: "relative to the search date"
-    },
-    {
+    });
+    options.push({
       label: "Achievement date",
       value: "$achievementDate",
       tooltip: "relative to the achievement date"
-    }
-  ];
-  if (keepAs.length > 0) {
-    for (const keepAsMatch of keepAs) {
-      if (keepAsMatch.node) {
-        options.push({
-          label: keepAsMatch.node,
-          value: keepAsMatch.node,
-          tooltip: "relative to a property of the entries found in this  clause"
-        });
-      }
+    });
+  }
+  if (Object.keys(keepAs).length > 0) {
+    for (const node of Object.keys(keepAs)) {
+      options.push({
+        label: node as string,
+        value: node as string,
+        tooltip: "relative to a property of the entries found in this  clause"
+      });
     }
   }
   return options;
 }
 
-export async function getRelativePropertyOptions(keepAs: Match[], nodeRef: string, valueType?: string): Promise<any[]> {
+export async function getRelativePropertyOptions(match: Match, valueType?: string): Promise<any[]> {
   const options: any[] | PromiseLike<any[]> = [];
   if (!valueType) return options;
-  const match = keepAs.find(item => item.node === nodeRef);
-  if (!match) return options;
   const dataModel = await DataModelService.getDataModelProperties(match.typeOf!.iri!, false);
   if (!dataModel) return options;
   if (dataModel.property) {
