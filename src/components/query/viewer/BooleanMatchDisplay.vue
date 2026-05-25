@@ -5,46 +5,49 @@
       <span class="rule">Rule {{ clauseIndex }}</span>
     </template>
     <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
-    <span v-if="boolGroup.length > 1" :class="operator">
+    <span v-if="match.notExists" class="not">Exclude if </span>
+    <span v-if="boolGroup.length" :class="operator">
       {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }}
     </span>
     <span v-if="importClauses" class="clause-checkbox">
       <Checkbox
-        :inputId="'clause' + clauseIndex"
-        name="Group"
-        binary
         v-model="checked"
-        data-testid="group-checkbox"
-        @update:modelValue="onClauseCheckChange"
         v-tooltip="'Check will add to import list'"
+        :inputId="'clause' + clauseIndex"
+        binary
+        data-testid="group-checkbox"
+        name="Group"
+        @update:modelValue="onClauseCheckChange"
       />
       <span class="clause-label">Check to add to import list</span>
     </span>
     <ValueSentenceDisplay v-if="match.having && havingSentence" :value-sentence="havingSentence" />
     <template v-for="(nestedQuery, index) in boolGroup" :key="`nestedQueryDisplay-${index}`">
       <RecursiveMatchDisplay
-        :match="nestedQuery"
-        :clause-index="index"
-        :expanded="expanded"
-        :parentOperator="operator as Bool"
-        :depth="depth + 1"
-        :parent-match="match"
-        :eclQuery="eclQuery"
         :baseType="baseType"
+        :clause-index="index"
+        :depth="depth + 1"
+        :eclQuery="eclQuery"
+        :expanded="expanded"
+        :match="nestedQuery"
+        :parent-match="match"
+        :parentOperator="operator as Bool"
         :parentSelected="selected"
       />
     </template>
-    <div v-if="parentOperator === Bool.rule" class="tree-node-line" style="margin-left: 1.5rem">
-      <span class="field">if true</span>
-      <span :class="match.ifTrue">{{ match.ifTrue }},</span>
-      <span class="field">if false</span>
-      <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
-    </div>
+    <template v-if="parentOperator === Bool.rule">
+      <span class="tree-node-line" style="display: block; margin-left: 1.5rem">
+        <span class="field">if true</span>
+        <span :class="match.ifTrue">{{ match.ifTrue }},</span>
+        <span class="field">if false</span>
+        <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
+      </span>
+    </template>
   </span>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, inject, ref } from "vue";
+<script lang="ts" setup>
+import { computed, inject, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Match, Node } from "@endeavour/vue-library/interfaces";
@@ -170,5 +173,10 @@ function onClauseCheckChange() {
   display: flex;
   justify-content: flex-end;
   padding-right: 10rem;
+}
+
+.not {
+  color: var(--p-red-500) !important;
+  padding-right: 0.2rem;
 }
 </style>

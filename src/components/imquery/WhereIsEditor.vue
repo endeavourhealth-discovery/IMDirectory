@@ -29,12 +29,45 @@
           <IMViewerLink v-if="node.iri" :action="'view'" :iri="node.iri" :label="node.name" />
           <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
         </div>
-        <div v-if="!node.iri" class="auto-complete-container">
+        <div v-if="members">
+          <AutoComplete
+            v-model="member"
+            :suggestions="filteredMembers"
+            dropdown
+            optionLabel="name"
+            @complete="searchMembers"
+            @update:model-value="updateMember(member, node)"
+          >
+            <template #option="slotProps">
+              <div v-tooltip="slotProps.option.tooltip" class="flex items-center" style="min-height: 1rem">
+                <div>{{ slotProps.option.name }}</div>
+              </div>
+            </template>
+          </AutoComplete>
+          <!--
+
+          <Select
+            v-model="member"
+            :options="members"
+            :placeholder="property?.name"
+            option-label="name"
+            option-value="iri"
+            type="text"
+            @update:model-value="updateMember"
+          >
+            <template #option="slotProps">
+              <div v-tooltip="slotProps.option.tooltip" class="flex items-center" style="min-height: 1rem">
+                <div>{{ slotProps.option.name }}</div>
+              </div>
+            </template>
+          </Select>-->
+        </div>
+        <div v-else-if="!node.iri" class="auto-complete-container">
           <AutocompleteSearchBar
             ref="searchBar"
             v-model:selected="selected"
             :im-query="imQueryForConceptSearch"
-            :root-entities="[IM.ONTOLOGY_PARENT_FOLDER, IM.CONCEPT_SET_PARENT_FOLDER]"
+            :root-entities="rootEntities"
             @update:selected="updateIsIri(node)"
           />
         </div>
@@ -81,6 +114,7 @@ import { IM } from "@endeavour/vue-library/enums";
 import { getIconColor, getTypeIcon } from "@endeavour/vue-library/helpers";
 import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
+import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import Button from "primevue/button";
 
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
@@ -107,6 +141,13 @@ const coreSchemes = computed(() => filterStore.coreSchemes);
 const selected: Ref<SearchResultSummary> = ref({ iri: node.value.iri, name: node.value.name } as SearchResultSummary);
 const imQueryForConceptSearch: Ref<QueryRequest | undefined> = ref();
 const showAddConcept = ref(false);
+const rootEntities: Ref<string[]> = computed(() => {
+  return [IM.ONTOLOGY_PARENT_FOLDER, IM.CONCEPT_SET_PARENT_FOLDER];
+});
+const members: Ref<Node[] | undefined> = ref();
+const member: Ref<Node | undefined> = ref();
+const filteredMembers: Ref<Node[]> = ref([]);
+
 onMounted(() => {
   init();
 });
@@ -115,7 +156,22 @@ function getNodeInclusion(node: Node): string {
   if (node.exclude) return "exclude";
   else return "include";
 }
+function searchMembers(event: AutoCompleteCompleteEvent) {
+  if (members.value) {
+    const query = event.query.toLowerCase();
+    filteredMembers.value = members.value.filter(member => member.name?.toLowerCase().startsWith(query));
+  }
+}
 
+function updateMember(member: Node | undefined, node: Node) {
+  if (!member) return;
+  if (!property.value.is) property.value.is = [];
+  node.iri = member.iri;
+  node.name = member.name;
+  node.type = IM.CONCEPT;
+  showAddConcept.value = false;
+  emit("updateProperty", property.value);
+}
 function isConstraintEditable(node: Node): boolean {
   if (node) {
     if (node.type === IM.CONCEPT_SET) {
@@ -133,10 +189,11 @@ async function init() {
     props.uiProperty &&
     props.uiProperty.setMemberCount &&
     props.uiProperty.setMemberCount > 0 &&
-    props.uiProperty.setMemberCount < 11 &&
+    props.uiProperty.setMemberCount < 20 &&
     props.uiProperty.valueType
   ) {
-    const pagedMembers = await SetService.getMembers(props.uiProperty.valueType, false, 1, 11);
+    const memberSet = await SetService.getMembers(props.uiProperty.valueType, false, 1, 11);
+    if (memberSet) members.value = memberSet.result;
   }
 }
 function updateNodeInclusion(node: Node, val: string) {

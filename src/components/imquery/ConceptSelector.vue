@@ -26,7 +26,6 @@
         :im-query="imQueryForConceptSearch"
         :root-entities="[IM.ONTOLOGY_PARENT_FOLDER]"
         @update-selected="updateConcept"
-        @activateInput="emit('activateInput', $event)"
       />
     </div>
     <template v-if="searchBar?.searchText && node.name">

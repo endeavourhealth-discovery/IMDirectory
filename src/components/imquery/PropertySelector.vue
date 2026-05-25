@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, onMounted, ref } from "vue";
+import { onMounted, Ref, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
@@ -75,6 +75,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const showPropertySelector = defineModel<boolean>("showPropertySelector", { default: false });
+const match = defineModel<Match>("match", { default: {} });
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
 const { expandNode, createModeView, getTypeNode, createFeatureTree } = usePropertyTree();
@@ -94,7 +95,7 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false, true);
+  nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false);
   typeNodes.value = await createFeatureTree(nodeShape.value, "return");
   setupTrees("return");
   expandedKeys.value = { [typeNodes.value[0].key]: true };
@@ -108,6 +109,17 @@ function setupTrees(mode: Mode) {
 }
 
 async function onReturnNodeSelect(node: any) {
+  if (!match.value.typeOf) {
+    if (node.data.typeOf) {
+      match.value.typeOf = { iri: node.data.typeOf };
+      nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
+      typeNodes.value = await createFeatureTree(nodeShape.value, "return");
+      setupTrees("return");
+      if (!expandedKeys.value[typeNodes.value[0].key]) {
+        expandedKeys.value[typeNodes.value[0].key] = true;
+      }
+    }
+  }
   emit("selectedProperty", node);
 }
 async function onReturnNodeExpand(node: any) {

@@ -156,7 +156,7 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   if (where.value.iri) {
-    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType);
+    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType,where.value.nodeRef);
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);

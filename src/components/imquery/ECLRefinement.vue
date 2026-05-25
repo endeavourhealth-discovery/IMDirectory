@@ -3,85 +3,85 @@
     <div>
       <BooleanEditor
         v-model:clause="where"
-        v-model:parent="parent"
-        :parentType="'Where'"
-        :index="index"
         v-model:group="group"
-        :parentOperator="parentOperator"
-        :operator="operator"
-        :isInAttributeGroup="isInAttributeGroup"
-        :rootBool="rootBool"
+        v-model:parent="parent"
         :clauseType="'Where'"
+        :index="index"
+        :isInAttributeGroup="isInAttributeGroup"
+        :operator="operator"
+        :parentOperator="parentOperator"
+        :parentType="'Where'"
+        :rootBool="rootBool"
       />
     </div>
 
     <div class="nested-refinement-container">
       <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
         <ECLRefinement
-          v-model:where="boolGroup![subIndex]"
           v-model:parent="where"
           v-model:parentGroup="group"
-          :index="subIndex"
-          :parentIndex="index"
-          :isInAttributeGroup="isRoleGroup"
-          :rootBool="false"
-          :parentType="'Where'"
-          :parentOperator="operator as Bool"
-          :rootProperties="rootProperties"
-          :propertySearch="propertySearch"
-          :isValidPropertySearch="isValidPropertySearch"
+          v-model:where="boolGroup![subIndex]"
           :canCheck="boolGroup!.length > 2"
+          :index="subIndex"
+          :isInAttributeGroup="isRoleGroup"
+          :isValidPropertySearch="isValidPropertySearch"
+          :parentIndex="index"
+          :parentOperator="operator as Bool"
+          :parentType="'Where'"
+          :propertySearch="propertySearch"
+          :rootBool="false"
+          :rootProperties="rootProperties"
           @rationalise="onRationalise"
         />
       </div>
       <div class="add-group">
         <Button
-          type="button"
+          class="add-button"
+          data-testid="add-refinement-button"
           icon="fa-solid fa-plus"
           label="Add attribute"
-          data-testid="add-refinement-button"
-          class="add-button"
+          type="button"
           @click="addRefinementToGroup()"
         />
       </div>
     </div>
   </div>
-  <div v-else class="single-refinement" @drop="onDrop($event, where, parent, index, 'Where')" @dragover="onDragOver($event, 'Where')">
+  <div v-else class="single-refinement" @dragover="onDragOver($event, 'Where')" @drop="onDrop($event, where, parent, index, 'Where')">
     <div class="property-column">
       <div class="property-container">
         <Button
+          draggable="true"
           icon="drag-icon fa-solid fa-grip-vertical"
           severity="secondary"
           text
-          draggable="true"
-          @dragstart="onDragStart(where, parent, index, 'Where')"
           @dragend="onDragEnd()"
+          @dragstart="onDragStart(where, parent, index, 'Where')"
         />
         <div v-if="canCheck" class="group-checkbox">
           <Checkbox
-            :inputId="'group' + index"
-            name="Group"
-            binary
             v-model="checked"
-            data-testid="group-checkbox"
-            @update:modelValue="onCheckGroupChange"
             v-tooltip="'Select to build boolean subgroup'"
+            :inputId="'group' + index"
+            binary
+            data-testid="group-checkbox"
+            name="Group"
+            @update:modelValue="onCheckGroupChange"
           />
         </div>
         <div v-if="parentGroup.includes(index) && parentGroup.length > 1">
           <Button
+            v-tooltip="'Click to create boolean subgroup'"
             :label="index === parentGroup[0] ? '(' : index === parentGroup[parentGroup.length - 1] ? ')' : ''"
             :severity="'secondary'"
-            v-tooltip="'Click to create boolean subgroup'"
             @click="onCreateSubgroup"
           />
         </div>
         <Select
-          style="width: 4.5rem; min-height: 2.3rem"
           v-model="propertyConstraintOperator"
           :options="ConstraintOperatorOptions"
           option-label="label"
           option-value="value"
+          style="width: 4.5rem; min-height: 2.3rem"
           @change="updatePropertyConstraint"
         >
           <template #value="slotProps">
@@ -96,28 +96,28 @@
           </template>
         </Select>
         <AutocompleteSearchBar
-          :disabled="loadingProperty"
           v-model:selected="selectedProperty"
+          :disabled="loadingProperty"
           :imQuery="propertySearch"
-          :validEntityQuery="isValidPropertySearch"
           :rootEntities="rootProperties"
+          :validEntityQuery="isValidPropertySearch"
           @update:selected="updateProperty"
         />
 
-        <Button v-if="where.invalid" icon="fa-solid fa-exclamation" severity="danger" v-tooltip="'Value is invalid for property'" />
-        <Button @click.stop="deleteProperty" class="delete-button" icon="fa-solid fa-trash" />
+        <Button v-if="where.invalid" v-tooltip="'Value is invalid for property'" icon="fa-solid fa-exclamation" severity="danger" />
+        <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteProperty" />
 
         <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
-        <Select style="width: 5rem" v-model="inNotIn" :options="operatorOptions" />
+        <Select v-model="inNotIn" :options="operatorOptions" style="width: 5rem" />
       </div>
     </div>
     <div class="value-column">
       <div v-for="(item, index) in where.is" :key="item.iri">
         <ECLRefinementValue
-          :index="index"
-          v-model:where="where"
           v-model:node="where.is![index]"
+          v-model:where="where"
           :imQueryForValueSearch="imQueryForValueSearch!"
+          :index="index"
           :valueTreeRoots="valueTreeRoots"
           @deleteProperty="deleteProperty"
         />
@@ -126,11 +126,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, inject, onMounted, Ref, ref } from "vue";
 
-import { IM, QUERY } from "@endeavour/vue-library/enums";
-import { Bool } from "@endeavour/vue-library/enums";
+import { Bool, IM } from "@endeavour/vue-library/enums";
 import type { Match, QueryRequest, SearchResultSummary, Where } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
@@ -145,14 +144,13 @@ import { ConstraintOperatorOptions } from "@/constants";
 import {
   checkGroupChange,
   createNewBoolGroup,
-  getBoolGroup,
   getBooleanOperator,
-  getBooleanOptions,
+  getBoolGroup,
+  getConstraintOperator,
   getIsRoleGroup,
-  removeSubgroup
+  removeSubgroup,
+  setConstraintOperator
 } from "@/helpers/buildQuery";
-import { getConstraintOperator, manageRoleGroup, setConstraintOperator } from "@/helpers/buildQuery";
-import { EclService, QueryService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {

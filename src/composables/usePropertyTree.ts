@@ -48,6 +48,61 @@ export function usePropertyTree() {
     }
   }
 
+  function createRelatedTypeTree(nodeShape: NodeShape): TreeNode[] {
+    const propertyList = [] as TreeNode[];
+    const parentKey = "0";
+    if (nodeShape.property && isArrayHasLength(nodeShape.property)) {
+      for (const [index, property] of nodeShape.property.entries()) {
+        if (!isBase(property)) propertyList.push(createPropertyNode(parentKey + "_" + index.toString(), property, "", parentKey, nodeShape.iri));
+      }
+    }
+    if (nodeShape.folder && nodeShape.folder.length > 0) {
+      const propertyIndex = propertyList.length;
+      for (const [index, folder] of nodeShape.folder.entries()) {
+        createFolderNode(parentKey, parentKey + "_" + (propertyIndex + index).toString(), folder, propertyList, nodeShape);
+      }
+    }
+    return propertyList;
+  }
+  function createFolderNode(parentKey: string, key: string, folder: NodeShape, propertyList: TreeNode[], nodeShape: NodeShape) {
+    const folderNode = createNode({
+      key: key,
+      name: folder.name,
+      iri: folder.iri,
+      type: "folder",
+      iconType: IM.FOLDER,
+      parentKey: parentKey,
+      path: "",
+      typeOf: nodeShape.iri
+    });
+    folderNode.selectable = false;
+    folderNode.children = [] as TreeNode[];
+    folderNode.leaf = false;
+    propertyList.push(folderNode);
+    if (folder.type && folder.type.length > 0) {
+      for (const [index, relatedType] of folder.type.entries()) {
+        createTypeNode(key, key + "_" + index.toString(), relatedType, folderNode.children);
+      }
+    }
+  }
+
+  function createTypeNode(parentKey: string, key: string, type: NodeShape, typeList: TreeNode[]) {
+    const typeNode = createNode({
+      key: key,
+      name: type.name,
+      iri: type.iri,
+      type: "type",
+      iconType: SHACL.NODESHAPE,
+      parentKey: parentKey,
+      path: "",
+      range: type.iri,
+      rangeType: SHACL.NODESHAPE,
+      typeOf: type.iri
+    });
+    typeNode.selectable = true;
+    typeList.push(typeNode);
+  }
+
   async function createFeatureTree(nodeShape: NodeShape, viewMode: Mode): Promise<TreeNode[]> {
     mode.value = viewMode;
     const data = ref([] as TreeNode[]);
@@ -137,8 +192,8 @@ export function usePropertyTree() {
     if (property.group) {
       return createGroupNode(key, property, path, parentKey, typeOf);
     }
-    if (property.generic) {
-      return createGenericNode(key, property, path, parentKey);
+    if (property.generic && property.node) {
+      return createGenericNode(key, property, property.path.iri + "\t" + property.node.iri, parentKey);
     }
     let rangeType;
     let range;
@@ -309,6 +364,7 @@ export function usePropertyTree() {
     findNodesFromMatch,
     createModeView,
     getTypeNode,
+    createRelatedTypeTree,
     loading
   };
 }

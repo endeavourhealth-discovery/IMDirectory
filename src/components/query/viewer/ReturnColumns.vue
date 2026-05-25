@@ -2,12 +2,12 @@
   <div>
     <span class="columns-prefix">Columns :</span>
     <span>{{ columnNames.join(",") }}</span>
-    <Button text :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="toggle"></Button>
+    <Button :icon="!propertyExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="toggle"></Button>
     <RecursiveReturnDisplay v-if="propertyExpand" :select="select" />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Ref, onMounted, ref } from "vue";
 
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
@@ -43,8 +43,14 @@ function getColumnNamesFromReturn(select: Return[]) {
 }
 function getColumnNamesFromProperty(property: Return) {
   if (property.as) {
-    columnNames.value.push(property.as);
-  } else columnNames.value.push(property.name ? property.name : "->");
+    let columnName = property.as;
+    if (property.units) columnName = columnName + " (" + property.units.name + ")";
+    columnNames.value.push(columnName);
+  } else {
+    let columnName = property.name ? property.name : "->";
+    if (property.units) columnName = columnName + " (" + property.units.name + ")";
+    columnNames.value.push(columnName);
+  }
   if (property.return) {
     for (const subProperty of property.return) {
       getColumnNamesFromProperty(subProperty);

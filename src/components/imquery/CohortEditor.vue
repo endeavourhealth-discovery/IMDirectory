@@ -1,74 +1,73 @@
 <template>
   <Dialog
     v-model:visible="showDialog"
-    modal
-    maximizable
-    header="Search"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
     :contentStyle="{ display: 'flex', flexDirection: 'column', height: '100%' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
+    header="Search"
+    maximizable
+    modal
   >
     <div v-if="loading" class="flex w-full flex-auto flex-col flex-nowrap">
       <ProgressSpinner />
     </div>
     <div>
       <Button
-        :icon="match.notExists ? 'pi pi-times' : 'pi pi-check'"
-        class="p-button-text p-button-rounded"
-        :class="match.notExists ? 'text-red-500' : 'text-green-500'"
         v-tooltip="notExistsLabel"
+        :class="exclude ? 'text-red-500' : 'text-green-500'"
+        :icon="exclude ? 'pi pi-times' : 'pi pi-check'"
+        class="p-button-text p-button-rounded"
         @click="toggleNotExists"
       />
       <span>{{ notExistsLabel }}</span>
     </div>
     <div v-if="parentOperator && parentOperator === Bool.or">
       <span class="description">Optionally assign score if true</span>
-      <InputText v-model="match.score" type="text" class="match-score" @update:model-value="updateScore" />
     </div>
 
     <span v-if="match.is">Currently selected :{{ match.is[0].name }}</span>
     <div class="directory-search-dialog-content">
       <div class="search-bar">
-        <SearchBar v-model:searchTerm="searchTerm" :selected="selected" :imQuery="cohortQuery" :show-filters="false" @to-search="onSearch" />
+        <SearchBar v-model:searchTerm="searchTerm" :imQuery="cohortQuery" :selected="selected" :show-filters="false" @to-search="onSearch" />
       </div>
       <Splitter class="splitter" layout="horizontal">
         <SplitterPanel :size="25" class="column-selector">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
               <NavTree
-                :selectedIri="treeIri"
-                :root-entities="rootEntities"
-                :typeFilter="typeFilter"
-                :find-in-tree="findInDialogTree"
-                :useEmits="true"
                 :childLength="20"
+                :find-in-tree="findInDialogTree"
+                :root-entities="rootEntities"
+                :selectedIri="treeIri"
+                :typeFilter="typeFilter"
+                :useEmits="true"
                 @found-in-tree="findInDialogTree = false"
                 @row-clicked="showDetails"
               />
             </div>
           </div>
         </SplitterPanel>
-        <SplitterPanel :size="50" :minSize="10">
+        <SplitterPanel :minSize="10" :size="50">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
               <SearchResults
                 v-if="activePage === 0"
+                :im-query="cohortQuery"
+                :search-term="searchTerm"
                 :selected="selected"
+                :selected-filter-options="cohortFilterOptions"
                 :show-filters="false"
                 :updateSearch="updateSearch"
-                :search-term="searchTerm"
-                :im-query="cohortQuery"
-                :selected-filter-options="cohortFilterOptions"
-                @selectedUpdated="updateSelected"
                 @searchResultsUpdated="updateSearchResults"
+                @selectedUpdated="updateSelected"
               />
               <DirectoryDetails
                 v-if="cohortIri"
-                :selected-iri="cohortIri"
-                @locateInTree="locateInTree"
-                @navigateTo="navigateTo"
-                :showSelectButton="true"
                 v-model:history="directoryHistory"
                 :searchResults
+                :selected-iri="cohortIri"
+                :showSelectButton="true"
+                @locateInTree="locateInTree"
+                @navigateTo="navigateTo"
                 @selected-updated="updateSelectedFromIri"
                 @go-to-search-results="goToSearchResults"
               />
@@ -79,23 +78,23 @@
     </div>
     <template #footer>
       <div class="button-footer">
-        <Button data-testid="cancel-edit-feature-button" label="Cancel" class="add-button" text @click="onCancel" />
+        <Button class="add-button" data-testid="cancel-edit-feature-button" label="Cancel" text @click="onCancel" />
         <Button
           v-if="cohortIri"
-          type="button"
-          data-testid="import-reference-button"
           class="add-button"
+          data-testid="import-reference-button"
           label="Import query as reference"
           text
+          type="button"
           @click="updateCohort"
         />
         <Button
           v-if="cohortIri && importClauses.size > 0"
-          type="button"
-          data-testid="import-definition-button"
           class="add-button"
+          data-testid="import-definition-button"
           label="Import selected clause as clause"
           text
+          type="button"
           @click="updateClauses"
         />
         <Button v-if="edited && !cohortIri" autofocus data-testid="save-feature-button" label="Save" @click="emit('updateCohort')" />
@@ -108,7 +107,7 @@
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, IM, NAMESPACE } from "@endeavour/vue-library/enums";
-import type { Match, Node, NodeShape, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { Match, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
@@ -131,6 +130,7 @@ interface Props {
 const props = defineProps<Props>();
 const editMode = defineModel<boolean>("editMode");
 const match = defineModel<Match>("match", { default: {} });
+const exclude = defineModel<boolean>("exclude", { default: false });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
 const importClauses: Ref<Map<string, Match>> = ref(new Map() as Map<string, Match>);
 provide("importClauses", importClauses.value);
@@ -163,22 +163,19 @@ const emit = defineEmits<{
   (event: "navigateTo", iri: string): void;
   (event: "cancel"): void;
   (event: "updateMatch"): void;
+  (event: "updateExists", exists: boolean): void;
 }>();
 
 const toggleNotExists = () => {
-  if (match.value.notExists === undefined) {
-    match.value.notExists = true;
-  } else {
-    delete match.value.notExists;
-  }
+  exclude.value = !exclude.value;
+  emit("updateExists", exclude.value);
   edited.value = true;
 };
 
 const notExistsLabel = computed(() => {
-  if (match.value.notExists === undefined) {
+  if (!exclude.value) {
     return "Click to exclude if true";
-  }
-  return match.value.notExists ? "Click to include if true" : "Click to exclude if true";
+  } else return "Click to include if true";
 });
 
 watch(

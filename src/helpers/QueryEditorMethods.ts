@@ -84,7 +84,7 @@ export function isTimeInRange(time: string, start: string, end: string): boolean
 export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
   if (!having) return;
   const parts: SentencePart[] = [];
-  parts.push({ type: "text", value: "True if " + having.aggregate?.toString() + " " });
+  parts.push({ type: "text", value: "True if " + having.function?.toString() + " " });
   if (having.range) {
     const range = buildRangeSentence(having.range);
     if (range) parts.push(...range);

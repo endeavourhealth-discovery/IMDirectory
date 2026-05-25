@@ -52,6 +52,7 @@
       <i class="fas fa-info-circle text-blue-500" />
       <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
     </div>
+
   </div>
 </template>
 <script setup lang="ts">

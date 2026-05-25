@@ -5,7 +5,6 @@ import { Bool, IM, RDF, RuleAction, SHACL, XSD } from "@endeavour/vue-library/en
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type {
   HasPaths,
-  Having,
   Match,
   Node,
   NodeShape,
@@ -427,13 +426,6 @@ export function setRuleAction(match: Match, ruleAction: string) {
   }
 }
 
-export function getHavingText(having: Having): string {
-  let text = "";
-  if (having.aggregate) {
-    text = "if " + having.aggregate + " ";
-  }
-  return text;
-}
 export function getRuleActionLabel(value: string): string {
   const match = getRuleActionOptions().find(item => item.value === value);
   return match?.label ?? "";
@@ -611,12 +603,35 @@ export function createNodeVariable(match: Match, index: number): string {
   return nodeVariable + (index > 0 ? "_" + index : "");
 }
 
-export function setMandatoryWheres(match: Match, nodeShape: NodeShape): void {
-  for (const propertyShape of nodeShape.property!) {
-    if (propertyShape.minCount && propertyShape.minCount > 0) {
-      if (!hasProperty(match.where, propertyShape.path.iri)) {
-        const where = createWhere(propertyShape.path.iri, propertyShape.clazz, undefined);
-        addWhereToMatch(match, where);
+export async function setMandatoryWheres(match: Match): Promise<void> {
+  if (match.typeOf) {
+    await setMandatoryWheresFromType(match, match.typeOf.iri!, undefined);
+  }
+  await setMandatoryWheresFromPath(match, match);
+}
+
+export async function setMandatoryWheresFromPath(match: Match, pathable: HasPaths) {
+  if (pathable.path) {
+    for (const path of pathable.path) {
+      if (path.typeOf) {
+        await setMandatoryWheresFromType(match, path.typeOf.iri!, path.node);
+      }
+      if (path.path) await setMandatoryWheresFromPath(match, path);
+    }
+  }
+}
+
+async function setMandatoryWheresFromType(match: Match, typeIri: string, nodeRef?: string) {
+  const nodeShape = await DataModelService.getDataModelProperties(typeIri, false);
+  if (!nodeShape) return;
+  if (nodeShape.definingProperty) {
+    const definingProperty = nodeShape.definingProperty.iri;
+    for (const propertyShape of nodeShape.property!) {
+      if (propertyShape.path.iri === definingProperty) {
+        if (!hasProperty(match.where, propertyShape.path.iri)) {
+          const where = createWhere(propertyShape.path.iri, propertyShape.clazz, nodeRef);
+          addWhereToMatch(match, where);
+        }
       }
     }
   }
@@ -630,10 +645,26 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Match, baseType: Node): string {
+export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef?: string): string {
+  if (nodeRef) {
+    const typeOf = getTypeIriFromNodeRef(match, nodeRef);
+    if (typeOf) return typeOf;
+    else return baseType.iri!;
+  }
   if (match.typeOf) return match.typeOf.iri!;
   else return baseType.iri!;
 }
+
+export function getTypeIriFromNodeRef(pathable: HasPaths, nodeRef: string): string | undefined {
+  if (pathable.path) {
+    for (const path of pathable.path) {
+      if (path.node === nodeRef) return path.typeOf!.iri!;
+      const typeIri = getTypeIriFromNodeRef(path, nodeRef);
+      if (typeIri) return typeIri;
+    }
+  }
+}
+
 export function injectReturn(match: Match, iri: string, ref: string) {
   if (!match.return) match.return = [];
   for (const ret of match.return) {
@@ -662,12 +693,12 @@ export function addReturn(match: Match, node: TreeNode, ret?: Return) {
 
   match.invalid = false;
 }
-export function addFilter(match: Match, node: TreeNode, isThen: boolean): string | undefined {
+export function addFilter(match: Match, node: TreeNode, isThen: boolean, optional: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
     const fullPath = node.data.path;
     if (fullPath) {
-      nodeRef = setPathGetNodeRef(match, fullPath, true);
+      nodeRef = setPathGetNodeRef(match, fullPath, optional);
     }
     if (node.data.rangeType != SHACL.NODESHAPE) {
       const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);

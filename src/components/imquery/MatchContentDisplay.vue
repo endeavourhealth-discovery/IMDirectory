@@ -1,5 +1,5 @@
 <template>
-  <span v-if="match.notExists" class="not">Exclude if </span>
+  <span v-if="match.notExists" class="not">Exclude</span>
   <div v-if="match.description">
     <span class="match-description">{{ match.description }} </span>
     <span>defined as:</span>
@@ -15,7 +15,7 @@
         <span v-if="index > 0">or</span>
         <li class="tight-spacing">
           <span class="field">in</span>
-          <IMViewerLink v-if="item.iri" :iri="item.iri" :action="'view'" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          <IMViewerLink v-if="item.iri" :action="'view'" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </li>
       </template>
     </ul>
@@ -25,42 +25,41 @@
     <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
     <template v-if="match.where">
       <template v-if="!boolWhereGroup">
-        <WhereContentDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :key="0" :index="0" :root="true" />
+        <WhereContentDisplay :key="0" :depth="depth + (match.nodeRef ? 1 : 0)" :index="0" :root="true" :where="match.where" />
       </template>
       <template v-else>
         <WhereContentDisplay
-          :where="boolWhereGroup![0]"
-          :depth="depth + (match.nodeRef ? 1 : 0)"
-          :parentOperator="whereOperator"
           :key="0"
+          :depth="depth + (match.nodeRef ? 1 : 0)"
           :index="0"
+          :parentOperator="whereOperator"
           :root="true"
+          :where="boolWhereGroup![0]"
         />
         <div v-for="(nestedProperty, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
           <WhereContentDisplay
-            :where="boolWhereGroup![subIndex + 1]"
-            :depth="depth + (match.nodeRef ? 1 : 0)"
-            :parentOperator="whereOperator"
             :key="0"
+            :depth="depth + (match.nodeRef ? 1 : 0)"
             :index="subIndex + 1"
+            :parentOperator="whereOperator"
             :root="false"
+            :where="boolWhereGroup![subIndex + 1]"
           />
         </div>
       </template>
     </template>
     <div v-if="match.then && !skipThen">
       <span class="above">then with the {{ testFields }} of the above</span>
-      <WhereContentDisplay :where="match.then" :depth="depth + 1" :parentOperator="whereOperator" :key="0" :index="0" :root="false" />
+      <WhereContentDisplay :key="0" :depth="depth + 1" :index="0" :parentOperator="whereOperator" :root="false" :where="match.then" />
     </div>
     <span v-if="match.node">
       <span class="field">(as</span>
       <span class="as">{{ match.node }})</span>
     </span>
   </template>
-  <span v-if="match.score" class="score">Score if true : {{ match.score }}</span>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";

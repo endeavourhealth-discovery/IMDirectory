@@ -23,12 +23,14 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
+import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Match, Node, When } from "@endeavour/vue-library/interfaces";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 
 import WhereEditor from "@/components/imquery/WhereEditor.vue";
+import { QueryService } from "@/services";
 
 interface Props {
   baseType: Node;
@@ -39,8 +41,9 @@ const match: Ref<Match> = defineModel<Match>("match", { default: {} });
 const when: Ref<When> = defineModel<When>("when", { default: {} });
 const edited = ref(false);
 const emit = defineEmits<{
-  (event: "saveCondition", when:When): void;
+  (event: "saveCondition", when: When): void;
   (event: "cancel"): void;
+  (event: "updateMatch"): void;
 }>();
 
 function cancel() {
@@ -52,8 +55,12 @@ function onSave() {
   showEditor.value = false;
   emit("saveCondition", when.value);
 }
-function onUpdate() {
+async function onUpdate() {
   edited.value = true;
+  const match = { return: [{ case: { when: [when.value] } }] } as Match;
+  const displayMatch = await QueryService.getQueryDisplayFromQuery(match, DisplayMode.ORIGINAL);
+  const ret = displayMatch.return;
+  when.value = ret![0].case!.when![0];
 }
 function deleteWhere() {
   delete when.value.where;
