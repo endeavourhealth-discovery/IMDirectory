@@ -380,8 +380,8 @@ export function getRuleAction(match: Match): string {
   return "nextreject";
 }
 
-export function addMatchToParent(parent: Match, match: Match) {
-  const matches = parent.rule || parent.and || parent.or;
+export function addMatchToParent(parent: Match, match: Match, defaultOperator?: Bool) {
+  const matches = parent.rule || parent.and || parent.or || parent.any;
   if (matches) matches.push(match);
   else if (parent.is) {
     parent.and = [];
@@ -389,6 +389,10 @@ export function addMatchToParent(parent: Match, match: Match) {
     parent.and.push(isMatch);
     parent.and.push(match);
     delete parent.is;
+  } else {
+    const bool = defaultOperator ? defaultOperator : Bool.and;
+    parent[bool] = [];
+    parent[bool].push(match);
   }
 }
 export function setRuleAction(match: Match, ruleAction: string) {

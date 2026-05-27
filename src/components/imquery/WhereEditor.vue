@@ -1,5 +1,6 @@
 <template>
   <div class="filter-editor-container">
+    <div>{{ match }}</div>
     <Splitter layout="horizontal" size="25">
       <SplitterPanel :size="25">
         <div class="column-selector" @click.stop>
@@ -174,6 +175,7 @@ interface Props {
   editingWhen?: boolean;
   returnIndex?: number;
   whenIndex?: number;
+  mustKeep?: boolean;
 }
 
 const props = defineProps<Props>();

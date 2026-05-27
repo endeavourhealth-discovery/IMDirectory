@@ -24,6 +24,7 @@
       </div>
     </template>
     <BaseTypeEditor v-model:match="query" />
+    <div class="header">Cohort definition</div>
     <template v-if="query.typeOf">
       <BooleanMatchEditor
         v-model:match="query"
@@ -37,16 +38,43 @@
         @rationalise="rationaliseBooleans"
       />
     </template>
+    <div class="header">Output definition</div>
     <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
       <div><strong>Dataset entries:</strong></div>
       <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
         <DataSetEditor
+          v-if="showEditor && toEdit === index"
           v-model:match="query.columnGroup[index]"
+          v-model:showEditor="showEditor"
           :index="index"
           :query="query"
+          @cancel="cancelEditColumnGroup"
           @delete-group="onDeleteGroup(index)"
           @save-column-group="saveColumnGroup"
         />
+        <div v-else class="column-group-display">
+          <div>
+            <ColumnGroupDisplay
+              v-model:datasetEntry="query.columnGroup![index]!"
+              :baseType="query.typeOf!"
+              :index="index"
+              :matchExpanded="true"
+              :parentQuery="query"
+              :returnExpanded="true"
+            />
+          </div>
+          <div class="button-group">
+            <Button
+              class="edit-button"
+              data-testid="edit-clause-button"
+              icon="fa-solid fa-pen-to-square"
+              label="Edit entry"
+              text
+              @click="editColumnGroup(index)"
+            />
+            <Button class="delete-button p-button-text" icon="fa-solid fa-trash" @click.stop="deleteColumnGroup(index)" />
+          </div>
+        </div>
       </template>
     </template>
     <Button
@@ -78,6 +106,7 @@ import { v4 } from "uuid";
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
+import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import QueryService from "@/services/QueryService";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -97,7 +126,6 @@ const emit = defineEmits<{
 
 const dialogStore = useDialogStore();
 const activeInputId = ref("");
-const build: Ref<Match> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
@@ -108,6 +136,8 @@ const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
 const keepAs = shallowRef<Record<string, Ref<Match>>>({});
+const toEdit: Ref<number | undefined> = ref();
+const showEditor = ref(false);
 provide("keepAs", keepAs);
 provide("keepAs", keepAs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
@@ -135,21 +165,39 @@ function addColumnGroup() {
   if (!query.value.columnGroup) query.value.columnGroup = [];
   const match = { uuid: v4(), draft: true } as Match;
   query.value.columnGroup.push(match);
+  toEdit.value = query.value.columnGroup.length - 1;
+  showEditor.value = true;
 }
-function saveColumnGroup(index: number, match: Match) {
-  query.value.columnGroup![index] = match;
+function saveColumnGroup(editMatch: Match) {
+  showEditor.value = false;
+  if (toEdit.value !== undefined) {
+    query.value.columnGroup![toEdit.value] = editMatch;
+  }
+  toEdit.value = undefined;
 }
 
-function cancelEditGroup() {}
+function cancelEditColumnGroup() {
+  showEditor.value = false;
+  toEdit.value = undefined;
+}
+function deleteColumnGroup(index: number) {
+  query.value.columnGroup?.splice(index, 1);
+  showEditor.value = false;
+  toEdit.value = undefined;
+}
+
+function editColumnGroup(index: number) {
+  showEditor.value = true;
+  toEdit.value = index;
+}
 
 async function init() {
   loading.value = false;
+  await rationaliseBooleans();
 }
-function createDefaultBuild() {
-  build.value = {};
-}
+
 async function rationaliseBooleans() {
-  build.value = await QueryService.flattenBooleans(build.value);
+  query.value = await QueryService.flattenBooleans(query.value);
 }
 
 async function submit(): Promise<void> {
@@ -219,6 +267,19 @@ function stripValidation(build: any) {
 </script>
 
 <style scoped>
+.column-group-display {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 0.5rem;
+  border: #488bc230 1px solid;
+  border-radius: 5px;
+  background-color: #488bc210;
+  margin: 0.5rem;
+  font-size: 1rem;
+}
 #query-builder-container {
   width: 100%;
   height: 100%;
@@ -231,6 +292,9 @@ function stripValidation(build: any) {
   align-self: flex-start;
   width: 220px;
 }
+.header {
+  font-weight: bold;
+}
 
 .ecl-builder-dialog-header {
   display: flex;
@@ -238,5 +302,8 @@ function stripValidation(build: any) {
   align-items: baseline;
   justify-content: space-between;
   font-size: larger;
+}
+.button-group {
+  margin-left: auto;
 }
 </style>

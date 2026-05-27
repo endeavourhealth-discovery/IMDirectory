@@ -125,6 +125,7 @@ declare module 'vue' {
     ImqueryColumnGroupEditor: typeof import('./src/components/imquery/ColumnGroupEditor.vue')['default']
     ImqueryConceptSelector: typeof import('./src/components/imquery/ConceptSelector.vue')['default']
     ImqueryDataSetEditor: typeof import('./src/components/imquery/DataSetEditor.vue')['default']
+    ImqueryDatasetFilterEditor: typeof import('./src/components/imquery/DatasetFilterEditor.vue')['default']
     ImqueryECLBuilder: typeof import('./src/components/imquery/ECLBuilder.vue')['default']
     ImqueryECLExpressionConstraint: typeof import('./src/components/imquery/ECLExpressionConstraint.vue')['default']
     ImqueryECLRefinement: typeof import('./src/components/imquery/ECLRefinement.vue')['default']

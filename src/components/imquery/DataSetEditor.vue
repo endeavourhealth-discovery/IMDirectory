@@ -1,86 +1,136 @@
 <template>
-  <MatchEditor
-    v-if="showEditor"
-    :match="match"
-    :showEditor="showEditor"
-    :baseType="baseType"
-    :depth="0"
-    :datasetEntry="true"
-    :clauseIndex="0"
-    @cancel="cancelEditColumnGroup"
-    @saveChanges="saveEditColumnGroup"
-  />
-  <div v-else class="column-group-display">
-    <ColumnGroupDisplay
-      v-model:datasetEntry="match"
-      :matchExpanded="true"
-      :returnExpanded="true"
-      :index="index"
-      :parentQuery="query"
-      :baseType="query.typeOf!"
-    />
-    <div class="button-group">
-      <Button text icon="fa-solid fa-pen-to-square" label="Edit entry" data-testid="edit-clause-button" class="edit-button" @click="editColumnGroup()" />
-      <Button @click.stop="deleteColumnGroup" class="delete-button p-button-text" icon="fa-solid fa-trash" />
-    </div>
-  </div>
+  <Dialog
+    v-model:visible="showEditor"
+    :draggable="false"
+    :style="{ width: '90vw', height: '95vh', minWidth: '95vw', minHeight: '95vh' }"
+    closable
+    maximizable
+    modal
+    @hide="cancel"
+  >
+    <template #default>
+      <Tabs v-model:value="activeTab">
+        <TabList>
+          <Tab value="filters">Filters</Tab>
+          <Tab value="columns">
+            <span>Dataset items</span>
+          </Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel value="filters">
+            <DatasetFilterEditor
+              v-model:match="editMatch"
+              v-model:parent="editMatch"
+              :baseType="baseType"
+              :depth="0"
+              :index="0"
+              :parent-index="0"
+              :rootBool="true"
+              @cancel="cancel"
+              @add-linked="addLinked"
+              @update-match="edited=true"
+            />
+          </TabPanel>
+          <TabPanel value="columns">
+            <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </template>
+    <template #footer>
+      <div class="button-footer">
+        <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="cancel" />
+        <Button v-if="edited" autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
+      </div>
+    </template>
+  </Dialog>
 </template>
 
-<script setup lang="ts">
-import { Ref, onMounted, ref } from "vue";
+<script lang="ts" setup>
+import { Ref, ref } from "vue";
 
+import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Match, Node, Query } from "@endeavour/vue-library/interfaces";
 
-import Button from "primevue/button";
+import { cloneDeep } from "lodash-es";
 import { v4 } from "uuid";
 
-import ColumnGroupEditor from "@/components/imquery/ColumnGroupEditor.vue";
-import MatchEditor from "@/components/imquery/MatchEditor.vue";
-import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
-import { deleteGroupFromQuery } from "@/helpers/buildQuery";
+import DatasetFilterEditor from "@/components/imquery/DatasetFilterEditor.vue";
+import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { QueryService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   index: number;
   query: Query;
+  match: Match;
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
+const editMatch: Ref<Match> = ref(cloneDeep(props.match));
+const showEditor = defineModel<boolean>("showEditor");
 const emit = defineEmits<{
-  (event: "saveColumnGroup", index: number, match: Match): void;
+  (event: "saveColumnGroup", editMatch: Match): void;
   (event: "cancel"): void;
-  (event: "deleteGroup", index: number): void;
 }>();
+const activeTab = ref("columns");
+const edited = ref(false);
 
-const showEditor = ref(false);
 const baseType: Ref<Node> = ref(props.query.typeOf!);
+const dialogStore = useDialogStore();
 
-onMounted(() => {
-  init();
-});
-
-function init() {
-  if (match.value.draft) editColumnGroup();
+async function onUpdate() {
+  edited.value = true;
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
 }
 
-function editColumnGroup() {
-  showEditor.value = true;
+function cancel() {
+  emit("cancel");
 }
-function saveEditColumnGroup(editedMatch: Match) {
-  showEditor.value = false;
-  editedMatch.draft = false;
-  emit("saveColumnGroup", props.index, editedMatch);
-}
-function cancelEditColumnGroup() {
-  showEditor.value = false;
-  if (match.value && match.value.draft) {
-    deleteColumnGroup();
+async function onSave() {
+  const valid = await saveChanges();
+  if (valid) {
+    emit("saveColumnGroup", editMatch.value);
   }
 }
-function deleteColumnGroup() {
+async function showInvalid(match: Match) {
+  await dialogStore.open(AlertDialog, {
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-check",
+      title: "Warning",
+      text: match.errorMessage + ". Use filter tab to edit.",
+      confirmButtonText: "Close"
+    }
+  });
+}
+async function addLinked(editedMatch: Match) {
+  await saveEditMatch(editedMatch);
   showEditor.value = false;
-  emit("deleteGroup", props.index);
+  const linkedMatch = { uuid: v4(), draft: true };
+  editMatch.value.any!.push(linkedMatch);
+  showEditor.value = false;
+}
+
+async function saveEditMatch(editedMatch: Match) {
+  showEditor.value = false;
+  editMatch.value = editedMatch;
+  editMatch.value.draft = false;
+  showEditor.value = false;
+}
+
+async function saveChanges(): Promise<boolean> {
+  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  if (matchCheck.invalid) {
+    editMatch.value.draft = true;
+    await showInvalid(matchCheck);
+    return false;
+  } else {
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    editMatch.value.draft = false;
+    return true;
+  }
 }
 </script>
 
@@ -94,59 +144,6 @@ function deleteColumnGroup() {
   background-color: #488bc210;
   margin: 0.5rem;
   font-size: 1rem;
-}
-
-.column-group-display {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  box-sizing: border-box;
-  min-width: 0;
-  padding: 0.5rem;
-  border: #488bc230 1px solid;
-  border-radius: 5px;
-  background-color: #488bc210;
-  margin: 0.5rem;
-  font-size: 1rem;
-}
-.button-group {
-  margin-left: auto;
-  display: flex;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-.drag-drop {
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-.boolean-editor {
-  min-height: 100%;
-  width: 6rem;
-}
-
-.match-display {
-  width: 30%;
-  padding-left: 0.2rem;
-  flex: 1 1 auto;
-}
-
-.edit-button {
-  height: 100%;
-  width: 20rem;
-  display: flex;
-  align-items: center;
-  color: black;
-}
-.delete-button {
-  height: 100%;
-  width: 4rem;
-  display: flex;
-  color: black;
-  align-items: center;
-}
-.delete-button:hover,
-.delete-button:focus {
-  background-color: red;
 }
 
 ::v-deep(.operator-selector .p-select-label) {

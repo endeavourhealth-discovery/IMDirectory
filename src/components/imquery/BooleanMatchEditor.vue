@@ -75,7 +75,7 @@
         <Menu ref="menu" :model="addItems" popup />
       </div>
     </div>
-    <div v-else class="match-clause-outer" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
+    <div v-else-if="isDefined" class="match-clause-outer" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
       <div v-if="match.nodeRef">
         <span class="from">from</span>
         <span class="node-ref">{{ match.nodeRef }}</span>
@@ -174,7 +174,6 @@ const from: Ref<Match | undefined> = ref();
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
-const definitionSelector = ref(false);
 const menu = ref();
 const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
@@ -186,6 +185,14 @@ const boolGroup = computed(() => {
 });
 const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.index);
+});
+const isDefined = computed(() => {
+  const matches = match.value.and || match.value.or || match.value.any;
+  if (matches) return true;
+  if (match.value.orderBy) return true;
+  if (match.value.where) return true;
+  if (match.value.return) return true;
+  return false;
 });
 const notExistsLabel = computed(() => {
   if (match.value.notExists === undefined) {

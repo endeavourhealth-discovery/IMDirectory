@@ -29,6 +29,7 @@
             :editingWhere="true"
             :parentOperator="parentOperator"
             :showEditor="showEditor"
+            :mustKeep="mustKeep"
             @addLinked="emit('addLinked')"
             @addTest="emit('addTest')"
             @cancel="emit('cancel')"
@@ -87,6 +88,7 @@ interface Props {
   index: number;
   isStep?: boolean;
   parentOperator?: Bool;
+  mustKeep?: boolean;
 }
 
 const props = defineProps<Props>();
