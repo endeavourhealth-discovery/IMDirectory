@@ -20,7 +20,6 @@
           <TabPanel value="filters">
             <DatasetFilterEditor
               v-model:match="editMatch"
-              v-model:parent="editMatch"
               :baseType="baseType"
               :depth="0"
               :index="0"
@@ -28,7 +27,7 @@
               :rootBool="true"
               @cancel="cancel"
               @add-linked="addLinked"
-              @update-match="edited=true"
+              @update-match="edited = true"
             />
           </TabPanel>
           <TabPanel value="columns">
@@ -135,20 +134,9 @@ async function saveChanges(): Promise<boolean> {
 </script>
 
 <style scoped>
-.nested-match {
-  box-sizing: border-box;
-  min-width: 0;
-  padding: 0.5rem;
-  border: #488bc230 1px solid;
-  border-radius: 5px;
-  background-color: #488bc210;
-  margin: 0.5rem;
-  font-size: 1rem;
-}
-
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;
-  padding-right: 0rem;
+  padding-right: 0;
   margin-right: 0;
 }
 
@@ -160,9 +148,5 @@ async function saveChanges(): Promise<boolean> {
 ::v-deep(.operator-selector-not .p-select-label) {
   color: var(--p-red-500) !important;
   font-size: 0.85rem;
-}
-.rule {
-  font-weight: bold;
-  padding-right: 1rem;
 }
 </style>

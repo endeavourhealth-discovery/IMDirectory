@@ -1,5 +1,4 @@
 <template>
-  <div>{{ editMatch.any }}</div>
   <template v-if="showEditor && editMatch">
     <MatchContentEditor
       v-model:match="editMatch"
@@ -10,38 +9,25 @@
       :parentOperator="parentOperator"
       @addLinked="onAddLinked"
       @cancel="cancel"
-      @deleteMatch="deleteMatch"
+      @deleteMatch="deleteAny"
       @saveChanges="saveEditMatch"
       @updateMatch="onUpdate"
     />
   </template>
   <template v-else>
-    <div>{{ editMatch.any }}</div>
     <div v-if="editMatch.any && editMatch.any.length > 0" class="match-container">
       <div v-for="(item, subIndex) in editMatch.any" :key="item.uuid">
         <DatasetFilterEditor
           v-model:match="editMatch.any[subIndex]"
-          v-model:parentGroup="group"
           :baseType="baseType"
           :depth="depth + 1"
           :index="subIndex"
           :parentIndex="index"
           :parentOperator="operator as Bool"
           :rootBool="false"
-          @deleteMatch="onDeleteMatch(subIndex)"
+          @deleteMatch="deleteMatch(subIndex)"
           @add-linked="addLinked"
         />
-      </div>
-    </div>
-    <div class="match-clause-outer">
-      <div v-if="match.nodeRef">
-        <span class="from">from</span>
-        <span class="node-ref">{{ match.nodeRef }}</span>
-      </div>
-      <div class="match-clause-inner">
-        <div class="match-display">
-          <MatchContentDisplay :clauseIndex="index" :depth="depth" :from="from" :match="editMatch" :parentMatch="editMatch" />
-        </div>
         <div class="edit-button">
           <Button
             class="add-button"
@@ -51,9 +37,20 @@
             type="button"
             @click="editMatchClause()"
           />
+          <div>
+            <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteMatch(subIndex)" />
+          </div>
         </div>
-        <div>
-          <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteMatch" />
+      </div>
+    </div>
+    <div v-if="isDefined" class="match-clause-outer">
+      <div v-if="match.nodeRef">
+        <span class="from">from</span>
+        <span class="node-ref">{{ match.nodeRef }}</span>
+      </div>
+      <div class="match-clause-inner">
+        <div class="match-display">
+          <MatchContentDisplay :clauseIndex="index" :depth="depth" :from="from" :match="editMatch" :parentMatch="editMatch" />
         </div>
       </div>
     </div>
@@ -76,8 +73,7 @@ import { v4 } from "uuid";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
-import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import { addMatchToParent, checkGroupChange, getBooleanOperator, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
+import { getBooleanOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -97,7 +93,7 @@ interface Props {
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
 const editMatch: Ref<Match> = ref(cloneDeep(props.match));
-const emit = defineEmits(["activateInput", "navigateTo", "deleteMatch", "cancel", "addLinked","updateMatch"]);
+const emit = defineEmits(["activateInput", "navigateTo", "cancel", "addLinked", "updateMatch"]);
 const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);
 const from: Ref<Match | undefined> = ref();
@@ -106,7 +102,9 @@ const operator = computed(() => {
 });
 const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
 const dialogStore = useDialogStore();
-
+const isDefined = computed(() => {
+  return !!editMatch.value.where;
+});
 function cancel() {
   emit("cancel");
 }
@@ -167,23 +165,18 @@ function updateKeepAs() {
   }
 }
 
-function deleteMatch() {
+function deleteAny() {
   updateKeepAs();
   showEditor.value = false;
-  emit("deleteMatch");
+  delete editMatch.value.any;
 }
-function onDeleteMatch(index: number) {
-  if (match.value.or) {
-    match.value.or.splice(index, 1);
-    if (match.value.or.length === 1) {
-      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.or[0];
+function deleteMatch(index: number) {
+  if (match.value.any) {
+    match.value.any.splice(index, 1);
+    if (match.value.any.length === 0) {
+      delete editMatch.value.any;
     }
-  } else if (match.value.and) {
-    match.value.and.splice(index, 1);
-    if (match.value.and.length === 1) {
-      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.and[0];
-    }
-  } else emit("deleteMatch");
+  }
 }
 
 function createNewMatch() {
@@ -202,7 +195,6 @@ async function saveEditMatch(editedMatch: Match) {
   updateKeepAs();
   showEditor.value = false;
   emit("updateMatch");
-
 }
 
 async function addLinked(editedMatch: Match) {
@@ -213,14 +205,10 @@ async function addLinked(editedMatch: Match) {
   showEditor.value = false;
   emit("updateMatch");
 }
-function onDeletedWhere() {
-  emit("deleteMatch");
-}
 function editMatchClause() {
   editMatch.value = match.value;
   showEditor.value = true;
 }
-
 </script>
 
 <style scoped>
@@ -253,9 +241,6 @@ button:active {
 .from {
   padding-right: 0.2rem;
 }
-.match-surround {
-  background-color: #fafafa;
-}
 .match-container {
   box-sizing: border-box;
   min-width: 0;
@@ -277,14 +262,6 @@ button:active {
   display: flex;
   align-items: center;
   flex-direction: row;
-}
-.drag-drop {
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-.boolean-editor {
-  min-height: 100%;
-  width: 6rem;
 }
 
 .match-display {
@@ -308,7 +285,7 @@ button:active {
 
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;
-  padding-right: 0rem;
+  padding-right: 0;
   margin-right: 0;
 }
 
@@ -320,24 +297,5 @@ button:active {
 ::v-deep(.operator-selector-not .p-select-label) {
   color: var(--p-red-500) !important;
   font-size: 0.85rem;
-}
-.rule {
-  font-weight: bold;
-  padding-right: 1rem;
-}
-
-.or {
-  color: var(--p-blue-500);
-  font-style: italic;
-  padding-right: 1.2rem;
-}
-.and {
-  color: #707824;
-  font-style: italic;
-  padding-right: 0.3rem;
-}
-
-.group-checkbox {
-  padding-right: 0.5rem;
 }
 </style>
