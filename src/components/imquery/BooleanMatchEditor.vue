@@ -191,8 +191,7 @@ const isDefined = computed(() => {
   if (matches) return true;
   if (match.value.orderBy) return true;
   if (match.value.where) return true;
-  if (match.value.return) return true;
-  return false;
+  return !!match.value.return;
 });
 const notExistsLabel = computed(() => {
   if (match.value.notExists === undefined) {
@@ -256,7 +255,7 @@ function addCohort() {
   addMatchToParent(parent.value, match);
 }
 
-function updateBool(oldOperator: Bool | string, newOperator: Bool | string, index: number) {
+function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
   updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool);
 }
 function createNewMatch() {
@@ -299,9 +298,6 @@ async function addLinked(editedMatch: Match) {
   const linkedMatch = { uuid: v4(), draft: true };
   stepMatch.and!.push(linkedMatch);
   showEditor.value = false;
-}
-function onDeletedWhere() {
-  emit("deleteMatch");
 }
 function editMatchClause() {
   editMatch.value = match.value;
@@ -354,9 +350,7 @@ button:active {
 .from {
   padding-right: 0.2rem;
 }
-.match-surround {
-  background-color: #fafafa;
-}
+
 .match-container {
   box-sizing: border-box;
   min-width: 0;
@@ -378,14 +372,6 @@ button:active {
   display: flex;
   align-items: center;
   flex-direction: row;
-}
-.drag-drop {
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-.boolean-editor {
-  min-height: 100%;
-  width: 6rem;
 }
 
 .match-display {
@@ -409,7 +395,7 @@ button:active {
 
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;
-  padding-right: 0rem;
+  padding-right: 0;
   margin-right: 0;
 }
 
@@ -425,17 +411,6 @@ button:active {
 .rule {
   font-weight: bold;
   padding-right: 1rem;
-}
-
-.or {
-  color: var(--p-blue-500);
-  font-style: italic;
-  padding-right: 1.2rem;
-}
-.and {
-  color: #707824;
-  font-style: italic;
-  padding-right: 0.3rem;
 }
 
 .group-checkbox {

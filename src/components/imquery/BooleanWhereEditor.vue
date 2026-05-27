@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, onMounted, ref } from "vue";
+import { computed, onMounted, Ref, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/interfaces";
@@ -99,9 +99,8 @@ import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
 import {
   checkGroupChange,
-  getBoolGroup,
   getBooleanOperator,
-  getDisplayOperator,
+  getBoolGroup,
   getPathPropertyNames,
   getTypeIriFromMatch,
   updateBooleans
@@ -141,9 +140,6 @@ const boolGroup = computed(() => {
   return getBoolGroup("Where", where.value);
 });
 const pathPropertyName = ref();
-const displayOperator = computed(() => {
-  return getDisplayOperator(props.parentOperator, props.index);
-});
 const dataModelIri: Ref<string> = ref("");
 const originalWhere: Ref<Where> = ref({});
 const refreshCounter: Ref<number> = ref(0);
@@ -189,7 +185,7 @@ function onDeleteBooleanWhere(index: number) {
   emit("updateProperty");
 }
 
-function updateBool(oldOperator: Bool, newOperator: Bool, index: number) {
+function updateBool(oldOperator: Bool, newOperator: Bool) {
   updateBooleans(where.value!, oldOperator, newOperator);
 }
 
@@ -202,14 +198,6 @@ function addProperty() {
   emit("addProperty");
 }
 
-function toggleDropdown(event: MouseEvent) {
-  dropdown.value.toggle(event);
-}
-
-function onSaveCustomSet(newSet: Node) {
-  where.value.is = [newSet];
-  where.value.memberOf = true;
-}
 function revert() {
   where.value = originalWhere.value;
   refreshCounter.value++;
@@ -217,7 +205,6 @@ function revert() {
 </script>
 
 <style scoped>
-add-button,
 .delete-button {
   color: #444444; /* text */
   background-color: #f0f0f0; /* greyish default */
@@ -226,10 +213,6 @@ add-button,
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-}
-.add-button:hover,
-.add-button:focus {
-  background-color: #a5d6a7;
 }
 .delete-button:hover,
 .delete-button:focus {
@@ -252,12 +235,9 @@ add-button,
   display: flex;
   flex-flow: row;
   flex: 1;
-  border: 0.5px solid #999999;
+  border: 1px solid #999999;
 }
 
-.property-display {
-  padding-right: 1rem;
-}
 .property-label {
   background: #e0f7fa;
 }
@@ -274,7 +254,6 @@ add-button,
   padding: 0.5rem;
   border: #488bc230 1px solid;
   border-radius: 5px;
-  background-color: #ffffff;
   margin: 0.5rem;
   font-size: 1rem;
   background-color: #488bc210;
