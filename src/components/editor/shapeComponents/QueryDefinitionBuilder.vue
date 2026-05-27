@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { DisplayMode, IM } from "@endeavour/vue-library/enums";
@@ -133,15 +133,11 @@ async function generateDefaultQuery(): Promise<Query> {
     typeOf: defaultBaseType.typeOf,
     and: [
       {
-        is: [{ iri: defaultIris[0] }]
+        is: { iri: defaultIris[0] }
       }
     ]
   };
   return await QueryService.getQueryDisplayFromQuery(query, DisplayMode.ORIGINAL);
-}
-
-function closeDefinitionBuilder() {
-  emit("onCancel");
 }
 
 function showBuilder(): void {
@@ -187,12 +183,6 @@ function updateQueryDefinition(test: any) {
   color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
-}
-
-.invalid {
-  border: 1px solid var(--p-red-500);
-  border-radius: 5px;
-  padding: 0.25rem;
 }
 
 .validate-error-container {

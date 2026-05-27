@@ -20,7 +20,7 @@
         <ECLRefinement
           v-model:parent="where"
           v-model:parentGroup="group"
-          v-model:where="boolGroup![subIndex]"
+          v-model:where="boolGroup![subIndex] as Where"
           :canCheck="boolGroup!.length > 2"
           :index="subIndex"
           :isInAttributeGroup="isRoleGroup"
@@ -349,7 +349,7 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   width: 99%;
   box-sizing: border-box;
   flex-direction: column;
-  flex: 1 1 0%;
+  flex: 1 1 0;
   min-width: 0;
   padding: 0.5rem;
   border: #488bc230 1px solid;
@@ -363,10 +363,6 @@ async function updateProperty(property: SearchResultSummary | undefined) {
 }
 .value-column {
   flex: 1;
-}
-.check-help {
-  margin-left: 5rem;
-  margin-top: 0.5rem;
 }
 
 .loading-icon {
@@ -396,10 +392,6 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   font-weight: normal;
 }
 
-.check-ungroup {
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
 
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;
@@ -415,9 +407,5 @@ async function updateProperty(property: SearchResultSummary | undefined) {
 ::v-deep(.operator-selector-not .p-select-label) {
   color: var(--p-red-500) !important;
   font-size: 0.85rem;
-}
-
-.builder-button {
-  width: 2rem;
 }
 </style>

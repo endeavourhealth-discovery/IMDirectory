@@ -1,67 +1,67 @@
 <template>
   <Button v-tooltip="'Save custom set'" icon="fa-solid fa-floppy-disk" severity="info" @click="showSaveCustomSetDialog = true" />
-  <Dialog v-model:visible="showSaveCustomSetDialog" modal header="Save custom set" :style="{ minWidth: '25vw', maxWidth: '50vw' }">
-    <form @submit="onSubmit" class="save-set-form flex flex-col gap-2">
-      <div class="flex flex-col gap-2" id="save-set-full-iri">
+  <Dialog v-model:visible="showSaveCustomSetDialog" :style="{ minWidth: '25vw', maxWidth: '50vw' }" header="Save custom set" modal>
+    <form class="save-set-form flex flex-col gap-2" @submit="onSubmit">
+      <div id="save-set-full-iri" class="flex flex-col gap-2">
         <span id="save-set-iri-header">Iri</span>
-        <InputText :model-value="fullIri" type="text" disabled />
-        <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
+        <InputText :model-value="fullIri" disabled type="text" />
+        <small id="text-error" class="p-error">{{ errors.iri || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-col gap-2" id="save-set-scheme-iri">
+      <div id="save-set-scheme-iri" class="flex flex-col gap-2">
         <span id="save-set-scheme-header">Scheme</span>
         <Select
           id="scheme"
           v-model="scheme"
-          v-bind="schemeAttrs"
-          type="text"
           :class="{ 'p-invalid': errors.scheme }"
-          aria-describedby="text-error"
           :options="schemeOptions"
+          aria-describedby="text-error"
+          class="flex-1"
           option-label="name"
           option-value="iri"
           placeholder="Scheme"
-          class="flex-1"
+          type="text"
+          v-bind="schemeAttrs"
         />
-        <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
+        <small id="text-error" class="p-error flex-1">{{ errors.scheme || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-col gap-2" id="save-set-name">
+      <div id="save-set-name" class="flex flex-col gap-2">
         <span id="save-set-name-header">Name</span>
-        <InputText id="name" v-model="setName" v-bind="nameAttrs" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
-        <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
+        <InputText id="name" v-model="setName" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" type="text" v-bind="nameAttrs" />
+        <small id="text-error" class="p-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-col gap-2" id="save-set-type">
+      <div id="save-set-type" class="flex flex-col gap-2">
         <span id="save-set-type-header">Type</span>
 
         <Select
           id="type"
           v-model="setType"
-          v-bind="typeAttrs"
-          type="text"
           :class="{ 'p-invalid': errors.type }"
-          aria-describedby="text-error"
           :options="typeOptions"
+          aria-describedby="text-error"
           option-label="name"
           option-value="iri"
+          type="text"
+          v-bind="typeAttrs"
         />
-        <small class="p-error" id="text-error">{{ errors.type || "&nbsp;" }}</small>
+        <small id="text-error" class="p-error">{{ errors.type || "&nbsp;" }}</small>
       </div>
 
       <span id="members-title">Members</span>
-      <Listbox v-model="selectedMember" :options="setMembers" optionLabel="name" class="flex flex-col" />
+      <Listbox v-model="selectedMember" :options="setMembers" class="flex flex-col" optionLabel="name" />
     </form>
 
     <template #footer>
-      <Button label="Cancel" severity="secondary" @click="onDiscard" text />
-      <Button label="Save" text @click="onSubmit" :loading="loading" />
+      <Button label="Cancel" severity="secondary" text @click="onDiscard" />
+      <Button :loading="loading" label="Save" text @click="onSubmit" />
     </template>
   </Dialog>
 </template>
 
-<script setup lang="ts">
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, ComputedRef, onMounted, Ref, ref, watch } from "vue";
 
 import { IM, IM_FUNCTION, NAMESPACE, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
@@ -199,7 +199,7 @@ function getIsContainedIn() {
 function getDefinition() {
   const matches: Match[] = [];
   for (const member of props.setMembers) {
-    matches.push({ name: member.name, is: [member] });
+    matches.push({ name: member.name, is: member });
   }
   const definition = {
     or: matches

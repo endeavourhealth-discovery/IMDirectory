@@ -10,16 +10,10 @@
   </span>
 
   <template v-if="match.is">
-    <ul>
-      <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
-        <span v-if="index > 0">or</span>
-        <li class="tight-spacing">
-          <span class="field">in</span>
-          <IMViewerLink v-if="item.iri" :action="'view'" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-        </li>
-      </template>
-    </ul>
+    <span class="field">in</span>
+    <IMViewerLink v-if="match.is.iri" :action="'view'" :iri="match.is.iri" :label="match.is.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
   </template>
+
   <template v-else>
     <span class="field">{{ getFormattedPath(match) }}</span>
     <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
@@ -36,7 +30,7 @@
           :root="true"
           :where="boolWhereGroup![0]"
         />
-        <div v-for="(nestedProperty, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
+        <div v-for="(subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
           <WhereContentDisplay
             :key="0"
             :depth="depth + (match.nodeRef ? 1 : 0)"
@@ -124,15 +118,9 @@ function getFormattedPath(path: any): string {
   padding-right: 0.2rem;
 }
 
-.general-field {
-  padding-right: 1rem;
-}
 
 .match-description {
   color: var(--p-blue-700);
   padding-right: 1rem;
-}
-.score {
-  padding-left: 2rem;
 }
 </style>

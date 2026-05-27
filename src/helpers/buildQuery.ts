@@ -130,7 +130,7 @@ function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
 }
 
 export function updateFocusConcepts(match: Match): string[] {
-  if (match.is && match.is[0].iri) return [match.is[0].iri];
+  if (match.is && match.is.iri) return [match.is.iri];
   const focusConcepts: string[] = [];
   focusConcepts.push(...focusChildren(match.or));
   focusConcepts.push(...focusChildren(match.and));
@@ -146,7 +146,7 @@ function focusChildren(children: Match[] | undefined): string[] {
   return focusConcepts;
 }
 
-export function removeSubgroup(clause: Match | Where, parent: Match | Where, index: number) {
+export function removeSubgroup(clause: any, parent: Match | Where, index: number) {
   if (parent.or) {
     parent.or.splice(index, 1);
     if (clause.and) {
@@ -161,7 +161,7 @@ export function removeSubgroup(clause: Match | Where, parent: Match | Where, ind
   }
 }
 
-export function createNewBoolGroup(clause: Match | Where, group: number[]) {
+export function createNewBoolGroup(clause: any, group: number[]) {
   group.sort((a, b) => a - b);
   const newClause: Where = {};
   if (clause.and) {
@@ -191,8 +191,8 @@ export function createNewBoolGroup(clause: Match | Where, group: number[]) {
 }
 
 export function addConceptToGroup(match: Match) {
-  if (match.or) match.or.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
-  else if (match.and) match.and.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
+  if (match.or) match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
+  else if (match.and) match.and.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
@@ -200,7 +200,7 @@ export function addConceptToGroup(match: Match) {
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
+    match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
   }
 }
 
@@ -232,7 +232,7 @@ export function getBooleanOperator(clauseType: string, clause: Match | Where | u
   else if ((clause as Match).rule) return Bool.rule;
   else return undefined;
 }
-export function getBoolGroup(clauseType: string, clause: Match | Where | undefined): Match[] | Where[] | undefined {
+export function getBoolGroup(clauseType: string, clause: Match | Where | undefined): any[] | undefined {
   if (!clause) return undefined;
   if (clause.or) return clause.or;
   if (clause.and) return clause.and;
@@ -600,13 +600,6 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
   }
 }
 
-export function createNodeVariable(match: Match, index: number): string {
-  let nodeVariable = "";
-  if (match.path) nodeVariable = match.path[0]!.typeOf!.name!.replace(" ", "");
-  else nodeVariable = "Match";
-  return nodeVariable + (index > 0 ? "_" + index : "");
-}
-
 export async function setMandatoryWheres(match: Match): Promise<void> {
   if (match.typeOf) {
     await setMandatoryWheresFromType(match, match.typeOf.iri!, undefined);
@@ -739,7 +732,7 @@ function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: strin
 
 export function setPathGetNodeRef(pathable: HasPaths, fullPath: string, optional?: boolean): string | undefined {
   if (!fullPath) return undefined;
-  let i = 0;
+  let i;
   const paths = fullPath.split("\t");
   for (i = 0; i < paths.length; i = i + 2) {
     if (pathable.path) {

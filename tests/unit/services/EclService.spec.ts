@@ -18,7 +18,7 @@ describe("EclService ___ axios success", () => {
     const fakerResults = [await fakerFactory.conceptSummaryRandom()];
     api.post = vi.fn().mockResolvedValue({ entities: fakerResults, count: fakerResults.length, page: 1 });
     const controller = new AbortController();
-    const eclSearchRequest: ECLQueryRequest = { query: { is: [{ iri: "testString" }] }, includeLegacy: false, limit: 1000 };
+    const eclSearchRequest: ECLQueryRequest = { query: { is: { iri: "testString" } }, includeLegacy: false, limit: 1000 };
     const result = await EclService.ECLSearch(eclSearchRequest, controller);
     expect(api.post).toBeCalledTimes(1);
     expect(api.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/eclSearch", eclSearchRequest, {
@@ -28,7 +28,7 @@ describe("EclService ___ axios success", () => {
   });
 
   it("can getEcl", async () => {
-    const testQuery: Query = { is: [{ iri: "testEntity" }] };
+    const testQuery: Query = { is: { iri: "testEntity" } };
     const result = await EclService.getEcl(testQuery);
     expect(api.post).toHaveBeenCalledTimes(1);
     expect(api.post).toHaveBeenCalledWith(Env.API + "api/ecl/protected/ecl", { query: testQuery });

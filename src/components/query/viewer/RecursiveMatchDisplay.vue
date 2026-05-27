@@ -8,7 +8,7 @@
     <template v-if="boolGroup && operator">
       <BooleanMatchDisplay
         :baseType="baseType"
-        :boolGroup="boolGroup"
+        :boolGroup="boolGroup as Match[]"
         :clauseIndex="clauseIndex"
         :depth="depth"
         :expanded="matchExpanded"
@@ -42,31 +42,28 @@
       </span>
 
       <template v-if="match.is">
-        <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
-          <Button v-if="!eclQuery" :icon="!cohorts.has(index) ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort(index)" />
-          <template v-if="cohorts.has(index) || item.match">
-            <span v-if="item.descendantsOrSelfOf" class="field">subtypes of </span>
-            <RecursiveMatchDisplay
-              :baseType="baseType"
-              :clause-index="0"
-              :depth="depth + 1"
-              :eclQuery="eclQuery"
-              :match="cohorts.get(index) ? cohorts.get(index) : item.match"
-              :parent-match="match"
-              :parent-operator="parentOperator"
-            />
-          </template>
-          <template v-else>
-            <span v-if="index > 0" class="or">or</span>
-            <span v-else class="field">in</span>
-            <IMViewerLink
-              v-if="item.iri"
-              :action="editMode ? 'view' : 'select'"
-              :iri="item.iri"
-              :label="item.name"
-              @navigateTo="(iri: string) => emit('navigateTo', iri)"
-            />
-          </template>
+        <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
+        <template v-if="cohort">
+          <span v-if="match.is.descendantsOrSelfOf" class="field">subtypes of </span>
+          <RecursiveMatchDisplay
+            :baseType="baseType"
+            :clause-index="0"
+            :depth="depth + 1"
+            :eclQuery="eclQuery"
+            :match="cohort"
+            :parent-match="match"
+            :parent-operator="parentOperator"
+          />
+        </template>
+        <template v-else>
+          <span class="field">in</span>
+          <IMViewerLink
+            v-if="match.is.iri"
+            :action="editMode ? 'view' : 'select'"
+            :iri="match.is.iri"
+            :label="match.is.name"
+            @navigateTo="(iri: string) => emit('navigateTo', iri)"
+          />
         </template>
       </template>
       <template v-if="matchExpanded || !match.description">
@@ -130,14 +127,14 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, inject, ref } from "vue";
+import { computed, inject, Ref, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import type { Match, Node } from "@endeavour/vue-library/interfaces";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
+import { clauseCheck, getBooleanOperator, getBoolGroup, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -163,7 +160,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 const expandSet: Ref<boolean> = ref(false);
-const cohorts: Ref<Map<number, Match>> = ref(new Map<number, Match>());
+const cohort: Ref<Match | undefined> = ref();
 const queryIri: Ref<string | undefined> = ref(inject("queryIri", undefined));
 const matchExpanded: Ref<boolean | undefined> = ref(props.expanded);
 const operator = computed(() => {
@@ -201,13 +198,13 @@ function onClauseCheckChange() {
   selected.value = checked.value;
 }
 
-async function expandCohort(index: number) {
-  if (cohorts.value.has(index)) {
-    cohorts.value.delete(index);
+async function expandCohort() {
+  if (cohort.value) {
+    cohort.value = undefined;
   } else {
-    if (queryIri.value) {
-      if ((match.value.is![index]!.iri && match.value.is![index]!.cohort) || match.value.is![index].resultSet) {
-        cohorts.value.set(index, await QueryService.expandCohort(queryIri.value, match.value.is![index]!.iri!, DisplayMode.ORIGINAL));
+    if (queryIri.value && match.value.is) {
+      if ((match.value.is.iri && match.value.is.cohort) || match.value.is.resultSet) {
+        cohort.value = await QueryService.expandCohort(match.value.is.iri!, DisplayMode.ORIGINAL);
       }
     }
   }

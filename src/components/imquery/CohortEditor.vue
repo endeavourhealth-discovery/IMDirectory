@@ -24,7 +24,7 @@
       <span class="description">Optionally assign score if true</span>
     </div>
 
-    <span v-if="match.is">Currently selected :{{ match.is[0].name }}</span>
+    <span v-if="match.is">Currently selected :{{ match.is.name }}</span>
     <div class="directory-search-dialog-content">
       <div class="search-bar">
         <SearchBar v-model:searchTerm="searchTerm" :imQuery="cohortQuery" :selected="selected" :show-filters="false" @to-search="onSearch" />
@@ -202,8 +202,8 @@ async function init() {
   rootEntities.value = [NAMESPACE.IM + "Q_Queries"];
   cohortQuery.value = buildIMQueryFromFilters(cohortFilterOptions.value);
   if (match.value.is) {
-    cohort.value.iri = match.value.is[0].iri!;
-    cohort.value.name = match.value.is[0].name;
+    cohort.value.iri = match.value.is.iri!;
+    cohort.value.name = match.value.is.name;
     findInDialogTree.value = true;
     treeIri.value = cohort.value.iri;
   }
@@ -247,10 +247,6 @@ function updateSelected(data: SearchResultSummary) {
 function locateInTree(iri: string) {
   treeIri.value = iri;
 }
-function updateScore() {
-  edited.value = true;
-  emit("updateMatch");
-}
 
 function navigateTo(iri: string) {
   cohortIri.value = iri;
@@ -268,7 +264,7 @@ function updateClauses() {
     } else {
       const match = { uuid: v4() } as Match;
       match.and = [];
-      for (const [key, value] of importClauses.value) {
+      for (const value of importClauses.value.values()) {
         if (value.or || value.and) {
           delete value.typeOf;
         }
@@ -281,15 +277,14 @@ function updateClauses() {
 
 function updateCohort() {
   if (cohortIri.value) {
-    match.value.is = [{ iri: cohortIri.value } as TTIriRef];
+    match.value.is = { iri: cohortIri.value } as TTIriRef;
   }
   editMode.value = false;
   emit("updateCohort");
 }
 
 async function updateSelectedFromIri(iri: string) {
-  const entity = await EntityService.getEntitySummary(iri);
-  modelSelected.value = entity;
+  modelSelected.value = await EntityService.getEntitySummary(iri);
 }
 </script>
 
@@ -318,9 +313,6 @@ async function updateSelectedFromIri(iri: string) {
   min-height: 0;
   overflow-y: auto;
 }
-.nav-tree {
-  max-height: 70vh;
-}
 .directory-search-dialog-content {
   display: flex;
   flex-direction: column;
@@ -328,15 +320,9 @@ async function updateSelectedFromIri(iri: string) {
   overflow: hidden;
   border-bottom: 10px solid #ccc;
 }
-.match-description {
-  width: 60rem;
-}
 
 .description {
   padding-right: 1rem;
 }
 
-.match-score {
-  width: 20rem;
-}
 </style>

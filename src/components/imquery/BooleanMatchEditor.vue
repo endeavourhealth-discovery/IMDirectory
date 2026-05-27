@@ -55,7 +55,7 @@
         <div v-if="parentOperator === Bool.rule && index > 0" class="rule">Rule {{ index }}</div>
         <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
           <BooleanMatchEditor
-            v-model:match="boolGroup![subIndex]"
+            v-model:match="boolGroup![subIndex] as Match"
             v-model:parent="match"
             v-model:parentGroup="group"
             :baseType="baseType"

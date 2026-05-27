@@ -28,7 +28,7 @@
         <BooleanWhereEditor
           v-model:parent="where"
           v-model:parentGroup="group"
-          v-model:where="boolGroup![subIndex]"
+          v-model:where="boolGroup![subIndex] as Where"
           :baseType="baseType"
           :canCheck="boolGroup!.length > 2"
           :index="subIndex"
@@ -156,7 +156,7 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   if (where.value.iri) {
-    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType,where.value.nodeRef);
+    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType, where.value.nodeRef);
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);
