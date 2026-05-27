@@ -10,7 +10,7 @@
         <ProgressSpinner strokeWidth="8" />
       </div>
       <div v-else class="children-container concept-colours">
-        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup concept-colours" v-bind:key="rgIndex">
+        <div v-for="(rg, rgIndex) in roleGroups" v-bind:key="rgIndex" class="roleGroup concept-colours">
           <div :class="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation ? 'error-message' : ''">
             <span v-if="invalidGroups.find(o => o.groupIndex === rgIndex) && invalid && showValidation" class="error-message">{{
               invalidGroups.find(o => o.groupIndex === rgIndex).errorMessage
@@ -41,10 +41,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 
 import { IM, NAMESPACE, RDFS, SNOMED } from "@endeavour/vue-library/enums";
-import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { isArrayHasLength, isObjectHasKeys, TypeGuards } from "@endeavour/vue-library/helpers";
 import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep, isArray } from "lodash-es";
@@ -163,12 +163,10 @@ async function processRole(newData: any[], role: Role) {
 const request: QueryRequest = {
   query: {
     activeOnly: true,
-    is: [
-      {
-        iri: SNOMED.ATTRIBUTE,
-        descendantsOrSelfOf: true
-      }
-    ]
+    is: {
+      iri: SNOMED.ATTRIBUTE,
+      descendantsOrSelfOf: true
+    }
   }
 };
 

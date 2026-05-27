@@ -27,7 +27,7 @@ export function onDrop(event: any, dropzoneItem: Match | Where, parent: Match | 
   event.preventDefault();
 }
 
-function moveItem(source: Match[] | Where[], sourceIndex: number, target: Match[] | Where[], targetIndex: number) {
+function moveItem(source: any[], sourceIndex: number, target: Match[] | Where[], targetIndex: number) {
   const [item] = source.splice(sourceIndex, 1);
   target.splice(targetIndex, 0, item);
 }

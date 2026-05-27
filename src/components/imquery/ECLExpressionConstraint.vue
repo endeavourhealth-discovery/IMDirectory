@@ -15,7 +15,7 @@
     <div class="nested-match-container">
       <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
         <ECLExpressionConstraint
-          v-model:match="boolGroup![subIndex]"
+          v-model:match="boolGroup![subIndex] as Match"
           v-model:parent="match"
           v-model:parentGroup="group"
           :activeInputId="activeInputId"
@@ -80,7 +80,7 @@
         data-testid="operator-selector"
         option-label="label"
         option-value="value"
-        @update:modelValue="val => updateExclusion(val)"
+        @update:modelValue="updateExclusion"
       >
         <template #option="slotProps">
           <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center" style="min-height: 1rem">
@@ -112,9 +112,9 @@
           />
         </div>
         <div class="concept-selector-container">
-          <ConceptSelector v-model:node="match.is[0]" :activeInputId="activeInputId" :parent="parent" @update-match="updateMatch" />
+          <ConceptSelector v-model:node="match.is" :activeInputId="activeInputId" :parent="parent" @update-match="updateMatch" />
         </div>
-        <div v-if="match.is[0].invalid">
+        <div v-if="match.is.invalid">
           <Button v-tooltip="'Value is invalid for property'" icon="fa-solid fa-exclamation" severity="danger" />
         </div>
         <div class="add-group">
@@ -229,7 +229,7 @@ function onCreateSubgroup() {
 function init() {
   if (!match.value.uuid) match.value.uuid = v4();
   if (!match.value.or && !match.value.and && !match.value.is) {
-    match.value.is = [{ descendantsOrSelfOf: true } as Node];
+    match.value.is = { descendantsOrSelfOf: true } as Node;
   }
   maintainFocusConcepts();
 }
@@ -238,7 +238,7 @@ function addConcept() {
   addConceptToGroup(match.value);
   maintainFocusConcepts();
 }
-function updateExclusion(val: boolean) {
+function updateExclusion() {
   exclude.value = !exclude.value;
 }
 
@@ -390,7 +390,7 @@ async function updateQueryForPropertySearch() {
   width: 99%;
   box-sizing: border-box;
   flex-direction: column;
-  flex: 1 1 0%;
+  flex: 1 1 0;
   min-width: 0;
   padding: 0.5rem;
   border: #488bc230 1px solid;
@@ -409,7 +409,7 @@ async function updateQueryForPropertySearch() {
   display: flex;
   box-sizing: border-box;
   flex-direction: row;
-  flex: 1 1 0%;
+  flex: 1 1 0;
   min-width: 0;
   padding: 0.5rem;
   border: #488bc230 1px solid;
@@ -439,7 +439,7 @@ async function updateQueryForPropertySearch() {
 }
 
 .concept-selector-container {
-  flex: 1 1 0%;
+  flex: 1 1 0;
   min-width: 70vw;
 }
 
@@ -449,10 +449,6 @@ async function updateQueryForPropertySearch() {
   justify-content: flex-start;
   gap: 4px;
   padding: 4px 0 0 4px;
-}
-
-.builder-button {
-  width: 2rem;
 }
 
 ::v-deep(.operator-selector .p-select-label) {
@@ -469,12 +465,5 @@ async function updateQueryForPropertySearch() {
 ::v-deep(.operator-selector-not .p-select-label) {
   color: var(--p-red-500) !important;
   font-size: 0.85rem;
-}
-.subtypes-checkbox {
-  padding-right: 0.5rem;
-}
-.dropdown-labels {
-  min-height: 1rem;
-  font-size: 1rem;
 }
 </style>

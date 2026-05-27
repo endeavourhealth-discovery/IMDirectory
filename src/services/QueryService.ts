@@ -63,8 +63,8 @@ const QueryService = {
     return await api.get(API_URL + "/indicatorDisplay", { params: { queryIri: iri } });
   },
 
-  async expandCohort(queryIri: string, cohortIri: string, displayMode: DisplayMode): Promise<Query> {
-    return await api.get(API_URL + "/expandCohort", { params: { queryIri: queryIri, cohortIri: cohortIri, displayMode: displayMode } });
+  async expandCohort(cohortIri: string, displayMode: DisplayMode): Promise<Query> {
+    return await api.get(API_URL + "/expandCohort", { params: { cohortIri: cohortIri, displayMode: displayMode } });
   },
 
   async getDefaultQuery(): Promise<Query> {
