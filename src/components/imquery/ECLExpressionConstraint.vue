@@ -148,7 +148,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Bool, QUERY } from "@endeavour/vue-library/enums";
 import type { Match, Node, QueryRequest, TTIriRef, Where } from "@endeavour/vue-library/interfaces";
@@ -163,8 +163,8 @@ import {
   addConceptToGroup,
   checkGroupChange,
   createNewBoolGroup,
-  getBooleanOperator,
   getBoolGroup,
+  getBooleanOperator,
   getExclusionOptions,
   getIsRoleGroup,
   manageRoleGroup,
