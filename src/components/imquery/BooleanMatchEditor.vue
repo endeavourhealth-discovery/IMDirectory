@@ -41,6 +41,15 @@
           :parentType="'Match'"
           :rootBool="rootBool"
         />
+
+        <Button
+          v-tooltip="notExistsLabel"
+          :class="match.notExists ? 'text-red-500' : 'text-green-500'"
+          :icon="match.notExists ? 'pi pi-times' : 'pi pi-check'"
+          :label="match.notExists ? 'Excluded' : 'included'"
+          class="p-button-text p-button-rounded"
+          @click="toggleNotExists"
+        />
       </div>
       <div>
         <div v-if="parentOperator === Bool.rule && index > 0" class="rule">Rule {{ index }}</div>
@@ -66,7 +75,7 @@
         <Menu ref="menu" :model="addItems" popup />
       </div>
     </div>
-    <div v-else class="match-clause-outer" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
+    <div v-else-if="isDefined" class="match-clause-outer" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
       <div v-if="match.nodeRef">
         <span class="from">from</span>
         <span class="node-ref">{{ match.nodeRef }}</span>
@@ -123,7 +132,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref } from "vue";
+import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Match, Node } from "@endeavour/vue-library/interfaces";
@@ -137,14 +146,7 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import {
-  addMatchToParent,
-  checkGroupChange,
-  getBooleanOperator,
-  getBoolGroup,
-  getDisplayOperator,
-  updateBooleans
-} from "@/helpers/buildQuery";
+import { addMatchToParent, checkGroupChange, getBoolGroup, getBooleanOperator, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
 
 interface Props {
   isVariable?: boolean;
@@ -172,20 +174,39 @@ const from: Ref<Match | undefined> = ref();
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
-const definitionSelector = ref(false);
 const menu = ref();
 const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
   { label: "Add query reference or import clause", icon: "pi pi-users", command: () => addCohort() }
 ];
 const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
-
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
 });
 const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.index);
 });
+const isDefined = computed(() => {
+  const matches = match.value.and || match.value.or || match.value.any;
+  if (matches) return true;
+  if (match.value.orderBy) return true;
+  if (match.value.where) return true;
+  if (match.value.return) return true;
+  return false;
+});
+const notExistsLabel = computed(() => {
+  if (match.value.notExists === undefined) {
+    return "Click to exclude if true";
+  }
+  return match.value.notExists ? "Click to include if true" : "Click to exclude if true";
+});
+const toggleNotExists = () => {
+  if (match.value.notExists === undefined) {
+    match.value.notExists = true;
+  } else {
+    delete match.value.notExists;
+  }
+};
 
 onMounted(() => {
   init();

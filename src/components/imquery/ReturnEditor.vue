@@ -1,32 +1,38 @@
 <template>
   <div class="return-editor">
+    <div>
+      <span class="name">Dataset item name</span>
+      <InputText v-model="match.name" class="match-name" type="text" @update:model-value="updateName" />
+    </div>
     <div class="return-column-editor">
       <div class="as-editor font-bold">Column name</div>
       <div class="property-display font-bold">Property / Logic</div>
     </div>
+
     <template v-if="match.return">
       <div v-for="(item, rIndex) in match.return" :key="rIndex" class="return-column-editor">
         <div class="as-editor">
-          <InputText v-model="item.as" class="w-full" placeholder="Column name" />
+          <InputText v-model="item.as" class="w-full" placeholder="Column name" @input="onInput" />
         </div>
         <div class="property-display flex items-center gap-2">
           <template v-if="!item.case">
             <template v-if="item.nodeRef">
               <span v-if="item.nodeRef" class="font-medium">{{ getPathName(match, item.nodeRef) }}</span>
             </template>
-            <template v-else-if="item.iri">
+            <template v-if="item.iri">
               <IMViewerLink :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               <template v-if="uiProperties[item.iri] && uiProperties[item.iri].unitOptions">
                 <Select
                   v-model="units"
                   :options="uiProperties[item.iri].unitOptions"
+                  :placeholder="item.units ? item.units.name : 'Select unit'"
                   option-label="name"
                   option-value="iri"
-                  placeholder="re"
                   type="text"
                   @update:model-value="updateUnits(rIndex)"
                 />
               </template>
+              <template v-else-if="item.units">( {{ item.units.name }} )</template>
             </template>
             <template v-else-if="item.function">
               <FunctionClauseDisplay :functionClause="item.function" />
@@ -106,7 +112,7 @@
     v-model:showCaseConditionEditor="showWhenEditor"
     v-model:when="selectedWhen"
     :baseType="baseType"
-    @cancel="showWhenEditor = false"
+    @cancel="onCancelWhen"
     @saveCondition="onSaveWhenWhere"
   />
 </template>
@@ -125,7 +131,7 @@ import WhenEditor from "@/components/imquery/WhenEditor.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getPathName } from "@/helpers/buildQuery";
+import { getPathName, getTypeIriFromNodeRef, setMandatoryWheres, setPathGetNodeRef } from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
 
 interface Props {
@@ -145,8 +151,21 @@ const showWhenEditor = ref(false);
 const selectedReturn = ref<Return | undefined>();
 const selectedWhen: Ref<When | undefined> = ref();
 const units: Ref<string | undefined> = ref();
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let returnIndex: number = 0;
 let whenIndex: number = 0;
+
+function updateName() {
+  emit("updateMatch");
+}
+function onInput() {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = setTimeout(() => {
+    emit("updateMatch");
+  }, 500);
+}
 
 async function onSelectedProperty(node: TreeNode) {
   const uiProperty = await DataModelService.getUIProperty(node.data.typeOf, node.data.iri);
@@ -154,6 +173,19 @@ async function onSelectedProperty(node: TreeNode) {
     uiProperties.value[node.data.iri!] = uiProperty;
   }
   selectedReturn.value!.iri = node.data.iri;
+  const fullPath = node.data.path;
+  if (fullPath) {
+    const nodeRef = setPathGetNodeRef(match.value, fullPath, true);
+    if (nodeRef) {
+      selectedReturn.value!.nodeRef = nodeRef;
+      if (match.value) {
+        const dataModelIri = getTypeIriFromNodeRef(match.value, nodeRef!);
+        const nodeShape = await DataModelService.getDataModelProperties(dataModelIri!, false);
+        await setMandatoryWheres(match.value);
+      }
+    }
+  }
+
   showPropertySelector.value = false;
   emit("updateMatch");
 }
@@ -201,7 +233,8 @@ async function onSaveWhenWhere(when: When) {
 }
 
 function addCase(rIndex: number) {
-  if (match.value.return && match.value.return[rIndex]) match.value.return[returnIndex].case = { when: [], else: "" };
+  if (match.value.return && match.value.return[rIndex]) match.value.return[rIndex].case = { when: [], else: "" };
+  returnIndex = rIndex;
   addWhen(rIndex);
 }
 
@@ -219,6 +252,20 @@ function addWhen(rIndex: number) {
   emit("updateMatch");
 }
 
+function onCancelWhen() {
+  const ret = match.value.return![returnIndex];
+  const when = ret.case!.when;
+  if (when && when[whenIndex]) {
+    when.splice(whenIndex, 1);
+    if (when.length === 0) {
+      delete match.value.return![returnIndex]!.case;
+    }
+  }
+  showWhenEditor.value = false;
+  selectedWhen.value = undefined;
+  emit("updateMatch");
+}
+
 function removeWhen(rIndex: number, wIndex: number) {
   showWhenEditor.value = false;
   match.value.return![rIndex]!.case!.when!.splice(wIndex, 1);
@@ -229,6 +276,12 @@ function removeWhen(rIndex: number, wIndex: number) {
 </script>
 
 <style scoped>
+.name {
+  padding-right: 1rem;
+}
+.match-name {
+  width: 50rem;
+}
 .return-editor {
   max-height: 90%;
   display: flex;

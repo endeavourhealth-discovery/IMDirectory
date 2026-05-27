@@ -26,7 +26,7 @@
         </template>
       </Select>
       <DatePicker
-        v-if="relativity === Relativity.Absolute && (valueType === ValueType.date || valueType === ValueType.time)"
+        v-if="relativity === Relativity.Absolute && dateTimeType"
         v-model:model-value="date"
         :timeOnly="valueType === ValueType.time"
         dateFormat="dd/mm/yy"
@@ -36,7 +36,7 @@
       <InputText v-else-if="showValue" v-model="assignable.value" @input="updateNumericValue" />
 
       <Select
-        v-if="assignable.compare && showUnits"
+        v-if="assignable.compare || showUnits"
         v-model="units"
         :options="uiProperty.unitOptions"
         option-label="name"
@@ -64,6 +64,7 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
 import type { Assignable, Compare, Match, TTIriRef, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { Relativity } from "@/enums";
 import { getCompareOptions, getOperatorOptions, getRelativeToOptions } from "@/helpers/buildQuery";
@@ -92,7 +93,7 @@ const compareOptions = computed(() => {
 });
 const operatorOptions = computed(() => {
   return getOperatorOptions(props.uiProperty.valueType);
-})
+});
 
 const relativity: Ref<Relativity> = ref(assignable.value.compare ? (assignable.value.value ? Relativity.Relative : Relativity.Compare) : Relativity.Absolute);
 const units: Ref<string | undefined> = ref();
@@ -100,14 +101,11 @@ const emit = defineEmits<{
   (event: "updateAssignable"): void;
 }>();
 const valueType: Ref<ValueType | undefined> = ref();
+const dateTimeType = computed(() => {
+  return valueType.value === ValueType.date || valueType.value === ValueType.time;
+});
 const showUnits: Ref<boolean> = computed(() => {
-  if (
-    !props.qualifier &&
-    props.uiProperty.unitOptions &&
-    (!assignable.value.operator || assignable.value.operator != Operator.eq || props.fromOrTo) &&
-    (valueType.value === ValueType.number || valueType.value === ValueType.integer || relativity.value === Relativity.Relative)
-  )
-    return true;
+  if (!props.qualifier && props.uiProperty.unitOptions && (relativity.value == Relativity.Relative || !dateTimeType.value)) return true;
   else return false;
 });
 const showValue = computed(() => {

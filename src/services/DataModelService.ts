@@ -8,12 +8,18 @@ import api from "./api";
 const API_URL = Env.API + "api/dataModel/protected";
 
 const DataModelService = {
-  async getDataModelProperties(iri: string, pathsOnly?: boolean, excludeGeneric?: boolean): Promise<NodeShape> {
+  async getDataModelProperties(iri: string, pathsOnly?: boolean): Promise<NodeShape> {
     return await api.get(API_URL + "/dataModelProperties", {
       params: {
         iri: iri,
-        ...(pathsOnly !== undefined && { pathsOnly: pathsOnly }),
-        excludeGeneric: excludeGeneric
+        ...(pathsOnly !== undefined && { pathsOnly: pathsOnly })
+      }
+    });
+  },
+  async getRelatedTypes(iri: string): Promise<NodeShape> {
+    return await api.get(API_URL + "/relatedTypes", {
+      params: {
+        iri: iri
       }
     });
   },

@@ -8,10 +8,10 @@
       v-tooltip="notExistsLabel"
       :class="match.notExists ? 'text-red-500' : 'text-green-500'"
       :icon="match.notExists ? 'pi pi-times' : 'pi pi-check'"
+      :label="`${match.notExists ? 'Exclude' : 'Include'} if true (click to change)`"
       class="p-button-text p-button-rounded"
       @click="toggleNotExists"
     />
-    <span>{{ notExistsLabel }}</span>
   </div>
   <Tabs v-model:value="activeTab">
     <TabList>
@@ -29,6 +29,7 @@
             :editingWhere="true"
             :parentOperator="parentOperator"
             :showEditor="showEditor"
+            :mustKeep="mustKeep"
             @addLinked="emit('addLinked')"
             @addTest="emit('addTest')"
             @cancel="emit('cancel')"
@@ -67,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
@@ -87,6 +88,7 @@ interface Props {
   index: number;
   isStep?: boolean;
   parentOperator?: Bool;
+  mustKeep?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -120,7 +122,6 @@ const toggleNotExists = () => {
   } else {
     delete match.value.notExists;
   }
-  edited.value = true;
   emit("updateMatch");
 };
 
@@ -195,47 +196,11 @@ function onDeleteThen() {
 </script>
 
 <style scoped>
-.match-container {
-  box-sizing: border-box;
-  padding: 0.5rem;
-  border: #488bc230 1px solid;
-  border-radius: 5px;
-  background-color: #fafafa;
-  margin: 0.5rem;
-  font-size: 1rem;
-
-  /* Important for scrolling */
-  height: 100%; /* fill parent height */
-  overflow-y: auto; /* enable vertical scrolling */
-  min-height: 0; /* allows flex parents to shrink properly */
-}
-.add-button,
-.delete-button {
-  color: #444444; /* text */
-  background-color: #f0f0f0; /* greyish default */
-  border: 1px solid #ccc;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-.add-button:hover,
-.add-button:focus {
-  background-color: #a5d6a7;
-}
-.delete-button:hover,
-.delete-button:focus {
-  background-color: red;
-}
-
-.match-score {
-  width: 20rem;
-}
 .description {
   padding-right: 1rem;
 }
-.name-display {
-  width: 100%;
+.match-description {
+  width: 50rem;
 }
 .description-container {
   display: flex;

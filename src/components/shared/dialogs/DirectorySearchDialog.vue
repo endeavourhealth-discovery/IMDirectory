@@ -78,7 +78,6 @@
         </SplitterPanel>
       </Splitter>
     </div>
-
     <template #footer>
       <div class="im-dialog-footer">
         <div v-if="selectedName" v-tooltip.right="detailsIri">Item selected: {{ selectedName }}</div>

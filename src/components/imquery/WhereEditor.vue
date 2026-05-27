@@ -1,5 +1,6 @@
 <template>
   <div class="filter-editor-container">
+    <div>{{ match }}</div>
     <Splitter layout="horizontal" size="25">
       <SplitterPanel :size="25">
         <div class="column-selector" @click.stop>
@@ -174,6 +175,7 @@ interface Props {
   editingWhen?: boolean;
   returnIndex?: number;
   whenIndex?: number;
+  mustKeep?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -199,7 +201,7 @@ const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest"
 const expandedKeys = ref<Record<string, boolean>>({});
 const expandedReturnKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const { expandNode, createModeView, getTypeNode, createFeatureTree } = usePropertyTree();
+const { expandNode, createModeView, createFeatureTree, createRelatedTypeTree } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
@@ -230,14 +232,15 @@ function updateKeepAs() {
 
 async function init() {
   loading.value = true;
-  nodeShape.value = await DataModelService.getDataModelProperties(
-    match.value.typeOf ? match.value.typeOf.iri! : props.baseType.iri!,
-    false,
-    !!match.value.typeOf
-  );
-  typeNodes.value = await createFeatureTree(nodeShape.value, "match");
+  if (match.value.typeOf) {
+    nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
+    typeNodes.value = await createFeatureTree(nodeShape.value, "match");
+  } else {
+    nodeShape.value = await DataModelService.getRelatedTypes(props.baseType.iri!);
+    typeNodes.value = await createRelatedTypeTree(nodeShape.value);
+  }
+
   setupTrees(props.datasetEntry ? "return" : "match");
-  expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};
   setOrderables();
   loading.value = false;
@@ -247,7 +250,7 @@ async function onNodeSelect(node: any) {
   if (!match.value.typeOf) {
     if (node.data.typeOf) {
       match.value.typeOf = { iri: node.data.typeOf };
-      nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false, true);
+      nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
       typeNodes.value = await createFeatureTree(nodeShape.value, "match");
       setupTrees("match");
       if (!expandedKeys.value[typeNodes.value[0].key]) {
@@ -257,9 +260,9 @@ async function onNodeSelect(node: any) {
   }
   if (node.type === "property") {
     if (props.editingWhen && when.value) addWhereToWhen(when.value, match.value, node);
-    else addFilter(match.value, node, props.editingThen);
+    else addFilter(match.value, node, props.editingThen, props.editingWhen);
   }
-  setMandatoryWheres(match.value, nodeShape.value!);
+  await setMandatoryWheres(match.value);
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   edited.value = true;
   setOrderables();

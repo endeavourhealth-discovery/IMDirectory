@@ -7,7 +7,7 @@
       closable
       maximizable
       modal
-      @hide="onCancelDialog"
+      @hide="cancel"
     >
       <template #default>
         <Tabs v-model:value="activeTab">
@@ -27,7 +27,7 @@
                 :index="clauseIndex"
                 :parentOperator="parentOperator"
                 @addLinked="onAddLinked"
-                @cancel="onCancelDialog"
+                @cancel="cancel"
                 @deleteMatch="deleteMatch"
                 @saveChanges="emit('saveChanges', $event)"
                 @updateMatch="onUpdate"
@@ -108,9 +108,6 @@ async function onUpdate() {
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
 }
 
-function onCancelDialog() {
-  emit("cancel");
-}
 
 function deleteMatch() {
   emit("deleteMatch");

@@ -1,14 +1,14 @@
 <template>
   <Dialog
     v-model:visible="showDialog"
-    modal
-    maximizable
-    header="Test Query Results"
     :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh' }"
     class="test-query-results-dialog"
+    header="Test Query Results"
+    maximizable
+    modal
   >
     <div class="query-results-dialog-content">
-      <DataTable :value="testQueryResults" :scrollable="true" scroll-height="flex" :autoLayout="true" :lazy="true" :loading="loading">
+      <DataTable :autoLayout="true" :lazy="true" :loading="loading" :scrollable="true" :value="testQueryResults" scroll-height="flex">
         <template #empty>None</template>
         <Column field="id" header="Patient ID"></Column>
       </DataTable>
@@ -16,21 +16,15 @@
     <template #footer>
       <div class="im-dialog-footer">
         <div class="button-footer">
-          <Button label="Close" @click="closeDialog" text />
+          <Button label="Close" text @click="closeDialog" />
         </div>
       </div>
     </template>
   </Dialog>
 </template>
 
-<script setup lang="ts">
-import { Ref, ref } from "vue";
-
-import type { DBEntry } from "@endeavour/vue-library/interfaces";
-
-import { cloneDeep } from "lodash-es";
-
-import { QueryService } from "@/services";
+<script lang="ts" setup>
+import { ref } from "vue";
 
 interface Props {
   testQueryResults: string[];
