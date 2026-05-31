@@ -63,12 +63,12 @@
         <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
         <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
           <ColumnGroupDisplay
-            v-for="(nestedQuery, index) in query?.columnGroup"
+            v-for="index in query?.columnGroup"
             :key="`nestedQuery-${index}`"
             v-model:datasetEntry="query.columnGroup[index]"
             :baseType="baseType"
             :index="index"
-            :matchExpanded="false"
+            :matchExpanded="true"
             :parentQuery="query"
             :returnExpanded="true"
           />
@@ -243,12 +243,6 @@ async function getQueryRequestFromQueryIri() {
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
 }
-.confirm-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 80%;
-}
 .query-display-container {
   width: 100%;
   height: 100%;
@@ -263,24 +257,11 @@ async function getQueryRequestFromQueryIri() {
   flex: 1 1 auto;
 }
 
-.query-display-view {
-  overflow: auto;
-}
-
 .field {
   padding-right: 1rem;
 }
 
 .rec-query-display {
   padding: 1rem;
-}
-
-.button-bar {
-  flex: 0 1 auto;
-  padding: 1rem 1rem 1rem 0;
-  gap: 0.5rem;
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-end;
 }
 </style>
