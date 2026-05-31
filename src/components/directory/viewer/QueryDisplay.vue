@@ -63,7 +63,7 @@
         <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
         <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
           <ColumnGroupDisplay
-            v-for="index in query?.columnGroup"
+            v-for="(_, index) in query.columnGroup"
             :key="`nestedQuery-${index}`"
             v-model:datasetEntry="query.columnGroup[index]"
             :baseType="baseType"
@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, provide, Ref, ref, watch } from "vue";
+import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
@@ -94,7 +94,7 @@ import { cloneDeep } from "lodash-es";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
-import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+import { getBoolGroup, getBooleanOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import SQLDisplay from "./SQLDisplay.vue";
