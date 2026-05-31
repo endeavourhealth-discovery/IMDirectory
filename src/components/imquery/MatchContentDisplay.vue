@@ -30,7 +30,7 @@
           :root="true"
           :where="boolWhereGroup![0]"
         />
-        <div v-for="(subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
+        <div v-for="subIndex in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
           <WhereContentDisplay
             :key="0"
             :depth="depth + (match.nodeRef ? 1 : 0)"
@@ -117,7 +117,6 @@ function getFormattedPath(path: any): string {
 .field {
   padding-right: 0.2rem;
 }
-
 
 .match-description {
   color: var(--p-blue-700);

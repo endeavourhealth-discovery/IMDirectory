@@ -20,7 +20,7 @@
           :parentIndex="0"
         />
       </div>
-      <span v-if="datasetEntry.orderBy">{{ datasetEntry.orderBy.description }}</span>
+
       <div v-if="datasetEntry.return">
         <ReturnColumns :parentQuery="parentQuery" :select="datasetEntry.return" class="pl-8" />
       </div>
@@ -50,7 +50,7 @@ interface Props {
 const props = defineProps<Props>();
 const parentQuery = defineModel<Query>("parentQuery", { default: {} });
 const datasetEntry = defineModel<Match>("datasetEntry", { default: {} });
-const matchExpand = ref(false);
+const matchExpand = ref(true);
 const loading = ref(false);
 
 onMounted(async () => {
