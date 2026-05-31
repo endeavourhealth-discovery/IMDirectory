@@ -30,9 +30,9 @@
           :root="true"
           :where="boolWhereGroup![0]"
         />
-        <div v-for="subIndex in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
+        <div v-for="(subWhere, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
           <WhereContentDisplay
-            :key="0"
+            :key="subIndex + 1 + subWhere.iri"
             :depth="depth + (match.nodeRef ? 1 : 0)"
             :index="subIndex + 1"
             :parentOperator="whereOperator"

@@ -1,6 +1,5 @@
 <template>
   <div class="filter-editor-container">
-    <div>{{ match }}</div>
     <Splitter layout="horizontal" size="25">
       <SplitterPanel :size="25">
         <div class="column-selector" @click.stop>
@@ -56,6 +55,10 @@
             @deleteWhere="emit('deleteWhere')"
             @updateProperty="onUpdate"
           />
+          <div v-if="match.then">
+            <div>Then test:</div>
+            <WhereContentDisplay :depth="0" :index="0" :where="match.then" />
+          </div>
 
           <div v-if="!editingThen && orderables && orderables.length > 0 && match.where">
             <div v-if="orderables && orderables.length > 0">
@@ -142,7 +145,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, inject, onMounted, ref } from "vue";
+import { inject, onMounted, Ref, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
@@ -154,8 +157,9 @@ import type { TreeNode } from "primevue/treenode";
 
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
+import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
-import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
+import { getOrderable, getOrderOptions } from "@/helpers/QueryEditorMethods";
 import { addFilter, addWhereToWhen, getOrderables, setMandatoryWheres } from "@/helpers/buildQuery";
 import { DataModelService, QueryService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -329,20 +333,6 @@ function updateOrderable(value: any) {
   min-height: 0; /* IMPORTANT */
   border: 1px solid var(--p-content-border-color);
   border-radius: var(--p-content-border-radius);
-}
-.p-splitter {
-  height: 100%;
-}
-:deep(.p-splitter) {
-  height: 100%;
-}
-.p-splitter-panel {
-  min-height: 0; /* CRITICAL for scroll to work */
-  display: flex;
-  flex-direction: column;
-}
-:deep(.p-splitter-panel) {
-  height: 100%;
 }
 .column-selector {
   height: 100%;
