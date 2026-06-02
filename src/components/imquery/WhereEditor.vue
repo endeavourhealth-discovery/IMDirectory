@@ -55,9 +55,9 @@
             @deleteWhere="emit('deleteWhere')"
             @updateProperty="onUpdate"
           />
-          <div v-if="match.then">
+          <div v-if="match.then && match.then.where">
             <div>Then test:</div>
-            <WhereContentDisplay :depth="0" :index="0" :where="match.then" />
+            <WhereContentDisplay :depth="0" :index="0" :where="match.then.where" />
           </div>
 
           <div v-if="!editingThen && orderables && orderables.length > 0 && match.where">
@@ -93,7 +93,7 @@
               <InputText v-model="match.node" type="text" @input="onInput" />
             </div>
             <span v-if="match.orderBy">
-              <Button v-if="!match.then" class="add-button" data-testid="add-test-button" label="Add further test on the results" @click="emit('addTest')" />
+              <Button v-if="!match.then" class="add-button" data-testid="add-test-button" label="Add further test on the results" @click="addTest" />
             </span>
             <Button class="add-button" data-testid="add-test-button" label="Add related feature" @click="emit('addLinked')" />
             <span v-if="match.then">
@@ -110,10 +110,10 @@
           </div>
           <div>Then further test the above values after ordering. Add from left</div>
           <BooleanWhereEditor
-            v-if="match.then"
+            v-if="match.then && match.then.where"
             :key="'test'"
             v-model:parent="match"
-            v-model:where="match.then"
+            v-model:where="match.then.where"
             :base-type="baseType"
             :index="0"
             :match="match"
@@ -126,10 +126,10 @@
         <div v-else-if="editingWhen" class="column-selector">
           <div>Add properties to test from left</div>
           <BooleanWhereEditor
-            v-if="when && when.where"
+            v-if="when"
             :key="'test'"
             v-model:parent="match"
-            v-model:where="when.where"
+            v-model:where="when"
             :base-type="baseType"
             :index="0"
             :match="match"
@@ -145,7 +145,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, Ref, ref } from "vue";
+import { Ref, inject, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
@@ -159,7 +159,7 @@ import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
-import { getOrderable, getOrderOptions } from "@/helpers/QueryEditorMethods";
+import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 import { addFilter, addWhereToWhen, getOrderables, setMandatoryWheres } from "@/helpers/buildQuery";
 import { DataModelService, QueryService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -219,6 +219,11 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 onMounted(async () => {
   await init();
 });
+
+function addTest() {
+  match.value.then = { where: {} };
+  emit("addTest");
+}
 function onInput() {
   if (debounceTimer) {
     clearTimeout(debounceTimer);

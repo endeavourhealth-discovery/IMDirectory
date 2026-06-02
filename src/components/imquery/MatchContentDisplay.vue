@@ -42,9 +42,9 @@
         </div>
       </template>
     </template>
-    <div v-if="match.then && !skipThen">
+    <div v-if="match.then && match.then.where && !skipThen">
       <span class="above">then with the {{ testFields }} of the above</span>
-      <WhereContentDisplay :key="0" :depth="depth + 1" :index="0" :parentOperator="whereOperator" :root="false" :where="match.then" />
+      <WhereContentDisplay :key="0" :depth="depth + 1" :index="0" :parentOperator="whereOperator" :root="false" :where="match.then.where" />
     </div>
     <span v-if="match.node">
       <span class="field">(as</span>
@@ -84,7 +84,7 @@ const boolWhereGroup = computed(() => {
 });
 
 const testFields = computed(() => {
-  if (props.match.then) return getTestFields(props.match.then);
+  if (props.match.then && props.match.then.where) return getTestFields(props.match.then.where);
 });
 function getFormattedPath(path: any): string {
   let result = "";

@@ -13,14 +13,14 @@
         <span v-for="(when, whenIndex) in item.case.when" :key="whenIndex">
           <span>if</span>
           <RecursiveWhereDisplay
-            v-if="when.where"
-            :where="when.where"
-            :depth="1"
-            :index="0"
+            v-if="when.iri || when.and || when.or"
             :key="0"
-            :operator="Bool.and"
+            :depth="1"
             :expandedSet="false"
+            :index="0"
             :inline="true"
+            :operator="Bool.and"
+            :where="when"
           />
           <span v-if="when.exists" class="pl-2">exists</span>
           <span class="pl-2">then</span>
@@ -32,7 +32,7 @@
   </span>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Bool } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type { Return } from "@endeavour/vue-library/interfaces";

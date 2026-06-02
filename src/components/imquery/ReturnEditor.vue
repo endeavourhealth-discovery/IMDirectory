@@ -63,11 +63,13 @@
           <div v-for="(when, whenIndex) in item.case.when" :key="whenIndex" class="case-display">
             <span class="gap-2">if</span>
             <span v-if="when.exists" class="pl-2">exists</span>
-            <template v-else-if="when.where">
-              <WhereContentDisplay :depth="0" :index="0" :where="when.where" />
+            <template v-else-if="!when.value">
+              <WhereContentDisplay :depth="0" :index="0" :where="when" />
             </template>
-            <span class="pl-2">then</span>
-            <InputText v-model="when.then" class="ml-2" placeholder="Value" style="width: 10rem" />
+            <template v-if="when.then && when.then.value">
+              <span class="pl-2">then</span>
+              <InputText v-model="when.then.value!" class="ml-2" placeholder="Value" style="width: 10rem" />
+            </template>
             <Button class="delete-button" icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeWhen(rIndex, whenIndex)" />
             <span class="pl-4 pt-2 flex items-center gap-2">
               <Button icon="fa-solid fa-plus" label="Add when" size="small" text @click="addWhen(rIndex)" />
@@ -75,7 +77,7 @@
           </div>
           <div class="pl-4 pt-2">
             <span class="pl-2">else</span>
-            <InputText v-model="item.case.else" class="ml-2" placeholder="Else value" style="width: 10rem" />
+            <InputText v-model="item.case!.else!.value" class="ml-2" placeholder="Else value" style="width: 10rem" />
           </div>
         </div>
         <template v-if="item.return">
@@ -207,8 +209,8 @@ function addTruthValue() {
   match.value.return.push({
     as: "matched",
     case: {
-      when: [{ exists: true, then: "1" }],
-      else: "0"
+      when: [{ exists: true, then: { value: "1" } }],
+      else: { value: "0" }
     }
   } as Return);
   emit("updateMatch");
@@ -233,7 +235,7 @@ async function onSaveWhenWhere(when: When) {
 }
 
 function addCase(rIndex: number) {
-  if (match.value.return && match.value.return[rIndex]) match.value.return[rIndex].case = { when: [], else: "" };
+  if (match.value.return && match.value.return[rIndex]) match.value.return[rIndex].case = { when: [], else: {} };
   returnIndex = rIndex;
   addWhen(rIndex);
 }
@@ -242,9 +244,9 @@ function addWhen(rIndex: number) {
   returnIndex = rIndex;
   let ret = match.value?.return?.[returnIndex];
   if (ret) {
-    if (!ret.case) ret.case = { when: [], else: "" };
+    if (!ret.case) ret.case = { when: [], else: {} };
     if (!ret.case.when) ret.case.when = [];
-    selectedWhen.value = { then: "" };
+    selectedWhen.value = { then: {} };
     ret.case.when.push(selectedWhen.value);
     whenIndex = ret.case.when.length - 1;
     showWhenEditor.value = true;
