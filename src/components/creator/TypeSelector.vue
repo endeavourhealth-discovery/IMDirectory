@@ -1,5 +1,5 @@
 <template>
-  <Dialog :visible="showTypeSelector" :modal="true" :closable="false" :close-on-escape="false">
+  <Dialog :closable="false" :close-on-escape="false" :modal="true" :visible="showTypeSelector">
     <div class="type-selector">
       <div v-if="loading" class="loading-container">
         <ProgressSpinner />
@@ -7,7 +7,7 @@
       <div v-else class="header-content-container">
         <span class="text">Select entity type:</span>
         <div class="type-buttons-container">
-          <button v-for="(option, idx) in typeOptions" class="custom-button" @click="typeSelected(option)" v-bind:key="idx">
+          <button v-for="(option, idx) in typeOptions" v-bind:key="idx" class="custom-button" @click="typeSelected(option)">
             <span>{{ option.name }}</span>
           </button>
         </div>
@@ -16,15 +16,14 @@
   </Dialog>
 </template>
 
-<script setup lang="ts">
-import { Ref, inject, onMounted, ref } from "vue";
+<script lang="ts" setup>
+import { inject, onMounted, Ref, ref } from "vue";
 
 import { RDF } from "@endeavour/vue-library/enums";
 import type { ExtendedEntityReferenceNode, ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
-
-import editorShapes from "@/constants/editorShapes";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EntityService } from "@/services";
+import editorShapes from "@/constants/editorShapes";
 
 interface Props {
   showTypeSelector?: boolean;

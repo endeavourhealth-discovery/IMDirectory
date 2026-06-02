@@ -27,11 +27,11 @@
             :clauseIndex="index"
             :depth="depth"
             :editingWhere="true"
+            :mustKeep="mustKeep"
             :parentOperator="parentOperator"
             :showEditor="showEditor"
-            :mustKeep="mustKeep"
             @addLinked="emit('addLinked')"
-            @addTest="emit('addTest')"
+            @addTest="activeTab = 'test'"
             @cancel="emit('cancel')"
             @deleteMatch="emit('deleteMatch')"
             @deleteWhere="onDeleteWhere"
@@ -79,7 +79,6 @@ import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
 import WhereEditor from "@/components/imquery/WhereEditor.vue";
-import { getBooleanOperator } from "@/helpers/buildQuery";
 import { EntityService, QueryService } from "@/services";
 
 interface Props {
@@ -112,9 +111,6 @@ const edited = ref(false);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
 const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
-const whereOperator = computed(() => {
-  return getBooleanOperator("Where", match.value.then ? match.value.then : match.value.where);
-});
 
 const toggleNotExists = () => {
   if (match.value.notExists === undefined) {
@@ -150,10 +146,6 @@ function onDeleteWhere() {
   emit("deleteMatch");
 }
 function updateDescription() {
-  edited.value = true;
-  emit("updateMatch");
-}
-function updateScore() {
   edited.value = true;
   emit("updateMatch");
 }

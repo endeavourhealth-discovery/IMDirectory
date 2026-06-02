@@ -122,6 +122,7 @@ declare module 'vue' {
     ImqueryBooleanWhereEditor: typeof import('./src/components/imquery/BooleanWhereEditor.vue')['default']
     ImqueryCaseConditionEditor: typeof import('./src/components/imquery/CaseConditionEditor.vue')['default']
     ImqueryCohortEditor: typeof import('./src/components/imquery/CohortEditor.vue')['default']
+    ImqueryColumnGroupEditor: typeof import('./src/components/imquery/ColumnGroupEditor.vue')['default']
     ImqueryConceptSelector: typeof import('./src/components/imquery/ConceptSelector.vue')['default']
     ImqueryDataSetEditor: typeof import('./src/components/imquery/DataSetEditor.vue')['default']
     ImqueryDatasetFilterEditor: typeof import('./src/components/imquery/DatasetFilterEditor.vue')['default']

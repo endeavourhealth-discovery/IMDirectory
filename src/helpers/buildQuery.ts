@@ -322,7 +322,7 @@ function hasWhereInWhere(where: Where, whereToFind: Where): boolean {
   return false;
 }
 
-export function addWhereToMatch(match: Match | When, where: Where, index?: number) {
+export function addWhereToMatch(match: Match, where: Where, index?: number) {
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;
@@ -335,22 +335,27 @@ export function addWhereToMatch(match: Match | When, where: Where, index?: numbe
 }
 
 export function addWhereToThen(match: Match, where: Where) {
-  if (match.then && !match.then.and && !match.then.or && !match.then.iri) {
-    match.then = where;
+  if (match.then && !match.then.where) {
+    match.then.where = where;
     return;
   }
-  if (match.then) {
-    if (!match.then.and && !match.then.or) {
-      const currentWhere = match.then;
-      match.then = {} as Where;
-      match.then.and = [currentWhere];
-      match.then.and.push(where);
-    } else if (match.then.and) {
-      match.then.and.push(where);
-    } else if (match.then.or) {
-      match.then.or.push(where);
+  if (match.then && match.then.where) {
+    if (!match.then.where.and && !match.then.where.or) {
+      const currentWhere = match.then.where;
+      match.then.where = {} as Where;
+      match.then.where.and = [currentWhere];
+      match.then.where.and.push(where);
+    } else if (match.then.where.and) {
+      match.then.where.and.push(where);
+    } else if (match.then.where.or) {
+      match.then.where.or.push(where);
     }
-  } else match.then = where;
+  } else {
+    if (match.then) match.then.where = where;
+    else {
+      match.then = { where: where };
+    }
+  }
 }
 export function getPathPropertyNames(pathable: Match | Path, where: Where): string | undefined {
   if (!where.nodeRef) return where.name;
@@ -717,7 +722,17 @@ export function addWhereToWhen(when: When, match: Match, node: TreeNode): string
     }
     if (node.data.rangeType != SHACL.NODESHAPE) {
       const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);
-      addWhereToMatch(when, where);
+      if (when.and) when.and.push(where);
+      else if (when.or) when.or.push(where);
+      else if (when.iri) {
+        const iri = when.iri;
+        const is = when.is;
+        delete when.iri;
+        delete when.is;
+        const copyWhere = { iri: iri, is: is } as Where;
+        when.and = [copyWhere];
+        when.and.push(where);
+      }
     }
   }
   return nodeRef;

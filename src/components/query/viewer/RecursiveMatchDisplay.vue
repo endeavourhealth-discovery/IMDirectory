@@ -84,7 +84,7 @@
               :where="match.where"
             />
           </template>
-          <div v-if="match.then">
+          <div v-if="match.then && match.then.where">
             <span class="node-ref">then with the {{ testFields }} of the above</span>
             <RecursiveWhereDisplay
               :key="0"
@@ -95,7 +95,7 @@
               :index="0"
               :inline="false"
               :root="true"
-              :where="match.then"
+              :where="match.then.where"
             />
           </div>
           <span v-if="match.node">
@@ -127,14 +127,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, Ref, ref } from "vue";
+import { Ref, computed, inject, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import type { Match, Node } from "@endeavour/vue-library/interfaces";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBooleanOperator, getBoolGroup, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
+import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -174,7 +174,7 @@ const displayOperator = computed(() => {
 });
 
 const testFields = computed(() => {
-  if (match.value.then) return getTestFields(match.value.then);
+  if (match.value.then && match.value.then.where) return getTestFields(match.value.then.where);
 });
 const importClauses: Map<string, Match> | undefined = inject("importClauses", undefined);
 const checked = ref(false);

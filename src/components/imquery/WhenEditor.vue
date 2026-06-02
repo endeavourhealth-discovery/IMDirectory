@@ -63,7 +63,7 @@ async function onUpdate() {
   when.value = ret![0].case!.when![0];
 }
 function deleteWhere() {
-  delete when.value.where;
+  when.value = {};
 }
 </script>
 
