@@ -1,8 +1,8 @@
-import { COMPONENT, EDITOR, IM, IM_FUNCTION, NAMESPACE, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
+import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
 import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
-const ConceptShape: FormGenerator = {
-  iri: EDITOR.CONCEPT_SHAPE,
+const SemanticMapShape: FormGenerator = {
+  iri: EDITOR.SEMANTIC_MAP_SHAPE,
   type: [
     {
       iri: IM.FORM_GENERATOR
@@ -11,11 +11,11 @@ const ConceptShape: FormGenerator = {
   label: "Editor - Concept shape",
   comment: "Form editor for a concept",
   targetShape: {
-    iri: IM.CONCEPT
+    iri: IM.SEMANTIC_MAP
   },
   property: [
     {
-      comment: "Summary | rolegroup splitter",
+      comment: "Summary | map entry splitter",
       order: 1,
       name: "splitter",
       path: { iri: IM.CONCEPT },
@@ -26,14 +26,14 @@ const ConceptShape: FormGenerator = {
         {
           comment: "Summary layout",
           name: "Summary",
-          path: { iri: IM.CONCEPT },
+          path: { iri: IM.SEMANTIC_MAP },
           showTitle: true,
           order: 1,
           maxCount: 1,
           componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
-              comment: "A property that auto generates the type as  concept type",
+              comment: "A property that auto generates the type as  semantic map type",
               order: 1,
               function: {
                 iri: IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
@@ -46,13 +46,13 @@ const ConceptShape: FormGenerator = {
               argument: [
                 {
                   valueIri: {
-                    iri: IM.CONCEPT
+                    iri: IM.SEMANTIC_MAP
                   },
                   parameter: "entityIri"
                 }
               ],
               isIri: {
-                iri: IM.CONCEPT
+                iri: IM.SEMANTIC_MAP
               },
               minCount: 1,
               componentType: {
@@ -60,7 +60,7 @@ const ConceptShape: FormGenerator = {
               }
             },
             {
-              comment: "A property that auto generates a concept iri from the snomed extension",
+              comment: "A property that auto generates an iri",
               order: 2,
               name: "Iri",
               showTitle: true,
@@ -79,39 +79,9 @@ const ConceptShape: FormGenerator = {
               validation: { iri: VALIDATION.IS_IRI }
             },
             {
-              comment: "Property that derives a concept code from the concept iri",
-              order: 3,
-              name: "Code",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                iri: IM.CODE
-              },
-              argument: [
-                {
-                  parameter: "entityIri",
-                  valueVariable: "conceptIri"
-                },
-                {
-                  parameter: "fieldName",
-                  valueData: "code"
-                }
-              ],
-              minCount: 1,
-              componentType: {
-                iri: COMPONENT.TEXT_DISPLAY
-              },
-              datatype: {
-                iri: XSD.STRING
-              },
-              function: {
-                iri: IM_FUNCTION.LOCAL_NAME_RETRIEVER
-              }
-            },
-            {
               comment: "name or main term of concept",
               order: 4,
-              name: "Concept name",
+              name: "Map name",
               showTitle: true,
               maxCount: 1,
               path: {
@@ -126,22 +96,12 @@ const ConceptShape: FormGenerator = {
               }
             },
             {
-              comment: "optional peferred name for efficiency during searching",
-              order: 5,
-              name: "Preferred name",
-              showTitle: true,
-              maxCount: 1,
-              path: { iri: IM.PREFERRED_NAME },
-              minCount: 0,
-              componentType: { iri: COMPONENT.TEXT_INPUT }
-            },
-            {
               comment: "optional description",
               order: 6,
               datatype: {
                 iri: XSD.STRING
               },
-              name: "Concept description",
+              name: "Map description",
               showTitle: true,
               maxCount: 1,
               path: {
@@ -195,84 +155,7 @@ const ConceptShape: FormGenerator = {
                 }
               ]
             },
-            {
-              comment: "optional im1id",
-              order: 8,
-              name: "IM1Id",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                iri: IM.IM_1_ID
-              },
-              minCount: 0,
-              componentType: {
-                iri: COMPONENT.TEXT_DISPLAY
-              }
-            },
-            {
-              comment: "optional im1scheme",
-              order: 9,
-              function: {
-                iri: IM_FUNCTION.IM1_SCHEME_OPTIONS
-              },
-              name: "IM1Scheme",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                iri: NAMESPACE.IM1
-              },
-              minCount: 0,
-              componentType: {
-                iri: COMPONENT.TEXT_DISPLAY
-              }
-            },
-            {
-              label: "Subclass of array builder",
-              name: "Subclass of",
-              showTitle: true,
-              order: 10,
-              minCount: 0,
-              componentType: {
-                iri: COMPONENT.ARRAY_BUILDER
-              },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
-              validation: {
-                iri: VALIDATION.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-              path: {
-                iri: RDFS.SUBCLASS_OF
-              },
-              valueVariable: "subClassOf",
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  name: "Entity",
-                  order: 1,
-                  minCount: 0,
-                  builderChild: true,
-                  componentType: {
-                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
-                  },
-                  path: {
-                    iri: RDFS.SUBCLASS_OF
-                  },
-                  select: [
-                    {
-                      iri: QUERY.SEARCH_ALLOWABLE_SUBCLASS
-                    }
-                  ],
-                  argument: [
-                    {
-                      valueIri: {
-                        iri: IM.CONCEPT
-                      },
-                      parameter: "value"
-                    }
-                  ]
-                }
-              ]
-            },
+
             {
               label: "Contained in array builder",
               name: "Contained in",
@@ -286,7 +169,7 @@ const ConceptShape: FormGenerator = {
               validation: {
                 iri: VALIDATION.HAS_PARENT
               },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              validationErrorMessage: "Entity is missing the folder its in",
               path: {
                 iri: IM.IS_CONTAINED_IN
               },
@@ -325,145 +208,44 @@ const ConceptShape: FormGenerator = {
                   }
                 }
               ]
-            },
-            {
-              comment: "Toggle controlling sub components visibility",
-              order: 12,
-              name: "Replaced by",
-              label: "Deactivate | Activate",
-              minCount: 1,
-              maxCount: 1,
-              path: {
-                iri: "http://snomed.info/sct#370124000"
-              },
-              componentType: {
-                iri: COMPONENT.TOGGLEABLE
-              },
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  select: [
-                    {
-                      iri: QUERY.SEARCH_ENTITIES
-                    }
-                  ],
-                  argument: [
-                    {
-                      parameter: "this",
-                      valueIri: {
-                        iri: IM.CONCEPT
-                      }
-                    }
-                  ],
-                  name: "Replaced by",
-                  showTitle: true,
-                  path: {
-                    iri: "http://snomed.info/sct#370124000"
-                  },
-                  minCount: 1,
-                  componentType: {
-                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
-                  }
-                }
-              ]
             }
           ]
         },
         {
-          name: "Splitter",
-          comment: "Role group | Mapped to splitter",
-          path: { iri: IM.CONCEPT },
+          name: "Map Entry builder",
+          comment: "Map entry | Mapped to splitter",
+          path: {
+            iri: RDF.TYPE
+          },
           order: 1,
           minCount: 0,
           maxCount: 1,
           componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
-              label: "Property Group - Role group builder",
-              order: 1,
-              path: {
-                iri: IM.ROLE_GROUP
-              },
-              validation: { iri: VALIDATION.IS_ROLE_GROUP },
-              name: "Role group",
-              showTitle: true,
-              minCount: 0,
-              componentType: {
-                iri: COMPONENT.ROLE_GROUP_BUILDER
-              }
-            },
-            {
-              label: "Property Group - Mapped to array builder",
+              label: "Property group - MapEntry  builder",
+              name: "Map Entry builder",
+              showTitle: false,
               order: 1,
               maxCount: 1,
-              showTitle: true,
               path: {
-                iri: IM.MATCHED_TO
+                iri: RDF.TYPE
               },
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  builderChild: true,
-                  name: "Entity",
-                  path: {
-                    iri: IM.MATCHED_TO
-                  },
-                  minCount: 0,
-                  componentType: {
-                    iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER
-                  }
-                }
-              ],
-              name: "Mapped to",
-              minCount: 0,
               componentType: {
-                iri: COMPONENT.ARRAY_BUILDER
+                iri: COMPONENT.VERTICAL_LAYOUT
               },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
-            },
-            {
-              name: "Term code",
-              comment: "Term code array builder",
-              order: 1,
-              path: {
-                iri: IM.HAS_TERM_CODE
-              },
-              showTitle: true,
-              minCount: 0,
-              componentType: { iri: COMPONENT.ARRAY_BUILDER },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
-              validation: { iri: VALIDATION.IS_TERMCODE },
               property: [
                 {
-                  name: "Term code",
-                  path: { iri: IM.HAS_TERM_CODE },
-                  builderChild: true,
                   order: 1,
-                  minCount: 0,
-                  componentType: { iri: COMPONENT.TERM_CODE_EDITOR },
-                  validation: { iri: VALIDATION.IS_TERMCODE }
-                }
-              ]
-            },
-            {
-              name: "Child of",
-              comment: "Child of array builder",
-              order: 1,
-              path: { iri: IM.IS_CHILD_OF },
-              showTitle: true,
-              minCount: 0,
-              componentType: { iri: COMPONENT.ARRAY_BUILDER },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
-              property: [
-                {
-                  name: "Child of",
-                  path: { iri: IM.IS_CHILD_OF },
-                  builderChild: true,
-                  order: 1,
-                  minCount: 0,
-                  componentType: { iri: COMPONENT.AUTOCOMPLETE_SEARCH_BAR_WRAPPER }
+                  minCount: 1,
+                  componentType: {
+                    iri: COMPONENT.MAP_ENTRY_BUILDER
+                  },
+
+                  validationErrorMessage: "Map entries are not valid",
+                  path: {
+                    iri: IM.MAP_ENTRY
+                  }
                 }
               ]
             }
@@ -474,4 +256,4 @@ const ConceptShape: FormGenerator = {
   ]
 };
 
-export default ConceptShape;
+export default SemanticMapShape;

@@ -43,7 +43,7 @@ const IndicatorShape: FormGenerator = {
 
           property: [
             {
-              comment: "A property that auto generates a concept iri from the snomed extension",
+              comment: "A property that auto generates an iri ",
               order: 2,
               name: "Iri",
               showTitle: true,
