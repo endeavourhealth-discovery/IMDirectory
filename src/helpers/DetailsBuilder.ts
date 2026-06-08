@@ -31,6 +31,7 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   else if (key === IM.DEFINITION) addDefinition(treeNode, predicates, key);
   else if (key === IM.HAS_MAP) addHasMapNode(treeNode, entity, predicates, key);
   else if (key === IM.HAS_DATASET) addDefinition(treeNode, predicates, key);
+  else if (key === IM.MAP_ENTRY) addMapEntryNode(treeNode, entity, predicates, key);
   else if (key !== "iri") {
     const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] };
     treeNode.children?.push(newTreeNode);
@@ -151,6 +152,15 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
       }
     }
   }
+}
+
+function addMapEntryNode(treeNode: any, entity: any, predicates: any, key: string) {
+  const newTreeNode = {
+    key: key,
+    label: getLabel(key, predicates, entity) + " see maps tab",
+    leaf: true
+  };
+  treeNode.children?.push(newTreeNode);
 }
 
 function getRoleValue(predicates: any, roleGroup: any, roleKey: any, key: string) {

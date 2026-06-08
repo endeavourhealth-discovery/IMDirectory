@@ -8,18 +8,18 @@ type PrimeDialog = ReturnType<typeof useDialog>;
 
 export const useDialogStore = defineStore("dialog", () => {
   const dialogService = ref<PrimeDialog | null>();
-  let dialogRef = ref<DynamicDialogInstance | null>();
+  const dialogRef = ref<DynamicDialogInstance | null>();
   let resolver: ((v: any) => void) | null;
 
-  let isLoading = ref(false);
-  let error = ref<string | null>();
+  const isLoading = ref(false);
+  const error = ref<string | null>();
 
   function register(service: PrimeDialog) {
     dialogService.value = service;
   }
 
   function open(component: any, data?: DynamicDialogOptions): Promise<any> {
-    if (!dialogService) throw new Error("Dialog service not registered correctly.");
+    if (!dialogService.value) throw new Error("Dialog service not registered correctly.");
 
     error.value = null;
 

@@ -2,8 +2,8 @@
   <div id="concept-main-container">
     <div class="info-container">
       <div class="flex flex-row">
-        <TextWithLabel label="Iri" :data="entityIri" v-if="!!entityIri" />
-        <TextWithLabel label="Code" :data="entity[IM.CODE]" v-if="!!entity[IM.CODE]" />
+        <TextWithLabel v-if="!!entityIri" :data="entityIri" label="Iri" />
+        <TextWithLabel v-if="!!entity[IM.CODE]" :data="entity[IM.CODE]" label="Code" />
       </div>
       <div class="flex flex-row justify-start">
         <ArrayObjectNamesToStringWithLabel
@@ -12,13 +12,13 @@
           :tagSeverityMatches="tagSeverityMatches"
           label="Status"
         />
-        <ArrayObjectNamesToStringWithLabel label="Types" :data="entity[RDF.TYPE]" v-if="!!entity[RDF.TYPE]" />
+        <ArrayObjectNamesToStringWithLabel v-if="!!entity[RDF.TYPE]" :data="entity[RDF.TYPE]" label="Types" />
       </div>
       <div>
-        <TextWithLabel label="Preferred name" :data="entity[IM.PREFERRED_NAME]" v-if="!!entity[IM.PREFERRED_NAME]" />
-        <ArrayObjectNamesToStringWithLabel label="Return Type" :data="entity[IM.RETURN_TYPE]" v-if="!!entity[IM.RETURN_TYPE]" />
+        <TextWithLabel v-if="!!entity[IM.PREFERRED_NAME]" :data="entity[IM.PREFERRED_NAME]" label="Preferred name" />
+        <ArrayObjectNamesToStringWithLabel v-if="!!entity[IM.RETURN_TYPE]" :data="entity[IM.RETURN_TYPE]" label="Return Type" />
       </div>
-      <TextHTMLWithLabel label="Description" :data="entity[RDFS.COMMENT]" v-if="!!entity[RDFS.COMMENT]" />
+      <TextHTMLWithLabel v-if="!!entity[RDFS.COMMENT]" :data="entity[RDFS.COMMENT]" label="Description" />
     </div>
     <div v-if="entity.iri === 'http://endhealth.info/im#Favourites'">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
@@ -33,6 +33,7 @@
             <Tab value="0">Details</Tab>
             <Tab v-if="showTerms" value="1">Terms</Tab>
             <Tab v-if="showMappings" value="2">Maps</Tab>
+            <Tab v-if="showSemanticMaps" value="30">Maps</Tab>
             <Tab v-if="isValueSet(types)" value="3">Set</Tab>
             <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL</Tab>
             <Tab v-if="isConcept(types)" value="5">Expression</Tab>
@@ -65,6 +66,11 @@
             <TabPanel v-if="showMappings" value="2">
               <div id="mappings-container" class="concept-panel-content">
                 <Mappings :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+              </div>
+            </TabPanel>
+            <TabPanel v-if="showSemanticMaps" value="30">
+              <div id="mappings-container" class="concept-panel-content">
+                <SemanticMapDisplay :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
             <TabPanel v-if="isValueSet(types)" value="3">
@@ -180,6 +186,7 @@ import type { ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/interfac
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
 import ModelChart from "@/components/directory/viewer/ModelChart.vue";
+import SemanticMapDisplay from "@/components/directory/viewer/SemanticMapDisplay.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import { useDirectService } from "@/composables/useDirectService";
@@ -223,6 +230,7 @@ const entityIri = ref("");
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
+const showSemanticMaps = computed(() => isOfTypes(types.value, IM.SEMANTIC_MAP));
 const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
 

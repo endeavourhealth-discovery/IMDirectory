@@ -2,14 +2,14 @@
   <div class="string-single-display-container">
     <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
-      <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
+      <div v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }" class="tooltip-container">
         <InputText
-          disabled
-          class="p-inputtext input-text"
-          :class="invalid && showValidation && 'invalid'"
           v-model="userInput"
-          type="text"
+          :class="invalid && showValidation && 'invalid'"
+          class="p-inputtext input-text"
           data-testid="text-display"
+          disabled
+          type="text"
         />
       </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
@@ -18,8 +18,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, inject, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { inject, onMounted, Ref, ref, watch } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import type { Argument, ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/interfaces";
@@ -34,7 +34,7 @@ import { FunctionService } from "@/services";
 const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
-  value?: string;
+  value?: any;
   position?: number;
 }>();
 
@@ -44,7 +44,7 @@ const emit = defineEmits<{
 
 watch([() => cloneDeep(props.value), () => cloneDeep(props.shape)], async ([newPropsValue, newShapeValue]) => {
   if (newPropsValue && newShapeValue) userInput.value = newPropsValue;
-  else userInput.value = await processPropertyValue(newShapeValue);
+  else userInput.value = String(await processPropertyValue(newShapeValue));
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
@@ -122,7 +122,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (props.value) userInput.value = props.value;
+  if (props.value) userInput.value = String(props.value);
   else {
     loading.value = true;
     const result = await processPropertyValue(props.shape);
