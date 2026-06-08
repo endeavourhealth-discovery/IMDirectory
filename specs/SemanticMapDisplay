@@ -1,0 +1,51 @@
+# Sementic Map Display
+
+## Functional Requirements
+
+To display the list of semantic Maps for a semantic map entity
+
+Each map entry is in tabular form i.e one row per map entry
+
+The fields that are displayed are determined by the typ of Map.
+
+## Technical approach
+
+### Display component
+
+/directory/viewer/SemanticMapDisplay.vue
+
+
+The component is called from the Viewer. vue component that passes in the value of the entity predicate
+IM.MAP_ENTRY which is a list of Objects that have the following predicates
+
+A Map entry has the following predicates with the following enums
+
+1. IM.SOURCE_ENTITY
+2. IM.SOURCE_TYPE
+3. IM.SOURCE_PROPERTY
+4. IM.RANGE_FROM
+5. IM.RANGE_TO
+6. IM.SOURCE_TEXT
+7. IM.SOURCE_VALUE
+8. IM.TARGET_TEXT
+9. IM.TARGET_VALUE
+
+The relationship between map type and map entry fields is as follows:
+
+(not tha IM is short for http://endhealth.info/im#)
+
+| Map type          | Source entity | Source type | Source property | Range from | Range to | Source text | Source value | Target text | Target value |
+|-------------------|---------------|-------------|-----------------|------------|----------|-------------|--------------|-------------|--------------|
+| IM.DirectMap      | Yes           | No          | No              | No         | No       | Yes         | No           | Yes         | Yes          |
+| IM.RangeValueMap  | Yes           | Yes         | Yes             | Yes        | Yes      | No          | No           | Yes         | Yes          |
+| IM.ExactValueMap  | Yes           | Yes         | Yes             | No         | No       | Yes         | Yes          | Yes         | Yes          |
+
+Source entity, source type and source property fields are TTIRefs, that is have iri field and name field.
+IMViewerLink is used to display the TTIRef.
+
+target text is a single word text designed to be used as enum when passed as variable to a method
+
+target value is an integer value that may alternatively be used as an enum when passed as a variable to a method.
+
+## Sub components used in data entry
+<IMViewerLink/>

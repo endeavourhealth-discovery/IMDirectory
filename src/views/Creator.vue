@@ -64,6 +64,7 @@ import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
+import MapEntryBuilder from "@/components/editor/shapeComponents/MapEntryBuilder.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
 import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
@@ -87,6 +88,7 @@ export default defineComponent({
     QueryDefinitionBuilder,
     IndicatorDefinition,
     ComponentGroup,
+    MapEntryBuilder,
     DropdownTextInputConcatenator
   }
 });

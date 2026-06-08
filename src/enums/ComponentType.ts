@@ -35,5 +35,6 @@ export enum ComponentType {
   IRI_BUILDER = "IriBuilder",
   AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "AutocompleteSearchBarWrapper",
   SUBSET_BUILDER = "SubsetBuilder",
-  CHECKBOX_DISPLAY = "CheckboxDisplay"
+  CHECKBOX_DISPLAY = "CheckboxDisplay",
+  MAP_ENTRY_BUILDER = "MapEntryBuilder"
 }

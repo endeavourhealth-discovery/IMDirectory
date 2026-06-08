@@ -6,12 +6,12 @@
         <span v-if="showRequired" class="required">*</span>
       </div>
       <Select
-        class="entity-single-dropdown"
-        :class="invalid && showValidation && 'invalid'"
         v-model="selectedEntity"
+        :class="invalid && showValidation && 'invalid'"
         :options="dropdownOptions"
-        optionLabel="name"
+        class="entity-single-dropdown"
         data-testid="entity-single-dropdown"
+        optionLabel="name"
       />
     </span>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
@@ -19,7 +19,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";

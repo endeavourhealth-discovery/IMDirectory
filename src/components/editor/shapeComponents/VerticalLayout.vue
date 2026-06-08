@@ -1,11 +1,11 @@
 <template>
-  <div class="vertical-layout-container" :style="manualWidth">
+  <div :style="manualWidth" class="vertical-layout-container">
     <div class="title-bar">
       <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
       <h2 v-if="showRequired" class="required">*</h2>
     </div>
-    <div v-for="(component, index) in components" class="component-container" :style="styles.find(s => s.index === index)?.style" v-bind:key="index">
-      <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
+    <div v-for="(component, index) in components" v-bind:key="index" :style="styles.find(s => s.index === index)?.style" class="component-container">
+      <component :is="processComponentType(component.componentType)" :mode="mode" :shape="component" :value="processEntityValue(component)" />
     </div>
   </div>
 </template>
@@ -29,6 +29,7 @@ import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
+import MapEntryBuilder from "./MapEntryBuilder.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
 import SubsetBuilder from "./setDefinition/SubsetBuilder.vue";
@@ -45,6 +46,7 @@ export default defineComponent({
     TextInput,
     ToggleableComponent,
     DropdownTextInputConcatenator,
+    MapEntryBuilder,
     RoleGroupBuilder,
     PropertyBuilder,
     TermCodeEditor,
@@ -57,7 +59,7 @@ export default defineComponent({
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";

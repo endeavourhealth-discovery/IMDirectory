@@ -49,8 +49,8 @@ coverage
 /tests/e2e/outputs
 env/default/default.properties
 /env
-/docs/logs
-/docs/screenshots
-/docs/test_reports/html-report/css
-/docs/test_reports/html-report/docs/specs
-/docs/test_reports
+/specs/logs
+/specs/screenshots
+/specs/test_reports/html-report/css
+/specs/test_reports/html-report/docs/specs
+/specs/test_reports
