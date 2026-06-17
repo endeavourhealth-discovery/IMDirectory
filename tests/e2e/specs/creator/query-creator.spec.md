@@ -80,4 +80,3 @@ This specification describes the query creator functionality of IMDirectory.
 * Check "1" match checkbox
 * Check "2" match checkbox
 * Click "Create boolean OR subgroup" button
-* test
