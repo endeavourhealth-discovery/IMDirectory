@@ -22,11 +22,11 @@
     "clean-install": "rimraf pnpm-lock.yaml && rimraf node_modules && pnpm install",
     "stop-only": "node stop-only.js",
     "prepare": "husky",
-    "preinstall": "pnpm add endeavourhealth-discovery/VueLibrary#DS-Editor"
+    "preinstall": "pnpm config set \"@endeavour:registry=https://artifactory.endhealth.co.uk/repository/npm/\""
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.1.2",
-    "@endeavour/vue-library": "github:endeavourhealth-discovery/VueLibrary#DS-Editor",
+    "@endeavour/vue-library": "^1.0.1",
     "@msw/data": "1.1.2",
     "@primeuix/themes": "2.0.3",
     "@primevue/auto-import-resolver": "4.5.4",
