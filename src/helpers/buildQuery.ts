@@ -23,11 +23,9 @@ import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { Relativity } from "@/enums";
 import { SearchOptions } from "@/interfaces";
-import { DataModelService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
+import { DataModelService, QueryService } from "@/services";
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
   const imQuery: QueryRequest = { query: {} };
@@ -87,23 +85,6 @@ export function getCompareOptions(valueType: string): any[] {
   }
   options.push({ label: "Compare with fixed value", value: Relativity.Absolute });
   return options;
-}
-
-export async function setReturn(match: Match, keepAs: string) {
-  const dialogStore = useDialogStore();
-  if (keepAs === "") {
-    if (match.return) {
-      await dialogStore.open(AlertDialog, {
-        props: { modal: true, style: { width: "30vw" }, closable: false },
-        data: {
-          icon: "fa-regular fa-circle-exclamation",
-          title: "Warning",
-          text: "You have already added properties to the output. Cannot remove label",
-          confirmButtonText: "Close"
-        }
-      });
-    } else delete match.node;
-  } else match.node = keepAs;
 }
 
 export function checkGroupChange(e: any, parentGroup: number[], index: number) {
@@ -232,6 +213,19 @@ export function getBooleanOperator(clauseType: string, clause: Match | Where | u
   else if ((clause as Match).rule) return Bool.rule;
   else return undefined;
 }
+
+export function getMatchFromNodeRef(match: Match, nodeRef: string): Match | undefined {
+  if (!match) return undefined;
+  if (match.node === nodeRef) return match;
+  if (match.any) {
+    for (const any of match.any) {
+      const testMatch = getMatchFromNodeRef(any, nodeRef);
+      if (testMatch) return testMatch;
+    }
+  }
+  return undefined;
+}
+
 export function getBoolGroup(clauseType: string, clause: Match | Where | undefined): any[] | undefined {
   if (!clause) return undefined;
   if (clause.or) return clause.or;
@@ -286,42 +280,6 @@ function removeRoleSubgroups(where: Where): void {
     removeRoleSubgroups(item);
   }
 }
-
-export function deleteGroupFromQuery(query: Query, index: number) {
-  query.columnGroup!.splice(index, 1);
-}
-
-export function deletePropertyFromParent(match: Match, parentWhere: Where, index: number) {
-  if (parentWhere) {
-    for (const key of ["and", "or"] as const) {
-      if (parentWhere[key]) {
-        parentWhere[key]!.splice(index, 1);
-      }
-    }
-  } else {
-    delete match.where;
-  }
-}
-
-export function hasWhere(match: Match, whereToFind: Where): boolean {
-  if (match.where) {
-    return hasWhereInWhere(match.where, whereToFind);
-  } else return false;
-}
-
-function hasWhereInWhere(where: Where, whereToFind: Where): boolean {
-  if (where.iri) {
-    if (where.iri === whereToFind.iri) return true;
-  }
-  const subWheres = where.and || where.or;
-  if (subWheres) {
-    for (const subWhere of subWheres) {
-      if (hasWhereInWhere(subWhere, whereToFind)) return true;
-    }
-  }
-  return false;
-}
-
 export function addWhereToMatch(match: Match, where: Where, index?: number) {
   if (match.where) {
     if (!match.where.and) {
@@ -357,6 +315,17 @@ export function addWhereToThen(match: Match, where: Where) {
     }
   }
 }
+export async function getSemanticMapOptions(match: Match): Promise<any[]> {
+  const maps = await QueryService.getSemanticMaps(match);
+  const options = [];
+  for (const map of maps) {
+    options.push({
+      label: map.name,
+      value: map.iri
+    });
+  }
+  return options;
+}
 export function getPathPropertyNames(pathable: Match | Path, where: Where): string | undefined {
   if (!where.nodeRef) return where.name;
   if (pathable.path) {
@@ -367,6 +336,30 @@ export function getPathPropertyNames(pathable: Match | Path, where: Where): stri
     }
   }
   return undefined;
+}
+
+export function getPathNameFromPropertyRef(match: Match, nodeRef: string, propertyRef: string) {
+  const returnMatch = getMatchFromNodeRef(match, nodeRef);
+  if (!returnMatch) return undefined;
+  if (returnMatch.return) {
+    for (const ret of returnMatch.return) {
+      if ((ret.as = propertyRef)) {
+        if (ret.nodeRef) {
+          const pathName = getPathName(returnMatch, ret.nodeRef);
+          if (pathName) return pathName;
+        }
+      }
+    }
+  }
+}
+export function getPathNameFromMatch(match: Match, nodeRef: string): string | undefined {
+  const pathName = getPathName(match, nodeRef);
+  if (pathName) return pathName;
+  if (match.any) {
+    for (const any of match.any) {
+      if (any.node === nodeRef) return any.node + "->";
+    }
+  }
 }
 export function getPathName(pathable: Match | Path, nodeRef: string | undefined): string | undefined {
   if (!pathable.path) return undefined;
@@ -434,7 +427,6 @@ export function setRuleAction(match: Match, ruleAction: string) {
     }
   }
 }
-
 export function getRuleActionLabel(value: string): string {
   const match = getRuleActionOptions().find(item => item.value === value);
   return match?.label ?? "";
@@ -518,14 +510,6 @@ export function getBooleanOptions(clauseType: string, index: number, standardQue
   return options;
 }
 
-export function isGroupable(rootBool?: boolean, parentClause?: Match | Where, parentOperator?: Bool): boolean {
-  if (parentOperator && parentOperator === Bool.rule) return false;
-  if (parentClause && !rootBool && parentOperator) {
-    const parentGroup = (parentClause[parentOperator as keyof (Match | Where)] as Match[]) || [];
-    return parentGroup.length > 2;
-  }
-  return false;
-}
 export function getConstraintOperator(constrainer: Node | Where) {
   if (constrainer.descendantsOrSelfOf) return "<<";
   if (constrainer.descendantsOf) return "<";
@@ -569,13 +553,6 @@ export function setConstraintOperator(constrainer: Node | Where, valueConstraint
       delete constrainer.descendantsOrSelfOf;
       delete constrainer.descendantsOf;
       delete constrainer.memberOf;
-  }
-}
-export function addRefinementToGroup(where: Where) {
-  if (where.or) {
-    where.or.push({ uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where);
-  } else if (where.and) {
-    where.and.push({ uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where);
   }
 }
 
@@ -675,26 +652,6 @@ export function injectReturn(match: Match, iri: string, ref: string) {
   match.return.push({ iri: iri, as: ref } as Return);
 }
 
-export function addReturn(match: Match, node: TreeNode, ret?: Return) {
-  if (node.type === "property") {
-    const fullPath = node.data.path;
-    let nodeRef;
-    if (fullPath) {
-      nodeRef = setPathGetNodeRef(match, fullPath, true);
-    }
-    if (!ret) {
-      ret = { iri: node.data.iri, name: node.label, as: node.label } as Return;
-      if (!match.return) match.return = [];
-      match.return.push(ret);
-    } else {
-      ret.iri = node.data.iri;
-      ret.name = node.label;
-    }
-    if (nodeRef) ret.nodeRef = nodeRef;
-  }
-
-  match.invalid = false;
-}
 export function addFilter(match: Match, node: TreeNode, isThen: boolean, optional: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
@@ -751,7 +708,7 @@ export function setPathGetNodeRef(pathable: HasPaths, fullPath: string, optional
   const paths = fullPath.split("\t");
   for (i = 0; i < paths.length; i = i + 2) {
     if (pathable.path) {
-      const path = findPath(pathable.path, fullPath[i]);
+      const path = findPath(pathable.path, paths[i]);
       if (path) {
         pathable = path;
         if (i === paths.length - 2) {
@@ -794,16 +751,6 @@ export function getOrderables(nodeShape: NodeShape): Orderable[] {
   }
   return orderables;
 }
-export function getFormattedPath(path: any): string {
-  let result = "";
-  if (path.path) {
-    for (let i = 0; i < path.path.length; i++) {
-      if (result != "") result = result + " ->";
-      result = result + path.path[i].name;
-    }
-  }
-  return result;
-}
 
 function getAcronym(iri: string | null | undefined): string {
   if (!iri || iri.trim() === "") return "";
@@ -820,21 +767,6 @@ function getAcronym(iri: string | null | undefined): string {
 
 function findPath(paths: Path[], pathIri: string): Path | undefined {
   return paths.find(item => item.iri === pathIri);
-}
-
-export function removeUndefined(obj: any) {
-  Object.keys(obj).forEach(key => {
-    if (obj[key] === undefined) {
-      delete obj[key];
-    }
-  });
-}
-
-export function getResults(nodeRef: string, parentMatch: Match): string | undefined {
-  if (!parentMatch.and) return undefined;
-  const matches = parentMatch.and || parentMatch.or;
-  if (!matches) return undefined;
-  return getFromMatches(nodeRef, matches, false);
 }
 
 export function getTestFields(then: Where): string | undefined {
@@ -862,42 +794,6 @@ function addTestFields(where: Where, display: string[]) {
   }
 }
 
-function getFromMatches(nodeRef: string, matches: Match[], matched: boolean): string | undefined {
-  if (!matches) return undefined;
-  for (const step of matches) {
-    if (matched && step.return) return getReturnFields(step.return);
-    else if (matched) {
-      const subMatches = step.and || step.or;
-      if (subMatches && subMatches.length > 0) {
-        return getFromMatches(nodeRef, subMatches, true);
-      }
-    }
-    if (step.node && step.node === nodeRef && step.return) return getReturnFields(step.return);
-    else if (step.node && step.node === nodeRef) {
-      const subMatches = step.and || step.or;
-      if (subMatches && subMatches.length > 0) {
-        return getFromMatches(nodeRef, subMatches, true);
-      }
-    } else {
-      const subMatches = step.and || step.or;
-      if (subMatches && subMatches.length > 0) {
-        const fields = getFromMatches(nodeRef, subMatches, false);
-        if (fields) return fields;
-      }
-    }
-  }
-  return undefined;
-}
-function getReturnFields(returnFields: Return[]): string {
-  if (Array.isArray(returnFields)) {
-    let display = "";
-    for (let i = 1; i < returnFields.length; i++) {
-      display += display === "" ? returnFields[i].name : ", " + returnFields[i].name;
-    }
-    return display;
-  }
-  return "";
-}
 export function getRelativeToOptions(valueType: string, keepAs: Record<string, Ref<Match>>): any[] {
   const options = [];
   if (valueType === IM.DATE) {

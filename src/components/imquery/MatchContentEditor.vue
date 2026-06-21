@@ -39,6 +39,7 @@
             @delete-then="onDeleteThen"
             @update-match="onUpdate"
             @edit-test="activeTab = 'test'"
+            @update:match="onUpdate"
           />
         </div>
       </TabPanel>

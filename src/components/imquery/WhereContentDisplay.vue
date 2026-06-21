@@ -6,7 +6,7 @@
   <span v-if="where.description" class="field">{{ where.description }}</span>
   <span v-if="where.valueLabel && where.is">
     <span class="field">{{ getIsOperator(where.is, eclQuery) }}</span>
-    <span @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0"> {{ where.valueLabel }}</span>
+    <span class="hover-label flex-auto justify-start p-0" @click="isExpanded = !isExpanded"> {{ where.valueLabel }}</span>
   </span>
   <ValueSentenceDisplay v-if="valueSentence" :valueSentence="valueSentence" />
 
@@ -33,32 +33,32 @@
     <div v-for="(nestedProperty, subIndex) in boolGroup" :key="index" class="where-container">
       <span>
         <WhereContentDisplay
-          :where="nestedProperty"
+          :key="index"
+          :bracketed="subIndex === boolGroup!.length - 1"
+          :depth="depth + 1"
+          :eclQuery="eclQuery"
+          :expandedSet="expandedSet"
           :index="subIndex"
           :parentOperator="operator"
-          :key="index"
-          :depth="depth + 1"
-          :expandedSet="expandedSet"
           :root="false"
-          :eclQuery="eclQuery"
-          :bracketed="subIndex === boolGroup!.length - 1"
+          :where="nestedProperty"
         />
       </span>
     </div>
   </template>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed, ref } from "vue";
 
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { Bool, IM } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type { Node, Where } from "@endeavour/vue-library/interfaces";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { buildValueSentence, getIsOperator } from "@/helpers/QueryEditorMethods";
-import { getRelativeTo } from "@/helpers/QueryEditorMethods";
+import { buildValueSentence, getIsOperator, getRelativeTo } from "@/helpers/QueryEditorMethods";
 import { getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
 
 interface Props {
@@ -95,7 +95,7 @@ const relativeTo = computed(() => {
   return getRelativeTo(props.where);
 });
 const whereName = computed(() => {
-  return props.where.name ? (props.where.name === "concept" ? "" : props.where.name) : "";
+  return props.where.name ? props.where.name : "";
 });
 
 function getOperator(operator: Bool | undefined, index: number): string {

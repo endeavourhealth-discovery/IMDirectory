@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
@@ -78,7 +78,7 @@ const showPropertySelector = defineModel<boolean>("showPropertySelector", { defa
 const match = defineModel<Match>("match", { default: {} });
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const { expandNode, createModeView, getTypeNode, createFeatureTree } = usePropertyTree();
+const { expandNode, createModeView, createFeatureTree, addToTreeFromAny } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const emit = defineEmits<{
   (e: "cancel"): void;
@@ -97,8 +97,9 @@ async function init() {
   loading.value = true;
   nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false);
   typeNodes.value = await createFeatureTree(nodeShape.value, "return");
+  await addToTreeFromAny(props.match, typeNodes.value);
   setupTrees("return");
-  expandedKeys.value = { [typeNodes.value[0].key]: true };
+  if (!props.match.any) expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};
   loading.value = false;
 }

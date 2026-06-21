@@ -19,7 +19,7 @@
         <TabPanels>
           <TabPanel value="filters">
             <DatasetFilterEditor
-              v-model:match="editMatch"
+              v-model:match="match"
               :baseType="baseType"
               :depth="0"
               :index="0"
@@ -31,7 +31,7 @@
             />
           </TabPanel>
           <TabPanel value="columns">
-            <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
+            <ReturnEditor v-if="activeTab === 'columns'" v-model:match="match" :baseType="baseType" @update-match="onUpdate" />
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -51,7 +51,6 @@ import { Ref, ref } from "vue";
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Match, Node, Query } from "@endeavour/vue-library/interfaces";
 
-import { cloneDeep } from "lodash-es";
 import { v4 } from "uuid";
 
 import DatasetFilterEditor from "@/components/imquery/DatasetFilterEditor.vue";
@@ -63,14 +62,13 @@ import { useDialogStore } from "@/stores/dialogStore";
 interface Props {
   index: number;
   query: Query;
-  match: Match;
 }
 
 const props = defineProps<Props>();
-const editMatch: Ref<Match> = ref(cloneDeep(props.match));
 const showEditor = defineModel<boolean>("showEditor");
+const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
-  (event: "saveColumnGroup", editMatch: Match): void;
+  (event: "saveColumnGroup", match: Match): void;
   (event: "cancel"): void;
 }>();
 const activeTab = ref("columns");
@@ -81,7 +79,7 @@ const dialogStore = useDialogStore();
 
 async function onUpdate() {
   edited.value = true;
-  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
 }
 
 function cancel() {
@@ -90,7 +88,7 @@ function cancel() {
 async function onSave() {
   const valid = await saveChanges();
   if (valid) {
-    emit("saveColumnGroup", editMatch.value);
+    emit("saveColumnGroup", match.value);
   }
 }
 async function showInvalid(match: Match) {
@@ -108,26 +106,26 @@ async function addLinked(editedMatch: Match) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  editMatch.value.any!.push(linkedMatch);
+  match.value.any!.push(linkedMatch);
   showEditor.value = false;
 }
 
 async function saveEditMatch(editedMatch: Match) {
   showEditor.value = false;
-  editMatch.value = editedMatch;
-  editMatch.value.draft = false;
+  match.value = editedMatch;
+  match.value.draft = false;
   showEditor.value = false;
 }
 
 async function saveChanges(): Promise<boolean> {
-  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  const matchCheck = await QueryService.validateQuery(match.value);
   if (matchCheck.invalid) {
-    editMatch.value.draft = true;
+    match.value.draft = true;
     await showInvalid(matchCheck);
     return false;
   } else {
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
-    editMatch.value.draft = false;
+    match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+    match.value.draft = false;
     return true;
   }
 }

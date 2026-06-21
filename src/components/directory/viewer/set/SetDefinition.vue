@@ -191,7 +191,6 @@ async function onCopy(event: MouseEvent) {
 }
 
 async function download(downloadSettings: DownloadSettings): Promise<void> {
-  console.log(downloadSettings);
   const downloadDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Downloading", text: "Preparing your download..." }

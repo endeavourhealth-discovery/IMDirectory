@@ -71,7 +71,7 @@ export async function requiresOrganisation(iri: string | string[], to: RouteLoca
   if (to.matched.some(record => record.meta.requiresOrganisation)) {
     const userStore = useUserStore();
     let isEditAllowed = false;
-    if (userStore.isLoggedIn) isEditAllowed = userStore.currentUser?.roles.includes(UserRole.EDITOR)!!;
+    if (userStore.isLoggedIn) isEditAllowed = userStore.currentUser?.roles.includes(UserRole.EDITOR)!;
     if (!isEditAllowed) {
       await router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
       return true;

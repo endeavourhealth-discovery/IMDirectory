@@ -1,7 +1,7 @@
 <template>
-  <template v-if="showEditor && editMatch">
+  <template v-if="showEditor">
     <MatchContentEditor
-      v-model:match="editMatch"
+      v-model:match="match"
       :baseType="baseType"
       :depth="depth"
       :index="index"
@@ -15,17 +15,16 @@
     />
   </template>
   <template v-else>
-    <div v-if="editMatch.any && editMatch.any.length > 0" class="match-container">
-      <div v-for="(item, subIndex) in editMatch.any" :key="item.uuid">
+    <div v-if="match.any && match.any.length > 0" class="match-container">
+      <div v-for="(item, subIndex) in match.any" :key="item.uuid">
         <DatasetFilterEditor
-          v-model:match="editMatch.any[subIndex]"
+          v-model:match="match.any[subIndex]"
           :baseType="baseType"
           :depth="depth + 1"
           :index="subIndex"
           :parentIndex="index"
           :parentOperator="operator as Bool"
           :rootBool="false"
-          @deleteMatch="deleteMatch(subIndex)"
           @add-linked="addLinked"
         />
         <div class="edit-button">
@@ -50,7 +49,7 @@
       </div>
       <div class="match-clause-inner">
         <div class="match-display">
-          <MatchContentDisplay :clauseIndex="index" :depth="depth" :from="from" :match="editMatch" :parentMatch="editMatch" />
+          <MatchContentDisplay :clauseIndex="index" :depth="depth" :from="from" :match="match" :parentMatch="match" />
         </div>
       </div>
     </div>
@@ -66,7 +65,6 @@ import { Ref, computed, inject, onMounted, ref } from "vue";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import type { Match, Node } from "@endeavour/vue-library/interfaces";
 
-import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 import { v4 } from "uuid";
 
@@ -92,7 +90,6 @@ interface Props {
 
 const props = defineProps<Props>();
 const match = defineModel<Match>("match", { default: {} });
-const editMatch: Ref<Match> = ref(cloneDeep(props.match));
 const emit = defineEmits(["activateInput", "navigateTo", "cancel", "addLinked", "updateMatch"]);
 const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);
@@ -103,7 +100,7 @@ const operator = computed(() => {
 const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
 const dialogStore = useDialogStore();
 const isDefined = computed(() => {
-  return !!editMatch.value.where;
+  return !!match.value.where;
 });
 function cancel() {
   emit("cancel");
@@ -111,13 +108,13 @@ function cancel() {
 async function onAddLinked() {
   const valid = await saveChanges();
   if (valid) {
-    if (!editMatch.value.node) {
-      editMatch.value.invalid = true;
-      editMatch.value.errorMessage = "Please select a name to this clause  to line to";
-      await showInvalid(editMatch.value);
+    if (!match.value.node) {
+      match.value.invalid = true;
+      match.value.errorMessage = "Please select a name to this clause  to line to";
+      await showInvalid(match.value);
       return;
     }
-    emit("addLinked", editMatch.value);
+    emit("addLinked", match.value);
   }
 }
 
@@ -134,20 +131,20 @@ async function showInvalid(match: Match) {
 }
 
 async function saveChanges(): Promise<boolean> {
-  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  const matchCheck = await QueryService.validateQuery(match.value);
   if (matchCheck.invalid) {
-    editMatch.value.draft = true;
+    match.value.draft = true;
     await showInvalid(matchCheck);
     return false;
   } else {
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
-    editMatch.value.draft = false;
+    match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+    match.value.draft = false;
     return true;
   }
 }
 
 async function onUpdate() {
-  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
 }
 
 onMounted(() => {
@@ -168,22 +165,22 @@ function updateKeepAs() {
 function deleteAny() {
   updateKeepAs();
   showEditor.value = false;
-  delete editMatch.value.any;
+  delete match.value.any;
 }
 function deleteMatch(index: number) {
   if (match.value.any) {
     match.value.any.splice(index, 1);
     if (match.value.any.length === 0) {
-      delete editMatch.value.any;
+      delete match.value.any;
     }
   }
 }
 
 function createNewMatch() {
-  const match = { uuid: v4(), draft: true } as Match;
-  if (editMatch.value.any) editMatch.value.any.push(match);
+  const newMatch = { uuid: v4(), draft: true } as Match;
+  if (match.value.any) match.value.any.push(newMatch);
   else {
-    editMatch.value.any = [match];
+    match.value.any = [newMatch];
   }
   emit("updateMatch");
 }
@@ -201,12 +198,11 @@ async function addLinked(editedMatch: Match) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  editMatch.value.any!.push(linkedMatch);
+  match.value.any!.push(linkedMatch);
   showEditor.value = false;
   emit("updateMatch");
 }
 function editMatchClause() {
-  editMatch.value = match.value;
   showEditor.value = true;
 }
 </script>
