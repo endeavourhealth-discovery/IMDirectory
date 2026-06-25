@@ -167,7 +167,8 @@
       "esbuild",
       "msw",
       "vue-demi"
-    ]
+    ],
+    "overrides": {}
   },
   "lint-staged": {
     "{src/tests}/**/*.{js,ts,vue,json,css,scss,md}": "prettier --write"
