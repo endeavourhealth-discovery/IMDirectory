@@ -5,9 +5,7 @@ const files = execSync("git diff --cached --name-only --diff-filter=ACMR", { enc
 for (const file of files) {
   if (file !== "package.json" && file !== "pnpm-lock.yaml") continue;
 
-  const content = execSync(`git show :${file}`, {
-    encoding: "utf8"
-  });
+  const content = execSync(`git show :${file}`, { encoding: "utf8" });
 
   if (content.includes('"@endeavour/vue-library"') && content.includes("link:../VueLibrary")) {
     console.error(
@@ -16,5 +14,4 @@ for (const file of files) {
     process.exit(1);
   }
 }
-
 process.exit(0);
