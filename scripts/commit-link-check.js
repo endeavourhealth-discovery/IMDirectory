@@ -7,7 +7,7 @@ for (const file of files) {
 
   const content = execSync(`git show :${file}`, { encoding: "utf8" });
 
-  if (content.includes('"@endeavour/vue-library"') && content.includes("link:../VueLibrary")) {
+  if (content.includes('@endeavour/vue-library') && content.includes("link:../VueLibrary")) {
     console.error(
       "\nLocal VueLibrary must be unlinked before committing.\nPlease use 'pnpm unlink' before committing either package.json or pnpm-lock.yaml.\n"
     );
