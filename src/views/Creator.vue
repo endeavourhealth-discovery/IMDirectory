@@ -384,7 +384,6 @@ async function submit(): Promise<void> {
                     delete editorEntity.value[IM.HAS_SUBSET];
                   }
                   const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin, namespace: namespace });
-                  console.log(res);
                   if (res) {
                     creatorStore.updateCreatorSavedEntity(undefined);
                     return res;

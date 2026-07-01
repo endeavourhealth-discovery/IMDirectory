@@ -33,7 +33,7 @@
             <Tab value="0">Details</Tab>
             <Tab v-if="showTerms" value="1">Terms</Tab>
             <Tab v-if="showMappings" value="2">Maps</Tab>
-            <Tab v-if="showSemanticMaps" value="30">Maps</Tab>
+            <Tab v-if="showSemanticMaps" value="30">Map entries</Tab>
             <Tab v-if="isValueSet(types)" value="3">Set</Tab>
             <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL</Tab>
             <Tab v-if="isConcept(types)" value="5">Expression</Tab>
@@ -262,6 +262,8 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Set") ?? "0";
   } else if (isProperty(types.value)) {
     activeTab.value = tabMap.get("Data models") ?? "0";
+  } else if (types.value[0].iri === IM.SEMANTIC_MAP) {
+    activeTab.value = tabMap.get("Map entries") ?? "0";
   } else {
     activeTab.value = "0";
   }

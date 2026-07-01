@@ -7,28 +7,28 @@
 
     <div class="search-container">
       <InputText
-        :class="showInvalid && !validAddress && 'p-invalid'"
-        type="text"
         v-model="searchAddress"
-        placeholder="Enter an address"
+        :class="showInvalid && !validAddress && 'p-invalid'"
         class="address-input"
+        placeholder="Enter an address"
+        type="text"
         @keyup.enter="submitAddress"
       />
-      <Button @click="submitAddress" class="button">Search</Button>
+      <Button class="button" @click="submitAddress">Search</Button>
     </div>
 
     <!-- Radio buttons section -->
     <div class="radio-group">
       <div class="radio-option">
-        <input type="radio" id="residential" value="100" v-model="searchType" />
+        <input id="residential" v-model="searchType" type="radio" value="100" />
         <label for="residential">Residential</label>
       </div>
       <div class="radio-option">
-        <input type="radio" id="commercial" value="010" v-model="searchType" />
+        <input id="commercial" v-model="searchType" type="radio" value="010" />
         <label for="commercial">Commercial</label>
       </div>
       <div class="radio-option">
-        <input type="radio" id="both" value="001" v-model="searchType" />
+        <input id="both" v-model="searchType" type="radio" value="001" />
         <label for="both">Residential or Commercial (residential takes precedence)</label>
       </div>
     </div>
@@ -45,20 +45,29 @@
         </thead>
 
         <tbody>
-          <tr v-for="(value, key) in searchResults" :key="key">
-            <td>
-              <span v-tooltip="getDefinition(key)">{{ variableToReadable(key) }}</span>
-            </td>
-            <td v-if="isObject(value)">
-              <tr v-for="[subKey, subValue] of Object.entries(value)" :key="subKey">
+          <template v-for="(value, key) in searchResults" :key="key">
+            <!-- Normal value -->
+            <tr v-if="!isObject(value)">
+              <td>
+                <span v-tooltip="getDefinition(key)">
+                  {{ variableToReadable(key) }}
+                </span>
+              </td>
+              <td>{{ value }}</td>
+            </tr>
+
+            <!-- Object value -->
+            <template v-else>
+              <tr v-for="[subKey, subValue] in Object.entries(value as Record<string, unknown>)" :key="subKey">
                 <td>
-                  <span v-tooltip="getDefinition(subKey, key)">{{ variableToReadable(subKey) }}</span>
+                  <span v-tooltip="getDefinition(subKey, key)">
+                    {{ variableToReadable(subKey) }}
+                  </span>
                 </td>
                 <td>{{ subValue }}</td>
               </tr>
-            </td>
-            <td v-else>{{ value }}</td>
-          </tr>
+            </template>
+          </template>
         </tbody>
       </table>
     </div>
@@ -66,7 +75,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Ref, computed, ref, watch } from "vue";
 
 import { isObject } from "@endeavour/vue-library/helpers";
@@ -74,14 +83,13 @@ import { isObject } from "@endeavour/vue-library/helpers";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 
-import { UprnSearchResponse } from "@/interfaces";
 import UprnService from "@/services/UprnService";
 
 const toast = useToast();
 
 const searchAddress = ref("");
 const searchType = ref("100"); // Default to "residential" option
-const searchResults: Ref<UprnSearchResponse | undefined> = ref();
+const searchResults: Ref<any | undefined> = ref();
 const validAddress = computed(() => isValidAddress(searchAddress.value));
 const showInvalid = ref(false);
 const invalidErrorMessage = ref("");
@@ -151,7 +159,7 @@ const keyToDescription = {
   matchorgtp: "Match pattern for the organisation between input and ABP address"
 };
 
-function getDefinition(key: string, parentKey?: string) {
+function getDefinition(key: any, parentKey?: any) {
   if (parentKey == "BestMatch") {
     switch (key) {
       case "UPRN":
@@ -222,13 +230,14 @@ function getDefinition(key: string, parentKey?: string) {
   }
 }
 
-function variableToReadable(variable: string) {
-  return variable
+function variableToReadable(variable: any) {
+  const variableString = variable.toString();
+  return variableString
     .replaceAll("_", " ")
     .replaceAll("-", " ")
     .split(/([A-Z][a-z]+|\s+)/g)
-    .filter(s => s !== "" && s !== " ")
-    .map((s, i) => {
+    .filter((s: string) => s !== "" && s !== " ")
+    .map((s: string | any[], i: number) => {
       if (i > 0) return s[0].toLowerCase() + s.slice(1);
       else return s;
     })

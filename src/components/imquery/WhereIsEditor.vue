@@ -24,8 +24,6 @@
           </Select>
         </div>
         <div v-if="node.iri" class="auto-complete-container">
-          <IMFontAwesomeIcon :icon="getTypeIcon(node)" :style="'color:' + getIconColor(node)" />
-
           <IMViewerLink v-if="node.iri" :action="'view'" :iri="node.iri" :label="node.name" />
           <span v-if="node.parameter">"{{ node.parameter }}" passed into query as a parameter at run time</span>
         </div>
@@ -44,23 +42,6 @@
               </div>
             </template>
           </AutoComplete>
-          <!--
-
-          <Select
-            v-model="member"
-            :options="members"
-            :placeholder="property?.name"
-            option-label="name"
-            option-value="iri"
-            type="text"
-            @update:model-value="updateMember"
-          >
-            <template #option="slotProps">
-              <div v-tooltip="slotProps.option.tooltip" class="flex items-center" style="min-height: 1rem">
-                <div>{{ slotProps.option.name }}</div>
-              </div>
-            </template>
-          </Select>-->
         </div>
         <div v-else-if="!node.iri" class="auto-complete-container">
           <AutocompleteSearchBar
@@ -108,10 +89,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, onMounted, ref } from "vue";
+import { computed, onMounted, Ref, ref } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import { getIconColor, getTypeIcon } from "@endeavour/vue-library/helpers";
 import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/interfaces";
 
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
@@ -198,6 +178,7 @@ async function init() {
 }
 function updateNodeInclusion(node: Node, val: string) {
   node.exclude = val !== "include";
+  emit("updateProperty");
 }
 
 function buildIMQueryForConceptSearch() {
@@ -215,6 +196,7 @@ function buildIMQueryForConceptSearch() {
 function deleteNode(index: number) {
   property.value.is?.splice(index, 1);
   if (property.value.is?.length === 0) property.value.is = [{} as Node];
+  emit("updateProperty");
 }
 function addConcept() {
   property.value.is?.push({} as Node);

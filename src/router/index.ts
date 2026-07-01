@@ -7,14 +7,7 @@ import { useAuthStore } from "@/stores/authStore";
 
 import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import { endRouterLoading, startRouterLoading } from "./methods/loading";
-import {
-  requiresAuthGuard,
-  requiresOrganisation,
-  requiresReAuth,
-  requiresRole,
-  requiresSnomedLicense,
-  requiresUprnAgreement
-} from "./methods/metaGuards";
+import { requiresAuthGuard, requiresOrganisation, requiresReAuth, requiresRole, requiresSnomedLicense, requiresUprnAgreement } from "./methods/metaGuards";
 import {
   creatorSaveChangesWarning,
   directoryGuard,

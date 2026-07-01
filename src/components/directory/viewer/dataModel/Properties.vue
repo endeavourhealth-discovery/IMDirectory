@@ -128,7 +128,6 @@ onMounted(async () => {
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
   const results = await DataModelService.getPropertiesDisplay(iri);
-  console.log(results);
   if (results && results.length !== 0) {
     results.forEach((result: PropertyDisplay) => {
       if (result.isOr) {

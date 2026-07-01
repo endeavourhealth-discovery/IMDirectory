@@ -10,7 +10,8 @@ import {
   Query,
   QueryRequest,
   Return,
-  SearchResponse
+  SearchResponse,
+  TTEntity
 } from "@endeavour/vue-library/interfaces";
 
 import { QueryResponse } from "@/interfaces";
@@ -107,6 +108,10 @@ const QueryService = {
 
   async getNestedReturns(match: Match): Promise<Return[]> {
     return await api.post(API_URL + "/nestedReturns", { match: match });
+  },
+
+  async getSemanticMaps(match: Match): Promise<TTEntity[]> {
+    return await api.post(API_URL + "/semanticMapsForDataset", match);
   }
 };
 

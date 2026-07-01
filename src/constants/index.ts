@@ -6,12 +6,4 @@ import { OffsetOptions } from "./queryEditor/OffsetOptions";
 import { PlainConstraintOperatorOptions } from "./queryEditor/PlainConstraintOperatorOptions";
 import { RangeValueOptions } from "./queryEditor/RangeValueOptions";
 
-export {
-  Avatars,
-  ConstraintOperatorOptions,
-  OffsetOptions,
-  RangeValueOptions,
-  ConstraintOperatorMap,
-  NodeInclusionOptions,
-  PlainConstraintOperatorOptions
-};
+export { Avatars, ConstraintOperatorOptions, OffsetOptions, RangeValueOptions, ConstraintOperatorMap, NodeInclusionOptions, PlainConstraintOperatorOptions };

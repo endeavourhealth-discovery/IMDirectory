@@ -52,8 +52,23 @@
           @delete-group="onDeleteGroup(index)"
           @save-column-group="saveColumnGroup"
         />
-        <div v-else class="column-group-display">
-          <div>
+        <div
+          v-else
+          class="column-group-display"
+          :class="{ 'drag-over': dragOverColumnIndex === index }"
+          @dragover="onColumnDragOver($event, index)"
+          @drop="onColumnDrop($event, index)"
+        >
+          <Button
+            class="drag-handle"
+            icon="fa-solid fa-grip-vertical"
+            severity="secondary"
+            text
+            draggable="true"
+            @dragstart="onColumnDragStart($event, index)"
+            @dragend="onColumnDragEnd"
+          />
+          <div class="column-group-content">
             <ColumnGroupDisplay
               v-model:datasetEntry="query.columnGroup![index]!"
               :baseType="query.typeOf!"
@@ -138,6 +153,8 @@ const parentIndex = ref(0);
 const keepAs = shallowRef<Record<string, Ref<Match>>>({});
 const toEdit: Ref<number | undefined> = ref();
 const showEditor = ref(false);
+const draggedColumnIndex = ref<number | undefined>();
+const dragOverColumnIndex = ref<number | undefined>();
 provide("keepAs", keepAs);
 provide("keepAs", keepAs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
@@ -189,6 +206,38 @@ function deleteColumnGroup(index: number) {
 function editColumnGroup(index: number) {
   showEditor.value = true;
   toEdit.value = index;
+}
+
+function onColumnDragStart(event: DragEvent, index: number) {
+  draggedColumnIndex.value = index;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move";
+  }
+}
+
+function onColumnDragOver(event: DragEvent, index: number) {
+  if (draggedColumnIndex.value === undefined || draggedColumnIndex.value === index) return;
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = "move";
+  }
+  dragOverColumnIndex.value = index;
+}
+
+function onColumnDrop(event: DragEvent, index: number) {
+  event.preventDefault();
+  if (draggedColumnIndex.value === undefined || draggedColumnIndex.value === index) return;
+  const fromIndex = draggedColumnIndex.value;
+  const toIndex = index;
+  const item = query.value.columnGroup!.splice(fromIndex, 1)[0];
+  query.value.columnGroup!.splice(toIndex, 0, item);
+  draggedColumnIndex.value = undefined;
+  dragOverColumnIndex.value = undefined;
+}
+
+function onColumnDragEnd() {
+  draggedColumnIndex.value = undefined;
+  dragOverColumnIndex.value = undefined;
 }
 
 async function init() {
@@ -279,6 +328,23 @@ function stripValidation(build: any) {
   background-color: #488bc210;
   margin: 0.5rem;
   font-size: 1rem;
+  cursor: default;
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+.column-group-display.drag-over {
+  border-color: #488bc2;
+  box-shadow: 0 0 0 2px #488bc280;
+}
+.column-group-display .drag-handle {
+  cursor: grab;
+  align-self: center;
+}
+.column-group-display .drag-handle:active {
+  cursor: grabbing;
+}
+.column-group-content {
+  flex: 1;
+  min-width: 0;
 }
 #query-builder-container {
   width: 100%;

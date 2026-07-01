@@ -2,11 +2,10 @@ import { Ref, ref } from "vue";
 
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, NodeShape, PropertyShape, TTIriRef, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, NodeShape, PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
 
 import type { TreeNode } from "primevue/treenode";
 
-import { addWhereToMatch, setPathGetNodeRef } from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
 
 const codeable: string[] = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
@@ -28,12 +27,44 @@ type PropertyTreeNode = {
   inversePath?: TTIriRef;
   minCount?: number;
   maxCount?: number;
+  nodeRef?: string;
 };
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const loading: Ref<boolean> = ref(false);
   const mode: Ref<Mode> = ref("match");
+
+  async function addToTreeFromAny(match: Match, nodes: TreeNode[]) {
+    if (match.any) {
+      for (const [index, any] of match.any.entries()) {
+        if (any.typeOf) {
+          const iri = any.typeOf!.iri!;
+          const nodeShape = await DataModelService.getDataModelProperties(iri, false);
+          const parent = createNode({
+            key: (index + 1).toString(),
+            name: any.node,
+            iri: "features",
+            type: "folder",
+            iconType: IM.FOLDER,
+            typeOf: nodeShape.iri
+          });
+          parent.data.nodeRef = any.node;
+          parent.selectable = false;
+          parent.leaf = false;
+          nodes.push(parent);
+          const propertyList = [] as TreeNode[];
+          if (nodeShape.property && isArrayHasLength(nodeShape.property)) {
+            for (const [index, property] of nodeShape.property.entries()) {
+              if (!isBase(property))
+                propertyList.push(createPropertyNode(parent.key + "_" + index.toString(), property, "", parent.key, nodeShape.iri, any.node));
+            }
+            if (propertyList.length > 0) parent.children = propertyList;
+          }
+        }
+      }
+    }
+  }
 
   async function createPropertyTree(iri: string, nodeShape: NodeShape | undefined, parent: TreeNode) {
     const parentKey = parent.key;
@@ -42,7 +73,8 @@ export function usePropertyTree() {
     const path = parent.data.path ? parent.data.path : undefined;
     if (nodeShape.property && isArrayHasLength(nodeShape.property)) {
       for (const [index, property] of nodeShape.property.entries()) {
-        if (!isBase(property)) propertyList.push(createPropertyNode(parentKey + "_" + index.toString(), property, path, parentKey, nodeShape.iri));
+        if (!isBase(property))
+          propertyList.push(createPropertyNode(parentKey + "_" + index.toString(), property, path, parentKey, nodeShape.iri, parent.data.nodeRef));
       }
       if (propertyList.length > 0) parent.children = propertyList;
     }
@@ -149,7 +181,8 @@ export function usePropertyTree() {
         inversePath: pNode.inversePath,
         typeOf: pNode.typeOf,
         minCount: pNode.minCount,
-        maxCount: pNode.maxCount
+        maxCount: pNode.maxCount,
+        nodeRef: pNode.nodeRef
       },
       loading: false,
       children: [] as TreeNode[],
@@ -188,7 +221,7 @@ export function usePropertyTree() {
     return groupNode;
   }
 
-  function createPropertyNode(key: string, property: PropertyShape, path: string, parentKey: string, typeOf: string): TreeNode {
+  function createPropertyNode(key: string, property: PropertyShape, path: string, parentKey: string, typeOf: string, nodeRef?: string): TreeNode {
     if (property.group) {
       return createGroupNode(key, property, path, parentKey, typeOf);
     }
@@ -231,7 +264,8 @@ export function usePropertyTree() {
       inversePath: property.inversePath,
       typeOf: typeOf,
       minCount: property.minCount,
-      maxCount: property.maxCount
+      maxCount: property.maxCount,
+      nodeRef: nodeRef
     });
     propertyNode.leaf = true;
     if (rangeType === SHACL.NODESHAPE) {
@@ -281,9 +315,7 @@ export function usePropertyTree() {
     if (node.children && node.children.length > 0) {
       for (const child of node.children) {
         if (child.children && !child.children.length) {
-          if (child.data.range) {
-            child.leaf = false;
-          } else child.leaf = true;
+          child.leaf = !child.data.range;
         }
       }
     } else if (node.data.returnType && expandMode === "return") {
@@ -293,51 +325,6 @@ export function usePropertyTree() {
     }
     if (node.children) createModeView(node.children, expandMode);
     node.loading = false;
-  }
-
-  function addWhereFromTree(match: Match, node: TreeNode) {
-    const path = node.data.path;
-    let nodeRef = undefined;
-    if (path) nodeRef = setPathGetNodeRef(match, path);
-    if (node.type === "property" && node.data.rangeType != SHACL.NODESHAPE) {
-      const where = { iri: node.data.iri, invalid: true } as Where;
-      if (nodeRef) where.nodeRef = nodeRef;
-      if (node.data.rangeType === IM.VALUESET || node.data.rangeType === IM.CONCEPT) where.is = [{}];
-      addWhereToMatch(match, where);
-    }
-  }
-  function findNodeFromFlatPath(path: string, nodes: TreeNode[]): TreeNode[] | undefined {
-    for (const node of nodes) {
-      if (node.data.path === path) return [node];
-      if (node.children && node.children.length > 0) {
-        const foundNode = findNodeFromFlatPath(path, node.children);
-        if (foundNode) return foundNode;
-      }
-    }
-    return undefined;
-  }
-
-  function getTypeNode(type: string, nodes: TreeNode[]): TreeNode | undefined {
-    for (const node of nodes) {
-      if (node.data.range === type) {
-        return node;
-      } else if (node.children && node.children.length > 0) {
-        const foundNode = getTypeNode(type, node.children);
-        if (foundNode) return foundNode;
-      }
-    }
-    return undefined;
-  }
-  function findNodesFromMatch(match: Match, nodes: TreeNode[], viewMode: Mode): TreeNode[] {
-    mode.value = viewMode;
-    if (match.typeOf) {
-      const pathNode = getTypeNode(match.typeOf.iri!, nodes);
-      if (pathNode && pathNode.children) createModeView(pathNode.children, viewMode);
-      return pathNode ? [pathNode] : nodes;
-    } else {
-      createModeView(nodes, viewMode);
-      return nodes;
-    }
   }
 
   function createModeView(nodes: TreeNode[], viewMode: Mode) {
@@ -359,11 +346,8 @@ export function usePropertyTree() {
     createFeatureTree,
     expandNode,
     createPropertyTree,
-    addWhereFromTree,
-    findNodeFromFlatPath,
-    findNodesFromMatch,
     createModeView,
-    getTypeNode,
+    addToTreeFromAny,
     createRelatedTypeTree,
     loading
   };
