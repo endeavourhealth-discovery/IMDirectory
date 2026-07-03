@@ -5,10 +5,10 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 
-import type { Entailment } from "@endeavour/vue-library/interfaces";
+import type { Element } from "@endeavour/vue-library/interfaces";
 
 const props = defineProps<{
-  entailmentObject: Entailment;
+  entailmentObject: Element;
 }>();
 
 const emit = defineEmits<{
