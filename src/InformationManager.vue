@@ -26,7 +26,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
 import { REPO } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { GithubRelease } from "@endeavour/vue-library/interfaces";
+import type { GithubRelease } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";

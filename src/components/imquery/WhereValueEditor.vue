@@ -69,7 +69,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import type { Assignable, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+import type { UIProperty, Value, Where } from "@endeavour/vue-library/interfaces";
 
 import { cloneDeep } from "lodash-es";
 
@@ -196,7 +196,7 @@ function updateQualifier() {
 function selectedQualifierTemplate(option: any) {
   return `${option.name} of ${where.value.name}`;
 }
-function updateWhereDisplay(assignable: Assignable) {
+function updateWhereDisplay(assignable: Value | Where) {
   emit("updateProperty");
 }
 </script>

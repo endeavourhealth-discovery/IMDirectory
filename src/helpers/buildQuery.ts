@@ -4,7 +4,6 @@ import { Operator } from "@endeavour/vue-library";
 import { Bool, IM, RDF, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type {
-  HasPaths,
   Match,
   Node,
   NodeShape,
@@ -589,7 +588,7 @@ export async function setMandatoryWheres(match: Match): Promise<void> {
   await setMandatoryWheresFromPath(match, match);
 }
 
-export async function setMandatoryWheresFromPath(match: Match, pathable: HasPaths) {
+export async function setMandatoryWheresFromPath(match: Match, pathable: Match | Path) {
   if (pathable.path) {
     for (const path of pathable.path) {
       if (path.typeOf) {
@@ -634,7 +633,7 @@ export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef?: stri
   else return baseType.iri!;
 }
 
-export function getTypeIriFromNodeRef(pathable: HasPaths, nodeRef: string): string | undefined {
+export function getTypeIriFromNodeRef(pathable: Match | Path, nodeRef: string): string | undefined {
   if (pathable.path) {
     for (const path of pathable.path) {
       if (path.node === nodeRef) return path.typeOf!.iri!;
@@ -702,7 +701,7 @@ function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: strin
   return where;
 }
 
-export function setPathGetNodeRef(pathable: HasPaths, fullPath: string, optional?: boolean): string | undefined {
+export function setPathGetNodeRef(pathable: Match | Path, fullPath: string, optional?: boolean): string | undefined {
   if (!fullPath) return undefined;
   let i;
   const paths = fullPath.split("\t");
