@@ -42,27 +42,13 @@
           <ProgressSpinner v-if="node.loading" />
           <span class="tree-node-label">{{ node.label }}</span>
         </div>
-        <div
-          v-else
-          class="tree-row"
-          @click="customOnClick($event, node, true)"
-          @mouseover="showPopup($event, node.data)"
-          @mouseleave="hidePopup"
-          data-testid="row"
-        >
+        <div v-else class="tree-row" @click="customOnClick($event, node, true)" @mouseover="showPopup($event, node)" @mouseleave="hidePopup" data-testid="row">
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" />
           <span class="tree-node-label" data-testid="row-label">{{ node.label }}</span>
-          <Button
-            v-if="showSelect"
-            label="Add"
-            @click.stop="emit('onSelect', node.data)"
-            v-tooltip="'Add to list'"
-            class="self-center"
-            data-testid="add-button"
-          />
+          <Button v-if="showSelect" label="Add" @click.stop="emit('onSelect', node)" v-tooltip="'Add to list'" class="self-center" data-testid="add-button" />
         </div>
       </template>
     </Tree>
@@ -80,7 +66,7 @@ import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useTree } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
-import { RDF, RDFS } from "@endeavour/vue-library/enums";
+import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/interfaces";
 
@@ -160,8 +146,7 @@ onBeforeUnmount(() => {
 
 async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = true;
-  conceptAggregate.value.concept = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
-
+  conceptAggregate.value.concept = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS]);
   conceptAggregate.value.parents = await EntityService.getEntityParents(iri);
 
   const pagedChildren = await EntityService.getPagedChildren(iri, 1, pageSize.value);
@@ -177,9 +162,13 @@ function createTree(
   parentPosition: number
 ) {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
+  const summary = { description: concept[RDFS.COMMENT], status: concept[IM.HAS_STATUS][0] };
+  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], summary, concept.hasChildren, null, undefined);
   children.forEach(child => {
-    selectedConcept.children?.push(createTreeNode(child.name, child.iri, child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
+    const summary = { description: child.description, status: child.status };
+    selectedConcept.children?.push(
+      createTreeNode(child.name, child.iri, child.type as TTIriRef[], summary, child.hasChildren, selectedConcept, child.orderNumber)
+    );
   });
   if (totalCount.value >= pageSize.value) {
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
@@ -247,7 +236,8 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
   let parentNode = {} as TreeNode;
   for (let i = 0; i < parents.length; i++) {
     if (i === parentPosition) {
-      parentNode = createTreeNode(parents[i].name, parents[i].iri, parents[i].type as TTIriRef[], true, null, undefined);
+      const summary = { description: parents[i].description, status: parents[i].status };
+      parentNode = createTreeNode(parents[i].name, parents[i].iri, parents[i].type as TTIriRef[], summary, true, null, undefined);
       if (parentNode.children && parentNode.key) {
         parentNode.children.push(root.value[0]);
         if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
@@ -299,9 +289,10 @@ async function onNodeSelect(node: TreeNode): Promise<void> {
   selectedKeys.value[conceptAggregate.value.concept[RDFS.LABEL]] = true;
 }
 
-async function showPopup(event: MouseEvent, iri?: string): Promise<void> {
-  if (iri && iri !== "loadMode") {
-    await showOverlay(event, iri);
+async function showPopup(event: MouseEvent, data?: any): Promise<void> {
+  if (isObjectHasKeys(data, ["data"]) && data.data !== "loadMore") await showOverlay(event, data.data);
+  else if (data && data !== "loadMode") {
+    await showOverlay(event, data);
   }
 }
 
