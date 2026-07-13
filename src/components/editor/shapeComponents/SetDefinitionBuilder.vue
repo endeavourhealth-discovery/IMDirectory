@@ -79,17 +79,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type {
-  ECLQueryRequest,
-  ExtendedTTEntity,
-  PropertyShape,
-  SearchResultSummary
-} from "@endeavour/vue-library/interfaces";
+import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "@endeavour/vue-library/models";
+
 import { useDialog } from "primevue/usedialog";
 
 import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";

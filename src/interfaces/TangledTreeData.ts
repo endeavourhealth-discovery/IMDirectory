@@ -1,4 +1,4 @@
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/models";
 
 export default interface TangledTreeData {
   id: string;

@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from "vue";
 
-import type { Node } from "@endeavour/vue-library/interfaces";
+import type { Node } from "@endeavour/vue-library/models";
 
 import { TreeSelectionKeys } from "primevue/tree";
 import type { TreeNode } from "primevue/treenode";

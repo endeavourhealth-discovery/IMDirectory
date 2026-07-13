@@ -4,7 +4,6 @@ import { AliasEntity } from "./AliasEntity";
 import AllowableChildProperty from "./AllowableChildProperty";
 import { ChartMapNode } from "./ChartMapNode";
 import { ChartTableNode } from "./ChartTableNode";
-import { CodeTemplate } from "./CodeTemplate";
 import { ComponentDetails } from "./ComponentDetails";
 import { ConceptAggregate } from "./ConceptAggregate";
 import { CustomAlert } from "./CustomAlert";
@@ -86,7 +85,6 @@ export {
   type SelectedMatch,
   type QueryResponse,
   type SetDiffObject,
-  type CodeTemplate,
   type SearchOptions,
   type ValidatedEntity,
   type DownloadSettings,

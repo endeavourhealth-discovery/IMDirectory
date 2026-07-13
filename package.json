@@ -69,7 +69,7 @@
     "vue3-clipboard": "1.0.0",
     "vuedraggable": "2.24.3",
     "yup": "1.7.1",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@eslint/css": "1.1.0",

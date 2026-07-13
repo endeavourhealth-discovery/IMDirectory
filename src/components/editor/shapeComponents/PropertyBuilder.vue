@@ -164,7 +164,7 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { IM, NAMESPACE, RDF, RDFS, SHACL, SNOMED, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 

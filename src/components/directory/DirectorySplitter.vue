@@ -42,10 +42,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, Ref, ref } from "vue";
+import { Ref, computed, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, SearchResponse } from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, SearchResponse } from "@endeavour/vue-library/models";
 
 import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useRouter } from "vue-router";

@@ -49,7 +49,7 @@
 import { Ref, ref } from "vue";
 
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, Query } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, Query } from "@endeavour/vue-library/models";
 
 import { v4 } from "uuid";
 

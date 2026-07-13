@@ -1,5 +1,5 @@
-import type { ECLQueryRequest, Node, Pageable, Query, SetExportRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import type { ECLQueryRequest, PageableNode, Query, SetExportRequest, TTIriRef } from "@endeavour/vue-library/models";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
 
 import { SetDiffObject } from "@/interfaces";
 
@@ -22,14 +22,14 @@ const SetService = {
       raw: raw
     });
   },
-  async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<Pageable<Node>> {
+  async getMembers(iri: string, entailments: boolean, pageIndex: number, pageSize: number, controller?: AbortController): Promise<PageableNode> {
     return await api.get(API_URL + "/protected/members", {
       params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
   },
 
-  async getMembersFromQuery(query: Query, pageIndex: number, pageSize: number): Promise<Pageable<Node>> {
+  async getMembersFromQuery(query: Query, pageIndex: number, pageSize: number): Promise<PageableNode> {
     const request = { query: query, page: pageIndex, size: pageSize } as ECLQueryRequest;
     return await api.post(API_URL + "/protected/membersFromQuery", request);
   },

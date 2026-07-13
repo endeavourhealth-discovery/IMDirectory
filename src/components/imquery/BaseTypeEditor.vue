@@ -36,7 +36,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { Match, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 

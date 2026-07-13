@@ -20,7 +20,7 @@
       </div>
       <TextHTMLWithLabel v-if="!!entity[RDFS.COMMENT]" :data="entity[RDFS.COMMENT]" label="Description" />
     </div>
-    <div v-if="entity.iri === 'http://endhealth.info/im#Favourites'">
+    <div v-if="entity.iri === IM.FAVOURITES">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
     </div>
     <div v-else-if="loading" class="loading-container">
@@ -34,20 +34,20 @@
             <Tab v-if="showTerms" value="1">Terms</Tab>
             <Tab v-if="showMappings" value="2">Maps</Tab>
             <Tab v-if="showSemanticMaps" value="30">Map entries</Tab>
-            <Tab v-if="isValueSet(types)" value="3">Set</Tab>
-            <Tab v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL</Tab>
-            <Tab v-if="isConcept(types)" value="5">Expression</Tab>
-            <Tab v-if="isRecordModel(types)" value="6">Data Model</Tab>
-            <Tab v-if="isRecordModel(types)" value="7">Properties</Tab>
-            <Tab v-if="isQuery(types) || isFunctionalProperty(types)" value="8">Query</Tab>
-            <Tab v-if="isIndicator(types)" value="20">Indicator</Tab>
-            <Tab v-if="isFeature(types)" value="10">Feature</Tab>
+            <Tab v-if="entityIsValueSet(types)" value="3">Set</Tab>
+            <Tab v-if="entityIsValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">ECL</Tab>
+            <Tab v-if="entityIsConcept(types)" value="5">Expression</Tab>
+            <Tab v-if="entityIsRecordModel(types)" value="6">Data Model</Tab>
+            <Tab v-if="entityIsRecordModel(types)" value="7">Properties</Tab>
+            <Tab v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="8">Query</Tab>
+            <Tab v-if="entityIsIndicator(types)" value="20">Indicator</Tab>
+            <Tab v-if="entityIsFeature(types)" value="10">Feature</Tab>
             <Tab value="11">Contents</Tab>
-            <Tab v-if="isProperty(types)" value="12">Data Models</Tab>
+            <Tab v-if="entityIsProperty(types)" value="12">Data Models</Tab>
             <Tab value="13">Used In</Tab>
             <Tab value="14">Hierarchy Position</Tab>
             <Tab v-if="showGraph" value="15">Entity Chart</Tab>
-            <Tab v-if="isRecordModel(types)" value="16">Entity-Model Diagram</Tab>
+            <Tab v-if="entityIsRecordModel(types)" value="16">Entity-Model Diagram</Tab>
             <Tab value="17">Graph</Tab>
             <Tab value="18">JSON</Tab>
             <Tab value="19">Provenance</Tab>
@@ -73,40 +73,40 @@
                 <SemanticMapDisplay :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isValueSet(types)" value="3">
+            <TabPanel v-if="entityIsValueSet(types)" value="3">
               <div id="set-container" class="concept-panel-content">
                 <SetDefinition :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])" value="4">
+            <TabPanel v-if="entityIsValueSet(types) && entityDefinition" value="4">
               <div id="ecl-container" class="concept-panel-content">
-                <EclDefinition :definition="concept['http://endhealth.info/im#definition']" />
+                <EclDefinition :definition="entityDefinition" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isConcept(types)" value="5">
+            <TabPanel v-if="entityIsConcept(types)" value="5">
               <ExpressionDisplay :concept="concept" />
             </TabPanel>
-            <TabPanel v-if="isRecordModel(types)" value="6">
+            <TabPanel v-if="entityIsRecordModel(types)" value="6">
               <div id="data-model-container" class="concept-panel-content">
-                <DataModel :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                <DataModel :entityIri="entityIri" :entityName="entityName" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isRecordModel(types)" value="7">
+            <TabPanel v-if="entityIsRecordModel(types)" value="7">
               <div id="properties-container" class="concept-panel-content">
-                <Properties :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+                <Properties :entityIri="entityIri" :entityName="entityName" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isQuery(types) || isFunctionalProperty(types)" value="8">
+            <TabPanel v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="8">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" :show-dataset="true" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isIndicator(types)" value="20">
+            <TabPanel v-if="entityIsIndicator(types)" value="20">
               <div id="indicator-container" class="concept-panel-content">
                 <IndicatorDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isFeature(types)" value="10">
+            <TabPanel v-if="entityIsFeature(types)" value="10">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" />
               </div>
@@ -116,7 +116,7 @@
                 <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isProperty(types)" value="12">
+            <TabPanel v-if="entityIsProperty(types)" value="12">
               <div id="definition-container" class="concept-panel-content">
                 <DataModels :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
@@ -136,9 +136,9 @@
                 <EntityChart :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
-            <TabPanel v-if="isRecordModel(types)" value="16">
+            <TabPanel v-if="entityIsRecordModel(types)" value="16">
               <div id="entity-model-container" :class="expandWidth ? 'entity-concept-panel-content' : 'concept-panel-content'">
-                <ModelChart :entityIri="entityIri" :entityName="concept[RDFS.LABEL]" @expand-width="(expand: boolean) => (expandWidth = expand)" />
+                <ModelChart :entityIri="entityIri" :entityName="entityName" @expand-width="(expand: boolean) => (expandWidth = expand)" />
               </div>
             </TabPanel>
             <TabPanel value="17">
@@ -169,19 +169,20 @@ import { Ref, computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "@endeavour/vue-library/components";
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import {
-  isConcept,
-  isFeature,
-  isFolder,
-  isFunctionalProperty,
-  isIndicator,
+  entityIsConcept,
+  entityIsFeature,
+  entityIsFolder,
+  entityIsFunctionalProperty,
+  entityIsIndicator,
+  entityIsProperty,
+  entityIsQuery,
+  entityIsRecordModel,
+  entityIsValueSet,
+  isArrayOf,
   isObjectHasKeys,
-  isOfTypes,
-  isProperty,
-  isQuery,
-  isRecordModel,
-  isValueSet
+  isOfTypes
 } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { type ExtendedTTEntity, ExtendedTTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
@@ -224,15 +225,17 @@ const sharedStore = useSharedStore();
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const concept: Ref<ExtendedTTEntity> = ref({});
+const concept: Ref<ExtendedTTEntity> = ref(ExtendedTTEntitySchema.parse({}));
 
 const entityIri = ref("");
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
-const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
+const showMappings = computed(() => (entityIsConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !entityIsRecordModel(types.value));
 const showSemanticMaps = computed(() => isOfTypes(types.value, IM.SEMANTIC_MAP));
 const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTION, IM.SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.VALUE_SET));
 const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
+const entityName = computed(() => (typeof concept.value[RDFS.LABEL] === "string" ? concept.value[RDFS.LABEL] : ""));
+const entityDefinition = computed(() => (typeof concept.value[IM.DEFINITION] === "string" ? concept.value[IM.DEFINITION] : ""));
 
 const tabMap = reactive(new Map<string, string>());
 
@@ -248,19 +251,19 @@ watch(
 );
 
 function setDefaultTab() {
-  if (isFolder(types.value)) {
+  if (entityIsFolder(types.value)) {
     activeTab.value = tabMap.get("Contents") ?? "0";
-  } else if (isRecordModel(types.value)) {
+  } else if (entityIsRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") ?? "0";
-  } else if (isQuery(types.value)) {
+  } else if (entityIsQuery(types.value)) {
     activeTab.value = tabMap.get("Query") ?? "0";
-  } else if (isIndicator(types.value)) {
+  } else if (entityIsIndicator(types.value)) {
     activeTab.value = tabMap.get("Indicator") ?? "0";
-  } else if (isFeature(types.value)) {
+  } else if (entityIsFeature(types.value)) {
     activeTab.value = tabMap.get("Feature") ?? "0";
-  } else if (isValueSet(types.value)) {
+  } else if (entityIsValueSet(types.value)) {
     activeTab.value = tabMap.get("Set") ?? "0";
-  } else if (isProperty(types.value)) {
+  } else if (entityIsProperty(types.value)) {
     activeTab.value = tabMap.get("Data models") ?? "0";
   } else if (types.value[0].iri === IM.SEMANTIC_MAP) {
     activeTab.value = tabMap.get("Map entries") ?? "0";
@@ -287,8 +290,8 @@ async function init(): Promise<void> {
     entityIri.value = props.entity.iri;
   }
   await getConcept(entityIri.value);
-  types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
-  header.value = concept.value[RDFS.LABEL];
+  types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) && isArrayOf(concept.value[RDF.TYPE], isTTIriRef) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
+  if (typeof concept.value[RDFS.LABEL] === "string") header.value = concept.value[RDFS.LABEL];
   loading.value = false;
   await nextTick();
   setTabMap();
@@ -306,9 +309,9 @@ function onOpenTab(predicate: string) {
       activeTab.value = tabMap.get("Properties") ?? "0";
       break;
     case IM.DEFINITION:
-      if (isQuery(types.value) || isFeature(types.value)) {
+      if (entityIsQuery(types.value) || entityIsFeature(types.value)) {
         activeTab.value = tabMap.get("Query") ?? "0";
-      } else if (isValueSet(types.value)) {
+      } else if (entityIsValueSet(types.value)) {
         activeTab.value = tabMap.get("Set") ?? "0";
       }
       break;

@@ -52,7 +52,6 @@
       <i class="fas fa-info-circle text-blue-500" />
       <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
     </div>
-
   </div>
 </template>
 <script setup lang="ts">
@@ -60,7 +59,7 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { defineComponent } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 

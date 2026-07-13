@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
 
-import type { Concept, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { Concept, SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { SetService } from "@/services";
 

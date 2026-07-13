@@ -100,7 +100,7 @@ import { ComputedRef, Ref, computed, onMounted, onUnmounted, provide, ref, watch
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";

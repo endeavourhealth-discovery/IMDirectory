@@ -82,7 +82,7 @@ import { useTree } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 

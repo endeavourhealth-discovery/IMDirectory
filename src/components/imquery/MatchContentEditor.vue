@@ -69,12 +69,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, TTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";

@@ -107,7 +107,7 @@
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, IM, NAMESPACE } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { Match, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
@@ -324,5 +324,4 @@ async function updateSelectedFromIri(iri: string) {
 .description {
   padding-right: 1rem;
 }
-
 </style>

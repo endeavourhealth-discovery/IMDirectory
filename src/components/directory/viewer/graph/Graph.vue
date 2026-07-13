@@ -20,7 +20,7 @@ import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTBundle } from "@endeavour/vue-library/interfaces";
+import type { TTBundle } from "@endeavour/vue-library/models";
 
 import { GraphTranslator } from "@/helpers";
 import { TTGraphData } from "@/interfaces";

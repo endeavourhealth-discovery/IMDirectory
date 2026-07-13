@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
-import type { Query, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { Query, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/models";
 
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 

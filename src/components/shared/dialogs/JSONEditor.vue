@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Match } from "@endeavour/vue-library/models";
 
 import { isEqual } from "lodash-es";
 

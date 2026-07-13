@@ -1,5 +1,5 @@
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import type { FilterOptions } from "@endeavour/vue-library/interfaces";
+import type { FilterOptions } from "@endeavour/vue-library/models";
 
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, vi } from "vitest";

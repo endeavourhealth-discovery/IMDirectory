@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
-import type { Where } from "@endeavour/vue-library/interfaces";
+import type { Where } from "@endeavour/vue-library/models";
 
 import { getIsRoleGroup, isBoolWhere, manageRoleGroup } from "@/helpers/buildQuery";
 

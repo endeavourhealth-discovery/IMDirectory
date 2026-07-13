@@ -29,7 +29,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/models";
 
 import { MenuItem } from "primevue/menuitem";
 

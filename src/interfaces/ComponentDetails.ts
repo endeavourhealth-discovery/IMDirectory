@@ -1,4 +1,4 @@
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { ComponentType, EditorMode } from "../enums";
 

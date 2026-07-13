@@ -39,7 +39,7 @@
 import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { ExtendedTTEntity, SearchResponse } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity, SearchResponse } from "@endeavour/vue-library/models";
 
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";

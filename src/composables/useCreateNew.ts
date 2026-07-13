@@ -2,7 +2,7 @@ import { Ref } from "vue";
 
 import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/models";
 
 import { MenuItem } from "primevue/menuitem";
 import type { TreeNode } from "primevue/treenode";

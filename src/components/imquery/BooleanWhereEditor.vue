@@ -87,24 +87,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import {
-  checkGroupChange,
-  getBooleanOperator,
-  getBoolGroup,
-  getPathPropertyNames,
-  getTypeIriFromMatch,
-  updateBooleans
-} from "@/helpers/buildQuery";
+import { checkGroupChange, getBoolGroup, getBooleanOperator, getPathPropertyNames, getTypeIriFromMatch, updateBooleans } from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
 
 import WhereIsEditor from "./WhereIsEditor.vue";

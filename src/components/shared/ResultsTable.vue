@@ -111,8 +111,8 @@ import {
   QueryRequest,
   SearchResponse,
   SearchResultSummary
-} from "@endeavour/vue-library/interfaces";
-import type { FilterOptions, Namespace } from "@endeavour/vue-library/interfaces";
+} from "@endeavour/vue-library/models";
+import type { FilterOptions, Namespace } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";

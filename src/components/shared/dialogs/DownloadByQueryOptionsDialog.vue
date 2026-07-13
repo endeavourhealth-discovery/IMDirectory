@@ -96,7 +96,7 @@ import { Ref, computed, ref, watch } from "vue";
 
 import { IM, SNOMED } from "@endeavour/vue-library/enums";
 import { NAMESPACE } from "@endeavour/vue-library/enums";
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/models";
 
 import { DownloadSettings } from "@/interfaces";
 import { useFilterStore } from "@/stores/filterStore";

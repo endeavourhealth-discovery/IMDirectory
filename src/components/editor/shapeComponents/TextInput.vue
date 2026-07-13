@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import type { ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 

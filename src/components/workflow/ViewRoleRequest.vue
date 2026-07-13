@@ -34,7 +34,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { UserRole } from "@endeavour/vue-library/enums";
-import type { RoleRequest, Task } from "@endeavour/vue-library/interfaces";
+import type { RoleRequest, Task } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";

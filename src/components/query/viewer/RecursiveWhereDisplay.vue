@@ -56,7 +56,7 @@ import { Ref, computed, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import { getIconColor, getTypeIcon, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Node, Where } from "@endeavour/vue-library/interfaces";
+import type { Node, Where } from "@endeavour/vue-library/models";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

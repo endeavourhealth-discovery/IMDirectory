@@ -16,7 +16,7 @@ import type {
   SearchBinding,
   When,
   Where
-} from "@endeavour/vue-library/interfaces";
+} from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";

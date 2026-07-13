@@ -1,5 +1,5 @@
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Argument } from "@endeavour/vue-library/interfaces";
+import type { Argument } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
 import api from "./api";

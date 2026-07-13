@@ -2,7 +2,7 @@ import { Ref, ref } from "vue";
 
 import { COMPONENT, IM } from "@endeavour/vue-library/enums";
 import { TypeGuards, deferred, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FormGenerator, PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { FormGenerator, PropertyShape } from "@endeavour/vue-library/models";
 
 import { isArray } from "lodash-es";
 

@@ -37,7 +37,7 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { NAMESPACE, RDFS } from "@endeavour/vue-library/enums";
 import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 

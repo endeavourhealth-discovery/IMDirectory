@@ -48,7 +48,7 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, SHACL } from "@endeavour/vue-library/enums";
 import { getColourFromType } from "@endeavour/vue-library/helpers";
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";

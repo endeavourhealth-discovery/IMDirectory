@@ -1,4 +1,4 @@
-import type { Namespace } from "@endeavour/vue-library/interfaces";
+import type { Namespace } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
 import api from "./api";

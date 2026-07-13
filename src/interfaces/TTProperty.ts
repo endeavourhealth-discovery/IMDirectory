@@ -1,4 +1,4 @@
-import type { GenericObject, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { GenericObject, TTIriRef } from "@endeavour/vue-library/models";
 
 export interface TTProperty extends GenericObject {
   "http://www.w3.org/ns/shacl#order": number;

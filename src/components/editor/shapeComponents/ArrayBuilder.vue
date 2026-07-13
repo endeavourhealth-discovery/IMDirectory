@@ -48,7 +48,7 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 

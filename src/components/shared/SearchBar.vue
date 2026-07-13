@@ -52,7 +52,7 @@ import { Ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useSpeechToText } from "@endeavour/vue-library/composables";
-import type { FilterOptions, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, SearchResultSummary } from "@endeavour/vue-library/models";
 
 import InputGroupAddon from "primevue/inputgroupaddon";
 

@@ -27,9 +27,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, Ref, ref } from "vue";
+import { ComputedRef, Ref, computed, ref } from "vue";
 
-import type { FilterOptions } from "@endeavour/vue-library/interfaces";
+import type { FilterOptions } from "@endeavour/vue-library/models";
 
 import { useRouter } from "vue-router";
 

@@ -1,5 +1,5 @@
 import { COMPONENT } from "@endeavour/vue-library/enums";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import { PropertyShapeSchema } from "@endeavour/vue-library/models";
 
 import { describe, expect, it } from "vitest";
 
@@ -14,13 +14,13 @@ describe("EditorMethods", () => {
       const argument2 = await fakerFactory.argumentRandom();
       const argument3 = await fakerFactory.argumentRandom();
       // const shape = fakerFactory.propertyShape.create({ argument: [argument1, argument2, argument3], builderChild: true, order: 2 });
-      const propertyShape: PropertyShape = {
+      const propertyShape = PropertyShapeSchema.parse({
         order: 2,
         componentType: { iri: "componentType" },
         path: { iri: "path" },
         builderChild: true,
         argument: [argument1, argument2, argument3]
-      };
+      });
       const valueVariableMap = new Map().set("testVariable", { id: "testId" }).set("testVariableWithOrder2", { id: "testOrderId" });
       const results = processArguments(propertyShape, valueVariableMap);
       expect(results[0]).toEqual(expect.objectContaining({ valueIri: argument1.valueIri }));

@@ -2,7 +2,7 @@ import { Ref, computed, ref } from "vue";
 
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/models";
 
 import { isEqual } from "lodash-es";
 

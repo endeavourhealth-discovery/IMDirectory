@@ -2,7 +2,7 @@ import { ref } from "vue";
 
 import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { SearchResponse } from "@endeavour/vue-library/interfaces";
+import type { SearchResponse } from "@endeavour/vue-library/models";
 
 import { defineStore } from "pinia";
 
@@ -27,7 +27,7 @@ export const useDirectoryStore = defineStore("directory", () => {
   async function getConceptName(): Promise<string> {
     if (conceptIri.value) {
       const result = await EntityService.getPartialEntity(conceptIri.value, [RDFS.LABEL]);
-      if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+      if (isObjectHasKeys(result, [RDFS.LABEL]) && typeof result[RDFS.LABEL] === "string") return result[RDFS.LABEL];
     }
     return "";
   }

@@ -1,4 +1,4 @@
-import type { NodeShape, TTIriRef, UIProperty } from "@endeavour/vue-library/interfaces";
+import type { NodeShape, TTIriRef, UIProperty } from "@endeavour/vue-library/models";
 
 import { PropertyDisplay } from "@/interfaces";
 

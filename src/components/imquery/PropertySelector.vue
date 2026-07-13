@@ -59,7 +59,7 @@ import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type { Match, Node, NodeShape } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, NodeShape } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 

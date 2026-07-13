@@ -88,9 +88,9 @@ export default defineComponent({
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, onUnmounted, provide, ref, watch } from "vue";
 
-import { IM, RDF } from "@endeavour/vue-library/enums";
-import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { IM, NAMESPACE, RDF } from "@endeavour/vue-library/enums";
+import { isArrayOf, isEnumValue, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -194,7 +194,7 @@ onMounted(async () => {
   document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();
   await fetchEntity();
-  if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
+  if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE]) && isArrayOf(editorEntityOriginal.value[RDF.TYPE], isTTIriRef)) {
     getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
   } else await router.push({ path: "/" });
@@ -274,12 +274,16 @@ function submit(): void {
                     await SetService.updateSubsetsFromSuper(editorEntity.value);
                     delete editorEntity.value[IM.HAS_SUBSET];
                   }
-                  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
-                  const res = await EntityService.updateEntity({ namespace: namespace, entity: editorEntity.value, hostUrl: window.location.origin });
-                  if (res) {
-                    editorStore.updateEditorSavedEntity(undefined);
-                    return res;
-                  } else dialogStore.setError("Error saving entity to server.");
+                  if (typeof editorEntity.value[IM.ID] === "string") {
+                    const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
+                    if (isEnumValue(NAMESPACE, namespace)) {
+                      const res = await EntityService.updateEntity({ namespace: namespace, entity: editorEntity.value, hostUrl: window.location.origin });
+                      if (res) {
+                        editorStore.updateEditorSavedEntity(undefined);
+                        return res;
+                      } else dialogStore.setError("Error saving entity to server.");
+                    }
+                  }
                 }
               }
             })
@@ -298,7 +302,7 @@ function submit(): void {
                     }
                   })
                   .then(async result => {
-                    if (result.confirm) {
+                    if (result.confirm && typeof editorEntity.value[IM.ID] === "string") {
                       await directService.view(editorEntity.value[IM.ID]);
                     } else {
                       await fetchEntity();

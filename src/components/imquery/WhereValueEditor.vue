@@ -69,7 +69,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import type { UIProperty, Value, Where } from "@endeavour/vue-library/interfaces";
+import type { UIProperty, Value, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 

@@ -11,8 +11,8 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/models";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 

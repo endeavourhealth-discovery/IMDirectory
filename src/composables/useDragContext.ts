@@ -1,4 +1,4 @@
-import type { Match, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, Where } from "@endeavour/vue-library/models";
 
 type DraggedItem = {
   clause: Match | Where;

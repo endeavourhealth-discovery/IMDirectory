@@ -1,5 +1,5 @@
 import { PrimeVueColors, PrimeVuePresetThemes } from "@endeavour/vue-library/enums";
-import type { RecentActivityItemDto } from "@endeavour/vue-library/interfaces";
+import type { RecentActivityItemDto } from "@endeavour/vue-library/models";
 import { NamespacePermission, User } from "@endeavour/vue-library/models";
 
 import Env from "./Env";

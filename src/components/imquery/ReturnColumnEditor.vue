@@ -119,7 +119,7 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
-import type { Match, Node, Return, TTIriRef, UIProperty, When, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, Return, TTIriRef, UIProperty, When, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";

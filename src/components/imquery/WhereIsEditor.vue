@@ -89,10 +89,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/models";
 
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import Button from "primevue/button";

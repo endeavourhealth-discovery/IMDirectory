@@ -21,7 +21,7 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { TypeGuards, byName, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 

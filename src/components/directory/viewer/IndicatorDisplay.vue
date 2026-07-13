@@ -45,7 +45,7 @@
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Indicator } from "@endeavour/vue-library/interfaces";
+import type { Indicator } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";

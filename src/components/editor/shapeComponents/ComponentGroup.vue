@@ -31,7 +31,7 @@ export default defineComponent({
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { TypeGuards, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";

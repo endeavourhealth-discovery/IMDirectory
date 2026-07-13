@@ -1,6 +1,6 @@
 import { IM, NAMESPACE, OWL, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, GenericObject, TTBundle, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity, GenericObject, TTBundle, TTIriRef } from "@endeavour/vue-library/models";
 
 import { TTGraphData, TTProperty } from "../interfaces";
 

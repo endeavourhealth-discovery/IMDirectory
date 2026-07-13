@@ -21,7 +21,7 @@
 <script lang="ts" setup>
 import { Bool } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Return } from "@endeavour/vue-library/interfaces";
+import type { Return } from "@endeavour/vue-library/models";
 
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import RecursiveWhereDisplay from "@/components/query/viewer/RecursiveWhereDisplay.vue";

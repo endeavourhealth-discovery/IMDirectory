@@ -1,4 +1,4 @@
-import type { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "@endeavour/vue-library/interfaces";
+import type { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
 import api from "./api";

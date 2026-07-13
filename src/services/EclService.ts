@@ -1,4 +1,4 @@
-import type { ECLQueryRequest, Query, SearchResponse } from "@endeavour/vue-library/interfaces";
+import type { ECLQueryRequest, Query, SearchResponse } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
 import api from "./api";

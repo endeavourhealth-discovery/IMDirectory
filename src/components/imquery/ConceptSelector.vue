@@ -47,7 +47,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { Node, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { Node, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 

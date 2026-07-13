@@ -150,7 +150,7 @@ import { Ref, inject, onMounted, ref } from "vue";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, NodeShape, When } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, NodeShape, When } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";

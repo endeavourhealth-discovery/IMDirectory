@@ -9,17 +9,18 @@ import {
   FilterOptions,
   FiltersAsIris,
   Namespace,
-  Pageable,
+  PageableEntityReferenceNode,
+  PageableTTIriRef,
   SearchResultSummary,
   TTBundle,
-  TTIriRef
-} from "@endeavour/vue-library/interfaces";
+  TTIriRef,
+  ValidatedEntity
+} from "@endeavour/vue-library/models";
 
 import { OrganizationChartNode } from "primevue/organizationchart";
 import type { TreeNode } from "primevue/treenode";
 
 import { buildDetails } from "@/helpers/DetailsBuilder";
-import { ValidatedEntity } from "@/interfaces";
 
 import Env from "./Env";
 import api from "./api";
@@ -107,7 +108,7 @@ const EntityService = {
     filters?: FiltersAsIris,
     controller?: AbortController,
     typeFilter?: string[]
-  ): Promise<{ totalCount: number; currentPage: number; pageSize: number; result: ExtendedTTEntity[] }> {
+  ): Promise<PageableEntityReferenceNode> {
     return await api.get(API_URL + "/protected/childrenPaged", {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(","), typeFilter: typeFilter?.join(",") },
       signal: controller?.signal
@@ -121,7 +122,7 @@ const EntityService = {
     pageSize: number,
     filters?: FiltersAsIris,
     controller?: AbortController
-  ): Promise<Pageable<TTIriRef>> {
+  ): Promise<PageableTTIriRef> {
     return await api.get(API_URL + "/protected/partialAndTotalCount", {
       params: { iri: iri, predicate: predicate, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
@@ -256,7 +257,7 @@ const EntityService = {
 
   async getName(iri: string): Promise<string | undefined> {
     const result = await EntityService.getPartialEntity(iri, [RDFS.LABEL]);
-    if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+    if (isObjectHasKeys(result, [RDFS.LABEL]) && typeof result[RDFS.LABEL] === "string") return result[RDFS.LABEL];
   }
 };
 if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);

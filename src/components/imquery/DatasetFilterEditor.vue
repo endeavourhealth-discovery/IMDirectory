@@ -63,7 +63,7 @@
 import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Match, Node } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { v4 } from "uuid";

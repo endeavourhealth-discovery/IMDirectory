@@ -1,5 +1,4 @@
 <template>
-
   <span v-if="match.notExists" class="not">Exclude</span>
   <div v-if="match.description">
     <span class="match-description">{{ match.description }} </span>
@@ -58,7 +57,7 @@
 import { computed } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Match } from "@endeavour/vue-library/models";
 
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

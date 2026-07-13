@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 
-import type { Element } from "@endeavour/vue-library/interfaces";
+import type { Element } from "@endeavour/vue-library/models";
 
 const props = defineProps<{
   entailmentObject: Element;

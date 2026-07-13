@@ -90,7 +90,7 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
 import { cloneDeep, isEqual } from "lodash-es";

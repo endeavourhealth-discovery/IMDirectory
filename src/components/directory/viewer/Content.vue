@@ -64,7 +64,7 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { ExtendedEntityReferenceNode, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { ExtendedEntityReferenceNode, TTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";

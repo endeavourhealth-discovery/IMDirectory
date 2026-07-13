@@ -135,7 +135,7 @@
 import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Match, Node } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Menu from "primevue/menu";

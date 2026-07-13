@@ -50,7 +50,7 @@
 import { computed, inject, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Match, Node } from "@endeavour/vue-library/models";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";

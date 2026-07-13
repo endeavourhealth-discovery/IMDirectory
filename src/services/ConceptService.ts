@@ -1,4 +1,4 @@
-import type { ConceptContextMap } from "@endeavour/vue-library/interfaces";
+import type { ConceptContextMap } from "@endeavour/vue-library/models";
 
 import { SimpleMap, TermCode } from "@/interfaces";
 

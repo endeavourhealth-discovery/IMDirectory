@@ -1,6 +1,7 @@
 import { XSD } from "@endeavour/vue-library/enums";
+import { ExtendedTTEntitySchema } from "@endeavour/vue-library/models";
 
-export const OntologiesFolderTTEntity = {
+export const OntologiesFolderTTEntity = ExtendedTTEntitySchema.parse({
   iri: "http://endhealth.info/im#HealthModelOntology",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: "http://endhealth.info/im#Folder", name: "Folder" }],
   "http://www.w3.org/2000/01/rdf-schema#label": "Ontologies",
@@ -9,7 +10,7 @@ export const OntologiesFolderTTEntity = {
   "http://www.w3.org/ns/shacl#order": 1,
   "http://endhealth.info/im#isContainedIn": [{ iri: "http://endhealth.info/im#InformationModel", name: "Health Information Model" }],
   "http://endhealth.info/im#scheme": [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
-};
+});
 
 export const OntologiesFolderTransformed = {
   iri: "http://endhealth.info/im#HealthModelOntology",
@@ -39,7 +40,7 @@ export const OntologiesFolderCustomTransformed = {
   scheme: [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
 };
 
-export const EventTTEntity = {
+export const EventTTEntity = ExtendedTTEntitySchema.parse({
   iri: "http://endhealth.info/im#Event",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
     { iri: "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },
@@ -140,7 +141,7 @@ export const EventTTEntity = {
     }
   ],
   "http://endhealth.info/im#scheme": [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
-};
+});
 
 export const EventTTEntityTransformed = {
   iri: "http://endhealth.info/im#Event",

@@ -1,6 +1,6 @@
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { TypeGuards, enumToArray, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "@endeavour/vue-library/models";
 
 import { ComponentType } from "../enums";
 

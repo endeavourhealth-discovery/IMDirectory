@@ -1,4 +1,4 @@
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Match } from "@endeavour/vue-library/models";
 
 export interface SelectedMatch {
   selected: Match;

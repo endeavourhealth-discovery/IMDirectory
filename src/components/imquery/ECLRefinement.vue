@@ -127,10 +127,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref } from "vue";
+import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool, IM } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, QueryRequest, SearchResultSummary, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
@@ -144,8 +144,8 @@ import { ConstraintOperatorOptions } from "@/constants";
 import {
   checkGroupChange,
   createNewBoolGroup,
-  getBooleanOperator,
   getBoolGroup,
+  getBooleanOperator,
   getConstraintOperator,
   getIsRoleGroup,
   removeSubgroup,
@@ -391,7 +391,6 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   line-height: 1.25rem;
   font-weight: normal;
 }
-
 
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;

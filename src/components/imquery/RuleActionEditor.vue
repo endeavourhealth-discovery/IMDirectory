@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Match } from "@endeavour/vue-library/models";
 
 import { getRuleAction, getRuleActionLabel, getRuleActionOptions, setRuleAction } from "@/helpers/buildQuery";
 

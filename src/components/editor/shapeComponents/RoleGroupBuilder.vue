@@ -41,11 +41,11 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, RDFS, SNOMED } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys, TypeGuards } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/interfaces";
+import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isArray } from "lodash-es";
 

@@ -28,7 +28,7 @@ import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { byKey, getColourFromType, getFAIconFromType, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { EntityReferenceNode, GenericObject, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { EntityReferenceNode, GenericObject, TTIriRef } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";

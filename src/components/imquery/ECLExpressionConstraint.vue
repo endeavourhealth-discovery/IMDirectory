@@ -151,7 +151,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Bool, QUERY } from "@endeavour/vue-library/enums";
-import type { Match, Node, QueryRequest, TTIriRef, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, QueryRequest, TTIriRef, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { v4 } from "uuid";

@@ -65,7 +65,7 @@ import { Ref, ref } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, TTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -107,7 +107,6 @@ async function onUpdate() {
   edited.value = true;
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
 }
-
 
 function deleteMatch() {
   emit("deleteMatch");

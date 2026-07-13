@@ -67,11 +67,11 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, provide, readonly, Ref, ref, watch } from "vue";
+import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ECLQueryRequest, Match, Query } from "@endeavour/vue-library/interfaces";
+import type { ECLQueryRequest, Match, Query } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";

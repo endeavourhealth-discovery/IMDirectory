@@ -98,16 +98,11 @@
   </Dialog>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type {
-  FilterOptions,
-  QueryRequest,
-  SearchResponse,
-  SearchResultSummary
-} from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import { SplitterResizeEndEvent } from "primevue/splitter";

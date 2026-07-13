@@ -66,7 +66,7 @@ import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
 
 import ProgressSpinner from "primevue/progressspinner";
 

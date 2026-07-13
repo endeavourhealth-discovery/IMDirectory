@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { defineStore } from "pinia";
@@ -26,7 +26,7 @@ export const useEditorStore = defineStore("editor", () => {
   async function getConceptName(): Promise<string> {
     if (editorIri.value) {
       const result = await EntityService.getPartialEntity(editorIri.value, [RDFS.LABEL]);
-      if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+      if (isObjectHasKeys(result, [RDFS.LABEL]) && typeof result[RDFS.LABEL] === "string") return result[RDFS.LABEL];
     }
     return "";
   }

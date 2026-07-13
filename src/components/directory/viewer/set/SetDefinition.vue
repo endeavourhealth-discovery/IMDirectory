@@ -99,7 +99,7 @@ import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { ToastSeverity, UserRole } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "@endeavour/vue-library/interfaces";
+import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "@endeavour/vue-library/models";
 import { ToastOptions } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 

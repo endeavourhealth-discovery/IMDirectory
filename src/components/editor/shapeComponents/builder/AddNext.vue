@@ -11,7 +11,7 @@
 import { Ref, onMounted, ref, watch } from "vue";
 
 import { stringAscending } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { ComponentType, EditorMode } from "@/enums";
 import { ComponentDetails, NextComponentSummary } from "@/interfaces";

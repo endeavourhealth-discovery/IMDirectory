@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Match, Node, Return, Where } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, Return, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";

@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Match, Node } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";

@@ -130,7 +130,7 @@
 import { Ref, computed, inject, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Match, Node } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

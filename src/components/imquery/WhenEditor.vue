@@ -24,7 +24,7 @@
 import { Ref, ref } from "vue";
 
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, When } from "@endeavour/vue-library/interfaces";
+import type { Match, Node, When } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";

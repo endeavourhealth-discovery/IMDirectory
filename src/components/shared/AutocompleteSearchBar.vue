@@ -83,7 +83,7 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay, useSpeechToText } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 

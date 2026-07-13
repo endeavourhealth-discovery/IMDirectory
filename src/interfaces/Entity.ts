@@ -1,4 +1,4 @@
-import type { GenericObject } from "@endeavour/vue-library/interfaces";
+import type { GenericObject } from "@endeavour/vue-library/models";
 
 export interface EntityReference {
   iri: string;

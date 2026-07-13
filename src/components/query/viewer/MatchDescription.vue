@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Match } from "@endeavour/vue-library/models";
 
 interface Props {
   match: Match;

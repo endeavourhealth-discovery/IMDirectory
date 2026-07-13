@@ -12,7 +12,7 @@ import {
   Return,
   SearchResponse,
   TTEntity
-} from "@endeavour/vue-library/interfaces";
+} from "@endeavour/vue-library/models";
 
 import { QueryResponse } from "@/interfaces";
 

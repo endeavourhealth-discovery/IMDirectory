@@ -112,7 +112,7 @@
 import { Ref, onMounted, provide, readonly, ref, shallowRef, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type { Match, Query } from "@endeavour/vue-library/interfaces";
+import type { Match, Query } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -329,7 +329,9 @@ function stripValidation(build: any) {
   margin: 0.5rem;
   font-size: 1rem;
   cursor: default;
-  transition: opacity 0.15s, box-shadow 0.15s;
+  transition:
+    opacity 0.15s,
+    box-shadow 0.15s;
 }
 .column-group-display.drag-over {
   border-color: #488bc2;
