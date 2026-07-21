@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type { Query, Return } from "@endeavour/vue-library/interfaces";
@@ -22,10 +22,11 @@ interface Props {
 }
 const props = defineProps<Props>();
 const propertyExpand = ref(false);
-const columnNames: Ref<string[]> = ref([]);
+const columnNames = computed(() => {
+  return getColumnNamesFromReturn(props.select);
+});
 
 onMounted(() => {
-  getColumnNamesFromReturn(props.select);
   if (props.expand) propertyExpand.value = props.expand;
 });
 
@@ -33,29 +34,52 @@ function toggle() {
   propertyExpand.value = !propertyExpand.value;
 }
 
-function getColumnNamesFromReturn(select: Return[]) {
+function getColumnNamesFromReturn(select: Return[]): string[] {
+  const asNames = [];
   if (isArrayHasLength(select)) {
     for (const property of select) {
-      if (property.function && property.function.name) columnNames.value.push(property.function.name);
-      getColumnNamesFromProperty(property);
+      if (property.function && property.function.name) asNames.push(property.function.name);
+      getColumnNamesFromProperty(property, asNames);
     }
   }
+  return asNames;
 }
-function getColumnNamesFromProperty(property: Return) {
+function getColumnNamesFromProperty(property: Return, asNames: string[]) {
   if (property.as) {
     let columnName = property.as;
     if (property.units) columnName = columnName + " (" + property.units.name + ")";
-    columnNames.value.push(columnName);
+    asNames.push(columnName);
   } else {
     let columnName = property.name ? property.name : "->";
     if (property.units) columnName = columnName + " (" + property.units.name + ")";
-    columnNames.value.push(columnName);
+    asNames.push(columnName);
+  }
+  if (property.case) {
+    let caseLabel = "";
+    if (property.case.when) {
+      let clause = 0;
+      for (const when of property.case.when) {
+        clause++;
+        caseLabel = caseLabel + " -> if ";
+        if (when.exists) {
+          caseLabel = caseLabel + "exists ";
+        }
+        if (when.then) {
+          caseLabel = caseLabel + " then " + when.then.value;
+        }
+      }
+      if (property.case.else) {
+        caseLabel = caseLabel + " else " + property.case.else.value;
+      }
+    }
+    asNames.push(caseLabel);
   }
   if (property.return) {
     for (const subProperty of property.return) {
-      getColumnNamesFromProperty(subProperty);
+      getColumnNamesFromProperty(subProperty, asNames);
     }
   }
+  if (property.semanticMap) asNames.push(" ->using map : " + property.semanticMap.name);
 }
 </script>
 <style scoped>

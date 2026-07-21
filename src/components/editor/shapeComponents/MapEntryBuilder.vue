@@ -40,7 +40,7 @@
             <div v-if="showSourceProperty(entry)" class="field-group">
               <label>Source Property</label>
               <Select
-                v-model="entry[IM.SOURCE_PROPERTY]"
+                v-model="entry[IM.SOURCE_ENTITY_PROPERTY]"
                 :class="invalid && showValidation && 'invalid'"
                 :options="getPropertyOptions(entry)"
                 class="entity-single-dropdown"
@@ -86,7 +86,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 
 import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
@@ -104,36 +104,6 @@ import { EditorMode } from "@/enums";
 import { getTypePropertyOptions } from "@/helpers/BuildSemanticMap";
 import { flattenArray } from "@/helpers/UtilityMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-
-const SHORT_NAME_TO_IRI: Record<string, string> = {
-  sourceentity: IM.SOURCE_ENTITY,
-  source_entity: IM.SOURCE_ENTITY,
-  sourceEntity: IM.SOURCE_ENTITY,
-  sourcetype: IM.SOURCE_TYPE,
-  source_type: IM.SOURCE_TYPE,
-  sourceType: IM.SOURCE_TYPE,
-  sourceproperty: IM.SOURCE_PROPERTY,
-  source_property: IM.SOURCE_PROPERTY,
-  sourceProperty: IM.SOURCE_PROPERTY,
-  rangefrom: IM.RANGE_FROM,
-  range_from: IM.RANGE_FROM,
-  rangeFrom: IM.RANGE_FROM,
-  rangeto: IM.RANGE_TO,
-  range_to: IM.RANGE_TO,
-  rangeTo: IM.RANGE_TO,
-  sourcetext: IM.SOURCE_TEXT,
-  source_text: IM.SOURCE_TEXT,
-  sourceText: IM.SOURCE_TEXT,
-  sourcevalue: IM.SOURCE_VALUE,
-  source_value: IM.SOURCE_VALUE,
-  sourceValue: IM.SOURCE_VALUE,
-  targettext: IM.TARGET_TEXT,
-  target_text: IM.TARGET_TEXT,
-  targetText: IM.TARGET_TEXT,
-  targetvalue: IM.TARGET_VALUE,
-  target_value: IM.TARGET_VALUE,
-  targetValue: IM.TARGET_VALUE
-};
 
 const props = defineProps<{
   shape: PropertyShape;
@@ -320,7 +290,7 @@ async function handleFileUpload(event: Event) {
     const columns = Object.keys(parsed[0]);
     const matchedColumns: { col: string; iri: string }[] = [];
     for (const col of columns) {
-      const iri = SHORT_NAME_TO_IRI[col.trim()];
+      const iri = col.trim();
       if (iri) matchedColumns.push({ col, iri });
     }
     if (matchedColumns.length === 0) return;
@@ -329,7 +299,7 @@ async function handleFileUpload(event: Event) {
       for (const match of matchedColumns) {
         const raw = row[match.col]?.trim();
         if (raw && raw.length > 0) {
-          if (match.iri === IM.SOURCE_ENTITY || match.iri === IM.SOURCE_TYPE || match.iri === IM.SOURCE_PROPERTY) {
+          if (match.iri === IM.SOURCE_ENTITY || match.iri === IM.SOURCE_TYPE || match.iri === IM.SOURCE_ENTITY_PROPERTY) {
             entry[match.iri] = { iri: raw, name: raw };
           } else if (match.iri === IM.RANGE_FROM || match.iri === IM.RANGE_TO || match.iri === IM.SOURCE_VALUE || match.iri === IM.TARGET_VALUE) {
             const num = Number(raw);
