@@ -187,10 +187,12 @@ const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.index);
 });
 const isDefined = computed(() => {
+
   const matches = match.value.and || match.value.or || match.value.any;
   if (matches) return true;
   if (match.value.orderBy) return true;
   if (match.value.where) return true;
+  if (match.value.is) return true;
   return !!match.value.return;
 });
 const notExistsLabel = computed(() => {

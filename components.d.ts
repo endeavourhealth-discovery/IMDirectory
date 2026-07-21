@@ -217,6 +217,7 @@ declare module 'vue' {
     ToggleButton: typeof import('primevue/togglebutton')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     Tree: typeof import('primevue/tree')['default']
+    TreeSelect: typeof import('primevue/treeselect')['default']
     UprnAddressFileDownload: typeof import('./src/components/uprn/AddressFileDownload.vue')['default']
     UprnAddressFileWorkflow: typeof import('./src/components/uprn/AddressFileWorkflow.vue')['default']
     UprnConsent: typeof import('./src/components/uprn/UprnConsent.vue')['default']

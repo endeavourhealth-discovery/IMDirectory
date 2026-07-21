@@ -4,6 +4,10 @@
       <FunctionClauseDisplay v-if="item.function" :functionClause="item.function" />
       <IMViewerLink v-else-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       <span v-if="item.as">(displayed as {{ item.as }})</span>
+      <template v-if="item.semanticMap">
+        <span> using output map </span>
+        <IMViewerLink :iri="item.semanticMap.iri" :label="item.semanticMap.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+      </template>
       <span v-if="item.return">
         <span>{</span>
         <RecursiveReturnDisplay :select="item.return" />

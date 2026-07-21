@@ -5,55 +5,67 @@
       <div v-if="defaultText" class="flex flex-row">Default text {{ defaultText }}</div>
       <div v-if="defaultValue != undefined" class="flex flex-row">Default value {{ defaultValue }}</div>
       <div v-if="!isArrayHasLength(mapEntries)">No map entries for this semantic map</div>
-      <div v-if="!mapTypeIri">No map entries found.</div>
       <DataTable v-else :value="displayEntries" scrollHeight="flex" scrollable showGridlines size="small">
-        <Column header="Source Entity">
+        <Column header="Output">
+          <template #body="{ data }">
+            <span v-if="data[IM.TARGET_TEXT]">{{ data[IM.TARGET_TEXT] }}</span>
+          </template>
+        </Column>
+        <Column header="Data sources">
+          <template #body="{ data }">
+            <template v-if="data[IM.SOURCE_ENTITY] && isArrayHasLength(data[IM.SOURCE_ENTITY])">
+              <template v-for="(source, index) in data[IM.SOURCE_ENTITY]" :key="index">
+                <IMViewerLink v-if="source?.iri" :iri="source.iri" :label="source.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+              </template>
+            </template>
+          </template>
+        </Column>
+        <Column header="Source Property">
           <template #body="{ data }">
             <IMViewerLink
-              v-if="data[IM.SOURCE_ENTITY]?.iri"
-              :iri="data[IM.SOURCE_ENTITY].iri"
-              :label="data[IM.SOURCE_ENTITY].name"
+              v-if="data[IM.SOURCE_ENTITY_PROPERTY] && data[IM.SOURCE_ENTITY_PROPERTY][0]?.iri"
+              :iri="data[IM.SOURCE_ENTITY_PROPERTY][0].iri"
+              :label="data[IM.SOURCE_ENTITY_PROPERTY][0].name"
+              @navigateTo="(iri: string) => emit('navigateTo', iri)"
+            />
+            <IMViewerLink
+              v-else-if="data[IM.FUNCTION_DEFINITION] && data[IM.FUNCTION_DEFINITION][0]?.iri"
+              :iri="data[IM.FUNCTION_DEFINITION][0].iri"
+              :label="'function : ' + data[IM.FUNCTION_DEFINITION][0].name"
               @navigateTo="(iri: string) => emit('navigateTo', iri)"
             />
           </template>
         </Column>
-        <Column v-if="showSourceType" header="Source Type">
+        <Column header="Source value property">
           <template #body="{ data }">
             <IMViewerLink
-              v-if="data[IM.SOURCE_TYPE]?.iri"
-              :iri="data[IM.SOURCE_TYPE].iri"
-              :label="data[IM.SOURCE_TYPE].name"
+              v-if="data[IM.SOURCE_VALUE_PROPERTY] && data[IM.SOURCE_VALUE_PROPERTY][0]?.iri"
+              :iri="data[IM.SOURCE_VALUE_PROPERTY][0].iri"
+              :label="data[IM.SOURCE_VALUE_PROPERTY][0].name"
               @navigateTo="(iri: string) => emit('navigateTo', iri)"
             />
           </template>
         </Column>
-        <Column v-if="showSourceProperty" header="Source Property">
+        <Column header="Range From">
           <template #body="{ data }">
-            <IMViewerLink
-              v-if="data[IM.SOURCE_PROPERTY]?.iri"
-              :iri="data[IM.SOURCE_PROPERTY].iri"
-              :label="data[IM.SOURCE_PROPERTY].name"
-              @navigateTo="(iri: string) => emit('navigateTo', iri)"
-            />
+            <span v-if="data[IM.RANGE_FROM] != undefined">{{ data[IM.RANGE_FROM] }}</span>
           </template>
         </Column>
-        <Column v-if="showRangeFrom" header="Range From">
-          <template #body="{ data }">{{ data[IM.RANGE_FROM] }}</template>
+        <Column header="Range To">
+          <template #body="{ data }">
+            <span v-if="data[IM.RANGE_TO]">{{ data[IM.RANGE_TO] }}</span>
+          </template>
         </Column>
-        <Column v-if="showRangeTo" header="Range To">
-          <template #body="{ data }">{{ data[IM.RANGE_TO] }}</template>
+        <Column header="Source Text">
+          <template #body="{ data }">
+            <span v-if="data[IM.SOURCE_TEXT]">{{ data[IM.SOURCE_TEXT] }}</span>
+          </template>
         </Column>
-        <Column v-if="showSourceText" header="Source Text">
-          <template #body="{ data }">{{ data[IM.SOURCE_TEXT] }}</template>
-        </Column>
-        <Column v-if="showSourceValue" header="Source Value">
-          <template #body="{ data }">{{ data[IM.SOURCE_VALUE] }}</template>
-        </Column>
-        <Column header="Target Text">
-          <template #body="{ data }">{{ data[IM.TARGET_TEXT] }}</template>
-        </Column>
+
         <Column header="Target Value">
-          <template #body="{ data }">{{ data[IM.TARGET_VALUE] }}</template>
+          <template #body="{ data }">
+            <span v-if="data[IM.TARGET_VALUE] != undefined">{{ data[IM.TARGET_VALUE] }}</span></template
+          >
         </Column>
         <template #empty>No map entries found.</template>
       </DataTable>
@@ -71,7 +83,6 @@ import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
 import ProgressSpinner from "primevue/progressspinner";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { flattenArray } from "@/helpers/UtilityMethods";
 import { EntityService } from "@/services";
 
 interface Props {
@@ -89,18 +100,6 @@ const mapEntries: Ref<any[] | undefined> = ref();
 const displayEntries: Ref<any[]> = ref([]);
 const defaultText = computed(() => semanticMap.value?.[IM.DEFAULT_TEXT]);
 const defaultValue = computed(() => semanticMap.value?.[IM.DEFAULT_VALUE]);
-const mapTypeIri = ref();
-
-const isDirectMap = computed(() => mapTypeIri.value === IM.DIRECT_MAP);
-const isRangeMap = computed(() => mapTypeIri.value === IM.RANGE_VALUE_MAP);
-const isExactValueMap = computed(() => mapTypeIri.value === IM.EXACT_VALUE_MAP);
-
-const showSourceType = computed(() => isRangeMap.value || isExactValueMap.value);
-const showSourceProperty = ref(true);
-const showRangeFrom = computed(() => isRangeMap.value);
-const showRangeTo = computed(() => isRangeMap.value);
-const showSourceText = computed(() => isDirectMap.value || isExactValueMap.value);
-const showSourceValue = computed(() => isExactValueMap.value);
 
 watch(
   () => props.entityIri,
@@ -117,13 +116,13 @@ async function init() {
   loading.value = true;
   if (props.entityIri) {
     semanticMap.value = await EntityService.getFullEntity(props.entityIri);
-    if (semanticMap.value && semanticMap.value[IM.HAS_MAP_TYPE]) {
-      mapTypeIri.value = semanticMap.value[IM.HAS_MAP_TYPE][0].iri;
-    }
-    const rawEntries = semanticMap.value[IM.MAP_ENTRY];
+    const rawEntries = semanticMap.value[IM.HAS_MAP_ENTRY];
     mapEntries.value = rawEntries;
     if (isArrayHasLength(rawEntries)) {
-      displayEntries.value = rawEntries.map((entry: any) => flattenArray(entry));
+      displayEntries.value = [];
+      for (const entry of rawEntries) {
+        displayEntries.value.push(await EntityService.getFullEntity(entry.iri));
+      }
     } else {
       displayEntries.value = [];
     }
