@@ -71,7 +71,7 @@ import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ECLQueryRequest, Match, Query } from "@endeavour/vue-library/models";
+import { type ECLQueryRequest, type Match, MatchSchema, type Query, QuerySchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
@@ -147,7 +147,7 @@ async function init() {
   if (props.query) {
     await createBuildFromQuery(props.query);
   } else createDefaultBuild();
-  if (build.value.is && build.value.is.match) {
+  if (build.value?.is && build.value.is.match) {
     checkIncludeSubtypes.value = true;
     build.value = build.value.is.match;
   }
@@ -157,7 +157,7 @@ function createDefaultBuild() {
   build.value = {};
 }
 async function rationaliseBooleans() {
-  build.value = await QueryService.flattenBooleans(build.value);
+  if (build.value) build.value = await QueryService.flattenBooleans(build.value);
 }
 
 async function createBuildFromQuery(query: Query) {
@@ -165,9 +165,9 @@ async function createBuildFromQuery(query: Query) {
 }
 
 async function preview() {
-  if (!previewECL.value) {
-    let rationalised = await QueryService.optimiseECLQuery(build.value);
-    rationalised = includeSubtypes(rationalised);
+  if (!previewECL.value && build.value) {
+    let rationalised = await QueryService.optimiseECLQuery(QuerySchema.parse(build.value));
+    rationalised = QuerySchema.parse(includeSubtypes(rationalised));
     const eclQuery = await EclService.getECLFromQuery(rationalised, includeTerms.value);
     queryString.value = eclQuery.ecl!;
   }
@@ -176,17 +176,19 @@ async function preview() {
 
 function includeSubtypes(query: Match): Match {
   if (checkIncludeSubtypes.value) {
-    return { is: { descendantsOrSelfOf: true, match: query } };
+    return MatchSchema.parse({ is: { descendantsOrSelfOf: true, match: query } });
   } else return query;
 }
 
 async function submit(): Promise<void> {
-  build.value = await QueryService.optimiseECLQuery(build.value);
-  const rationalised = includeSubtypes(build.value);
-  const eclQuery = await EclService.getECLFromQuery(rationalised, props.showNames);
-  if (eclQuery.status && !eclQuery.status.valid) {
-    await displayValidationMessage(true, eclQuery.status.message);
-  } else emit("eclSubmitted", eclQuery);
+  if (build.value) {
+    build.value = await QueryService.optimiseECLQuery(QuerySchema.parse(build.value));
+    const rationalised = includeSubtypes(build.value);
+    const eclQuery = await EclService.getECLFromQuery(QuerySchema.parse(rationalised), props.showNames);
+    if (eclQuery.status && !eclQuery.status.valid) {
+      await displayValidationMessage(true, eclQuery.status.message);
+    } else emit("eclSubmitted", eclQuery);
+  }
 }
 
 function closeBuilderDialog(): void {

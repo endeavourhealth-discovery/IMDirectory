@@ -15,8 +15,8 @@
     </div>
     <div class="header-container">
       <ParentHierarchy
-        v-if="entity.iri"
-        :entityIri="entity?.iri"
+        v-if="iri"
+        :entityIri="iri"
         :history="modelHistory"
         @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
@@ -36,10 +36,12 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, onMounted, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { ExtendedTTEntity, SearchResponse } from "@endeavour/vue-library/models";
+import type { SearchResponse, TTEntity } from "@endeavour/vue-library/models";
+
+import { isString } from "lodash-es";
 
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
@@ -67,8 +69,12 @@ watch(
   async () => await init()
 );
 
-const entity: Ref<ExtendedTTEntity> = ref({});
+const entity: Ref<TTEntity> = ref({});
 const loading = ref(true);
+const iri = computed(() => {
+  if (isString(entity.value.iri)) return entity.value.iri;
+  else return "";
+});
 
 onMounted(async () => await init());
 

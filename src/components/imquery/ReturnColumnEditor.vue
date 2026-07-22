@@ -119,7 +119,7 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
-import type { Match, Node, Return, TTIriRef, UIProperty, When, Where } from "@endeavour/vue-library/models";
+import { type Match, type Node, type Return, type TTIriRef, type UIProperty, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -248,7 +248,7 @@ function addCase() {
 function addWhen() {
   if (!column.value.case) column.value.case = { when: [], else: {} };
   if (!column.value.case.when) column.value.case.when = [];
-  selectedWhen.value = { then: {} };
+  selectedWhen.value = WhenSchema.parse({ then: {} });
   column.value.case!.when!.push(selectedWhen.value);
   whenIndex = column.value.case!.when!.length - 1;
   showWhenEditor.value = true;

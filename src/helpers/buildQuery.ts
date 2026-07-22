@@ -1,6 +1,6 @@
 import { Ref } from "vue";
 
-import { Operator } from "@endeavour/vue-library";
+import { MatchSchema, NodeSchema, Operator, QueryRequestSchema, WhereSchema } from "@endeavour/vue-library";
 import { Bool, IM, RDF, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type {
@@ -26,20 +26,29 @@ import { Relativity } from "@/enums";
 import { SearchOptions } from "@/interfaces";
 import { DataModelService, QueryService } from "@/services";
 
+interface Options {
+  value: string;
+  label?: string;
+  tooltip?: string;
+  name?: string;
+}
+
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
-  const imQuery: QueryRequest = { query: {} };
-  if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
-  if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
-  if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery.query);
-  if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery.query);
+  const imQuery = QueryRequestSchema.parse({ query: {} });
+  if (imQuery.query) {
+    if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
+    if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
+    if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery.query);
+    if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery.query);
+  }
   if (isArrayHasLength(filterOptions.binding)) addBindingsToIMQuery(filterOptions.binding!, imQuery);
   if (filterOptions.page) imQuery.page = filterOptions.page;
   if (filterOptions.textSearch) imQuery.textSearch = filterOptions.textSearch;
   return imQuery;
 }
 
-export function getOperatorOptions(valueType: string): any[] {
-  const options = [];
+export function getOperatorOptions(valueType: string): Options[] {
+  const options: Options[] = [];
   if (valueType != XSD.STRING) {
     options.push({
       label: "equal to",
@@ -76,7 +85,7 @@ export function getOperatorOptions(valueType: string): any[] {
   return options;
 }
 
-export function getCompareOptions(valueType: string): any[] {
+export function getCompareOptions(valueType: string): Options[] {
   const options = [];
   options.push({ label: "Compare to another value", value: Relativity.Compare });
   if (valueType != XSD.STRING) {
@@ -99,13 +108,13 @@ export function checkGroupChange(e: any, parentGroup: number[], index: number) {
   parentGroup.sort((a, b) => a - b);
 }
 
-function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
-  if (!query.where) query.where = {};
+function addFilterToIMQuery(predicate: string, values: unknown[], query: Query) {
+  if (!query.where) query.where = WhereSchema.parse({});
   if (!query.where.and) query.where.and = [];
-  const where: Where = {
+  const where: Where = WhereSchema.parse({
     iri: predicate,
-    is: values.map(item => item as Node)
-  };
+    is: values.map(item => NodeSchema.parse(item))
+  });
   query.where.and.push(where);
 }
 
@@ -143,7 +152,7 @@ export function removeSubgroup(clause: any, parent: Match | Where, index: number
 
 export function createNewBoolGroup(clause: any, group: number[]) {
   group.sort((a, b) => a - b);
-  const newClause: Where = {};
+  const newClause = WhereSchema.parse({});
   if (clause.and) {
     newClause.or = [];
     group.forEach(index => {
@@ -171,8 +180,8 @@ export function createNewBoolGroup(clause: any, group: number[]) {
 }
 
 export function addConceptToGroup(match: Match) {
-  if (match.or) match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
-  else if (match.and) match.and.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
+  if (match.or) match.or.push(MatchSchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+  else if (match.and) match.and.push(MatchSchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
@@ -180,7 +189,7 @@ export function addConceptToGroup(match: Match) {
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
+    match.or.push(MatchSchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   }
 }
 
@@ -188,10 +197,10 @@ export function updateBooleans(clause: Match | Where, from: Bool, to: Bool) {
   if (from === to) return;
   if (from === Bool.and) {
     clause.or = (clause as Where).and;
-    delete (clause as Where).and;
+    (clause as Where).and = [];
   } else if (from === Bool.or) {
     clause.and = clause.or;
-    delete clause.or;
+    clause.or = [];
   }
 }
 
@@ -310,7 +319,7 @@ export function addWhereToThen(match: Match, where: Where) {
   } else {
     if (match.then) match.then.where = where;
     else {
-      match.then = { where: where };
+      match.then = MatchSchema.parse({ where: where });
     }
   }
 }
@@ -522,43 +531,43 @@ export function setConstraintOperator(constrainer: Node | Where, valueConstraint
     case "<<":
     case "descendantsOrSelfOf":
       constrainer.descendantsOrSelfOf = true;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case "<":
     case "descendantsOf":
       constrainer.descendantsOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.memberOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.memberOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case "^":
     case "memberOf":
       constrainer.memberOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case ">>":
     case "ancestorsOrSelfOf":
       constrainer.ancestorsOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
       break;
     default:
-      delete constrainer.ancestorsOf;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
+      constrainer.ancestorsOf = false;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
   }
 }
 
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
-  if (!isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
+  if (imQuery.query && !isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
   for (const searchBinding of searchBindings) {
-    const match: Match = {
+    const match = MatchSchema.parse({
       path: [
         {
           iri: IM.BINDING
@@ -576,8 +585,8 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
           }
         ]
       }
-    };
-    imQuery.query.and!.push(match);
+    });
+    imQuery.query?.and?.push(match);
   }
 }
 
@@ -697,7 +706,7 @@ export function addWhereToWhen(when: When, match: Match, node: TreeNode): string
 function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
   const where = { iri: iri, invalid: true } as Where;
   if (nodeRef) where.nodeRef = nodeRef;
-  if (is) where.is = [{ descendantsOrSelfOf: true }];
+  if (is) where.is = [NodeSchema.parse({ descendantsOrSelfOf: true })];
   return where;
 }
 

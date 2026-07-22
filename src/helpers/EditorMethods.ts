@@ -1,6 +1,6 @@
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { TypeGuards, enumToArray, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Argument, GenericObject, PropertyShape, QueryRequest, TTIriRef } from "@endeavour/vue-library/models";
+import { type Argument, type GenericObject, NodeSchema, type PropertyShape, type QueryRequest, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { ComponentType } from "../enums";
 
@@ -21,11 +21,12 @@ export function updateRangeQuery(rangeQuery: QueryRequest, rangeType: string) {
     const andClauses = rangeQuery.query.where.and;
     const typeClause = andClauses.find(clause => clause.iri === RDF.TYPE);
     if (typeClause) {
-      if (rangeType === "concept") typeClause.is = [{ iri: IM.CONCEPT }, { iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }];
+      if (rangeType === "concept")
+        typeClause.is = [NodeSchema.parse({ iri: IM.CONCEPT }), NodeSchema.parse({ iri: IM.CONCEPT_SET }), NodeSchema.parse({ iri: IM.VALUE_SET })];
       else if (rangeType === "datatype") {
-        typeClause.is = [{ iri: RDFS.DATATYPE }];
+        typeClause.is = [NodeSchema.parse({ iri: RDFS.DATATYPE })];
       } else if (rangeType === "shape") {
-        typeClause.is = [{ iri: SHACL.NODESHAPE }];
+        typeClause.is = [NodeSchema.parse({ iri: SHACL.NODESHAPE })];
       }
     }
   }
@@ -58,11 +59,10 @@ function processArgument(property: PropertyShape, key: string, value: any, argRe
     } else if (valueVariableMap && valueVariableMap.has(value)) {
       foundValueVariable = valueVariableMap.get(value);
     }
-    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => TypeGuards.isTTIriRef(item)))
-      argResult["valueIriList"] = foundValueVariable;
+    if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item))) argResult["valueIriList"] = foundValueVariable;
     else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
       argResult["valueDataList"] = foundValueVariable;
-    else if (TypeGuards.isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
+    else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
     else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
     else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
     else argResult[key] = foundValueVariable;

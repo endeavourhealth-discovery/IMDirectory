@@ -84,7 +84,7 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ECLQueryRequest, ExtendedTTEntity, PropertyShape, SearchResultSummary } from "@endeavour/vue-library/models";
+import type { ECLQueryRequest, PropertyShape, SearchResultSummary, TTEntity } from "@endeavour/vue-library/models";
 
 import { useDialog } from "primevue/usedialog";
 
@@ -242,7 +242,7 @@ function previewExpansion() {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as ExtendedTTEntity;
+    const result = {} as TTEntity;
     if (eclQuery.value && eclQuery.value.query) {
       result[key] = JSON.stringify(eclQuery.value.query);
     }

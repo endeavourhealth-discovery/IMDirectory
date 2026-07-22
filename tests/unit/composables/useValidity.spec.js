@@ -302,7 +302,7 @@ describe("useValidity", () => {
         { key: "test1", valid: true },
         { key: "test2", valid: true }
       ];
-      expect(wrapper.vm.isValidEntity({ "http://endhealth.info/im#id": "testIri" })).toBe(true);
+      expect(wrapper.vm.isValidEntity({ "http://endhealth.info/im#id": "http://endhealth.info/im#testIri" })).toBe(true);
     });
 
     it("can check if entity is valid ___ false", () => {
@@ -311,7 +311,7 @@ describe("useValidity", () => {
         { key: "test1", valid: true },
         { key: "test2", valid: false }
       ];
-      expect(wrapper.vm.isValidEntity({ "http://endhealth.info/im#id": "testIri" })).toBe(false);
+      expect(wrapper.vm.isValidEntity({ "http://endhealth.info/im#id": "http://endhealth.info/im#testIri" })).toBe(false);
     });
   });
 });

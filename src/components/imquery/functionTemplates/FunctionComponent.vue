@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { Order } from "@endeavour/vue-library/enums";
 import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import type { OrderLimit } from "@endeavour/vue-library/models";
+import { type OrderLimit, OrderLimitSchema } from "@endeavour/vue-library/models";
 
 defineProps<{
   functionTemplates: any;
@@ -32,7 +32,7 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
     const direction = valueTemplates.find((valueTemplate: any) => "direction" === valueTemplate[SHACL.PARAMETER]);
     const property = valueTemplates.find((valueTemplate: any) => "property" === valueTemplate[SHACL.PARAMETER]);
     if (direction && property) {
-      const orderBy: OrderLimit = {
+      const orderBy = OrderLimitSchema.parse({
         limit: limit,
         property: [
           {
@@ -40,7 +40,7 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
             direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
           }
         ]
-      };
+      });
       emit("addFunctionProperty", { property: "orderBy", value: orderBy });
     }
   }

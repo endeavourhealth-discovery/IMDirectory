@@ -107,7 +107,14 @@
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, IM, NAMESPACE } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/models";
+import {
+  type Match,
+  type QueryRequest,
+  SearchOptionsSchema,
+  type SearchResponse,
+  type SearchResultSummary,
+  type TTIriRef
+} from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
@@ -145,11 +152,13 @@ const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const edited: Ref<boolean> = ref(false);
-const cohortFilterOptions: Ref<SearchOptions> = ref({
-  types: [{ iri: IM.QUERY }],
-  status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
-  schemes: []
-});
+const cohortFilterOptions: Ref<SearchOptions> = ref(
+  SearchOptionsSchema.parse({
+    types: [{ iri: IM.QUERY }],
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    schemes: []
+  })
+);
 const typeFilter: Ref<string[]> = ref([IM.QUERY]);
 const loading = ref(false);
 const cohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);

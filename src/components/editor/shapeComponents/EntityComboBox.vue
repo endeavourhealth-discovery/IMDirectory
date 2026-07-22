@@ -28,8 +28,8 @@
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
-import { byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/models";
+import { byName, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type Query, type QueryRequest, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 
@@ -180,9 +180,13 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape);
-    return FunctionService.runFunction(props.shape.function!.iri, args);
+    const result = await FunctionService.runFunction(props.shape.function!.iri, args);
+    if (isArrayOf(result, isTTIriRef)) return result;
+    else throw new Error("Function must return TTIriRef array");
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return FunctionService.runFunction(props.shape.function!.iri);
+    const result = await FunctionService.runFunction(props.shape.function!.iri);
+    if (isArrayOf(result, isTTIriRef)) return result;
+    else throw new Error("Function must return TTIriRef array");
   } else throw new Error("propertyshape is missing 'search' or 'function' parameter to fetch dropdown options");
 }
 

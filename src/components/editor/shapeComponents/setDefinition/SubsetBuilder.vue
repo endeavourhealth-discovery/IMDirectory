@@ -15,9 +15,9 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, QUERY, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, TTIriRef } from "@endeavour/vue-library/models";
+import type { PropertyShape, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, isEqual, isString } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -97,7 +97,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (editorEntity.value?.iri) {
+  if (editorEntity.value?.iri && isString(editorEntity.value.iri)) {
     const subsets = await QueryService.queryIM({
       query: { iri: QUERY.GET_SUBSETS },
       argument: [{ parameter: "this", valueIri: { iri: editorEntity.value.iri } }]
@@ -122,7 +122,7 @@ function updateInclusions(data: any) {
 
 function updateEntity() {
   if (entityUpdate) {
-    const result = {} as ExtendedTTEntity;
+    const result = {} as TTEntity;
     if (isArrayHasLength(inclusions.value)) {
       result[key] = cloneDeep(inclusions.value);
     }

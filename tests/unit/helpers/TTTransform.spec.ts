@@ -1,4 +1,4 @@
-import { ExtendedTTEntitySchema } from "@endeavour/vue-library/models";
+import { TTEntitySchema } from "@endeavour/vue-library/models";
 
 import { describe, expect, it } from "vitest";
 
@@ -16,7 +16,7 @@ import {
 describe("TTTransform", () => {
   describe("transformTT", () => {
     it("WHEN ttEntity is empty object __ THEN return empty object", () => {
-      expect(transformTT(ExtendedTTEntitySchema.parse({}))).toStrictEqual({});
+      expect(transformTT(TTEntitySchema.parse({}))).toStrictEqual({});
     });
 
     it("WHEN ttEntity is populated __ THEN return a simple object without iri properties", () => {

@@ -23,7 +23,6 @@ import { MapItem } from "./MapItem";
 import { MatchPattern } from "./MatchPattern";
 import { NextComponentSummary } from "./NextComponentSummary";
 import { Property } from "./Property";
-import { PropertyDisplay } from "./PropertyDisplay";
 import { QueryResponse } from "./QueryResponse";
 import { RelativeTo } from "./RelativeTo";
 import { SearchOptions } from "./SearchOptions";
@@ -41,7 +40,6 @@ import { TreeParent } from "./TreeParent";
 import { TypedDynamicDialogOptions } from "./TypedDynamicDialogOptions";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
-import { ValidatedEntity } from "./ValidatedEntity";
 import { ValueSetMember } from "./ValueSetMember";
 
 export {
@@ -78,7 +76,6 @@ export {
   type AllowableChildProperty,
   type CustomAlert,
   type AliasEntity,
-  type PropertyDisplay,
   type TTProperty,
   type TreeNode,
   type TypedDynamicDialogOptions,
@@ -86,7 +83,6 @@ export {
   type QueryResponse,
   type SetDiffObject,
   type SearchOptions,
-  type ValidatedEntity,
   type DownloadSettings,
   type RelativeTo,
   type SentencePart

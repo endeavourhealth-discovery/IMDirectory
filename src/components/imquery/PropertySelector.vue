@@ -59,7 +59,7 @@ import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type { Match, Node, NodeShape } from "@endeavour/vue-library/models";
+import { type Match, type Node, NodeSchema, type NodeShape } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 
@@ -109,10 +109,10 @@ function setupTrees(mode: Mode) {
   if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
 }
 
-async function onReturnNodeSelect(node: any) {
+async function onReturnNodeSelect(node: TreeNode) {
   if (!match.value.typeOf) {
     if (node.data.typeOf) {
-      match.value.typeOf = { iri: node.data.typeOf };
+      match.value.typeOf = NodeSchema.parse({ iri: node.data.typeOf });
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
       typeNodes.value = await createFeatureTree(nodeShape.value, "return");
       setupTrees("return");

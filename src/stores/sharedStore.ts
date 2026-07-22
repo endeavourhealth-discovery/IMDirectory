@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { IM, TagSeverity } from "@endeavour/vue-library/enums";
 import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
 
+import { isBoolean } from "lodash-es";
 import { defineStore } from "pinia";
 
 export const useSharedStore = defineStore("shared", () => {
@@ -16,7 +17,7 @@ export const useSharedStore = defineStore("shared", () => {
   ]);
   const showReleaseNotes = ref<boolean>(false);
   const showReleaseBanner = ref<boolean>(localStorage.getItem("showReleaseBanner") === "true" ? true : false);
-  const showDevBanner = ref<boolean>(localStorageWithExpiry.getItem("showDevBanner") ?? true);
+  const showDevBanner = ref<boolean>(localStorageWithExpiry.getItem("showDevBanner", isBoolean) ?? true);
   const activeProfile = ref<{ uuid: string; activeClausePath: string }>({ uuid: "", activeClausePath: "" });
   const error = ref<string>("");
   const isPublicMode = ref<boolean | undefined>();

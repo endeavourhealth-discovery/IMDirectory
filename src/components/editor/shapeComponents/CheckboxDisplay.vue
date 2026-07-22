@@ -12,7 +12,7 @@
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/models";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
+import type { TTEntity } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -96,7 +96,7 @@ watch(checked, async newValue => {
 });
 
 function updateEntity(data: boolean) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[props.shape.path.iri] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

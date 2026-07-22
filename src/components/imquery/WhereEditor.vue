@@ -150,7 +150,7 @@ import { Ref, inject, onMounted, ref } from "vue";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, NodeShape, When } from "@endeavour/vue-library/models";
+import { type Match, MatchSchema, type Node, NodeSchema, type NodeShape, OrderLimitSchema, QuerySchema, type When } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";
@@ -221,7 +221,7 @@ onMounted(async () => {
 });
 
 function addTest() {
-  match.value.then = { where: {} };
+  match.value.then = MatchSchema.parse({ where: {} });
   emit("addTest");
 }
 function onInput() {
@@ -258,7 +258,7 @@ async function init() {
 async function onNodeSelect(node: any) {
   if (!match.value.typeOf) {
     if (node.data.typeOf) {
-      match.value.typeOf = { iri: node.data.typeOf };
+      match.value.typeOf = NodeSchema.parse({ iri: node.data.typeOf });
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
       typeNodes.value = await createFeatureTree(nodeShape.value, "match");
       setupTrees("match");
@@ -272,7 +272,8 @@ async function onNodeSelect(node: any) {
     else addFilter(match.value, node, props.editingThen, props.editingWhen);
   }
   await setMandatoryWheres(match.value);
-  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+  const matchAsQuery = QuerySchema.parse(match.value);
+  match.value = await QueryService.getQueryDisplayFromQuery(matchAsQuery, DisplayMode.ORIGINAL);
   edited.value = true;
   setOrderables();
   emit("updateMatch");
@@ -323,7 +324,7 @@ function updateOrderable(value: any) {
     orderable.value = undefined;
   } else {
     orderable.value = value;
-    match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
+    match.value.orderBy = OrderLimitSchema.parse({ property: [{ iri: value.iri, direction: value.direction }] });
   }
   emit("updateMatch");
 }

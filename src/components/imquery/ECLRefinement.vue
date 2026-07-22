@@ -130,7 +130,7 @@
 import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool, IM } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary, Where } from "@endeavour/vue-library/models";
+import { type Match, type QueryRequest, type SearchResultSummary, SearchResultSummarySchema, type Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
@@ -179,7 +179,9 @@ const filterStore = useFilterStore();
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or"] as const;
-const selectedProperty: Ref<SearchResultSummary | undefined> = ref(where.value as SearchResultSummary | undefined);
+const selectedProperty: Ref<SearchResultSummary | undefined> = ref(
+  where.value.iri ? SearchResultSummarySchema.parse({ iri: where.value.iri, name: where.value.name, description: where.value.description }) : undefined
+);
 const loadingProperty = ref(true);
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
 const isRoleGroup = computed(() => getIsRoleGroup(where.value));
@@ -263,10 +265,10 @@ function mouseout(event: any) {
 function updateOperator(val: string) {
   if (val === "or" && where.value.and) {
     where.value.or = where.value.and;
-    delete where.value.and;
+    where.value.and = [];
   } else if (val === "and" && where.value.or) {
     where.value.and = where.value.or;
-    delete where.value.or;
+    where.value.or = [];
   }
 }
 

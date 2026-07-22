@@ -151,7 +151,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Bool, QUERY } from "@endeavour/vue-library/enums";
-import type { Match, Node, QueryRequest, TTIriRef, Where } from "@endeavour/vue-library/models";
+import { type Match, type Node, type QueryRequest, QueryRequestSchema, type TTIriRef, type Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { v4 } from "uuid";
@@ -352,7 +352,7 @@ async function updateQueryForPropertySearch() {
     if (allowableProperties.entities) {
       rootProperties.value = allowableProperties.entities.map(e => e.iri);
     }
-    propertyFilter.value = {
+    propertyFilter.value = QueryRequestSchema.parse({
       query: { iri: QUERY.ENTITY_FILTER },
       argument: [
         {
@@ -360,7 +360,7 @@ async function updateQueryForPropertySearch() {
           valueIriList: allowableProperties.entities
         }
       ]
-    };
+    });
   }
 }
 </script>

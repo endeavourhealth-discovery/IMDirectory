@@ -459,15 +459,6 @@ packages:
   '@emnapi/wasi-threads@1.2.0':
     resolution: {integrity: sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg==}
 
-  '@endeavour/vue-library@1.0.8':
-    resolution: {integrity: sha512-6xIwyL0Uca9m45zSD2UVkymDNlVTvyu737sRupubI66eEkVpNcmGUhslUptf45Hzluy5N3r2cd1eYw+WQM5amQ==}
-    peerDependencies:
-      '@primeuix/themes': 2.0.3
-      pinia: 3.0.4
-      primevue: 4.5.5
-      vue: 3.5.32
-      vue-router: 5.0.4
-
   '@epic-web/invariant@1.0.0':
     resolution: {integrity: sha512-lrTPqgvfFQtR/eY/qkIzp98OGdNJu0m5ji3q/nJI8v3SXkRKEnWiOxMmbvcSoAIzv/cGiuvRy57k4suKQSAdwA==}
 
@@ -4890,36 +4881,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
-
-  '@endeavour/vue-library@1.0.8(@primeuix/themes@2.0.3)(async-validator@4.2.5)(axios@1.15.0)(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.33)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))':
-    dependencies:
-      '@primeuix/themes': 2.0.3
-      '@vueuse/core': 14.2.1(vue@3.5.32(typescript@6.0.2))
-      '@vueuse/integrations': 14.2.1(async-validator@4.2.5)(axios@1.15.0)(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))
-      google-palette: 1.1.1
-      lodash-es: 4.17.23
-      pinia: 3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
-      primevue: 4.5.5(vue@3.5.32(typescript@6.0.2))
-      sass: 1.99.0
-      typescript-logging-log4ts-style: 2.2.0(typescript-logging@2.2.0)
-      uuid: 13.0.0
-      vue: 3.5.32(typescript@6.0.2)
-      vue-router: 5.0.4(@vue/compiler-sfc@3.5.33)(pinia@3.0.4(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - async-validator
-      - axios
-      - change-case
-      - drauu
-      - focus-trap
-      - fuse.js
-      - idb-keyval
-      - jwt-decode
-      - nprogress
-      - qrcode
-      - sortablejs
-      - typescript-logging
-      - universal-cookie
 
   '@epic-web/invariant@1.0.0': {}
 

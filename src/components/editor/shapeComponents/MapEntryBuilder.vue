@@ -89,11 +89,11 @@
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/models";
+import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type QueryRequest, QueryRequestSchema, type TTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, isArray, isEqual } from "lodash-es";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
@@ -169,7 +169,7 @@ const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const mapTypeIri = computed(() => {
-  if (editorEntity.value[IM.HAS_MAP_TYPE]) return editorEntity.value[IM.HAS_MAP_TYPE][0]?.iri;
+  if (isArrayOf(editorEntity.value[IM.HAS_MAP_TYPE], isTTIriRef)) return editorEntity.value[IM.HAS_MAP_TYPE][0]?.iri;
   else return undefined;
 });
 const isDirectMap = computed(() => mapTypeIri.value === IM.DIRECT_MAP);
@@ -182,7 +182,7 @@ const showRangeFrom = computed(() => isRangeMap.value);
 const showRangeTo = computed(() => isRangeMap.value);
 const showSourceText = computed(() => isExactValueMap.value);
 const showSourceValue = computed(() => isExactValueMap.value);
-const entityQuery: QueryRequest = {
+const entityQuery = QueryRequestSchema.parse({
   query: {
     and: [
       {
@@ -196,8 +196,8 @@ const entityQuery: QueryRequest = {
       }
     ]
   }
-};
-const typeQuery: QueryRequest = {
+});
+const typeQuery = QueryRequestSchema.parse({
   query: {
     and: [
       {
@@ -211,7 +211,7 @@ const typeQuery: QueryRequest = {
       }
     ]
   }
-};
+});
 const propertyOptions: Ref<Record<string, any[]>> = ref({});
 
 watch(
@@ -256,7 +256,7 @@ function createEmptyEntry(): any {
 
 async function processProps() {
   loading.value = true;
-  if (editorEntity.value[IM.MAP_ENTRY]) {
+  if (isArray(editorEntity.value[IM.MAP_ENTRY])) {
     entries.value = [];
     for (const entry of editorEntity.value[IM.MAP_ENTRY]) {
       const mapEntry = flattenArray(entry);
@@ -269,7 +269,7 @@ async function processProps() {
 }
 
 async function processPropertyOptions() {
-  if (editorEntity.value[IM.MAP_ENTRY]) {
+  if (isArray(editorEntity.value[IM.MAP_ENTRY])) {
     for (const entry of editorEntity.value[IM.MAP_ENTRY]) {
       const mapEntry = flattenArray(entry);
       if (mapEntry[IM.SOURCE_TYPE]) {
@@ -371,7 +371,7 @@ function validateEntity() {
 }
 
 function updateEntity() {
-  const data: ExtendedTTEntity = {};
+  const data: TTEntity = {};
   data[key] = entries.value;
   if (!isArrayHasLength(entries.value) && deleteEntityKey) {
     deleteEntityKey(key);

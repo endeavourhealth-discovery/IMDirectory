@@ -24,9 +24,9 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/models";
+import { type PropertyShape, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -137,15 +137,11 @@ onMounted(() => {
 
 function processProps() {
   if (props.value) {
-    if (isObjectHasKeys(props.value, [IM.CODE])) code.value = props.value[IM.CODE];
-    if (
-      isObjectHasKeys(props.value, [IM.HAS_STATUS]) &&
-      isArrayHasLength(props.value[IM.HAS_STATUS]) &&
-      isObjectHasKeys(props.value[IM.HAS_STATUS][0], ["iri"])
-    ) {
+    if (isObjectHasKeys(props.value, [IM.CODE]) && isString(props.value[IM.CODE])) code.value = props.value[IM.CODE];
+    if (isObjectHasKeys(props.value, [IM.HAS_STATUS]) && isArrayHasLength(props.value[IM.HAS_STATUS]) && isTTIriRef(props.value[IM.HAS_STATUS][0])) {
       if (statusOptions.value.findIndex(so => so.iri === props.value[IM.HAS_STATUS][0].iri) != -1) status.value = props.value[IM.HAS_STATUS][0];
     }
-    if (isObjectHasKeys(props.value, [RDFS.LABEL])) name.value = props.value[RDFS.LABEL];
+    if (isObjectHasKeys(props.value, [RDFS.LABEL]) && isString(props.value[RDFS.LABEL])) name.value = props.value[RDFS.LABEL];
   }
 }
 

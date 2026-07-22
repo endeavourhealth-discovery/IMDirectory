@@ -1,8 +1,8 @@
 import { Ref, computed, ref } from "vue";
 
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTIriRef } from "@endeavour/vue-library/models";
+import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { isEqual } from "lodash-es";
 
@@ -14,8 +14,8 @@ import { useEditorStore } from "@/stores/editorStore";
 export function useEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
   const editorStore = useEditorStore();
   const creatorStore = useCreatorStore();
-  const editorEntityOriginal: Ref<any> = ref({});
-  const editorEntity: Ref<any> = ref({});
+  const editorEntityOriginal: Ref<TTEntity> = ref(TTEntitySchema.parse({}));
+  const editorEntity: Ref<TTEntity> = ref(TTEntitySchema.parse({}));
   const entityName = ref("");
 
   const editorIri = computed(() => editorStore.editorIri).value;
@@ -39,7 +39,9 @@ export function useEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]
         const processedEntity = processEntity(fullEntity);
         editorEntityOriginal.value = processedEntity;
         editorEntity.value = { ...editorEntityOriginal.value };
-        entityName.value = editorEntityOriginal.value[RDFS.LABEL];
+        if (typeof editorEntityOriginal.value[RDFS.LABEL] === "string") {
+          entityName.value = editorEntityOriginal.value[RDFS.LABEL];
+        }
       }
     }
   }
@@ -54,15 +56,14 @@ export function useEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]
   }
 
   function findPrimaryType(): TTIriRef | undefined {
-    if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
+    if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayOf(editorEntity.value[RDF.TYPE], isTTIriRef))) return undefined;
     if (
       isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE]) &&
-      isArrayHasLength(editorEntityOriginal.value[RDF.TYPE]) &&
-      editorEntityOriginal.value[RDF.TYPE].length === 1 &&
-      isObjectHasKeys(editorEntity.value, [RDF.TYPE]) &&
-      isArrayHasLength(editorEntity.value[RDF.TYPE])
+      isArrayOf(editorEntityOriginal.value[RDF.TYPE], isTTIriRef) &&
+      editorEntityOriginal.value[RDF.TYPE].length === 1
     ) {
-      const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type === editorEntityOriginal.value[RDF.TYPE][0]);
+      const originalType = editorEntityOriginal.value[RDF.TYPE][0];
+      const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type === originalType);
       if (found) return found;
     }
     if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
@@ -101,7 +102,7 @@ export function useEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]
 
   function updateObjectEntity(data: any): boolean {
     let wasUpdated = false;
-    if (isObjectHasKeys(data, [RDF.TYPE])) {
+    if (isObjectHasKeys(data, [RDF.TYPE]) && isArrayOf(data[RDF.TYPE], isTTIriRef)) {
       if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE]) || JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
         updateType(data[RDF.TYPE]);
         wasUpdated = true;

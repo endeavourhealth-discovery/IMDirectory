@@ -63,11 +63,11 @@ import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { ExtendedEntityReferenceNode, TTIriRef } from "@endeavour/vue-library/models";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes, isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import { type ExtendedEntityReferenceNode, ExtendedEntityReferenceNodeSchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 import { MenuItem } from "primevue/menuitem";
 
 import ActionButtons from "@/components/shared/ActionButtons.vue";
@@ -149,7 +149,14 @@ async function init() {
 async function getFavourites() {
   const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map(child => {
-    return { iri: child.iri as string, name: child[RDFS.LABEL], type: child[RDF.TYPE], icon: getFAIconFromType(child[RDF.TYPE]) };
+    if (isString(child.iri) && isString(child[RDFS.LABEL]) && isArrayOf(child[RDF.TYPE], isTTIriRef))
+      return ExtendedEntityReferenceNodeSchema.parse({
+        iri: child.iri,
+        name: child[RDFS.LABEL],
+        type: child[RDF.TYPE],
+        icon: getFAIconFromType(child[RDF.TYPE])
+      });
+    else throw new Error("Favourite requires iri, label and type");
   });
   totalCount.value = children.value.length;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
@@ -166,7 +173,9 @@ function getColourStyleFromType(types: TTIriRef[]) {
 async function getChildren(iri: string) {
   const result = await EntityService.getPagedChildren(iri, currentPage.value + 1, pageSize.value);
   children.value = result.result.map(child => {
-    return { iri: child.iri as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+    if (isString(child.iri) && isString(child.name) && isArrayOf(child.type, isTTIriRef))
+      return ExtendedEntityReferenceNodeSchema.parse({ iri: child.iri, name: child.name, type: child.type, icon: getFAIconFromType(child.type) });
+    else throw new Error("Iri, name, type are required");
   });
   totalCount.value = result.totalCount;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
@@ -202,7 +211,9 @@ async function onPage(event: { rows: number; page: number }) {
   currentPage.value = event.page;
   const result = await EntityService.getPagedChildren(props.entityIri, currentPage.value + 1, pageSize.value);
   children.value = result.result.map(child => {
-    return { iri: child.iri as string, name: child.name as string, type: child.type, icon: getFAIconFromType(child.type as TTIriRef[]) };
+    if (isString(child.iri) && isString(child.name) && isArrayOf(child.type, isTTIriRef))
+      return ExtendedEntityReferenceNodeSchema.parse({ iri: child.iri, name: child.name, type: child.type, icon: getFAIconFromType(child.type) });
+    else throw new Error("Iri, name and type are required");
   });
   scrollToTop();
   loading.value = false;

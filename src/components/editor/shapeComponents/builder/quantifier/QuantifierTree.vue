@@ -27,9 +27,10 @@
 import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
-import { byKey, getColourFromType, getFAIconFromType, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { EntityReferenceNode, GenericObject, TTIriRef } from "@endeavour/vue-library/models";
+import { byKey, getColourFromType, getFAIconFromType, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type EntityReferenceNode, type GenericObject, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
+import { isString } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 import { useToast } from "primevue/usetoast";
 
@@ -92,7 +93,8 @@ async function onNodeExpand(node: TreeNode) {
     node.loading = true;
     const children = await EntityService.getEntityChildren(node.data);
     children.forEach(child => {
-      if (!nodeHasChild(node, child)) node.children?.push(createTreeNode(child.name, child.iri, child.type as TTIriRef[], child.hasChildren));
+      if (!nodeHasChild(node, child) && child.name && isArrayOf(child.type, isTTIriRef))
+        node.children?.push(createTreeNode(child.name, child.iri, child.type, child.hasChildren));
     });
     node.loading = false;
   }

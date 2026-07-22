@@ -1,8 +1,8 @@
 import { Ref, ref } from "vue";
 
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FormGenerator, PropertyShape, TTIriRef } from "@endeavour/vue-library/models";
+import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type FormGenerator, FormGeneratorSchema, type PropertyShape, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import editorShapes from "@/constants/editorShapes";
 import { EditorMode } from "@/enums";
@@ -41,12 +41,12 @@ export function useEditorShape() {
   }
 
   function getShape(type: string): FormGenerator {
-    let newShape = {};
+    let newShape = FormGeneratorSchema.parse({});
     if (type !== RDFS.CLASS) newShape = getShapeFromType(type);
     return newShape;
   }
 
-  function getShapeFromType(type: string) {
+  function getShapeFromType(type: string): FormGenerator {
     const found = editorShapes.find(shape => shape.targetShape?.iri === type);
     if (found) return found;
     else throw new Error("No editor shape found for type: " + type);
@@ -58,6 +58,8 @@ export function useEditorShape() {
       if (shape.property.findIndex(property => property.path.iri === IM.MAPPED_TO) !== -1) {
         if (
           isObjectHasKeys(entity, [RDF.TYPE, IM.HAS_SCHEME]) &&
+          isArrayOf(entity[RDF.TYPE], isTTIriRef) &&
+          isArrayOf(entity[IM.HAS_SCHEME], isTTIriRef) &&
           entity[RDF.TYPE].findIndex((type: TTIriRef) => type.iri === IM.CONCEPT) !== -1 &&
           !validMappingSchemes.includes(entity[IM.HAS_SCHEME][0].iri)
         ) {

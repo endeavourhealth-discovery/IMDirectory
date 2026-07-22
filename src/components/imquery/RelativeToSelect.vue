@@ -39,8 +39,8 @@
 <script lang="ts" setup>
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { DisplayMode } from "@endeavour/vue-library";
-import type { Match, UIProperty, Where } from "@endeavour/vue-library/models";
+import { DisplayMode, QuerySchema } from "@endeavour/vue-library";
+import type { Match, UIProperty, Value, Where } from "@endeavour/vue-library/models";
 
 import { getRelativePropertyOptions, getRelativeToOptions, injectReturn } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
@@ -52,7 +52,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const assignable = defineModel<Where>("assignable", { default: {} });
+const assignable = defineModel<Where | Value>("assignable", { default: {} });
 const emit = defineEmits(["updateCompare"]);
 const showTreeSearch: Ref<boolean> = ref(false);
 const relativeTo: Ref<string | undefined> = ref();
@@ -101,7 +101,8 @@ async function updateRelativeProperty(relativeIri: any) {
         relativeProperty.value = relativeIri;
         const ref = relativeIri.substring(relativeIri.lastIndexOf("#") + 1);
         injectReturn(relativeMatch.value, relativeIri, ref);
-        const updatedMatch = await QueryService.getQueryDisplayFromQuery(relativeMatch.value, DisplayMode.ORIGINAL);
+        const relativeMatchAsQuery = QuerySchema.parse(relativeMatch.value);
+        const updatedMatch = await QueryService.getQueryDisplayFromQuery(relativeMatchAsQuery, DisplayMode.ORIGINAL);
         Object.assign(keepAs.value[relativeTo.value].value, updatedMatch);
         emit("updateCompare");
       }

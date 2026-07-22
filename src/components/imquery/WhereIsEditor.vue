@@ -92,7 +92,7 @@
 import { Ref, computed, onMounted, ref } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/models";
+import { type Node, type QueryRequest, SearchOptionsSchema, type SearchResultSummary, type UIProperty, type Where } from "@endeavour/vue-library/models";
 
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import Button from "primevue/button";
@@ -185,11 +185,11 @@ function buildIMQueryForConceptSearch() {
   const coreSchemesAsIris = coreSchemes.value.map(iri => {
     return { iri: iri };
   });
-  const searchOptions: SearchOptions = {
+  const searchOptions = SearchOptionsSchema.parse({
     schemes: coreSchemesAsIris,
     status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
     types: [{ iri: IM.CONCEPT }, { iri: IM.CONCEPT_SET }]
-  };
+  });
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 

@@ -7,7 +7,7 @@ import api from "./api";
 const API_URL = Env.API + "api/function/protected";
 
 const FunctionService = {
-  async runFunction(iri: string, args?: Argument[]): Promise<any> {
+  async runFunction(iri: string, args?: Argument[]): Promise<unknown> {
     if (args && args.length > 0) {
       const result: any = await api.post(API_URL + "/callFunction", {
         functionIri: iri,

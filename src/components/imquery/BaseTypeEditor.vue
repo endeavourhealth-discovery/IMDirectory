@@ -36,7 +36,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/models";
+import { type Match, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
@@ -52,11 +52,13 @@ const rootBaseEntities: Ref<string[]> = ref([]);
 const hoverEditClause = ref(false);
 const hoverAddClause = ref(false);
 const baseType: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const baseTypeFilterOptions: Ref<SearchOptions> = ref({
-  types: [{ iri: SHACL.NODESHAPE }],
-  status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
-  schemes: []
-});
+const baseTypeFilterOptions: Ref<SearchOptions> = ref(
+  SearchOptionsSchema.parse({
+    types: [{ iri: SHACL.NODESHAPE }],
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    schemes: []
+  })
+);
 const baseCohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 
 const emit = defineEmits<{

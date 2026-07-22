@@ -1,5 +1,5 @@
 import { NAMESPACE } from "@endeavour/vue-library/enums";
-import type { ExtendedTTEntity, TTDocument } from "@endeavour/vue-library/models";
+import type { TTDocument, TTEntity } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -38,7 +38,7 @@ const FilerService = {
     return await api.get(API_URL + "/deltas/download", { responseType: "blob" });
   },
 
-  async fileEntity(entity: ExtendedTTEntity, namespace: NAMESPACE, crud: string): Promise<void> {
+  async fileEntity(entity: TTEntity, namespace: NAMESPACE, crud: string): Promise<void> {
     return await api.post(API_URL + "/file/entity", { entity: entity, namespace: namespace, crud: crud });
   },
 

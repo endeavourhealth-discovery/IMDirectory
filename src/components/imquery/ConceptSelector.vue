@@ -47,7 +47,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { Node, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/models";
+import { type Node, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 
@@ -105,11 +105,11 @@ function buildIMQueryForConceptSearch() {
   const coreSchemesAsIris = coreSchemes.value.map(iri => {
     return { iri: iri };
   });
-  const searchOptions: SearchOptions = {
+  const searchOptions = SearchOptionsSchema.parse({
     schemes: coreSchemesAsIris,
     status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
     types: [{ iri: IM.CONCEPT }]
-  };
+  });
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 

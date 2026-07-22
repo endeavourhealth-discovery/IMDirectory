@@ -87,7 +87,7 @@ import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Argument, Match, Node, Query, QueryRequest } from "@endeavour/vue-library/models";
+import { type Argument, type Match, type Node, NodeSchema, type Query, type QueryRequest, QuerySchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -123,14 +123,14 @@ const emit = defineEmits<{
 const showColumns = ref(false);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
-const rootQuery = ref({} as Query);
+const rootQuery = ref(QuerySchema.parse({}));
 const sql: Ref<string> = ref("");
 const loading = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
 const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
 const requestArguments: Ref<Argument[]> = ref([]);
-const baseType: Ref<Node> = ref({});
+const baseType: Ref<Node> = ref(NodeSchema.parse({}));
 const deepQuery: Ref<Query | undefined> = ref();
 const originalDisplay: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const operator = computed(() => {

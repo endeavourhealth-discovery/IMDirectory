@@ -65,8 +65,8 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
+import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import { type TTEntity, TTIriRef, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
 import ProgressSpinner from "primevue/progressspinner";
 
@@ -84,9 +84,9 @@ const emit = defineEmits<{
 }>();
 
 const loading = ref(true);
-const semanticMap: Ref<ExtendedTTEntity | undefined> = ref();
-const mapEntries: Ref<any[] | undefined> = ref();
-const displayEntries: Ref<any[]> = ref([]);
+const semanticMap: Ref<TTEntity | undefined> = ref();
+const mapEntries: Ref<TTEntity[] | undefined> = ref();
+const displayEntries: Ref<TTEntity[]> = ref([]);
 const defaultText = computed(() => semanticMap.value?.[IM.DEFAULT_TEXT]);
 const defaultValue = computed(() => semanticMap.value?.[IM.DEFAULT_VALUE]);
 const mapTypeIri = ref();
@@ -117,14 +117,15 @@ async function init() {
   loading.value = true;
   if (props.entityIri) {
     semanticMap.value = await EntityService.getFullEntity(props.entityIri);
-    if (semanticMap.value && semanticMap.value[IM.HAS_MAP_TYPE]) {
+    if (semanticMap.value && isArrayOf(semanticMap.value[IM.HAS_MAP_TYPE], isTTIriRef)) {
       mapTypeIri.value = semanticMap.value[IM.HAS_MAP_TYPE][0].iri;
     }
     const rawEntries = semanticMap.value[IM.MAP_ENTRY];
-    mapEntries.value = rawEntries;
-    if (isArrayHasLength(rawEntries)) {
-      displayEntries.value = rawEntries.map((entry: any) => flattenArray(entry));
+    if (isArrayOf(rawEntries, isTTEntity)) {
+      mapEntries.value = rawEntries;
+      displayEntries.value = rawEntries.map((entry: TTEntity) => flattenArray(entry));
     } else {
+      mapEntries.value = [];
       displayEntries.value = [];
     }
   }

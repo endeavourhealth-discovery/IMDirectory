@@ -3,20 +3,21 @@ import { ref } from "vue";
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
+import { type TTEntity, TTEntitySchema, isTTEntity } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
+import { isString } from "lodash-es";
 import { defineStore } from "pinia";
 
 import { EntityService } from "@/services";
 
 export const useEditorStore = defineStore("editor", () => {
-  const editorIri = ref<string>(localStorageWithExpiry.getItem("editorSelectedIri"));
-  const editorSavedEntity = ref<ExtendedTTEntity | undefined>(localStorageWithExpiry.getItem("editorSavedEntity") ?? {});
+  const editorIri = ref<string>(localStorageWithExpiry.getItem("editorSelectedIri", isString) ?? "");
+  const editorSavedEntity = ref<TTEntity | undefined>(localStorageWithExpiry.getItem("editorSavedEntity", isTTEntity) ?? undefined);
   const editorHasChanges = ref<boolean>(false);
   const findInEditorTreeIri = ref<string>("");
   const refreshEditorTree = ref<boolean>(false);
-  const eclEditorSavedString = ref<string>(localStorageWithExpiry.getItem("eclEditorSavedString") ?? "");
+  const eclEditorSavedString = ref<string>(localStorageWithExpiry.getItem("eclEditorSavedString", isString) ?? "");
 
   function updateEditorIri(iri: string) {
     editorIri.value = iri;
@@ -31,7 +32,7 @@ export const useEditorStore = defineStore("editor", () => {
     return "";
   }
 
-  function updateEditorSavedEntity(entity: ExtendedTTEntity | undefined) {
+  function updateEditorSavedEntity(entity: TTEntity | undefined) {
     editorSavedEntity.value = entity;
     if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("editorSavedEntity", entity);
     else localStorage.removeItem("editorSavedEntity");

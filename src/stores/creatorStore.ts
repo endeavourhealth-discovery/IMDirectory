@@ -1,16 +1,16 @@
 import { ref } from "vue";
 
 import { localStorageWithExpiry } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/models";
+import { type TTEntity, TTEntitySchema, isTTEntity } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { defineStore } from "pinia";
 
 export const useCreatorStore = defineStore("creator", () => {
-  const creatorSavedEntity = ref<any>(localStorageWithExpiry.getItem("creatorSavedEntity") ?? {});
+  const creatorSavedEntity = ref<TTEntity | undefined>(localStorageWithExpiry.getItem("creatorSavedEntity", isTTEntity) ?? undefined);
   const creatorHasChanges = ref<boolean>(false);
 
-  function updateCreatorSavedEntity(entity: ExtendedTTEntity | undefined) {
+  function updateCreatorSavedEntity(entity: TTEntity | undefined) {
     if (useUserStore().cookiesOptionalAccepted) {
       creatorSavedEntity.value = entity;
       if (entity && useUserStore().cookiesOptionalAccepted) localStorageWithExpiry.setItem("creatorSavedEntity", entity);

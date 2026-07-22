@@ -26,7 +26,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helper
 import { ToastOptions } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isArray, isFunction } from "lodash-es";
 import ContextMenu from "primevue/contextmenu";
 import { useToast } from "primevue/usetoast";
 import svgPanZoom from "svg-pan-zoom";
@@ -129,7 +129,7 @@ async function getContextMenu(d: any) {
       bundle.entity[IM.HAS_MEMBER] = hasMember.result;
       bundle.predicates[IM.HAS_MEMBER] = "has member";
     }
-    if (hasMember.totalCount && hasMember.totalCount >= 10) {
+    if (hasMember.totalCount && hasMember.totalCount >= 10 && isArray(bundle.entity[IM.HAS_MEMBER])) {
       bundle.entity[IM.HAS_MEMBER] = bundle.entity[IM.HAS_MEMBER].concat({ iri: "seeMore", name: "see more..." });
     }
     Object.keys(bundle.entity)
@@ -393,12 +393,12 @@ function drag(simulation: any) {
 }
 
 function stopSimulation() {
-  if (isObjectHasKeys(svgPan.value, ["destroy"])) {
+  if (isObjectHasKeys(svgPan.value, ["destroy"]) && isFunction(svgPan.value.destroy)) {
     svgPan.value.destroy();
   }
   d3.select("#force-layout-graph").selectAll("div").remove();
   d3.select("#force-layout-graph").selectAll("g").remove();
-  if (isObjectHasKeys(simulation.value, ["stop"])) {
+  if (isObjectHasKeys(simulation.value, ["stop"]) && isFunction(simulation.value.stop)) {
     simulation.value.stop();
   }
 }

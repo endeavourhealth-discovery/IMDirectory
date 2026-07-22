@@ -1,7 +1,7 @@
 import { XSD } from "@endeavour/vue-library/enums";
-import { ExtendedTTEntitySchema } from "@endeavour/vue-library/models";
+import { TTEntitySchema } from "@endeavour/vue-library/models";
 
-export const OntologiesFolderTTEntity = ExtendedTTEntitySchema.parse({
+export const OntologiesFolderTTEntity = TTEntitySchema.parse({
   iri: "http://endhealth.info/im#HealthModelOntology",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ iri: "http://endhealth.info/im#Folder", name: "Folder" }],
   "http://www.w3.org/2000/01/rdf-schema#label": "Ontologies",
@@ -40,7 +40,7 @@ export const OntologiesFolderCustomTransformed = {
   scheme: [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
 };
 
-export const EventTTEntity = ExtendedTTEntitySchema.parse({
+export const EventTTEntity = TTEntitySchema.parse({
   iri: "http://endhealth.info/im#Event",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
     { iri: "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },

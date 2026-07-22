@@ -64,8 +64,8 @@ import { Ref, ref } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/models";
+import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import { type Match, type Node, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -105,7 +105,7 @@ const edited = ref(false);
 
 async function onUpdate() {
   edited.value = true;
-  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
 }
 
 function deleteMatch() {
@@ -129,7 +129,7 @@ async function getFunctionTemplates() {
   const iri = editMatch.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
-    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
+    if (isArrayOf(entity[IM.FUNCTION_TEMPLATE], isTTIriRef)) {
       const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate.iri);
       return await EntityService.getPartialEntities(iris, []);
     }
@@ -160,13 +160,13 @@ async function showInvalid(match: Match) {
 }
 
 async function saveChanges(): Promise<boolean> {
-  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  const matchCheck = await QueryService.validateQuery(QuerySchema.parse(editMatch.value));
   if (matchCheck.invalid) {
     editMatch.value.draft = true;
     await showInvalid(matchCheck);
     return false;
   } else {
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
     editMatch.value.draft = false;
     return true;
   }

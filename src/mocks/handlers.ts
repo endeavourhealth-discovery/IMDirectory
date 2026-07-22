@@ -1,5 +1,5 @@
 import { IM } from "@endeavour/vue-library/enums";
-import { type ExtendedTTEntity, ExtendedTTEntitySchema } from "@endeavour/vue-library/models";
+import { type TTEntity, TTEntitySchema } from "@endeavour/vue-library/models";
 
 import { faker } from "@faker-js/faker";
 import { isArray } from "lodash-es";
@@ -58,7 +58,7 @@ export const handlersFaker = [
   http.get(apiUrl + "entity/public/partial", ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
-    const entity = ExtendedTTEntitySchema.parse({
+    const entity = TTEntitySchema.parse({
       iri: iri as string,
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": null,
       "http://www.w3.org/2000/01/rdf-schema#label": null

@@ -75,15 +75,16 @@
 <script setup lang="ts">
 import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import { useUserStore } from "@endeavour/vue-library";
+import { isTTIriRef, useUserStore } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useTree } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { RDF, RDFS } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/models";
+import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedEntityReferenceNode, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
 
+import { isBoolean, isString } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 
 import { ConceptAggregate, TreeParent } from "@/interfaces";
@@ -170,27 +171,24 @@ async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = false;
 }
 
-function createTree(
-  concept: ExtendedTTEntity,
-  parentHierarchy: ExtendedEntityReferenceNode[],
-  children: ExtendedEntityReferenceNode[],
-  parentPosition: number
-) {
+function createTree(concept: TTEntity, parentHierarchy: ExtendedEntityReferenceNode[], children: ExtendedEntityReferenceNode[], parentPosition: number) {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], concept.hasChildren, null, undefined);
-  children.forEach(child => {
-    selectedConcept.children?.push(createTreeNode(child.name, child.iri, child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
-  });
-  if (totalCount.value >= pageSize.value) {
-    selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
+  if (isString(concept[RDFS.LABEL]) && isString(concept.iri) && isArrayOf(concept[RDF.TYPE], isTTIriRef) && isBoolean(concept.hasChildren)) {
+    const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri, concept[RDF.TYPE], concept.hasChildren, null, undefined);
+    children.forEach(child => {
+      selectedConcept.children?.push(createTreeNode(child.name, child.iri, child.type as TTIriRef[], child.hasChildren, selectedConcept, child.orderNumber));
+    });
+    if (totalCount.value >= pageSize.value) {
+      selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
+    }
+    root.value = [] as TreeNode[];
+    setParents(parentHierarchy, parentPosition);
+    root.value.push(selectedConcept);
+    if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
+      expandedKeys.value[selectedConcept.key] = true;
+    }
+    if (selectedConcept.key) selectedKeys.value[selectedConcept.key] = true;
   }
-  root.value = [] as TreeNode[];
-  setParents(parentHierarchy, parentPosition);
-  root.value.push(selectedConcept);
-  if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
-    expandedKeys.value[selectedConcept.key] = true;
-  }
-  if (selectedConcept.key) selectedKeys.value[selectedConcept.key] = true;
   loading.value = false;
 }
 
@@ -198,7 +196,7 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
   if (isArrayHasLength(parentHierarchy)) {
     if (parentHierarchy.length === 1) {
       currentParent.value = {
-        name: parentHierarchy[parentPosition].name,
+        name: parentHierarchy[parentPosition].name ?? "",
         iri: parentHierarchy[parentPosition].iri,
         listPosition: 0
       };
@@ -207,13 +205,13 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
       for (let i = 0; i < parentHierarchy.length; i++) {
         if (i === parentPosition) {
           currentParent.value = {
-            name: parentHierarchy[parentPosition].name,
+            name: parentHierarchy[parentPosition].name ?? "",
             iri: parentHierarchy[parentPosition].iri,
             listPosition: i
           };
         } else {
           alternateParents.value.push({
-            name: parentHierarchy[i].name,
+            name: parentHierarchy[i].name ?? "",
             iri: parentHierarchy[i].iri,
             listPosition: i
           });
@@ -229,7 +227,7 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
 async function expandParents(parentPosition: number): Promise<void> {
   loading.value = true;
   if (!isArrayHasLength(root.value)) return;
-  if (root.value[0].key && !isObjectHasKeys(expandedKeys.value, [root.value[0].key])) {
+  if (root.value[0].key && !expandedKeys.value[root.value[0].key]) {
     expandedKeys.value[root.value[0].key] = true;
   }
 
@@ -250,7 +248,7 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
       parentNode = createTreeNode(parents[i].name, parents[i].iri, parents[i].type as TTIriRef[], true, null, undefined);
       if (parentNode.children && parentNode.key) {
         parentNode.children.push(root.value[0]);
-        if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
+        if (!expandedKeys.value[parentNode.key]) {
           expandedKeys.value[parentNode.key] = true;
         }
       }
@@ -267,7 +265,7 @@ async function setExpandedParentParents(): Promise<void> {
   if (result.length === 1) {
     parentPosition.value = 0;
     currentParent.value = {
-      name: result[0].name,
+      name: result[0].name ?? "",
       iri: result[0].iri,
       listPosition: 0
     };
@@ -275,13 +273,13 @@ async function setExpandedParentParents(): Promise<void> {
     for (let i = 0; i < result.length; i++) {
       if (i === 0) {
         currentParent.value = {
-          name: result[i].name,
+          name: result[i].name ?? "",
           iri: result[i].iri,
           listPosition: i
         };
       } else {
         alternateParents.value.push({
-          name: result[i].name,
+          name: result[i].name ?? "",
           iri: result[i].iri,
           listPosition: i
         });
@@ -296,7 +294,9 @@ async function onNodeSelect(node: TreeNode): Promise<void> {
   }
   await nextTick();
   selectedKeys.value = {};
-  selectedKeys.value[conceptAggregate.value.concept[RDFS.LABEL]] = true;
+  if (isString(conceptAggregate.value.concept[RDFS.LABEL])) {
+    selectedKeys.value[conceptAggregate.value.concept[RDFS.LABEL]] = true;
+  }
 }
 
 async function showPopup(event: MouseEvent, iri?: string): Promise<void> {

@@ -1,3 +1,4 @@
+import { UserSchema, parseArray } from "@endeavour/vue-library";
 import { UserRole } from "@endeavour/vue-library/enums";
 import { User } from "@endeavour/vue-library/models";
 
@@ -25,15 +26,17 @@ const SecurityService = {
     await api.get(API_URL + "/private/logout");
   },
   async adminGetUsersByGroup(group: UserRole): Promise<User[]> {
-    return await api.get(API_URL + "/private/getUsersInGroup", { params: { group: group } });
+    const result = await api.get(API_URL + "/private/getUsersInGroup", { params: { group: group } });
+    return parseArray(result, UserSchema);
   },
   async adminGetGroups(): Promise<UserRole[]> {
     return await api.get(API_URL + "/private/getGroups");
   },
 
   async getUser(raw?: boolean): Promise<User> {
-    const user: any = await api.get(API_URL + "/private/user", { raw: raw });
-    return user.data ? user.data : user;
+    const user = await api.get(API_URL + "/private/user", { raw: raw });
+    const result = user.data ? user.data : user;
+    return UserSchema.parse(result);
   },
 
   async getProfileUrl(): Promise<string> {

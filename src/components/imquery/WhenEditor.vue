@@ -24,7 +24,7 @@
 import { Ref, ref } from "vue";
 
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, When } from "@endeavour/vue-library/models";
+import { type Match, MatchSchema, type Node, QuerySchema, type When, WhenSchema } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
@@ -37,8 +37,8 @@ interface Props {
 }
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showCaseConditionEditor", { default: false });
-const match: Ref<Match> = defineModel<Match>("match", { default: {} });
-const when: Ref<When> = defineModel<When>("when", { default: {} });
+const match: Ref<Match> = defineModel<Match>("match", { default: MatchSchema.parse({}) });
+const when: Ref<When> = defineModel<When>("when", { default: WhenSchema.parse({}) });
 const edited = ref(false);
 const emit = defineEmits<{
   (event: "saveCondition", when: When): void;
@@ -57,13 +57,14 @@ function onSave() {
 }
 async function onUpdate() {
   edited.value = true;
-  const match = { return: [{ case: { when: [when.value] } }] } as Match;
-  const displayMatch = await QueryService.getQueryDisplayFromQuery(match, DisplayMode.ORIGINAL);
+  const match = MatchSchema.parse({ return: [{ case: { when: [when.value] } }] });
+  const matchAsQuery = QuerySchema.parse(match);
+  const displayMatch = await QueryService.getQueryDisplayFromQuery(matchAsQuery, DisplayMode.ORIGINAL);
   const ret = displayMatch.return;
   when.value = ret![0].case!.when![0];
 }
 function deleteWhere() {
-  when.value = {};
+  when.value = WhenSchema.parse({});
 }
 </script>
 

@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import type { ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/models";
+import type { PropertyShape, TTEntity } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -109,7 +109,7 @@ watch(userInput, async newValue => {
 });
 
 function updateEntity(data: string) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = textToHtml(data);
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

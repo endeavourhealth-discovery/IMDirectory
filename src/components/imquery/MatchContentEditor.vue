@@ -73,8 +73,8 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/models";
+import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import { type Match, type Node, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -117,7 +117,7 @@ const toggleNotExists = () => {
   if (match.value.notExists === undefined) {
     match.value.notExists = true;
   } else {
-    delete match.value.notExists;
+    match.value.notExists = false;
   }
   emit("updateMatch");
 };
@@ -139,7 +139,7 @@ watch(match.value, (newVal, oldVal) => {
 });
 async function onUpdate() {
   edited.value = true;
-  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+  match.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(match.value), DisplayMode.ORIGINAL);
   emit("updateMatch");
 }
 function onDeleteWhere() {
@@ -171,8 +171,8 @@ async function getFunctionTemplates() {
   const iri = match.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
-    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
-      const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate.iri);
+    if (isArrayOf(entity[IM.FUNCTION_TEMPLATE], isTTIriRef)) {
+      const iris = entity[IM.FUNCTION_TEMPLATE].map(functionTemplate => functionTemplate.iri);
       return await EntityService.getPartialEntities(iris, []);
     }
   }

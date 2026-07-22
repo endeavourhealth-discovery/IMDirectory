@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, Namespace } from "@endeavour/vue-library/models";
+import { type FilterOptions, FilterOptionsSchema, type Namespace } from "@endeavour/vue-library/models";
 
 import { defineStore } from "pinia";
 
@@ -25,12 +25,13 @@ export const useFilterStore = defineStore("filter", () => {
       const selectedSchemes = filterOptions.value.schemes.filter(item => filterDefaults.schemes.map(defaultOption => defaultOption.iri).includes(item.iri));
       const selectedTypes = filterOptions.value.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption.iri).includes(item.iri));
 
-      updateSelectedFilterOptions({
-        status: selectedStatus,
-        schemes: selectedSchemes,
-        types: selectedTypes,
-        includeLegacy: false
-      } as FilterOptions);
+      updateSelectedFilterOptions(
+        FilterOptionsSchema.parse({
+          status: selectedStatus,
+          schemes: selectedSchemes,
+          types: selectedTypes
+        })
+      );
       updateHierarchySelectedFilters(selectedSchemes as unknown as Namespace[]);
       updateCoreSchemes(coreSchemes);
     }

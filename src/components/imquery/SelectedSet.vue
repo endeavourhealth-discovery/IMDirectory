@@ -40,7 +40,7 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { entityIsConcept, entityIsValueSet, getColourFromType, getFAIconFromType, isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
-import { type ExtendedTTEntity, type Match, type Node, NodeSchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type Match, type Node, NodeSchema, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -54,7 +54,7 @@ interface Props {
 const props = defineProps<Props>();
 const { OS, showOverlay, hideOverlay } = useOverlay();
 
-interface SelectedEntity extends ExtendedTTEntity {
+interface SelectedEntity extends TTEntity {
   icon: string[];
   include: boolean;
   entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";

@@ -63,7 +63,7 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
-import type { Compare, Match, TTIriRef, UIProperty, Value, Where } from "@endeavour/vue-library/models";
+import { type Compare, type Match, type TTIriRef, type UIProperty, type Value, ValueSchema, type Where } from "@endeavour/vue-library/models";
 
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { Relativity } from "@/enums";
@@ -82,7 +82,7 @@ const props = defineProps<{
   qualifier?: TTIriRef;
 }>();
 const refresh = defineModel<number>("refresh", { default: 0 });
-const assignable = defineModel<Value | Where>("assignable", { default: {} });
+const assignable = defineModel<Value | Where>("assignable", { default: ValueSchema.parse({}) });
 const where = defineModel<Where>("where", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();

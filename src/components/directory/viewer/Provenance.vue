@@ -38,8 +38,8 @@
         <div v-if="Array.isArray(value) && getLabel(key)">
           <div v-for="v in value" :key="v">
             <div v-if="getLabel(key) === 'Properties:'">
-              <span v-if="isObjectHasKeys(v, [SHACL.PATH])">Property: {{ v[SHACL.PATH][0].name }}</span>
-              <span v-if="isObjectHasKeys(v, [SHACL.NODE])">, Range: {{ v[SHACL.NODE][0].name }} </span>
+              <span v-if="getPath(v)">Property: {{ v[SHACL.PATH][0].name }}</span>
+              <span v-if="getNode(v)">, Range: {{ v[SHACL.NODE][0].name }} </span>
               <span v-if="isObjectHasKeys(v, [IM.INHERITED_FROM])"> (inherited)</span>
             </div>
             <div v-else-if="getLabel(key) === 'Content type:'">
@@ -48,7 +48,7 @@
             <div v-else-if="getLabel(key) === 'Term codes:'">
               <span v-if="isObjectHasKeys(v, [RDFS.LABEL])">Name: {{ v[RDFS.LABEL] }}</span
               ><span v-if="isObjectHasKeys(v, [IM.CODE])">, Code: {{ v[IM.CODE] }}</span
-              ><span v-if="isObjectHasKeys(v, [IM.HAS_STATUS])">, Status: {{ v[IM.HAS_STATUS][0].name }}</span>
+              ><span v-if="getStatus(v)">, Status: {{ v[IM.HAS_STATUS][0].name }}</span>
             </div>
             <div v-else-if="getLabel(key) === 'Role groups:'">
               <div v-for="k in Object.keys(v)" :key="k">
@@ -72,8 +72,11 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
+import { TTEntity, TTIriRef, isTTIriRef } from "@endeavour/vue-library";
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+
+import { isArray, isString } from "lodash-es";
 
 import JSONViewer from "@/components/directory/viewer/JSONViewer.vue";
 import { EntityService } from "@/services";
@@ -135,7 +138,7 @@ watch(selectedProvenance, async () => {
       visible.value = false;
     } else {
       const entity = await EntityService.getEntityByPredicateExclusions(matchIri, [IM.HAS_MEMBER]);
-      if (isObjectHasKeys(entity, [IM.DEFINITION])) {
+      if (isString(entity[IM.DEFINITION])) {
         provItem.value = JSON.parse(entity[IM.DEFINITION]);
         jsonDisplay.value = entity.iri;
       }
@@ -167,6 +170,21 @@ function onClose() {
 
 function getLabel(key: any) {
   return labels.value[key];
+}
+
+function getStatus(value: { [x: string]: unknown }): TTIriRef | undefined {
+  const status = value[IM.HAS_STATUS];
+  return isArrayOf(status, isTTIriRef) ? status[0] : undefined;
+}
+
+function getPath(value: { [x: string]: unknown }): TTIriRef | undefined {
+  const path = value[SHACL.PATH];
+  return isArrayOf(path, isTTIriRef) ? path[0] : undefined;
+}
+
+function getNode(value: { [x: string]: unknown }): TTIriRef | undefined {
+  const node = value[SHACL.NODE];
+  return isArrayOf(node, isTTIriRef) ? node[0] : undefined;
 }
 </script>
 

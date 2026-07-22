@@ -2,23 +2,18 @@
   <div id="concept-main-container">
     <div class="info-container">
       <div class="flex flex-row">
-        <TextWithLabel v-if="!!entityIri" :data="entityIri" label="Iri" />
-        <TextWithLabel v-if="!!entity[IM.CODE]" :data="entity[IM.CODE]" label="Code" />
+        <TextWithLabel v-if="entityIri" :data="entityIri" label="Iri" />
+        <TextWithLabel v-if="code" :data="code" label="Code" />
       </div>
       <div class="flex flex-row justify-start">
-        <ArrayObjectNamesToStringWithLabel
-          v-if="!!entity[IM.HAS_STATUS]"
-          :data="entity[IM.HAS_STATUS]"
-          :tagSeverityMatches="tagSeverityMatches"
-          label="Status"
-        />
-        <ArrayObjectNamesToStringWithLabel v-if="!!entity[RDF.TYPE]" :data="entity[RDF.TYPE]" label="Types" />
+        <ArrayObjectNamesToStringWithLabel v-if="status" :data="status" :tagSeverityMatches="tagSeverityMatches" label="Status" />
+        <ArrayObjectNamesToStringWithLabel v-if="types" :data="types" label="Types" />
       </div>
       <div>
-        <TextWithLabel v-if="!!entity[IM.PREFERRED_NAME]" :data="entity[IM.PREFERRED_NAME]" label="Preferred name" />
-        <ArrayObjectNamesToStringWithLabel v-if="!!entity[IM.RETURN_TYPE]" :data="entity[IM.RETURN_TYPE]" label="Return Type" />
+        <TextWithLabel v-if="preferredName" :data="preferredName" label="Preferred name" />
+        <ArrayObjectNamesToStringWithLabel v-if="returnType" :data="returnType" label="Return Type" />
       </div>
-      <TextHTMLWithLabel v-if="!!entity[RDFS.COMMENT]" :data="entity[RDFS.COMMENT]" label="Description" />
+      <TextHTMLWithLabel v-if="comment" :data="comment" label="Description" />
     </div>
     <div v-if="entity.iri === IM.FAVOURITES">
       <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
@@ -182,7 +177,9 @@ import {
   isObjectHasKeys,
   isOfTypes
 } from "@endeavour/vue-library/helpers";
-import { type ExtendedTTEntity, ExtendedTTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+
+import { isString } from "lodash-es";
 
 import ExpressionDisplay from "@/components/directory/viewer/ExpressionDisplay.vue";
 import IndicatorDisplay from "@/components/directory/viewer/IndicatorDisplay.vue";
@@ -210,7 +207,7 @@ import EclDefinition from "./viewer/set/EclDefinition.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
 
 interface Props {
-  entity: ExtendedTTEntity;
+  entity: TTEntity;
 }
 
 const props = defineProps<Props>();
@@ -223,11 +220,12 @@ const directService = useDirectService();
 const sharedStore = useSharedStore();
 
 const loading = ref(true);
-const types: Ref<TTIriRef[]> = ref([]);
-const header = ref("");
-const concept: Ref<ExtendedTTEntity> = ref(ExtendedTTEntitySchema.parse({}));
+const concept: Ref<TTEntity> = ref(TTEntitySchema.parse({}));
 
-const entityIri = ref("");
+const entityIri = computed(() => {
+  if (isString(props.entity.iri)) return props.entity.iri;
+  else return "";
+});
 const activeTab = ref("0");
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (entityIsConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !entityIsRecordModel(types.value));
@@ -236,6 +234,34 @@ const showTerms = computed(() => !isOfTypes(types.value, IM.QUERY, SHACL.FUNCTIO
 const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
 const entityName = computed(() => (typeof concept.value[RDFS.LABEL] === "string" ? concept.value[RDFS.LABEL] : ""));
 const entityDefinition = computed(() => (typeof concept.value[IM.DEFINITION] === "string" ? concept.value[IM.DEFINITION] : ""));
+const header = computed(() => {
+  if (isString(concept.value[RDFS.LABEL])) return concept.value[RDFS.LABEL];
+  else return "";
+});
+const types = computed(() => {
+  if (isObjectHasKeys(concept.value, [RDF.TYPE]) && isArrayOf(concept.value[RDF.TYPE], isTTIriRef)) return concept.value[RDF.TYPE];
+  else return [] as TTIriRef[];
+});
+const code = computed(() => {
+  if (isString(concept.value[IM.CODE])) return concept.value[IM.CODE];
+  else return "";
+});
+const preferredName = computed(() => {
+  if (isString(concept.value[IM.PREFERRED_NAME])) return concept.value[IM.PREFERRED_NAME];
+  else return "";
+});
+const comment = computed(() => {
+  if (isString(concept.value[RDFS.COMMENT])) return concept.value[RDFS.COMMENT];
+  else return "";
+});
+const status = computed(() => {
+  if (isArrayOf(concept.value[IM.HAS_STATUS], isTTIriRef)) return concept.value[IM.HAS_STATUS];
+  else return [];
+});
+const returnType = computed(() => {
+  if (isArrayOf(concept.value[IM.RETURN_TYPE], isTTIriRef)) return concept.value[IM.RETURN_TYPE];
+  else return [];
+});
 
 const tabMap = reactive(new Map<string, string>());
 
@@ -286,12 +312,7 @@ function setTabMap() {
 
 async function init(): Promise<void> {
   loading.value = true;
-  if (props.entity.iri) {
-    entityIri.value = props.entity.iri;
-  }
   await getConcept(entityIri.value);
-  types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) && isArrayOf(concept.value[RDF.TYPE], isTTIriRef) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
-  if (typeof concept.value[RDFS.LABEL] === "string") header.value = concept.value[RDFS.LABEL];
   loading.value = false;
   await nextTick();
   setTabMap();
@@ -299,8 +320,21 @@ async function init(): Promise<void> {
 }
 
 async function getConcept(iri: string) {
-  const predicates = [RDFS.LABEL, IM.DEFINITION, RDF.TYPE, IM.CODE, RDFS.SUBCLASS_OF, IM.ROLE_GROUP, IM.DEFINITIONAL_STATUS];
-  concept.value = await EntityService.getPartialEntity(iri, predicates);
+  const predicates = [
+    RDFS.LABEL,
+    IM.DEFINITION,
+    RDF.TYPE,
+    IM.CODE,
+    RDFS.SUBCLASS_OF,
+    IM.ROLE_GROUP,
+    IM.DEFINITIONAL_STATUS,
+    IM.PREFERRED_NAME,
+    IM.RETURN_TYPE,
+    IM.HAS_STATUS,
+    RDFS.COMMENT
+  ];
+  const result = (concept.value = await EntityService.getPartialEntity(iri, predicates));
+  concept.value = result;
 }
 
 function onOpenTab(predicate: string) {

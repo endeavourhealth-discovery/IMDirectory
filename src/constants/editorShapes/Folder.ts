@@ -1,7 +1,7 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import type { FormGenerator } from "@endeavour/vue-library/models";
+import { type FormGenerator, FormGeneratorSchema } from "@endeavour/vue-library/models";
 
-const FolderShape: FormGenerator = {
+const FolderShape = FormGeneratorSchema.parse({
   iri: EDITOR.FOLDER_SHAPE,
   type: [
     {
@@ -274,6 +274,6 @@ const FolderShape: FormGenerator = {
       ]
     }
   ]
-};
+});
 
 export default FolderShape;

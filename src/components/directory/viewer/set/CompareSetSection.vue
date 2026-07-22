@@ -39,7 +39,7 @@ import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, NAMESPACE } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Concept, FilterOptions, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/models";
+import { type Concept, type FilterOptions, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { useDirectService } from "@/composables/useDirectService";
@@ -107,13 +107,13 @@ async function init() {
   if (props.setIri) {
     const entity = await EntityService.getEntitySummary(props.setIri);
     if (entity) modelSelectedSet.value = entity;
-    const queryFilterOptions: SearchOptions = {
+    const queryFilterOptions = SearchOptionsSchema.parse({
       schemes: filterOptions.value.schemes,
       status: filterOptions.value.status,
       types: [{ iri: IM.CONCEPT_SET }, { iri: IM.SET }, { iri: IM.QUERY_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT_SET }, { iri: IM.CONCEPT_SET_GROUP }],
       textSearch: entity.name,
       page: { pageNumber: 1, pageSize: 100 }
-    };
+    });
     searchQuery.value = buildIMQueryFromFilters(queryFilterOptions);
   }
 }

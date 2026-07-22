@@ -24,6 +24,8 @@ import { Ref, computed, onMounted, ref } from "vue";
 import { OWL, RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 
+import { isNumber, isString } from "lodash-es";
+
 interface Props {
   title?: string;
   subTitle?: string;
@@ -52,13 +54,13 @@ function getReportTableData(): void {
   if (!isCorrectInputData.value) return;
   loading.value = true;
   for (const entry of props.inputData!) {
-    if (isObjectHasKeys(entry, [RDFS.LABEL, OWL.HAS_VALUE])) {
+    if (isString(entry[RDFS.LABEL]) && isNumber(entry[OWL.HAS_VALUE])) {
       tableData.value.push({
         label: entry[RDFS.LABEL],
         count: entry[OWL.HAS_VALUE]
       });
     }
-    if (isObjectHasKeys(entry, ["label", "count"])) {
+    if (isString(entry.label) && isNumber(entry.count)) {
       tableData.value.push({
         label: entry.label,
         count: entry.count

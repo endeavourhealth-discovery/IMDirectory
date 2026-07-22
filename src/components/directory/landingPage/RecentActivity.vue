@@ -58,12 +58,12 @@ import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { RDF, RDFS } from "@endeavour/vue-library/enums";
-import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { getColourFromType, getFAIconFromType, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import type { TTIriRef } from "@endeavour/vue-library/models";
-import { RecentActivityItem } from "@endeavour/vue-library/models";
+import { RecentActivityItem, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
-import { cloneDeep, isArray } from "lodash-es";
+import { cloneDeep, isArray, isString } from "lodash-es";
 import { useConfirm } from "primevue/useconfirm";
 
 import ActionButtons from "@/components/shared/ActionButtons.vue";
@@ -138,9 +138,9 @@ async function getRecentActivityDetails() {
     let result = null;
     if (results && isArray(results)) result = results.find(r => r.iri === rla.iri);
 
-    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
+    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL]) && isString(result[RDFS.LABEL]) && isArrayOf(result[RDF.TYPE], isTTIriRef)) {
       clone.name = result[RDFS.LABEL];
-      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      clone.type = result[RDF.TYPE].map(type => type.name).join(", ");
       clone.icon = getFAIconFromType(result[RDF.TYPE]);
       clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }

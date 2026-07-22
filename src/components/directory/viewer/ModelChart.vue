@@ -11,9 +11,10 @@
 <script setup lang="ts">
 import { Ref, nextTick, onMounted, ref } from "vue";
 
+import { PropertyDisplay } from "@endeavour/vue-library";
+
 import mermaid from "mermaid";
 
-import { PropertyDisplay } from "@/interfaces";
 import { DataModelService } from "@/services";
 
 const props = defineProps<{
@@ -61,7 +62,7 @@ async function buildString() {
     diagramString.value = diagramString.value + " " + entityNameTitle;
     if (property.cardinality && property.reverseCardinality) addCardinality(property.cardinality, property.reverseCardinality);
     const typeName = property
-      .type![0].name!.replace(/\w+/g, function (w) {
+      .type![0].name!.replace(/\w+/g, function (w: string) {
         return w[0].toUpperCase() + w.slice(1).toLowerCase();
       })
       .replace(/\W/g, "");

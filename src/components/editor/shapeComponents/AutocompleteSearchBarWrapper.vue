@@ -24,7 +24,7 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS, ToastSeverity } from "@endeavour/vue-library/enums";
 import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { SearchResultSummary, TTIriRef } from "@endeavour/vue-library/models";
+import { type SearchResultSummary, type TTIriRef, isSearchResultSummary, isTTIriRef } from "@endeavour/vue-library/models";
 import type { GenericObject, PropertyShape, QueryRequest } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
@@ -105,7 +105,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   else return false;
 });
 
-const selectedResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
+const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -144,22 +144,20 @@ async function init() {
   }
 }
 
-function convertToTTIriRef(data: SearchResultSummary): TTIriRef | undefined {
+function convertToTTIriRef(data: SearchResultSummary | undefined): TTIriRef | undefined {
+  if (!data) return undefined;
   if (data.iri && data.name) return { iri: data.iri, name: data.name } as TTIriRef;
   else return undefined;
 }
 
-async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
-  if (!isObjectHasKeys(data)) {
-    selectedResult.value = {} as SearchResultSummary;
-  } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
-    const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
-    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
-  } else if (TypeGuards.isTTIriRef(data)) {
-    const asSummary = await EntityService.getEntitySummary(data.iri);
-    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
-  } else {
+async function updateSelectedResult(data: SearchResultSummary | TTIriRef | undefined) {
+  if (isSearchResultSummary(data)) {
     selectedResult.value = data;
+  } else if (isTTIriRef(data)) {
+    const asSummary = await EntityService.getEntitySummary(data.iri);
+    selectedResult.value = asSummary;
+  } else {
+    selectedResult.value = undefined;
   }
   if (!props.shape.builderChild && key.value) {
     updateEntity();
