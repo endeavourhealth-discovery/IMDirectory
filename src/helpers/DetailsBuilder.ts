@@ -1,5 +1,5 @@
 import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { isArrayHasLength, isArrayOf, isObject, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import {
   type TTArray,
   type TTBundle,
@@ -12,7 +12,7 @@ import {
   isTTLiteral
 } from "@endeavour/vue-library/models";
 
-import { isArray } from "lodash-es";
+import { isArray, isBoolean, isNumber, isString } from "lodash-es";
 import { TreeNode } from "primevue/treenode";
 
 export function buildDetails(definition: TTBundle): TreeNode[] {
@@ -21,19 +21,17 @@ export function buildDetails(definition: TTBundle): TreeNode[] {
   return isArray(treeNode.children) ? treeNode.children : [];
 }
 
-function buildTreeDataRecursively(treeNode: TreeNode, entity: TTEntity | TTArray | TTLiteral, predicates: { [x: string]: string }) {
-  if (isTTLiteral(entity)) {
-    addValueToLabel(treeNode, ": ", entity);
-  } else if (isTTArray(entity)) {
+function buildTreeDataRecursively(treeNode: TreeNode, entity: unknown, predicates: { [x: string]: string }) {
+  if (isArrayHasLength(entity)) {
     for (const item of entity) {
-      if (isTTEntity(item)) {
-        addIriLink(treeNode, item);
-      }
+      addIriLink(treeNode, item);
     }
-  } else {
+  } else if (isObjectHasKeys(entity)) {
     for (const key of Object.keys(entity)) {
       processEntityKey(key, treeNode, entity, predicates);
     }
+  } else {
+    addValueToLabel(treeNode, ": ", entity);
   }
 }
 
@@ -50,21 +48,17 @@ function processEntityKey(key: string, treeNode: TreeNode, entity: TTEntity, pre
   else if (key !== "iri") {
     const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] } as TreeNode;
     treeNode.children?.push(newTreeNode);
-    if (isTTEntity(entity[key])) buildTreeDataRecursively(newTreeNode, entity[key], predicates);
+    buildTreeDataRecursively(newTreeNode, entity[key], predicates);
   }
 }
 
-function addValueToLabel(treeNode: TreeNode, divider: string, value: TTLiteral) {
-  treeNode.label += divider + value.toString();
+function addValueToLabel(treeNode: TreeNode, divider: string, value: unknown) {
+  if (isString(value) || isNumber(value) || isBoolean(value)) treeNode.label += divider + value.toString();
+  else throw new Error("Unsupported type: " + typeof value);
 }
 
-function addIriLink(treeNode: TreeNode, item: TTEntity) {
-  if (
-    isObjectHasKeys(item, ["iri", "name", "totalCount"]) &&
-    typeof item.iri === "string" &&
-    typeof item.name === "string" &&
-    typeof item.totalCount === "number"
-  ) {
+function addIriLink(treeNode: TreeNode, item: unknown) {
+  if (isObjectHasKeys(item, ["iri"]) && isString(item.iri)) {
     treeNode.leaf = false;
     if (item.iri === IM.LOAD_MORE)
       treeNode.children?.push({
@@ -73,7 +67,7 @@ function addIriLink(treeNode: TreeNode, item: TTEntity) {
         type: "loadMore",
         data: { predicate: treeNode.key, totalCount: item.totalCount }
       } as TreeNode);
-    else treeNode.children?.push({ key: item.iri, label: item.name, leaf: false, type: "link" });
+    else treeNode.children?.push({ key: item.iri, label: item.name, leaf: false, type: "link" } as TreeNode);
   }
 }
 
@@ -84,7 +78,8 @@ function addDefinition(treeNode: TreeNode, predicates: { [x: string]: string }, 
 
 function getLabel(key: string, predicates: { [x: string]: string }, entity: TTEntity) {
   if (predicates[key]) return predicates[key];
-  else if (isObjectHasKeys(entity[key], ["path"]) && isArrayOf(entity[key].path, isTTIriRef)) return predicates[key] ?? entity[key]?.path?.[0]?.name ?? key;
+  else if (isObjectHasKeys(entity[key], ["path"]) && isArrayHasLength(entity[key].path) && isObjectHasKeys(entity[key].path[0], ["name"]))
+    return predicates[key] ?? entity[key]?.path?.[0]?.name ?? key;
 }
 
 function addParameter(treeNode: TreeNode, entity: TTEntity, predicates: { [z: string]: string }, key: string) {
@@ -96,7 +91,7 @@ function addParameter(treeNode: TreeNode, entity: TTEntity, predicates: { [z: st
   treeNode.children?.push(newTreeNode);
   if (isArrayHasLength(entity[key])) {
     for (const parameter of entity[key]) {
-      if (isObjectHasKeys(parameter, [RDFS.LABEL]) && typeof parameter[RDFS.LABEL] === "string") {
+      if (isObjectHasKeys(parameter, [RDFS.LABEL]) && isString(parameter[RDFS.LABEL])) {
         const parameterNode = {
           key: createKeyFromText(parameter[RDFS.LABEL]),
           label: parameter[RDFS.LABEL],
@@ -109,25 +104,28 @@ function addParameter(treeNode: TreeNode, entity: TTEntity, predicates: { [z: st
   }
 }
 
-function addDefault(treeNode: TreeNode, entity: TTEntity, predicates: { [x: string]: string }) {
-  for (const key of Object.keys(entity)) {
-    if (isArrayHasLength(entity[key])) addArray(treeNode, entity[key], predicates, key);
-    if (isTTLiteral(entity[key])) {
-      addValueToLabel(treeNode, " - ", entity[key]);
-    } else if (isObjectHasKeys(entity[key])) addObject(treeNode, entity, predicates, key);
+function addDefault(treeNode: TreeNode, entity: unknown, predicates: { [x: string]: string }) {
+  if (isObject(entity)) {
+    for (const key of Object.keys(entity)) {
+      if (isArrayHasLength(entity[key])) addArray(treeNode, entity[key], predicates);
+      else if (isObjectHasKeys(entity[key])) addObject(treeNode, entity[key], predicates);
+      else {
+        addValueToLabel(treeNode, " - ", entity[key]);
+      }
+    }
   }
 }
 
-function addArray(treeNode: TreeNode, entity: TTArray, predicates: { [x: string]: string }, key: string) {
+function addArray(treeNode: TreeNode, entity: unknown[], predicates: { [x: string]: string }) {
   for (const item of entity) {
-    if (isObjectHasKeys(item, ["iri", "name", "totalCount"])) addIriLink(treeNode, item);
-    else if (isTTEntity(item)) addDefault(treeNode, item, predicates);
+    if (isObjectHasKeys(item, ["iri", "name"])) addIriLink(treeNode, item);
+    else addDefault(treeNode, item, predicates);
   }
 }
 
-function addObject(treeNode: TreeNode, entity: TTEntity, predicates: { [x: string]: string }, key: string) {
-  if (isObjectHasKeys(entity[key])) {
-    for (const objectKey of Object.keys(entity[key])) {
+function addObject(treeNode: TreeNode, entity: unknown, predicates: { [x: string]: string }) {
+  if (isObjectHasKeys(entity)) {
+    for (const objectKey of Object.keys(entity)) {
       const objectNode = {
         key: createKeyFromText(predicates[objectKey] ?? objectKey),
         label: predicates[objectKey] ?? objectKey,
@@ -135,64 +133,70 @@ function addObject(treeNode: TreeNode, entity: TTEntity, predicates: { [x: strin
       } as TreeNode;
 
       treeNode.children?.push(objectNode);
-      if (isTTEntity(entity[key])) addDefault(objectNode, entity[key], predicates);
+      addDefault(objectNode, entity, predicates);
     }
   }
 }
 
-function addTermCodes(treeNode: TreeNode, entity: TTEntity, predicates: { [x: string]: string }, key: string) {
-  const newTreeNode = {
-    key: key,
-    label: getLabel(key, predicates, entity),
-    children: [] as TreeNode[]
-  } as TreeNode;
-  treeNode.children?.push(newTreeNode);
-  if (isArrayHasLength(entity[key])) {
-    for (const termCode of entity[key]) {
-      if (isObjectHasKeys(termCode, [IM.CODE, RDFS.LABEL]) && typeof termCode[IM.CODE] === "string" && typeof termCode[RDFS.LABEL] === "string") {
-        const termCodeNode = {
-          key: termCode[IM.CODE],
-          label: termCode[RDFS.LABEL] + " - " + termCode[IM.CODE],
-          children: [] as TreeNode[]
-        } as TreeNode;
-        newTreeNode.children?.push(termCodeNode);
-      }
-    }
-  }
-}
-
-function addRoleGroup(treeNode: TreeNode, entity: TTEntity, predicates: { [x: string]: string }, key: string) {
-  const newTreeNode = {
-    key: key,
-    label: getLabel(key, predicates, entity),
-    children: [] as TreeNode[]
-  } as TreeNode;
-  treeNode.children?.push(newTreeNode);
-  if (isArrayHasLength(entity[key])) {
-    for (const roleGroup of entity[key]) {
-      if (isObjectHasKeys(roleGroup, [IM.GROUP_NUMBER]) && typeof roleGroup[IM.GROUP_NUMBER] === "string") {
-        const propertyNode = {
-          key: IM.GROUP_NUMBER + roleGroup[IM.GROUP_NUMBER],
-          label: "role group " + roleGroup[IM.GROUP_NUMBER],
-          children: [] as TreeNode[]
-        } as TreeNode;
-        newTreeNode.children?.push(propertyNode);
-
-        for (const roleKey of Object.keys(roleGroup)) {
-          if (roleKey !== IM.GROUP_NUMBER) propertyNode.children?.push(getRoleValue(predicates, roleGroup, roleKey, key));
+function addTermCodes(treeNode: TreeNode, entity: unknown, predicates: { [x: string]: string }, key: string) {
+  if (isObject(entity)) {
+    const newTreeNode = {
+      key: key,
+      label: getLabel(key, predicates, entity),
+      children: [] as TreeNode[]
+    } as TreeNode;
+    treeNode.children?.push(newTreeNode);
+    if (isArrayHasLength(entity[key])) {
+      for (const termCode of entity[key]) {
+        if (isObjectHasKeys(termCode, [IM.CODE, RDFS.LABEL]) && isString(termCode[IM.CODE]) && isString(termCode[RDFS.LABEL])) {
+          const termCodeNode = {
+            key: termCode[IM.CODE],
+            label: termCode[RDFS.LABEL] + " - " + termCode[IM.CODE],
+            children: [] as TreeNode[]
+          } as TreeNode;
+          newTreeNode.children?.push(termCodeNode);
         }
       }
     }
   }
 }
 
-function addMapEntryNode(treeNode: TreeNode, entity: TTEntity, predicates: { [x: string]: string }, key: string) {
-  const newTreeNode = {
-    key: key,
-    label: getLabel(key, predicates, entity) + " see maps tab",
-    leaf: true
-  } as TreeNode;
-  treeNode.children?.push(newTreeNode);
+function addRoleGroup(treeNode: TreeNode, entity: unknown, predicates: { [x: string]: string }, key: string) {
+  if (isObject(entity)) {
+    const newTreeNode = {
+      key: key,
+      label: getLabel(key, predicates, entity),
+      children: [] as TreeNode[]
+    } as TreeNode;
+    treeNode.children?.push(newTreeNode);
+    if (isArrayHasLength(entity[key])) {
+      for (const roleGroup of entity[key]) {
+        if (isObjectHasKeys(roleGroup, [IM.GROUP_NUMBER]) && (isString(roleGroup[IM.GROUP_NUMBER]) || isNumber(roleGroup[IM.GROUP_NUMBER]))) {
+          const propertyNode = {
+            key: IM.GROUP_NUMBER + roleGroup[IM.GROUP_NUMBER],
+            label: "role group " + roleGroup[IM.GROUP_NUMBER],
+            children: [] as TreeNode[]
+          } as TreeNode;
+          newTreeNode.children?.push(propertyNode);
+
+          for (const roleKey of Object.keys(roleGroup)) {
+            if (roleKey !== IM.GROUP_NUMBER) propertyNode.children?.push(getRoleValue(predicates, roleGroup, roleKey, key));
+          }
+        }
+      }
+    }
+  }
+}
+
+function addMapEntryNode(treeNode: TreeNode, entity: unknown, predicates: { [x: string]: string }, key: string) {
+  if (isObject(entity)) {
+    const newTreeNode = {
+      key: key,
+      label: getLabel(key, predicates, entity) + " see maps tab",
+      leaf: true
+    } as TreeNode;
+    treeNode.children?.push(newTreeNode);
+  }
 }
 
 function getRoleValue(predicates: { [x: string]: string }, roleGroup: TTEntity, roleKey: string, key: string) {
@@ -223,7 +227,7 @@ function addBinding(treeNode: TreeNode, entity: TTEntity, predicates: { [x: stri
   treeNode.children?.push(newTreeNode);
   if (isArrayHasLength(entity[key])) {
     for (const roleGroup of entity[key]) {
-      if (isObjectHasKeys(roleGroup, [SHACL.NODE]) && isArrayOf(roleGroup[SHACL.NODE], isTTIriRef)) {
+      if (isObjectHasKeys(roleGroup, [SHACL.NODE]) && isArrayHasLength(roleGroup[SHACL.NODE]) && isObjectHasKeys(roleGroup[SHACL.NODE][0])) {
         const bindingNode = {
           key: roleGroup[SHACL.NODE][0].iri,
           label: roleGroup[SHACL.NODE][0].name,
@@ -245,7 +249,7 @@ function addProperty(treeNode: TreeNode, entity: TTEntity, predicates: { [x: str
 }
 
 function setChildNodeArrayCheck(children: TTEntity, key: string, predicates: { [x: string]: string }, grandchildNode: TreeNode) {
-  if (isArrayOf(children[key], isTTEntity)) {
+  if (isArrayHasLength(children[key])) {
     const arrayNode = { key: children[IM.MAP_ADVICE] + key, label: predicates[key], children: [] as TreeNode[] } as TreeNode;
     grandchildNode.children?.push(arrayNode);
     for (const child of children[key]) {
@@ -273,7 +277,7 @@ function addHasMapNode(treeNode: TreeNode, entity: TTEntity, predicates: { [x: s
             children: [] as TreeNode[]
           } as TreeNode;
           newTreeNode.children.push(childNode);
-          if (isArrayOf(child[childKey], isTTEntity))
+          if (isArray(child[childKey]))
             for (const grandchild of child[childKey]) {
               const grandchildNode = {
                 key: grandchild[IM.MAP_ADVICE],

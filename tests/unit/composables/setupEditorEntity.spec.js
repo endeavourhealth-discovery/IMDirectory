@@ -32,7 +32,7 @@ describe("fetchEntity", () => {
   });
 
   it("gets full entity by iri and process entity", async () => {
-    const testEntity = await fakerFactory.entityRandom();
+    const testEntity = await fakerFactory.ttEntityRandom();
     getFullEntitySpy.mockResolvedValue(testEntity);
     getEntityTypesSpy.mockResolvedValue([]);
     const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: "http://endhealth.info/im#testIri" } });
@@ -52,9 +52,9 @@ describe("processEntity", () => {
     mockUpdateType = vi.fn();
   });
   it("changes iri to full iri and removes im1id and im1scheme", async () => {
-    const testEntity = await fakerFactory.entityRandom();
+    const testEntity = await fakerFactory.ttEntityRandom();
     testEntity[IM.IM_1_ID] = "http://endhealth.info/im#testIri";
-    testEntity[IM.IM_1_SCHEME] = [{ iri: "testScheme" }];
+    testEntity[IM.IM_1_SCHEME] = [{ iri: "http://endhealth.info/im#testScheme" }];
     const wrapper = mountComposable(useEditorEntity, [EditorMode.EDIT, mockUpdateType]);
     const result = wrapper.vm.processEntity(testEntity);
     expect(result).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity.iri }));

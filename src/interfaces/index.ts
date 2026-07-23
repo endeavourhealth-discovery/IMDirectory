@@ -4,7 +4,7 @@ import { AliasEntity } from "./AliasEntity";
 import AllowableChildProperty from "./AllowableChildProperty";
 import { ChartMapNode } from "./ChartMapNode";
 import { ChartTableNode } from "./ChartTableNode";
-import { ComponentDetails } from "./ComponentDetails";
+import { ComponentDetails, ComponentDetailsSchema } from "./ComponentDetails";
 import { ConceptAggregate } from "./ConceptAggregate";
 import { CustomAlert } from "./CustomAlert";
 import { DashboardLayout } from "./DashboardLayout";
@@ -33,7 +33,7 @@ import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import TTGraphData from "./TTGraphData";
 import { TTProperty } from "./TTProperty";
-import TangledTreeData from "./TangledTreeData";
+import { type TangledTreeData, TangledTreeDataSchema } from "./TangledTreeData";
 import { TermCode } from "./TermCode";
 import { TreeNode } from "./TreeNode";
 import { TreeParent } from "./TreeParent";
@@ -85,5 +85,7 @@ export {
   type SearchOptions,
   type DownloadSettings,
   type RelativeTo,
-  type SentencePart
+  type SentencePart,
+  TangledTreeDataSchema,
+  ComponentDetailsSchema
 };

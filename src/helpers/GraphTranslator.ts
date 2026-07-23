@@ -12,19 +12,19 @@ import {
   isTTProperty
 } from "@endeavour/vue-library/models";
 
-import { isArray } from "lodash-es";
+import { isArray, isString } from "lodash-es";
 
 import { TTGraphData, TTProperty } from "../interfaces";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;
-  const firstNode = {
+  const firstNode = TTGraphDataSchema.parse({
     name: entity[RDFS.LABEL],
     iri: entity.iri,
     relToParent: "",
     children: [],
     _children: []
-  } as TTGraphData;
+  });
   const keys = Object.keys(entity).filter(key => key != "iri" && includedPredicates.includes(key));
   addNodes(entity, keys, firstNode, predicates);
   return firstNode;
@@ -106,13 +106,15 @@ function addMap(element: unknown, preNode: TTGraphData) {
   if (isObjectHasKeys(element, [IM.MAPPED_TO]) && isArray(element[IM.MAPPED_TO])) {
     element[IM.MAPPED_TO].forEach((mappedTo: unknown) => {
       if (isObjectHasKeys(mappedTo, ["iri", "name"]) && typeof mappedTo.iri === "string" && typeof mappedTo.name === "string") {
-        preNode.children.push({
-          name: mappedTo.name,
-          iri: mappedTo.iri,
-          relToParent: mappedTo.name,
-          children: [],
-          _children: []
-        });
+        preNode.children.push(
+          TTGraphDataSchema.parse({
+            name: mappedTo.name,
+            iri: mappedTo.iri,
+            relToParent: mappedTo.name,
+            children: [],
+            _children: []
+          })
+        );
       }
     });
   }
@@ -180,12 +182,11 @@ function addRoles(firstNode: TTGraphData, entity: TTEntity, key: string, predica
 
 function getNameFromEntityItems(item: TTEntity): string {
   let name = "";
-  if (isObjectHasKeys(item, ["iri"]) && typeof item.iri == "string") getNameFromIri(item.iri);
   if (isObjectHasKeys(item, [RDFS.LABEL]) && typeof item[RDFS.LABEL] === "string") {
     name = item[RDFS.LABEL];
   } else if (isObjectHasKeys(item, ["name"]) && typeof item.name === "string") {
     name = item.name;
-  }
+  } else if (isObjectHasKeys(item, ["iri"]) && typeof item.iri == "string") name = getNameFromIri(item.iri);
 
   return name;
 }
@@ -193,7 +194,7 @@ function getNameFromEntityItems(item: TTEntity): string {
 function addArray(firstNode: TTGraphData, entity: TTEntity, key: string, predicates: { [x: string]: string }) {
   const preNode = TTGraphDataSchema.parse({
     name: "middle-node-" + key,
-    iri: "",
+    iri: "http://endhealth.info/im#testIri",
     relToParent: predicates[key],
     children: [],
     _children: []
@@ -201,9 +202,10 @@ function addArray(firstNode: TTGraphData, entity: TTEntity, key: string, predica
   if (isArray(entity[key])) {
     entity[key].forEach((nested: unknown) => {
       if (isArray(entity[key]) && entity[key].length > 1) {
-        if (isObjectHasKeys(nested, ["iri"]) && typeof nested.iri === "string") {
+        if (isObjectHasKeys(nested)) {
           const name = getNameFromEntityItems(nested);
-          addChild(preNode, name, nested.iri, name);
+          const iri = isString(nested.iri) ? nested.iri : "";
+          addChild(preNode, name, iri, name);
         } else if (typeof nested === "string") {
           addChild(preNode, nested, "", nested);
         }
@@ -253,6 +255,10 @@ function addNodes(entity: TTEntity, keys: string[], firstNode: TTGraphData, pred
       if (isTTIriRef(entity[key])) {
         if (typeof entity[key].name === "string") addChild(firstNode, entity[key].name, entity[key].iri, predicates[key] ?? getNameFromIri(key));
         else addChild(firstNode, entity[key].iri, entity[key].iri, predicates[key]);
+      } else if (isObjectHasKeys(entity[key], [RDFS.LABEL]) && isString(entity[key][RDFS.LABEL])) {
+        addChild(firstNode, entity[key][RDFS.LABEL], "", predicates[key] ?? getNameFromIri(key));
+      } else if (isString(entity[key])) {
+        addChild(firstNode, entity[key], "", predicates[key] ?? getNameFromIri(key));
       }
     }
   });

@@ -771,7 +771,7 @@ describe("GraphTranslator", () => {
           {
             _children: [],
             children: [],
-            iri: undefined,
+            iri: "",
             name: "105590001",
             relToParent: "code"
           },
@@ -788,26 +788,26 @@ describe("GraphTranslator", () => {
               {
                 _children: [],
                 children: [],
-                iri: undefined,
+                iri: "",
                 name: "Substance",
                 relToParent: "Substance"
               },
               {
                 _children: [],
                 children: [],
-                iri: undefined,
+                iri: "",
                 name: "Substances",
                 relToParent: "Substances"
               },
               {
                 _children: [],
                 children: [],
-                iri: undefined,
+                iri: "",
                 name: "Substance (substance)",
                 relToParent: "Substance (substance)"
               }
             ],
-            iri: "",
+            iri: "http://endhealth.info/im#testIri",
             name: "middle-node-" + "http://endhealth.info/im#hasTermCode",
             relToParent: "has term code"
           }

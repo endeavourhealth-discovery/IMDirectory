@@ -69,19 +69,19 @@ export const handlersFaker = [
     return HttpResponse.json(entity);
   }),
   http.get(apiUrl + "entity/public/parents", async () => {
-    const parents = await fakerFactory.iriRef.createMany(2, () => ({ iri: faker.internet.url(), name: faker.lorem.sentence() }));
-    return HttpResponse.json(fakerFactory.entitySummaryRandomMany(2));
+    const parents = await fakerFactory.ttIriRef.createMany(2, () => ({ iri: faker.internet.url(), name: faker.lorem.sentence() }));
+    return HttpResponse.json(fakerFactory.entityReferenceNodeRandomMany(2));
   }),
   http.get(apiUrl + "entity/public/childrenPaged", async () => {
-    const children = await fakerFactory.entitySummaryRandomMany(4);
-    return HttpResponse.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4, pageSize: 25, currentPage: 1 }));
+    const children = await fakerFactory.entityReferenceNodeRandomMany(4);
+    return HttpResponse.json(fakerFactory.pageableEntityReferenceNode.create({ result: children, totalCount: 4, pageSize: 25, currentPage: 1 }));
   }),
   http.get(apiUrl + "entity/public/summary", ({ params }) => {
     const { iri } = params;
     if (iri && typeof iri === "string") {
-      const found = fakerFactory.entitySummary.findFirst(q => q.where({ iri: iri }));
+      const found = fakerFactory.entityReferenceNode.findFirst(q => q.where({ iri: iri }));
       if (found) return HttpResponse.json(found);
-      else return HttpResponse.json(fakerFactory.pagedChildrenRandom());
+      else return HttpResponse.json(fakerFactory.pageableEntityReferenceNodeRandom());
     } else
       return new HttpResponse(
         JSON.stringify({
