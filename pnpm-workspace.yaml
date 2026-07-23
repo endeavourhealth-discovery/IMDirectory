@@ -1,3 +1,4 @@
+dangerouslyAllowAllBuilds: true
 allowBuilds:
   "@getgauge/cli": true
   "@parcel/watcher": true
