@@ -13,6 +13,7 @@ import {
   PathQuery,
   Query,
   QueryRequest,
+  QueryResponse,
   QueryResponseSchema,
   QuerySchema,
   Return,
@@ -22,8 +23,6 @@ import {
   TTEntity,
   TTEntitySchema
 } from "@endeavour/vue-library/models";
-
-import { QueryResponse } from "@/interfaces";
 
 import Env from "./Env";
 import api from "./api";
@@ -139,8 +138,8 @@ const QueryService = {
     return parseArray(result, ReturnSchema);
   },
 
-  async getSemanticMaps(match: Match): Promise<TTEntity[]> {
-    const result = await api.post(API_URL + "/semanticMapsForDataset", match);
+  async getSemanticMaps(match: Match, column: Return): Promise<TTEntity[]> {
+    const result = await api.post(API_URL + "/semanticMapsForMatch", { match: match, return: column });
     return parseArray(result, TTEntitySchema);
   }
 };

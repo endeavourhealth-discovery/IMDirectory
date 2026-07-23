@@ -30,9 +30,9 @@ export function useCreateNew() {
         command: {}
       }
     ];
-    selectionWrapperCopy[1].command = () => directService.edit(node.data, false);
+    selectionWrapperCopy[1].command = () => directService.edit(node.key, false);
 
-    const allowableTypes = await EntityService.getAllowableChildTypes(node.data);
+    const allowableTypes = await EntityService.getAllowableChildTypes(node.key);
     if (!isArrayHasLength(allowableTypes)) {
       return selectionWrapperCopy;
     }
@@ -53,7 +53,7 @@ export function useCreateNew() {
             newFolder.value = node;
           };
         } else {
-          item.command = () => directService.create(item.data.type, item.data.property, node.data);
+          item.command = () => directService.create(item.data.type, item.data.property, node.key);
         }
         if (selectionWrapperCopy[0].items) selectionWrapperCopy[0].items.push(item);
       }

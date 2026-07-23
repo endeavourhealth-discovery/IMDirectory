@@ -225,7 +225,7 @@ export function usePropertyTree() {
     if (property.group) {
       return createGroupNode(key, property, path, parentKey, typeOf);
     }
-    if (property.generic && property.node) {
+    if (property.association && property.node) {
       return createGenericNode(key, property, property.path.iri + "\t" + property.node.iri, parentKey);
     }
     let rangeType;

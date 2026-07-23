@@ -142,7 +142,6 @@ declare module 'vue' {
     ImqueryPropertySelector: typeof import('./src/components/imquery/PropertySelector.vue')['default']
     ImqueryQueryEditor: typeof import('./src/components/imquery/QueryEditor.vue')['default']
     ImqueryRelativeToSelect: typeof import('./src/components/imquery/RelativeToSelect.vue')['default']
-    ImqueryReturnColumEditor: typeof import('./src/components/imquery/ReturnColumEditor.vue')['default']
     ImqueryReturnColumnEditor: typeof import('./src/components/imquery/ReturnColumnEditor.vue')['default']
     ImqueryReturnEditor: typeof import('./src/components/imquery/ReturnEditor.vue')['default']
     ImqueryRoleGroup: typeof import('./src/components/imquery/RoleGroup.vue')['default']

@@ -17,7 +17,7 @@
           class="tree-row"
           @contextmenu="onNodeContext($event, node)"
           @click="onNodeSelect($event, node, useEmits ? useEmits : false, true)"
-          @dragstart="dragStart($event, node.data)"
+          @dragstart="dragStart($event, node)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
         >
@@ -128,7 +128,7 @@ watch(
 watch(
   () => cloneDeep(favourites.value),
   async () => {
-    const favouritesIndex = root.value.findIndex(node => node.data === IM.FAVOURITES);
+    const favouritesIndex = root.value.findIndex(node => node.key === IM.FAVOURITES);
     if (favouritesIndex !== -1) {
       root.value.splice(favouritesIndex, 1);
       addFavouritesToTree();
@@ -176,8 +176,11 @@ async function addParentFoldersToRoot() {
   const IMChildren = await EntityService.getEntityChildren(IM.MODULE_IM);
   if (isArrayHasLength(IMChildren)) {
     for (let IMchild of IMChildren) {
-      const hasNode = !!root.value.find(node => node.data === IMchild.iri);
-      if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild.iri, IMchild.type as TTIriRef[], IMchild.hasGrandChildren, null, IMchild.orderNumber));
+      const hasNode = !!root.value.find(node => node.key === IMchild.iri);
+      if (!hasNode) {
+        const summary = { description: IMchild.description, status: IMchild.status };
+        root.value.push(createTreeNode(IMchild.name, IMchild.iri, IMchild.type as TTIriRef[], summary, IMchild.hasGrandChildren, null, IMchild.orderNumber));
+      }
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
@@ -185,7 +188,7 @@ async function addParentFoldersToRoot() {
 }
 
 function addFavouritesToTree() {
-  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], !!favourites.value.length, null, undefined);
+  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], undefined, !!favourites.value.length, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--p-yellow-500)";
   root.value.push(favNode);
@@ -196,7 +199,8 @@ async function addRootEntitiesToTree() {
   const itemSummaries = await EntityService.getAsEntityReferenceNodes(props.rootEntities);
   if (itemSummaries && itemSummaries.length > 0) {
     for (const itemSummary of itemSummaries) {
-      root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], itemSummary.hasChildren, null));
+      const summary = { description: itemSummary.description, status: itemSummary.status };
+      root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], summary, itemSummary.hasChildren, null));
     }
   }
   root.value.sort(byKey);
@@ -326,7 +330,6 @@ async function addConcept(target: TreeNode) {
 
 async function createFolder() {
   if (!newFolder.value || !newFolder.value.key || !newFolderName.value) return;
-  if (await checkExists(newFolder.value.key)) return;
   creating.value = true;
 
   try {
@@ -348,6 +351,7 @@ async function createFolder() {
               name: "Folder"
             } as TTIriRef
           ],
+          undefined,
           false,
           newFolder.value
         )
@@ -371,13 +375,13 @@ async function createFolder() {
 }
 
 async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> {
-  if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
-    await showOverlay(event, node.key);
+  if (node.data !== "loadMore" && node.key !== "http://endhealth.info/im#Favourites") {
+    await showOverlay(event, node.data);
   }
 }
 
 async function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
-  if (node.data !== IM.FAVOURITES) {
+  if (node.key !== IM.FAVOURITES) {
     if (node.data === "loadMore") {
       if (!node.loading) await loadMore(node);
     } else await customOnClick(event, node, useEmits, updateSelectedKeys);

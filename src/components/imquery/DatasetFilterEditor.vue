@@ -14,61 +14,16 @@
       @updateMatch="onUpdate"
     />
   </template>
-  <template v-else>
-    <div v-if="match.any && match.any.length > 0" class="match-container">
-      <div v-for="(item, subIndex) in match.any" :key="item.uuid">
-        <DatasetFilterEditor
-          v-model:match="match.any[subIndex]"
-          :baseType="baseType"
-          :depth="depth + 1"
-          :index="subIndex"
-          :parentIndex="index"
-          :parentOperator="operator as Bool"
-          :rootBool="false"
-          @add-linked="addLinked"
-        />
-        <div class="edit-button">
-          <Button
-            class="add-button"
-            data-testid="edit-clause-button"
-            icon="fa-solid fa-pen-to-square"
-            label="Edit clause"
-            type="button"
-            @click="editMatchClause()"
-          />
-          <div>
-            <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteMatch(subIndex)" />
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-if="isDefined" class="match-clause-outer">
-      <div v-if="match.nodeRef">
-        <span class="from">from</span>
-        <span class="node-ref">{{ match.nodeRef }}</span>
-      </div>
-      <div class="match-clause-inner">
-        <div class="match-display">
-          <MatchContentDisplay :clauseIndex="index" :depth="depth" :from="from" :match="match" :parentMatch="match" />
-        </div>
-      </div>
-    </div>
-    <div v-if="rootBool">
-      <Button class="add-button" data-testid="add-clause-button" icon="fa-solid fa-plus" label="Add clause" type="button" @click="createNewMatch" />
-    </div>
-  </template>
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, Ref, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import type { Match, Node } from "@endeavour/vue-library/models";
 
-import Button from "primevue/button";
 import { v4 } from "uuid";
 
-import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { getBooleanOperator } from "@/helpers/buildQuery";
@@ -145,6 +100,7 @@ async function saveChanges(): Promise<boolean> {
 
 async function onUpdate() {
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+  emit("updateMatch");
 }
 
 onMounted(() => {

@@ -36,26 +36,7 @@
           @click="openPropertySelector"
         />
         <Button class="add-button" icon="fa-solid fa-check" label="Add truth value" size="small" text @click="addTruthValue" />
-        <Button
-          v-if="!column.semanticMap && !column.iri"
-          class="add-button"
-          icon="fa-solid fa-check"
-          label="Select Map to output value "
-          size="small"
-          text
-          @click="addSemanticMaps"
-        />
-        <template v-if="showSemanticMaps">
-          <Select
-            v-model="semanticMap"
-            :options="semanticMapOptions"
-            option-label="name"
-            option-value="value"
-            placeholder="Select map"
-            type="text"
-            @update:model-value="updateSemanticMap"
-          />
-        </template>
+
         <Button
           v-if="!column.case"
           class="add-button"
@@ -66,6 +47,23 @@
           @click="addCase()"
         />
       </template>
+      <template v-if="column.iri && semanticMaps">
+        <span class="semantic-map-prompt">{{ semanticMapPrompt }}</span>
+        <Select
+          v-model="semanticMap"
+          :options="semanticMaps"
+          class="map-selector"
+          option-label="name"
+          option-value="iri"
+          placeholder="Add output map "
+          type="text"
+          @update:model-value="updateSemanticMap"
+        >
+          <template #option="slotProps">
+            <div>{{ slotProps.option.name }}</div>
+          </template>
+        </Select>
+      </template>
     </template>
   </div>
   <div v-if="column.case" class="case-editor">
@@ -75,9 +73,9 @@
       <template v-else-if="!when.value">
         <WhereContentDisplay :depth="0" :index="0" :where="when" />
       </template>
-      <template v-if="when.then && when.then.value">
+      <template v-if="when.then">
         <span class="pl-2">then</span>
-        <InputText v-model="when.then.value!" class="ml-2" placeholder="Value" style="width: 10rem" />
+        <InputText v-model="when.then.value" class="case-value" />
       </template>
       <Button class="delete-button" icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeWhen(whenIndex)" />
       <span class="pl-4 pt-2 flex items-center gap-2">
@@ -86,7 +84,7 @@
     </div>
     <div class="pl-4 pt-2">
       <span class="pl-2">else</span>
-      <InputText v-model="column.case!.else!.value" class="ml-2" placeholder="Else value" style="width: 10rem" />
+      <InputText v-model="column.case!.else!.value" class="case-value" />
     </div>
   </div>
   <template v-if="column.return">
@@ -117,7 +115,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, ref } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { type Match, type Node, type Return, type TTIriRef, type UIProperty, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
 
@@ -132,7 +130,7 @@ import WhenEditor from "@/components/imquery/WhenEditor.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getMatchFromNodeRef, getPathNameFromMatch, getPathNameFromPropertyRef, getSemanticMapOptions, setPathGetNodeRef } from "@/helpers/buildQuery";
+import { getPathNameFromMatch, getPathNameFromPropertyRef, getSemanticMapOptions, setPathGetNodeRef } from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
 
 interface Props {
@@ -152,25 +150,30 @@ const showPropertySelector = ref(false);
 const showWhenEditor = ref(false);
 const selectedWhen: Ref<When | undefined> = ref();
 const units: Ref<string | undefined> = ref();
-const semanticMap = ref();
-const showSemanticMaps = ref(false);
-const semanticMapOptions: Ref<any[]> = ref([]);
+const semanticMap: Ref<string | undefined> = ref();
+const semanticMaps: Ref<any[] | undefined> = ref();
+const semanticMapPrompt = computed(() => {
+  return !column.value.semanticMap ? "Output Map : (none) - select to add" : "Output map = ";
+});
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let whenIndex: number = 0;
 
+onMounted(async () => {
+  if (column.value.semanticMap) semanticMap.value = column.value.semanticMap.iri;
+  await findSemanticMaps();
+});
 function updateSemanticMap(val: any) {
-  semanticMap.value = val;
-  column.value.semanticMap = { iri: semanticMap.value } as TTIriRef;
-  emit("updateMatch");
-  if (semanticMap.value) {
-    showSemanticMaps.value = false;
+  if (val && semanticMaps.value) {
+    const map = semanticMaps.value.find(o => o.iri === val);
+    column.value.semanticMap = { iri: val, name: map.name } as TTIriRef;
+    //emit("updateMatch");
   }
 }
-async function addSemanticMaps() {
+async function findSemanticMaps() {
   const semanticMatch = cloneDeep(match.value);
+  if (!column.value.iri) return;
   if (!semanticMatch.typeOf) semanticMatch.typeOf = props.baseType;
-  semanticMapOptions.value = await getSemanticMapOptions(semanticMatch);
-  showSemanticMaps.value = true;
+  semanticMaps.value = await getSemanticMapOptions(semanticMatch, props.baseType, column.value);
 }
 function onInput() {
   if (debounceTimer) {
@@ -187,27 +190,8 @@ async function onSelectedProperty(node: TreeNode) {
     uiProperties.value[node.data.iri!] = uiProperty;
   }
   column.value!.iri = node.data.iri;
-  if (node.data.nodeRef) column.value!.nodeRef = node.data.nodeRef;
-  let returnMatch;
-  if (node.data.nodeRef) {
-    returnMatch = getMatchFromNodeRef(match.value, node.data.nodeRef);
-  } else returnMatch = match.value;
-  if (!returnMatch) return;
-  const fullPath = node.data.path;
-  if (fullPath) {
-    const nodeRef = setPathGetNodeRef(returnMatch, fullPath, true);
-    if (nodeRef && node.data.nodeRef) {
-      const propertyRef = nodeRef + "_" + node.data.iri.substring(node.data.iri.lastIndexOf("#") + 1);
-      if (!returnMatch.return) returnMatch.return = [];
-      returnMatch.return.push({
-        nodeRef: nodeRef,
-        iri: node.data.iri,
-        as: propertyRef
-      } as Return);
-      delete column.value!.iri;
-      column.value!.propertyRef = propertyRef;
-    }
-  }
+  if (node.data.path) column.value!.nodeRef = setPathGetNodeRef(match.value, node.data.path, true);
+  await findSemanticMaps();
   showPropertySelector.value = false;
   emit("updateMatch");
 }
@@ -219,14 +203,10 @@ function updateUnits(val: any) {
 }
 
 function addTruthValue() {
-  if (!match.value.return) match.value.return = [];
-  match.value.return.push({
-    as: "matched",
-    case: {
-      when: [{ exists: true, then: { value: "1" } }],
-      else: { value: "0" }
-    }
-  } as Return);
+  column.value.case = {
+    when: [{ exists: true, then: { value: "1" } }],
+    else: { value: "0" }
+  };
   emit("updateMatch");
 }
 
@@ -306,5 +286,15 @@ function removeWhen(wIndex: number) {
 .add-button:hover,
 .add-button:focus {
   background-color: #a5d6a7;
+}
+.map-selector {
+  padding-left: 2rem;
+  width: 30rem;
+}
+.semantic-map-prompt {
+  padding-left: 20rem;
+}
+.case-value {
+  width: 10rem;
 }
 </style>

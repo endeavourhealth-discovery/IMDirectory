@@ -1,7 +1,7 @@
 import { Ref } from "vue";
 
 import { MatchSchema, NodeSchema, Operator, QueryRequestSchema, WhereSchema } from "@endeavour/vue-library";
-import { Bool, IM, RDF, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
+import { Bool, IM, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type {
   Match,
@@ -323,13 +323,19 @@ export function addWhereToThen(match: Match, where: Where) {
     }
   }
 }
-export async function getSemanticMapOptions(match: Match): Promise<any[]> {
-  const maps = await QueryService.getSemanticMaps(match);
+export async function getSemanticMapOptions(match: Match, baseType: Node, column: Return): Promise<any[] | undefined> {
+  let mappableMatch = match;
+  if (!match.typeOf) {
+    mappableMatch = cloneDeep(match);
+    mappableMatch.typeOf = { iri: baseType.iri };
+  }
+  const maps = await QueryService.getSemanticMaps(mappableMatch, column);
+  if (!maps) return undefined;
   const options = [];
   for (const map of maps) {
     options.push({
-      label: map.name,
-      value: map.iri
+      iri: map.iri,
+      name: map[RDFS.LABEL]
     });
   }
   return options;

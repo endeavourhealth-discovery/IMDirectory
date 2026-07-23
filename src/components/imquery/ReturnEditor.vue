@@ -8,8 +8,6 @@
       <div class="as-editor font-bold">Column name</div>
       <div class="property-display font-bold">Property / Logic</div>
     </div>
-    <div>{{ match.return }}</div>
-
     <template v-if="match.return">
       <div v-for="(_, rIndex) in match.return" :key="rIndex" class="return-column-editor">
         <ReturnColumnEditor v-model:column="match.return[rIndex]" v-model:match="match" :baseType="baseType" @updateMatch="emit('updateMatch')" />
@@ -51,7 +49,6 @@ function addColumn() {
   if (!match.value.return) match.value.return = [];
   const returnIndex = match.value.return.length - 1;
   match.value.return.push({ as: "new_column_" + returnIndex } as Return);
-  emit("updateMatch");
 }
 
 function removeReturn(index: number) {

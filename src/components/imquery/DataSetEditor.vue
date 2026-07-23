@@ -39,7 +39,7 @@
     <template #footer>
       <div class="button-footer">
         <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="cancel" />
-        <Button v-if="edited" autofocus data-testid="save-feature-button" label="Save" @click="onSave" />
+        <Button v-if="edited" autofocus data-testid="save-feature-button" label="OK" @click="onSave" />
       </div>
     </template>
   </Dialog>
@@ -61,11 +61,11 @@ import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   index: number;
-  query: Query;
 }
 
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showEditor");
+const query = defineModel<Query>("query", { default: {} });
 const match = defineModel<Match>("match", { default: {} });
 const emit = defineEmits<{
   (event: "saveColumnGroup", match: Match): void;
@@ -74,7 +74,7 @@ const emit = defineEmits<{
 const activeTab = ref("columns");
 const edited = ref(false);
 
-const baseType: Ref<Node> = ref(props.query.typeOf!);
+const baseType: Ref<Node> = ref(query.value.typeOf!);
 const dialogStore = useDialogStore();
 
 async function onUpdate() {
@@ -83,13 +83,11 @@ async function onUpdate() {
 }
 
 function cancel() {
+  showEditor.value = false;
   emit("cancel");
 }
 async function onSave() {
-  const valid = await saveChanges();
-  if (valid) {
-    emit("saveColumnGroup", match.value);
-  }
+  showEditor.value = false;
 }
 async function showInvalid(match: Match) {
   await dialogStore.open(AlertDialog, {

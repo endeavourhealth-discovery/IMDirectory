@@ -1,29 +1,30 @@
 <template>
   <div :style="{ paddingLeft: '1rem' }">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
-    <div v-if="datasetEntry.name">Name : {{ datasetEntry.name }}</div>
+    <div>
+      <span>Entry name :</span>
+      <span v-if="datasetEntry.name">{{ datasetEntry.name }}</span>
+    </div>
+
+    <div v-if="datasetEntry.and || datasetEntry.or || datasetEntry.where || datasetEntry.is">
+      <Button :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="matchToggle" />
+      <RecursiveMatchDisplay
+        v-if="matchExpand"
+        :key="index"
+        :baseType="baseType"
+        :clause-index="index"
+        :depth="1"
+        :expanded="false"
+        :inline="false"
+        :match="datasetEntry"
+        :operator="Bool.and"
+        :parent-match="datasetEntry"
+        :parentIndex="0"
+      />
+    </div>
 
     <div v-if="datasetEntry.return">
-      <div v-if="datasetEntry.and || datasetEntry.or || datasetEntry.where || datasetEntry.is">
-        <Button :icon="!matchExpand ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="matchToggle" />
-        <RecursiveMatchDisplay
-          v-if="matchExpand"
-          :key="index"
-          :baseType="baseType"
-          :clause-index="index"
-          :depth="1"
-          :expanded="false"
-          :inline="false"
-          :match="datasetEntry"
-          :operator="Bool.and"
-          :parent-match="datasetEntry"
-          :parentIndex="0"
-        />
-      </div>
-
-      <div v-if="datasetEntry.return">
-        <ReturnColumns :parentQuery="parentQuery" :select="datasetEntry.return" class="pl-8" />
-      </div>
+      <ReturnColumns :parentQuery="parentQuery" :select="datasetEntry.return" class="pl-8" />
     </div>
   </div>
 </template>

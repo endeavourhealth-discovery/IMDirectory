@@ -25,6 +25,7 @@
     </template>
     <BaseTypeEditor v-model:match="query" />
     <div class="header">Cohort definition</div>
+
     <template v-if="query.typeOf">
       <BooleanMatchEditor
         v-model:match="query"
@@ -39,34 +40,35 @@
       />
     </template>
     <div class="header">Output definition</div>
+
     <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
       <div><strong>Dataset entries:</strong></div>
       <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
         <DataSetEditor
           v-if="showEditor && toEdit === index"
           v-model:match="query.columnGroup[index]"
+          v-model:query="query"
           v-model:showEditor="showEditor"
           :index="index"
-          :query="query"
           @cancel="cancelEditColumnGroup"
           @delete-group="onDeleteGroup(index)"
           @save-column-group="saveColumnGroup"
         />
         <div
           v-else
-          class="column-group-display"
           :class="{ 'drag-over': dragOverColumnIndex === index }"
+          class="column-group-display"
           @dragover="onColumnDragOver($event, index)"
           @drop="onColumnDrop($event, index)"
         >
           <Button
             class="drag-handle"
+            draggable="true"
             icon="fa-solid fa-grip-vertical"
             severity="secondary"
             text
-            draggable="true"
-            @dragstart="onColumnDragStart($event, index)"
             @dragend="onColumnDragEnd"
+            @dragstart="onColumnDragStart($event, index)"
           />
           <div class="column-group-content">
             <ColumnGroupDisplay
@@ -250,9 +252,26 @@ async function rationaliseBooleans() {
 }
 
 async function submit(): Promise<void> {
-  emit("querySubmitted", query.value!);
+  const matchCheck = await QueryService.validateQuery(query.value);
+  if (matchCheck.invalid) {
+    await showInvalid(matchCheck);
+    return;
+  } else {
+    emit("querySubmitted", query.value!);
+  }
 }
 
+async function showInvalid(match: Match) {
+  await dialogStore.open(AlertDialog, {
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-check",
+      title: "Warning",
+      text: match.errorMessage + ". Use filter tab to edit.",
+      confirmButtonText: "Close"
+    }
+  });
+}
 function closeBuilderDialog(): void {
   emit("closeDialog");
 }

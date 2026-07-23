@@ -78,7 +78,7 @@ const showPropertySelector = defineModel<boolean>("showPropertySelector", { defa
 const match = defineModel<Match>("match", { default: {} });
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const { expandNode, createModeView, createFeatureTree, addToTreeFromAny } = usePropertyTree();
+const { expandNode, createModeView, createFeatureTree } = usePropertyTree();
 const editMatchString: Ref<string> = ref("");
 const emit = defineEmits<{
   (e: "cancel"): void;
@@ -97,7 +97,6 @@ async function init() {
   loading.value = true;
   nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false);
   typeNodes.value = await createFeatureTree(nodeShape.value, "return");
-  await addToTreeFromAny(props.match, typeNodes.value);
   setupTrees("return");
   if (!props.match.any) expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};
@@ -111,7 +110,7 @@ function setupTrees(mode: Mode) {
 
 async function onReturnNodeSelect(node: TreeNode) {
   if (!match.value.typeOf) {
-    if (node.data.typeOf) {
+    if (node.data.type) {
       match.value.typeOf = NodeSchema.parse({ iri: node.data.typeOf });
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
       typeNodes.value = await createFeatureTree(nodeShape.value, "return");
