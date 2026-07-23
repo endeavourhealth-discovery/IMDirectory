@@ -1,8 +1,6 @@
-dangerouslyAllowAllBuilds: true
 allowBuilds:
-  "@getgauge/cli": true
-  "@parcel/watcher": true
+  '@getgauge/cli': true
+  '@parcel/watcher': true
   core-js: true
   esbuild: true
   msw: true
-  vue-demi: true
