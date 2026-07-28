@@ -59,7 +59,7 @@ import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import { type Match, type Node, NodeSchema, type NodeShape } from "@endeavour/vue-library/models";
+import { type Node, NodeSchema, type NodeShape, Query } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 
@@ -68,14 +68,14 @@ import { DataModelService } from "@/services";
 
 interface Props {
   baseType: Node;
-  match: Match;
+  match: Query;
 
   showPropertySelector: boolean;
 }
 
 const props = defineProps<Props>();
 const showPropertySelector = defineModel<boolean>("showPropertySelector", { default: false });
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
 const { expandNode, createModeView, createFeatureTree } = usePropertyTree();
@@ -98,7 +98,7 @@ async function init() {
   nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false);
   typeNodes.value = await createFeatureTree(nodeShape.value, "return");
   setupTrees("return");
-  if (!props.match.any) expandedKeys.value = { [typeNodes.value[0].key]: true };
+  if (!props.match.rule) expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};
   loading.value = false;
 }

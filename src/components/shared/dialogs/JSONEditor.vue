@@ -16,11 +16,11 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 
-import type { Match } from "@endeavour/vue-library/models";
+import type { Query } from "@endeavour/vue-library/models";
 
 import { isEqual } from "lodash-es";
 
-const modelData = defineModel<Match>("data");
+const modelData = defineModel<Query>("data");
 
 const definition = ref("");
 const errorMessage = ref("");

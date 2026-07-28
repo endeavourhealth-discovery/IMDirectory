@@ -150,7 +150,7 @@ import { Ref, inject, onMounted, ref } from "vue";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import { type Match, MatchSchema, type Node, NodeSchema, type NodeShape, OrderLimitSchema, QuerySchema, type When } from "@endeavour/vue-library/models";
+import { type Node, NodeSchema, type NodeShape, OrderLimitSchema, Query, QuerySchema, type When } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";
@@ -183,11 +183,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match: Ref<Match> = defineModel<Match>("match", { default: {} });
+const match: Ref<Query> = defineModel<Query>("match", { default: {} });
 const when = defineModel<When>("when", { default: {} });
 
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "updateMatch"): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
@@ -210,7 +210,7 @@ const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
 const edited = ref(false);
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const typeNodes: Ref<TreeNode[]> = ref([]);
 const nodeShape: Ref<NodeShape | undefined> = ref();
 const keepAsNode: Ref<string | undefined> = ref(match.value.node);
@@ -221,7 +221,7 @@ onMounted(async () => {
 });
 
 function addTest() {
-  match.value.then = MatchSchema.parse({ where: {} });
+  match.value.then = QuerySchema.parse({ where: {} });
   emit("addTest");
 }
 function onInput() {
@@ -298,7 +298,7 @@ async function onMatchNodeExpand(node: any) {
   await expandNode(node, "match");
 }
 
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {

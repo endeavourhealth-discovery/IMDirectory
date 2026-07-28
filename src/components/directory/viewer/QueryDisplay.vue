@@ -33,7 +33,7 @@
                   :clause-index="index"
                   :depth="1"
                   :eclQuery="eclQuery"
-                  :match="nestedQuery as Match"
+                  :match="nestedQuery as Query"
                   :parent-match="query"
                   :parent-operator="operator"
                 />
@@ -87,7 +87,7 @@ import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type Argument, type Match, type Node, NodeSchema, type Query, type QueryRequest, QuerySchema } from "@endeavour/vue-library/models";
+import { type Argument, type Node, NodeSchema, type Query, type QueryRequest, QuerySchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 

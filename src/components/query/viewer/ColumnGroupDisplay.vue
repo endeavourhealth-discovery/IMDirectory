@@ -33,7 +33,7 @@
 import { onMounted, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import { type Match, MatchSchema, type Node, type Query, QuerySchema } from "@endeavour/vue-library/models";
+import { type Node, type Query, QuerySchema } from "@endeavour/vue-library/models";
 
 import { QueryService } from "@/services";
 
@@ -50,7 +50,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const parentQuery = defineModel<Query>("parentQuery", { default: QuerySchema.parse({}) });
-const datasetEntry = defineModel<Match>("datasetEntry", { default: MatchSchema.parse({}) });
+const datasetEntry = defineModel<Query>("datasetEntry", { default: QuerySchema.parse({}) });
 const matchExpand = ref(true);
 const loading = ref(false);
 

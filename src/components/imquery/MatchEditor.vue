@@ -65,7 +65,7 @@ import { Ref, ref } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
-import { type Match, type Node, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import {  type Node, Query, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -79,7 +79,7 @@ import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   baseType: Node;
-  match: Match;
+  match: Query;
   depth: number;
   clauseIndex: number;
   showEditor: boolean;
@@ -89,13 +89,13 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const editMatch: Ref<Match> = ref(cloneDeep(props.match));
+const editMatch: Ref<Query> = ref(cloneDeep(props.match));
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
-  (event: "addTest", match: Match): void;
-  (event: "addLinked", match: Match): void;
+  (event: "addTest", match: Query): void;
+  (event: "addLinked", match: Query): void;
 }>();
 const dialogStore = useDialogStore();
 const activeTab = ref(props.datasetEntry ? "columns" : "filter");
@@ -136,7 +136,7 @@ async function getFunctionTemplates() {
   }
 }
 
-async function onUpdateClauses(match: Match) {
+async function onUpdateClauses(match: Query) {
   emit("saveChanges", match);
 }
 
@@ -147,7 +147,7 @@ async function onSave() {
   }
 }
 
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {

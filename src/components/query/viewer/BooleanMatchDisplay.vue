@@ -50,7 +50,7 @@
 import { computed, inject, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/models";
+import type { Query, Node } from "@endeavour/vue-library/models";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
@@ -58,9 +58,9 @@ import { buildHavingSentence } from "@/helpers/QueryEditorMethods";
 import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
 
 interface Props {
-  match: Match;
-  parentMatch: Match;
-  boolGroup: Match[];
+  match: Query;
+  parentMatch: Query;
+  boolGroup: Query[];
   parentOperator?: Bool;
   operator: Bool;
   depth: number;
@@ -72,7 +72,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const importClauses: Map<string, Match> | undefined = inject("importClauses", undefined);
+const importClauses: Map<string, Query> | undefined = inject("importClauses", undefined);
 const checked = ref(false);
 const selected = ref(props.parentSelected);
 const havingSentence = computed(() => {

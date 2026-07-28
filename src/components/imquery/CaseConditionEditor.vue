@@ -13,7 +13,7 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
-import type { Match, Node } from "@endeavour/vue-library/models";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
@@ -25,10 +25,10 @@ interface Props {
 }
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showCaseConditionEditor", { default: false });
-const match: Ref<Match> = defineModel<Match>("match", { default: {} });
+const match: Ref<Query> = defineModel<Query>("match", { default: {} });
 const edited = ref(false);
 const emit = defineEmits<{
-  (event: "saveCondition", match: Match): void;
+  (event: "saveCondition", match: Query): void;
   (event: "cancel"): void;
 }>();
 

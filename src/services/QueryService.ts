@@ -7,7 +7,6 @@ import {
   IMLLanguageSchema,
   Indicator,
   IndicatorSchema,
-  Match,
   PathDocument,
   PathDocumentSchema,
   PathQuery,
@@ -39,7 +38,7 @@ const QueryService = {
       return QueryResponseSchema.parse(result);
     }
   },
-  async flattenBooleans(query: Query | Match): Promise<Query> {
+  async flattenBooleans(query: Query): Promise<Query> {
     const result = await api.post(API_URL + "/flattenBooleans", query);
     return QuerySchema.parse(result);
   },
@@ -133,12 +132,12 @@ const QueryService = {
     return QuerySchema.parse(result);
   },
 
-  async getNestedReturns(match: Match): Promise<Return[]> {
+  async getNestedReturns(match: Query): Promise<Return[]> {
     const result = await api.post(API_URL + "/nestedReturns", { match: match });
     return parseArray(result, ReturnSchema);
   },
 
-  async getSemanticMaps(match: Match, column: Return): Promise<TTEntity[]> {
+  async getSemanticMaps(match: Query, column: Return): Promise<TTEntity[]> {
     const result = await api.post(API_URL + "/semanticMapsForMatch", { match: match, return: column });
     return parseArray(result, TTEntitySchema);
   }

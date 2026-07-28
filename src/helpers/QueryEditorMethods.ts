@@ -1,5 +1,5 @@
 import { Operator, Order } from "@endeavour/vue-library/enums";
-import type { Compare, Having, Match, Node, Orderable, Range, Where } from "@endeavour/vue-library/models";
+import type { Compare, Having, Node, Orderable, Range,Query, Where } from "@endeavour/vue-library/models";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
 import { SentencePart } from "@/interfaces";
@@ -45,7 +45,7 @@ export function getRelativeTo(where: Where): RelativeTo | undefined {
   return undefined;
 }
 
-export function getOrderable(match: Match, orderables: any[]): Orderable | undefined {
+export function getOrderable(match: Query, orderables: any[]): Orderable | undefined {
   if (match.orderBy) {
     const orderProperty = match.orderBy.property![0];
     return orderables.find(o => o.value.iri === orderProperty.iri && o.value.direction === orderProperty.direction);

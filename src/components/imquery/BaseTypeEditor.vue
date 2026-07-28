@@ -36,7 +36,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import { type Match, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
+import { type Query, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
@@ -47,7 +47,7 @@ import { SearchOptions } from "@/interfaces";
 import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const rootBaseEntities: Ref<string[]> = ref([]);
 const hoverEditClause = ref(false);
 const hoverAddClause = ref(false);
@@ -112,7 +112,7 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
             cohort: true
           }
         ]
-      } as Match;
+      } as Query;
       if (match.value.and) {
         if (match.value.and[0].is) match.value.and[0] = denominator;
         else match.value.and.unshift(denominator);

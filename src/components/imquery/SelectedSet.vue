@@ -40,7 +40,7 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { entityIsConcept, entityIsValueSet, getColourFromType, getFAIconFromType, isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
-import { type Match, type Node, NodeSchema, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type Node, NodeSchema, Query, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -142,7 +142,7 @@ function convertSelectedEntityToNode(selected: SelectedEntity): Node {
 
 function updateValueLabel() {}
 
-async function updateCanHaveValueList(path: Match | undefined) {}
+async function updateCanHaveValueList(path: Query | undefined) {}
 </script>
 
 <style scoped></style>

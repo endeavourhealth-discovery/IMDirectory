@@ -24,7 +24,7 @@
 import { Ref, ref } from "vue";
 
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import { type Match, MatchSchema, type Node, QuerySchema, type When, WhenSchema } from "@endeavour/vue-library/models";
+import { type Node, Query, QuerySchema, type When, WhenSchema } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
@@ -37,7 +37,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showCaseConditionEditor", { default: false });
-const match: Ref<Match> = defineModel<Match>("match", { default: MatchSchema.parse({}) });
+const match: Ref<Query> = defineModel<Query>("match", { default: QuerySchema.parse({}) });
 const when: Ref<When> = defineModel<When>("when", { default: WhenSchema.parse({}) });
 const edited = ref(false);
 const emit = defineEmits<{
@@ -57,7 +57,7 @@ function onSave() {
 }
 async function onUpdate() {
   edited.value = true;
-  const match = MatchSchema.parse({ return: [{ case: { when: [when.value] } }] });
+  const match = QuerySchema.parse({ return: [{ case: { when: [when.value] } }] });
   const matchAsQuery = QuerySchema.parse(match);
   const displayMatch = await QueryService.getQueryDisplayFromQuery(matchAsQuery, DisplayMode.ORIGINAL);
   const ret = displayMatch.return;

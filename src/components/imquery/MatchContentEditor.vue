@@ -74,7 +74,7 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
-import { type Match, type Node, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type Node, Query, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -92,10 +92,10 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const showEditor = defineModel<boolean>("showMatchEditor", { default: false });
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
   (event: "addLinked"): void;
@@ -111,7 +111,7 @@ const activeTab = ref("main");
 const edited = ref(false);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 
 const toggleNotExists = () => {
   if (match.value.notExists === undefined) {
@@ -150,7 +150,7 @@ function updateDescription() {
   edited.value = true;
   emit("updateMatch");
 }
-function updateKeepAs(oldVal: Match) {
+function updateKeepAs(oldVal: Query) {
   if (oldVal.node) {
     delete keepAs.value[oldVal.node];
   }

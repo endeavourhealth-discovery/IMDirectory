@@ -130,7 +130,7 @@
 import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool, IM } from "@endeavour/vue-library/enums";
-import { type Match, type QueryRequest, type SearchResultSummary, SearchResultSummarySchema, type Where } from "@endeavour/vue-library/models";
+import {  Query, type QueryRequest, type SearchResultSummary, SearchResultSummarySchema, type Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
@@ -168,7 +168,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
-const parent = defineModel<Where | Match>("parent", { required: true });
+const parent = defineModel<Where | Query>("parent", { required: true });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise", "createSubgroup"]);
 const group: Ref<number[]> = ref([]);
@@ -236,7 +236,7 @@ function onCheckGroupChange(e: any) {
 
 function deleteProperty() {
   if (props.parentType === "Match") {
-    delete (parent.value! as Match).where;
+    delete (parent.value! as Query).where;
   } else {
     if (parent.value) {
       const operator = props.parentOperator as keyof Where;

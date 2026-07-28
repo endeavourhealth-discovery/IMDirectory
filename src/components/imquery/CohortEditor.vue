@@ -108,7 +108,7 @@ import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, IM, NAMESPACE } from "@endeavour/vue-library/enums";
 import {
-  type Match,
+  type Query,
   type QueryRequest,
   SearchOptionsSchema,
   type SearchResponse,
@@ -136,10 +136,10 @@ interface Props {
 
 const props = defineProps<Props>();
 const editMode = defineModel<boolean>("editMode");
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const exclude = defineModel<boolean>("exclude", { default: false });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
-const importClauses: Ref<Map<string, Match>> = ref(new Map() as Map<string, Match>);
+const importClauses: Ref<Map<string, Query>> = ref(new Map() as Map<string, Query>);
 provide("importClauses", importClauses.value);
 const rootEntities: Ref<string[]> = ref([]);
 const cohort: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
@@ -168,7 +168,7 @@ const directoryHistory: Ref<string[]> = ref([]);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const emit = defineEmits<{
   (event: "updateCohort"): void;
-  (event: "updateClauses", clause: Match): void;
+  (event: "updateClauses", clause: Query): void;
   (event: "navigateTo", iri: string): void;
   (event: "cancel"): void;
   (event: "updateMatch"): void;
@@ -271,7 +271,7 @@ function updateClauses() {
       }
       emit("updateClauses", match);
     } else {
-      const match = { uuid: v4() } as Match;
+      const match = { uuid: v4() } as Query;
       match.and = [];
       for (const value of importClauses.value.values()) {
         if (value.or || value.and) {

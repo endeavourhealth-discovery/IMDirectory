@@ -55,7 +55,7 @@
         <div v-if="parentOperator === Bool.rule && index > 0" class="rule">Rule {{ index }}</div>
         <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
           <BooleanMatchEditor
-            v-model:match="boolGroup![subIndex] as Match"
+            v-model:match="boolGroup![subIndex] as Query"
             v-model:parent="match"
             v-model:parentGroup="group"
             :baseType="baseType"
@@ -135,7 +135,7 @@
 import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/models";
+import type { Node,Query } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Menu from "primevue/menu";
@@ -162,15 +162,15 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
-const parent = defineModel<Match>("parent", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
+const parent = defineModel<Query>("parent", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo", "deleteMatch"]);
 const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
-const editMatch: Ref<Match | undefined> = ref();
-const from: Ref<Match | undefined> = ref();
+const editMatch: Ref<Query | undefined> = ref();
+const from: Ref<Query | undefined> = ref();
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
@@ -179,7 +179,7 @@ const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
   { label: "Add query reference or import clause", icon: "pi pi-users", command: () => addCohort() }
 ];
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
 });
@@ -188,7 +188,7 @@ const displayOperator = computed(() => {
 });
 const isDefined = computed(() => {
 
-  const matches = match.value.and || match.value.or || match.value.any;
+  const matches = match.value.and || match.value.or || match.value.rule;
   if (matches) return true;
   if (match.value.orderBy) return true;
   if (match.value.where) return true;
@@ -252,7 +252,7 @@ function onCheckGroupChange(e: any) {
   checkGroupChange(e, parentGroup.value, props.index);
 }
 function addCohort() {
-  const match = { uuid: v4(), draft: true, is: [{}] } as Match;
+  const match = { uuid: v4(), draft: true, is: [{}] } as Query;
   match.invalid = true;
   addMatchToParent(parent.value, match);
 }
@@ -261,11 +261,11 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
   updateBooleans(match.value!, oldOperator as Bool, newOperator as Bool);
 }
 function createNewMatch() {
-  const match = { uuid: v4(), draft: true } as Match;
+  const match = { uuid: v4(), draft: true } as Query;
   addMatchToParent(parent.value, match);
 }
 
-async function saveEditMatch(editedMatch: Match) {
+async function saveEditMatch(editedMatch: Query) {
   showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
@@ -273,11 +273,11 @@ async function saveEditMatch(editedMatch: Match) {
   showEditor.value = false;
 }
 
-function getStepParent(): Match {
+function getStepParent(): Query {
   if (parent.value.and) {
     return parent.value;
   } else {
-    const stepMatch = { uuid: v4() } as Match;
+    const stepMatch = { uuid: v4() } as Query;
     stepMatch.and = [];
     if (parent.value.or) parent.value.or[props.index] = stepMatch;
     stepMatch.and!.push(match.value!);
@@ -285,7 +285,7 @@ function getStepParent(): Match {
   }
 }
 
-async function addTest(editedMatch: Match) {
+async function addTest(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   const stepMatch = getStepParent();
   const testMatch = { uuid: v4(), nodeRef: match.value!.node, draft: true };
@@ -293,7 +293,7 @@ async function addTest(editedMatch: Match) {
   showEditor.value = false;
 }
 
-async function addLinked(editedMatch: Match) {
+async function addLinked(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const stepMatch = getStepParent();

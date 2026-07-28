@@ -63,7 +63,7 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Compare, type Match, type TTIriRef, type UIProperty, type Value, ValueSchema, type Where } from "@endeavour/vue-library/models";
+import { type Compare, Query, type TTIriRef, type UIProperty, type Value, ValueSchema, type Where } from "@endeavour/vue-library/models";
 
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { Relativity } from "@/enums";
@@ -86,7 +86,7 @@ const assignable = defineModel<Value | Where>("assignable", { default: ValueSche
 const where = defineModel<Where>("where", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const operator = ref(Operator.eq);
 const compareOptions = computed(() => {
   return getCompareOptions(props.uiProperty.valueType);

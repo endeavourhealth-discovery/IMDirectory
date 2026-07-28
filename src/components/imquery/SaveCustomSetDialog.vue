@@ -65,7 +65,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM, IM_FUNCTION, NAMESPACE, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys, parseArray } from "@endeavour/vue-library/helpers";
-import { type Match, MatchSchema, type Node, NodeSchema, type TTIriRef, TTIriRefSchema } from "@endeavour/vue-library/models";
+import { type Node, NodeSchema, Query, QuerySchema, type TTIriRef, TTIriRefSchema } from "@endeavour/vue-library/models";
 
 import { isString } from "lodash-es";
 import { useToast } from "primevue/usetoast";
@@ -199,10 +199,10 @@ function getIsContainedIn() {
 }
 
 function getDefinition() {
-  const matches: Match[] = [];
+  const matches: Query[] = [];
   for (const member of props.setMembers) {
     if (isString(member.name)) {
-      matches.push(MatchSchema.parse({ name: member.name, is: member }));
+      matches.push(QuerySchema.parse({ name: member.name, is: member }));
     }
   }
   const definition = {

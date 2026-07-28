@@ -117,7 +117,7 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref } from "vue";
 
-import { type Match, type Node, type Return, type TTIriRef, type UIProperty, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
+import { type Node, Query, type Return, type TTIriRef, type UIProperty, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -137,7 +137,7 @@ interface Props {
   baseType: Node;
 }
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const column = defineModel<Return>("column", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];

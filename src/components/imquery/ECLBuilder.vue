@@ -71,7 +71,7 @@ import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type ECLQueryRequest, type Match, MatchSchema, type Query, QuerySchema } from "@endeavour/vue-library/models";
+import { type ECLQueryRequest, type Query, QuerySchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
@@ -100,7 +100,7 @@ const dialogStore = useDialogStore();
 const checkIncludeSubtypes = ref(false);
 const dynamicDialog = useDialog();
 const activeInputId = ref("");
-const build: Ref<Match> = ref({});
+const build: Ref<Query> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
@@ -174,9 +174,9 @@ async function preview() {
   previewECL.value = !previewECL.value;
 }
 
-function includeSubtypes(query: Match): Match {
+function includeSubtypes(query: Query): Query {
   if (checkIncludeSubtypes.value) {
-    return MatchSchema.parse({ is: { descendantsOrSelfOf: true, match: query } });
+    return QuerySchema.parse({ is: { descendantsOrSelfOf: true, match: query } });
   } else return query;
 }
 
