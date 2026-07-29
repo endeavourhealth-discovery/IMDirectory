@@ -104,7 +104,7 @@ async function addLinked(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  match.value.rule!.push(linkedMatch);
+  match.value.with!.push(linkedMatch);
   showEditor.value = false;
 }
 

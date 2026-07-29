@@ -36,8 +36,8 @@ export function usePropertyTree() {
   const mode: Ref<Mode> = ref("match");
 
   async function addToTreeFromAny(match: Query, nodes: TreeNode[]) {
-    if (match.rule) {
-      for (const [index, any] of match.rule.entries()) {
+    if (match.with) {
+      for (const [index, any] of match.with.entries()) {
         if (any.typeOf) {
           const iri = any.typeOf!.iri!;
           const nodeShape = await DataModelService.getDataModelProperties(iri, false);

@@ -121,22 +121,22 @@ function updateKeepAs() {
 function deleteAny() {
   updateKeepAs();
   showEditor.value = false;
-  delete match.value.rule;
+  delete match.value.with;
 }
 function deleteMatch(index: number) {
-  if (match.value.rule) {
-    match.value.rule.splice(index, 1);
-    if (match.value.rule.length === 0) {
-      delete match.value.rule;
+  if (match.value.with) {
+    match.value.with.splice(index, 1);
+    if (match.value.with.length === 0) {
+      delete match.value.with;
     }
   }
 }
 
 function createNewMatch() {
   const newMatch = { uuid: v4(), draft: true } as Query;
-  if (match.value.rule) match.value.rule.push(newMatch);
+  if (match.value.with) match.value.with.push(newMatch);
   else {
-    match.value.rule = [newMatch];
+    match.value.with = [newMatch];
   }
   emit("updateMatch");
 }
@@ -154,7 +154,7 @@ async function addLinked(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  match.value.rule!.push(linkedMatch);
+  match.value.with!.push(linkedMatch);
   showEditor.value = false;
   emit("updateMatch");
 }

@@ -188,7 +188,7 @@ const displayOperator = computed(() => {
 });
 const isDefined = computed(() => {
 
-  const matches = match.value.and || match.value.or || match.value.rule;
+  const matches = match.value.and || match.value.or || match.value.with;
   if (matches) return true;
   if (match.value.orderBy) return true;
   if (match.value.where) return true;

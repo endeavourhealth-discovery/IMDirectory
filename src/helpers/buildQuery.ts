@@ -224,8 +224,8 @@ export function getBooleanOperator(clauseType: string, clause: Query | Where | u
 export function getMatchFromNodeRef(match: Query, nodeRef: string): Query | undefined {
   if (!match) return undefined;
   if (match.node === nodeRef) return match;
-  if (match.rule) {
-    for (const any of match.rule) {
+  if (match.with) {
+    for (const any of match.with) {
       const testMatch = getMatchFromNodeRef(any, nodeRef);
       if (testMatch) return testMatch;
     }
@@ -368,8 +368,8 @@ export function getPathNameFromPropertyRef(match: Query, nodeRef: string, proper
 export function getPathNameFromMatch(match: Query, nodeRef: string): string | undefined {
   const pathName = getPathName(match, nodeRef);
   if (pathName) return pathName;
-  if (match.rule) {
-    for (const any of match.rule) {
+  if (match.with) {
+    for (const any of match.with) {
       if (any.node === nodeRef) return any.node + "->";
     }
   }
