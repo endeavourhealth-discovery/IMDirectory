@@ -42,10 +42,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, Ref, ref } from "vue";
+import { Ref, computed, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, SearchResponse } from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, SearchResponse } from "@endeavour/vue-library/models";
 
 import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useRouter } from "vue-router";
@@ -81,8 +81,8 @@ function updateSplitter(event: SplitterResizeEndEvent) {
 }
 
 async function routeToSelected(selected: TreeNode) {
-  if (isObjectHasKeys(selected, ["key"])) await directService.select(selected.key);
-  else if (isObjectHasKeys(selected, ["iri"])) await directService.select(selected.iri);
+  if (selected.key) await directService.select(selected.key);
+  else if (selected.iri) await directService.select(selected.iri);
   else if (typeof selected === "string") await directService.select(selected);
 }
 

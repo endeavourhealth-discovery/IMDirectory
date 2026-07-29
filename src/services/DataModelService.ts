@@ -1,6 +1,7 @@
-import type { NodeShape, TTIriRef, UIProperty } from "@endeavour/vue-library/interfaces";
+import { PropertyDisplay, PropertyDisplaySchema, UIPropertySchema, parseArray } from "@endeavour/vue-library";
+import { type NodeShape, NodeShapeSchema, type TTIriRef, TTIriRefSchema, type UIProperty } from "@endeavour/vue-library/models";
 
-import { PropertyDisplay } from "@/interfaces";
+import z from "zod";
 
 import Env from "./Env";
 import api from "./api";
@@ -9,55 +10,62 @@ const API_URL = Env.API + "api/dataModel/protected";
 
 const DataModelService = {
   async getDataModelProperties(iri: string, pathsOnly?: boolean): Promise<NodeShape> {
-    return await api.get(API_URL + "/dataModelProperties", {
+    const result = await api.get(API_URL + "/dataModelProperties", {
       params: {
         iri: iri,
         ...(pathsOnly !== undefined && { pathsOnly: pathsOnly })
       }
     });
+    return NodeShapeSchema.parse(result);
   },
   async getRelatedTypes(iri: string): Promise<NodeShape> {
-    return await api.get(API_URL + "/relatedTypes", {
+    const result = await api.get(API_URL + "/relatedTypes", {
       params: {
         iri: iri
       }
     });
+    return NodeShapeSchema.parse(result);
   },
   async getDataModelPropertiesWithValueType(iris: string[], valueType: string): Promise<NodeShape[]> {
-    return await api.get(API_URL + "/dataModelPropertiesWithValueType", {
+    const result = await api.get(API_URL + "/dataModelPropertiesWithValueType", {
       params: {
         iris: iris.join(","),
         valueType: valueType
       }
     });
+    return parseArray(result, NodeShapeSchema);
   },
   async getDataModelsFromProperty(propIri: string): Promise<TTIriRef[]> {
-    return await api.get(API_URL + "/dataModels", {
+    const result = await api.get(API_URL + "/dataModels", {
       params: {
         propIri: propIri
       }
     });
+    return parseArray(result, TTIriRefSchema);
   },
   async checkPropertyType(iri: string): Promise<string> {
     return await api.get(API_URL + "/checkPropertyType", { params: { iri: iri } });
   },
 
   async getUIProperty(dmIri: string, propIri: string): Promise<UIProperty> {
-    return await api.get(API_URL + "/UIPropertyForQB", { params: { dmIri: dmIri, propIri: propIri } });
+    const result = await api.get(API_URL + "/UIPropertyForQB", { params: { dmIri: dmIri, propIri: propIri } });
+    return UIPropertySchema.parse(result);
   },
 
   async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
-    return await api.get(API_URL + "/propertiesDisplay", {
+    const result = await api.get(API_URL + "/propertiesDisplay", {
       params: { iri: iri }
     });
+    return parseArray(result, PropertyDisplaySchema);
   },
   async getInversePath(source: string, target: string): Promise<TTIriRef> {
-    return await api.get(API_URL + "/inversePath", {
+    const result = await api.get(API_URL + "/inversePath", {
       params: {
         source: source,
         target: target
       }
     });
+    return TTIriRefSchema.parse(result);
   }
 };
 if (process.env.NODE_ENV !== "test") Object.freeze(DataModelService);

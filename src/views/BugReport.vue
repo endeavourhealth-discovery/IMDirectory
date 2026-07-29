@@ -115,7 +115,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Browser, OperatingSystem, REPO, Status, TaskModule, TaskState, TaskType } from "@endeavour/vue-library/enums";
-import type { BugReport } from "@endeavour/vue-library/interfaces";
+import type { BugReport } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useRouter } from "vue-router";

@@ -1,5 +1,5 @@
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import type { FilterOptions } from "@endeavour/vue-library/interfaces";
+import { type FilterOptions, FilterOptionsSchema } from "@endeavour/vue-library/models";
 
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, vi } from "vitest";
@@ -31,38 +31,38 @@ describe("state", () => {
 describe("mutations", () => {
   it("can updateselectedFilterOptions", () => {
     const filterStore = useFilterStore();
-    const testFilter: FilterOptions = {
+    const testFilter = FilterOptionsSchema.parse({
       status: [{ iri: IM.DRAFT }, { iri: IM.ACTIVE }],
       schemes: [{ iri: "http://endhealth.info/im#test" }],
       types: [{ iri: RDFS.CLASS }, { iri: RDF.PROPERTY }]
-    };
+    });
     filterStore.updateSelectedFilterOptions(testFilter);
     expect(filterStore.selectedFilterOptions).toEqual(testFilter);
   });
 
   it("can updateFilterOptions", () => {
     const filterStore = useFilterStore();
-    const testFilter: FilterOptions = {
+    const testFilter = FilterOptionsSchema.parse({
       status: [{ iri: IM.DRAFT }, { iri: IM.ACTIVE }],
       schemes: [{ iri: "http://endhealth.info/im#test" }],
       types: [{ iri: RDFS.CLASS }, { iri: RDF.PROPERTY }]
-    };
+    });
     filterStore.updateFilterOptions(testFilter);
     expect(filterStore.filterOptions).toEqual(testFilter);
   });
   it("can update hierarchyselectedFilterOptions", () => {
     const filterStore = useFilterStore();
-    const testFilter = [{ iri: "testIri", name: "testName", prefix: "testPrefix" }];
+    const testFilter = [{ iri: "http://endhealth.info/im#testIri", name: "testName", prefix: "testPrefix" }];
     filterStore.updateHierarchySelectedFilters(testFilter);
     expect(filterStore.hierarchySelectedFilters).toStrictEqual(testFilter);
   });
   it("can updateFilterDefaults", () => {
     const filterStore = useFilterStore();
-    const testFilter: FilterOptions = {
+    const testFilter = FilterOptionsSchema.parse({
       status: [{ iri: IM.DRAFT }, { iri: IM.ACTIVE }],
       schemes: [{ iri: "http://endhealth.info/im#test" }],
       types: [{ iri: RDFS.CLASS }, { iri: RDF.PROPERTY }]
-    };
+    });
     filterStore.updateDefaultFilterOptions(testFilter);
     expect(filterStore.defaultFilterOptions).toStrictEqual(testFilter);
   });

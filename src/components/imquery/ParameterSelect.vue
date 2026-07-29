@@ -16,8 +16,10 @@
 import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM, QUERY, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type QueryRequest, QueryRequestSchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+
+import { isString } from "lodash-es";
 
 import { EntityService, QueryService } from "@/services";
 
@@ -56,15 +58,16 @@ async function getParameters() {
   const response = await EntityService.getPartialEntity(props.propertyIri, []);
   if (isArrayHasLength(response?.[IM.PARAMETER])) {
     const param = response[IM.PARAMETER][0];
-    if (param[RDFS.LABEL]) placeholder.value = param[RDFS.LABEL];
-    if (isArrayHasLength(param[SHACL.CLASS]) && param[SHACL.CLASS][0].iri) options = await getOptions(param[SHACL.CLASS][0].iri);
+    if (isObjectHasKeys(param, [RDFS.LABEL]) && isString(param[RDFS.LABEL])) placeholder.value = param[RDFS.LABEL];
+    if (isObjectHasKeys(param, [RDFS.LABEL]) && isArrayHasLength(param[SHACL.CLASS]) && isArrayOf(param[SHACL.CLASS], isTTIriRef))
+      options = await getOptions(param[SHACL.CLASS][0].iri);
   }
   return options;
 }
 
 async function getOptions(iri: string) {
   let options: SelectOption[] = [];
-  const qr: QueryRequest = {
+  const qr = QueryRequestSchema.parse({
     query: { iri: QUERY.GET_SUBCLASSES },
     argument: [
       {
@@ -74,7 +77,7 @@ async function getOptions(iri: string) {
         }
       }
     ]
-  };
+  });
   const response = await QueryService.queryIM(qr);
   if (isArrayHasLength(response.entities)) {
     options = response.entities.map(entity => {

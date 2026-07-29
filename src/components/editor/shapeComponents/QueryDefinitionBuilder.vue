@@ -41,7 +41,7 @@ import { Ref, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { DisplayMode, IM } from "@endeavour/vue-library/enums";
-import type { PropertyShape, Query } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape, Query } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 

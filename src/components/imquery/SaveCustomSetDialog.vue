@@ -61,12 +61,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, onMounted, Ref, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM, IM_FUNCTION, NAMESPACE, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayHasLength, isObjectHasKeys, parseArray } from "@endeavour/vue-library/helpers";
+import { type Node, NodeSchema, Query, QuerySchema, type TTIriRef, TTIriRefSchema } from "@endeavour/vue-library/models";
 
+import { isString } from "lodash-es";
 import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
@@ -106,7 +107,7 @@ const [setType, typeAttrs] = defineField("type");
 
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
-const selectedMember: Ref<Node> = ref({});
+const selectedMember: Ref<Node> = ref(NodeSchema.parse({}));
 const showSaveCustomSetDialog = ref(false);
 const loading = ref(false);
 watch(
@@ -146,7 +147,8 @@ async function getTypeOptions(): Promise<TTIriRef[]> {
 }
 
 async function getSchemeOptions(): Promise<TTIriRef[]> {
-  return await FunctionService.runFunction(IM_FUNCTION.GET_USER_EDITABLE_SCHEMES);
+  const result = await FunctionService.runFunction(IM_FUNCTION.GET_USER_EDITABLE_SCHEMES);
+  return parseArray(result, TTIriRefSchema);
 }
 
 function onNameGenIri() {
@@ -177,7 +179,7 @@ const onSubmit = handleSubmit(async () => {
   }
   loading.value = false;
   showSaveCustomSetDialog.value = false;
-  emit("onSave", { iri: setEntity.iri, name: setEntity[RDFS.LABEL] });
+  emit("onSave", NodeSchema.parse({ iri: setEntity.iri, name: setEntity[RDFS.LABEL] }));
 });
 
 function onDiscard() {
@@ -197,9 +199,11 @@ function getIsContainedIn() {
 }
 
 function getDefinition() {
-  const matches: Match[] = [];
+  const matches: Query[] = [];
   for (const member of props.setMembers) {
-    matches.push({ name: member.name, is: member });
+    if (isString(member.name)) {
+      matches.push(QuerySchema.parse({ name: member.name, is: member }));
+    }
   }
   const definition = {
     or: matches

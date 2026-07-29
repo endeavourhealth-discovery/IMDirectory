@@ -83,7 +83,7 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay, useSpeechToText } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import { type FilterOptions, PageSchema, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 
@@ -283,7 +283,7 @@ async function search() {
     if (imQueryCopy) {
       searchLoading.value = true;
       imQueryCopy.textSearch = searchText.value;
-      imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+      imQueryCopy.page = PageSchema.parse({ pageNumber: 1, pageSize: 10 });
       imQueryCopy.textSearchStyle = TextSearchStyle.autocomplete;
       const response = await QueryService.queryIMSearch(imQueryCopy);
       searchLoading.value = false;

@@ -163,8 +163,16 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { IM, NAMESPACE, RDF, RDFS, SHACL, SNOMED, XSD } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import {
+  type PropertyShape,
+  type QueryRequest,
+  QueryRequestSchema,
+  type SearchResultSummary,
+  type TTEntity,
+  type TTIriRef,
+  isTTIriRef
+} from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -222,41 +230,45 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 const dmProperties: Ref<SimpleProp[]> = ref([]);
 const dmPropertiesInherited: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
-const pSuggestions: Ref<QueryRequest> = ref({
-  query: {
-    and: [
-      {
-        typeOf: {
-          iri: RDF.PROPERTY
-        },
-        where: {
-          iri: IM.HAS_STATUS,
-          is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
-        }
-      }
-    ]
-  }
-});
-const rSuggestions: Ref<QueryRequest> = ref({
-  query: {
-    where: {
+const pSuggestions = ref(
+  QueryRequestSchema.parse({
+    query: {
       and: [
         {
-          iri: RDF.TYPE,
-          is: [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT }]
-        },
-        {
-          iri: IM.HAS_SCHEME,
-          is: [{ iri: NAMESPACE.SNOMED }, { iri: NAMESPACE.IM }, { iri: NAMESPACE.XSD }]
-        },
-        {
-          iri: IM.HAS_STATUS,
-          is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
+          typeOf: {
+            iri: RDF.PROPERTY
+          },
+          where: {
+            iri: IM.HAS_STATUS,
+            is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
+          }
         }
       ]
     }
-  }
-});
+  })
+);
+const rSuggestions = ref(
+  QueryRequestSchema.parse({
+    query: {
+      where: {
+        and: [
+          {
+            iri: RDF.TYPE,
+            is: [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT }]
+          },
+          {
+            iri: IM.HAS_SCHEME,
+            is: [{ iri: NAMESPACE.SNOMED }, { iri: NAMESPACE.IM }, { iri: NAMESPACE.XSD }]
+          },
+          {
+            iri: IM.HAS_STATUS,
+            is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
+          }
+        ]
+      }
+    }
+  })
+);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 
@@ -351,11 +363,10 @@ function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], 
   if (property[SHACL.PATH]?.[0]) {
     pathName = property[SHACL.PATH]?.[0].name;
   }
-  if (property[rangeType]?.[0]) {
-    rangeIri = property[rangeType]?.[0].iri;
-  }
-  if (property[rangeType]?.[0]) {
-    rangeName = property[rangeType]?.[0].name;
+  const rangeTypeValue = property[rangeType];
+  if (isArrayOf(rangeTypeValue, isTTIriRef) && rangeTypeValue.length > 0) {
+    rangeIri = rangeTypeValue[0].iri;
+    rangeName = rangeTypeValue[0].name;
   }
   const row: SimpleProp = {
     path: {
@@ -366,7 +377,7 @@ function processProperty(newData: SimpleProp[], newInheritedData: SimpleProp[], 
       type: []
     },
     range: {
-      iri: rangeIri,
+      iri: rangeIri!,
       name: rangeName,
       scheme: { iri: "", name: "" },
       status: { iri: "", name: "" },
@@ -461,8 +472,8 @@ function moveDown(index: number) {
 
 async function getRangeType(iri: string) {
   const partial = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
-  const types: TTIriRef[] = partial?.[RDF.TYPE];
-  if (isArrayHasLength(types)) {
+  const types = partial[RDF.TYPE];
+  if (isArrayOf(types, isTTIriRef)) {
     if (types.some(t => t.iri == IM.CONCEPT)) return SHACL.CLASS;
     else if (types.some(t => t.iri == IM.CONCEPT_SET)) return SHACL.CLASS;
     else if (types.some(t => t.iri == RDFS.DATATYPE)) return SHACL.DATATYPE;
@@ -483,10 +494,10 @@ async function validateEntity() {
 
 function updateEntity() {
   if (entityUpdate) {
-    const deltas: ExtendedTTEntity[] = [];
+    const deltas: TTEntity[] = [];
     const dmAllProperties = dmProperties.value.concat(dmPropertiesInherited.value);
     dmAllProperties.forEach((value, index) => {
-      const p: ExtendedTTEntity = {};
+      const p: TTEntity = {};
       let fullPath = {} as TTIriRef;
       let fullRange = {} as TTIriRef;
 
@@ -501,7 +512,7 @@ function updateEntity() {
       p[IM.INHERITED_FROM] = value.inherited;
       deltas.push(p);
     });
-    const update: ExtendedTTEntity = {};
+    const update: TTEntity = {};
     update[key] = deltas;
 
     entityUpdate(update);

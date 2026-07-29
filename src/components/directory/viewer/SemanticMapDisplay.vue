@@ -77,9 +77,10 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import { type TTEntity, TTIriRef, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
+import { isString } from "lodash-es";
 import ProgressSpinner from "primevue/progressspinner";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -95,9 +96,9 @@ const emit = defineEmits<{
 }>();
 
 const loading = ref(true);
-const semanticMap: Ref<ExtendedTTEntity | undefined> = ref();
-const mapEntries: Ref<any[] | undefined> = ref();
-const displayEntries: Ref<any[]> = ref([]);
+const semanticMap: Ref<TTEntity | undefined> = ref();
+const mapEntries: Ref<TTEntity[] | undefined> = ref();
+const displayEntries: Ref<TTEntity[]> = ref([]);
 const defaultText = computed(() => semanticMap.value?.[IM.DEFAULT_TEXT]);
 const defaultValue = computed(() => semanticMap.value?.[IM.DEFAULT_VALUE]);
 
@@ -117,14 +118,17 @@ async function init() {
   if (props.entityIri) {
     semanticMap.value = await EntityService.getFullEntity(props.entityIri);
     const rawEntries = semanticMap.value[IM.HAS_MAP_ENTRY];
-    mapEntries.value = rawEntries;
-    if (isArrayHasLength(rawEntries)) {
-      displayEntries.value = [];
-      for (const entry of rawEntries) {
-        displayEntries.value.push(await EntityService.getFullEntity(entry.iri));
+    if (isArrayOf(rawEntries, isTTEntity)) {
+      mapEntries.value = rawEntries;
+      if (isArrayHasLength(rawEntries)) {
+        displayEntries.value = [];
+        for (const entry of rawEntries) {
+          if (isString(entry.iri)) displayEntries.value.push(await EntityService.getFullEntity(entry.iri));
+        }
+      } else {
+        mapEntries.value = [];
+        displayEntries.value = [];
       }
-    } else {
-      displayEntries.value = [];
     }
   }
   loading.value = false;

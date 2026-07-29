@@ -64,8 +64,8 @@ import { Ref, ref } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import {  type Node, Query, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -79,7 +79,7 @@ import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   baseType: Node;
-  match: Match;
+  match: Query;
   depth: number;
   clauseIndex: number;
   showEditor: boolean;
@@ -89,13 +89,13 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const editMatch: Ref<Match> = ref(cloneDeep(props.match));
+const editMatch: Ref<Query> = ref(cloneDeep(props.match));
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
-  (event: "addTest", match: Match): void;
-  (event: "addLinked", match: Match): void;
+  (event: "addTest", match: Query): void;
+  (event: "addLinked", match: Query): void;
 }>();
 const dialogStore = useDialogStore();
 const activeTab = ref(props.datasetEntry ? "columns" : "filter");
@@ -105,9 +105,8 @@ const edited = ref(false);
 
 async function onUpdate() {
   edited.value = true;
-  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
 }
-
 
 function deleteMatch() {
   emit("deleteMatch");
@@ -130,14 +129,14 @@ async function getFunctionTemplates() {
   const iri = editMatch.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
-    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
+    if (isArrayOf(entity[IM.FUNCTION_TEMPLATE], isTTIriRef)) {
       const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate.iri);
       return await EntityService.getPartialEntities(iris, []);
     }
   }
 }
 
-async function onUpdateClauses(match: Match) {
+async function onUpdateClauses(match: Query) {
   emit("saveChanges", match);
 }
 
@@ -148,7 +147,7 @@ async function onSave() {
   }
 }
 
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {
@@ -161,13 +160,13 @@ async function showInvalid(match: Match) {
 }
 
 async function saveChanges(): Promise<boolean> {
-  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  const matchCheck = await QueryService.validateQuery(QuerySchema.parse(editMatch.value));
   if (matchCheck.invalid) {
     editMatch.value.draft = true;
     await showInvalid(matchCheck);
     return false;
   } else {
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
     editMatch.value.draft = false;
     return true;
   }

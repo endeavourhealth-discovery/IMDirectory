@@ -98,18 +98,13 @@
   </Dialog>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type {
-  FilterOptions,
-  QueryRequest,
-  SearchResponse,
-  SearchResultSummary
-} from "@endeavour/vue-library/interfaces";
+import { ArgumentSchema, type FilterOptions, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 import { SplitterResizeEndEvent } from "primevue/splitter";
 
 import EclSearch from "@/components/directory/EclSearch.vue";
@@ -215,7 +210,9 @@ function onSearch() {
 async function setSelectedName() {
   if (detailsIri.value) {
     const entity = await EntityService.getPartialEntity(detailsIri.value, [RDFS.LABEL]);
-    selectedName.value = entity[RDFS.LABEL];
+    if (isString(entity[RDFS.LABEL])) {
+      selectedName.value = entity[RDFS.LABEL];
+    }
   }
 }
 
@@ -274,7 +271,7 @@ async function getIsSelectableEntity(): Promise<boolean> {
     const existing = props.validEntityQuery.argument!.find(a => a.parameter === "entity");
     if (existing) {
       existing.valueIri = { iri: detailsIri.value };
-    } else props.validEntityQuery.argument!.push({ parameter: "entity", valueIri: { iri: detailsIri.value } });
+    } else props.validEntityQuery.argument!.push(ArgumentSchema.parse({ parameter: "entity", valueIri: { iri: detailsIri.value } }));
     return await QueryService.askQuery(props.validEntityQuery);
   }
   return true;

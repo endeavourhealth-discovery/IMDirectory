@@ -1,12 +1,20 @@
-import type { GenericObject, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { type GenericObject, type TTIriRef, TTIriRefSchema } from "@endeavour/vue-library/models";
 
-export interface Property extends GenericObject {
-  "http://www.w3.org/ns/shacl#path": TTIriRef[];
-  "http://www.w3.org/ns/shacl#order": number;
-  "http://www.w3.org/ns/shacl#node"?: TTIriRef[];
-  "http://www.w3.org/ns/shacl#datatype"?: TTIriRef[];
-  "http://www.w3.org/ns/shacl#class"?: TTIriRef[];
-  "http://endhealth.info/im#inheritedFrom"?: TTIriRef[];
-  "http://www.w3.org/ns/shacl#minCount"?: number;
-  "http://www.w3.org/ns/shacl#maxCount"?: number;
+import z from "zod";
+
+export const PropertySchema = z.looseObject({
+  "http://www.w3.org/ns/shacl#path": z.array(TTIriRefSchema).prefault([]),
+  "http://www.w3.org/ns/shacl#order": z.number(),
+  "http://www.w3.org/ns/shacl#node": z.array(TTIriRefSchema).optional(),
+  "http://www.w3.org/ns/shacl#datatype": z.array(TTIriRefSchema).optional(),
+  "http://www.w3.org/ns/shacl#class": z.array(TTIriRefSchema).optional(),
+  "http://endhealth.info/im#inheritedFrom": z.array(TTIriRefSchema).optional(),
+  "http://www.w3.org/ns/shacl#minCount": z.number().optional(),
+  "http://www.w3.org/ns/shacl#maxCount": z.number().optional()
+});
+
+export type Property = z.output<typeof PropertySchema>;
+
+export function isProperty(value: unknown): value is Property {
+  return PropertySchema.safeParse(value).success;
 }

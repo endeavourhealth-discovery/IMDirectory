@@ -82,12 +82,12 @@
 import { Ref, onMounted, ref, watch } from "vue";
 
 import { XSD } from "@endeavour/vue-library/enums";
+import { type CodeGen, CodeGenSchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep, debounce } from "lodash-es";
 import { useToast } from "primevue/usetoast";
 
 import TopBar from "@/components/shared/TopBar.vue";
-import { CodeTemplate } from "@/interfaces";
 import CodeGenService from "@/services/CodeGenService";
 
 const toast = useToast();
@@ -220,15 +220,15 @@ async function saveTemplate() {
   await getTemplateList();
 }
 
-function getTemplate(): CodeTemplate {
-  return {
+function getTemplate(): CodeGen {
+  return CodeGenSchema.parse({
     name: nameInput.value,
     extension: fileExtensionInput.value,
     complexTypes: complexTypes.value,
     collectionWrapper: collectionWrapperInput.value,
     datatypeMap: Object.fromEntries(datatypeMapInput.value.map((obj: { code: string; replace: string }) => [obj.code, obj.replace] as const)),
     template: codeInput.value
-  } as CodeTemplate;
+  });
 }
 
 function toggleLoad(event: MouseEvent) {

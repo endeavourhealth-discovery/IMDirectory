@@ -114,7 +114,7 @@
 import { Ref, onMounted, provide, readonly, ref, shallowRef, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type { Match, Query } from "@endeavour/vue-library/interfaces";
+import type {  Query } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -152,7 +152,7 @@ const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
-const keepAs = shallowRef<Record<string, Ref<Match>>>({});
+const keepAs = shallowRef<Record<string, Ref<Query>>>({});
 const toEdit: Ref<number | undefined> = ref();
 const showEditor = ref(false);
 const draggedColumnIndex = ref<number | undefined>();
@@ -182,12 +182,12 @@ function onDeleteGroup(index: number) {
 }
 function addColumnGroup() {
   if (!query.value.columnGroup) query.value.columnGroup = [];
-  const match = { uuid: v4(), draft: true } as Match;
+  const match = { uuid: v4(), draft: true } as Query;
   query.value.columnGroup.push(match);
   toEdit.value = query.value.columnGroup.length - 1;
   showEditor.value = true;
 }
-function saveColumnGroup(editMatch: Match) {
+function saveColumnGroup(editMatch: Query) {
   showEditor.value = false;
   if (toEdit.value !== undefined) {
     query.value.columnGroup![toEdit.value] = editMatch;
@@ -261,7 +261,7 @@ async function submit(): Promise<void> {
   }
 }
 
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {

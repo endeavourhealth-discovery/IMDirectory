@@ -1,10 +1,9 @@
 import { Ref } from "vue";
 
-import { Operator } from "@endeavour/vue-library";
+import { QuerySchema, NodeSchema, Operator, QueryRequestSchema, WhereSchema } from "@endeavour/vue-library";
 import { Bool, IM, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type {
-  Match,
   Node,
   NodeShape,
   Orderable,
@@ -16,7 +15,7 @@ import type {
   SearchBinding,
   When,
   Where
-} from "@endeavour/vue-library/interfaces";
+} from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
@@ -26,20 +25,29 @@ import { Relativity } from "@/enums";
 import { SearchOptions } from "@/interfaces";
 import { DataModelService, QueryService } from "@/services";
 
+interface Options {
+  value: string;
+  label?: string;
+  tooltip?: string;
+  name?: string;
+}
+
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
-  const imQuery: QueryRequest = { query: {} };
-  if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
-  if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
-  if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery.query);
-  if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery.query);
+  const imQuery = QueryRequestSchema.parse({ query: {} });
+  if (imQuery.query) {
+    if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
+    if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
+    if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery.query);
+    if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery.query);
+  }
   if (isArrayHasLength(filterOptions.binding)) addBindingsToIMQuery(filterOptions.binding!, imQuery);
   if (filterOptions.page) imQuery.page = filterOptions.page;
   if (filterOptions.textSearch) imQuery.textSearch = filterOptions.textSearch;
   return imQuery;
 }
 
-export function getOperatorOptions(valueType: string): any[] {
-  const options = [];
+export function getOperatorOptions(valueType: string): Options[] {
+  const options: Options[] = [];
   if (valueType != XSD.STRING) {
     options.push({
       label: "equal to",
@@ -76,7 +84,7 @@ export function getOperatorOptions(valueType: string): any[] {
   return options;
 }
 
-export function getCompareOptions(valueType: string): any[] {
+export function getCompareOptions(valueType: string): Options[] {
   const options = [];
   options.push({ label: "Compare to another value", value: Relativity.Compare });
   if (valueType != XSD.STRING) {
@@ -99,24 +107,24 @@ export function checkGroupChange(e: any, parentGroup: number[], index: number) {
   parentGroup.sort((a, b) => a - b);
 }
 
-function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
-  if (!query.where) query.where = {};
+function addFilterToIMQuery(predicate: string, values: unknown[], query: Query) {
+  if (!query.where) query.where = WhereSchema.parse({});
   if (!query.where.and) query.where.and = [];
-  const where: Where = {
+  const where: Where = WhereSchema.parse({
     iri: predicate,
-    is: values.map(item => item as Node)
-  };
+    is: values.map(item => NodeSchema.parse(item))
+  });
   query.where.and.push(where);
 }
 
-export function updateFocusConcepts(match: Match): string[] {
+export function updateFocusConcepts(match: Query): string[] {
   if (match.is && match.is.iri) return [match.is.iri];
   const focusConcepts: string[] = [];
   focusConcepts.push(...focusChildren(match.or));
   focusConcepts.push(...focusChildren(match.and));
   return focusConcepts;
 }
-function focusChildren(children: Match[] | undefined): string[] {
+function focusChildren(children: Query[] | undefined): string[] {
   const focusConcepts: string[] = [];
   if (children) {
     for (const item of children) {
@@ -126,7 +134,7 @@ function focusChildren(children: Match[] | undefined): string[] {
   return focusConcepts;
 }
 
-export function removeSubgroup(clause: any, parent: Match | Where, index: number) {
+export function removeSubgroup(clause: any, parent: Query | Where, index: number) {
   if (parent.or) {
     parent.or.splice(index, 1);
     if (clause.and) {
@@ -143,7 +151,7 @@ export function removeSubgroup(clause: any, parent: Match | Where, index: number
 
 export function createNewBoolGroup(clause: any, group: number[]) {
   group.sort((a, b) => a - b);
-  const newClause: Where = {};
+  const newClause = WhereSchema.parse({});
   if (clause.and) {
     newClause.or = [];
     group.forEach(index => {
@@ -170,9 +178,9 @@ export function createNewBoolGroup(clause: any, group: number[]) {
   }
 }
 
-export function addConceptToGroup(match: Match) {
-  if (match.or) match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
-  else if (match.and) match.and.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
+export function addConceptToGroup(match: Query) {
+  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
@@ -180,18 +188,18 @@ export function addConceptToGroup(match: Match) {
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } });
+    match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   }
 }
 
-export function updateBooleans(clause: Match | Where, from: Bool, to: Bool) {
+export function updateBooleans(clause: Query | Where, from: Bool, to: Bool) {
   if (from === to) return;
   if (from === Bool.and) {
     clause.or = (clause as Where).and;
-    delete (clause as Where).and;
+    (clause as Where).and = [];
   } else if (from === Bool.or) {
     clause.and = clause.or;
-    delete clause.or;
+    clause.or = [];
   }
 }
 
@@ -205,19 +213,19 @@ export function getDisplayOperator(parentOperator: Bool | undefined, clauseIndex
   else return parentOperator as string;
 }
 
-export function getBooleanOperator(clauseType: string, clause: Match | Where | undefined): Bool | undefined {
+export function getBooleanOperator(clauseType: string, clause: Query | Where | undefined): Bool | undefined {
   if (!clause) return undefined;
   if (clause.and) return Bool.and;
   if (clause.or) return Bool.or;
-  else if ((clause as Match).rule) return Bool.rule;
+  else if ((clause as Query).rule) return Bool.rule;
   else return undefined;
 }
 
-export function getMatchFromNodeRef(match: Match, nodeRef: string): Match | undefined {
+export function getMatchFromNodeRef(match: Query, nodeRef: string): Query | undefined {
   if (!match) return undefined;
   if (match.node === nodeRef) return match;
-  if (match.any) {
-    for (const any of match.any) {
+  if (match.with) {
+    for (const any of match.with) {
       const testMatch = getMatchFromNodeRef(any, nodeRef);
       if (testMatch) return testMatch;
     }
@@ -225,11 +233,11 @@ export function getMatchFromNodeRef(match: Match, nodeRef: string): Match | unde
   return undefined;
 }
 
-export function getBoolGroup(clauseType: string, clause: Match | Where | undefined): any[] | undefined {
+export function getBoolGroup(clauseType: string, clause: Query | Where | undefined): any[] | undefined {
   if (!clause) return undefined;
   if (clause.or) return clause.or;
   if (clause.and) return clause.and;
-  if ((clause as Match).rule) return (clause as Match).rule;
+  if ((clause as Query).rule) return (clause as Query).rule;
   else return undefined;
 }
 
@@ -252,7 +260,7 @@ export function getBooleanLabel(clauseType: string, operator: Bool, index: numbe
   return "";
 }
 
-export function getIsRoleGroup(clause: Where | undefined | Match): boolean {
+export function getIsRoleGroup(clause: Where | undefined | Query): boolean {
   if (!clause) return false;
   const where = clause as Where;
   return !!where.roleGroup;
@@ -279,7 +287,7 @@ function removeRoleSubgroups(where: Where): void {
     removeRoleSubgroups(item);
   }
 }
-export function addWhereToMatch(match: Match, where: Where, index?: number) {
+export function addWhereToMatch(match: Query, where: Where, index?: number) {
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;
@@ -291,7 +299,7 @@ export function addWhereToMatch(match: Match, where: Where, index?: number) {
   } else match.where = where;
 }
 
-export function addWhereToThen(match: Match, where: Where) {
+export function addWhereToThen(match: Query, where: Where) {
   if (match.then && !match.then.where) {
     match.then.where = where;
     return;
@@ -310,11 +318,11 @@ export function addWhereToThen(match: Match, where: Where) {
   } else {
     if (match.then) match.then.where = where;
     else {
-      match.then = { where: where };
+      match.then = QuerySchema.parse({ where: where });
     }
   }
 }
-export async function getSemanticMapOptions(match: Match, baseType: Node, column: Return): Promise<any[] | undefined> {
+export async function getSemanticMapOptions(match: Query, baseType: Node, column: Return): Promise<any[] | undefined> {
   let mappableMatch = match;
   if (!match.typeOf) {
     mappableMatch = cloneDeep(match);
@@ -331,7 +339,7 @@ export async function getSemanticMapOptions(match: Match, baseType: Node, column
   }
   return options;
 }
-export function getPathPropertyNames(pathable: Match | Path, where: Where): string | undefined {
+export function getPathPropertyNames(pathable: Query | Path, where: Where): string | undefined {
   if (!where.nodeRef) return where.name;
   if (pathable.path) {
     for (const path of pathable.path) {
@@ -343,7 +351,7 @@ export function getPathPropertyNames(pathable: Match | Path, where: Where): stri
   return undefined;
 }
 
-export function getPathNameFromPropertyRef(match: Match, nodeRef: string, propertyRef: string) {
+export function getPathNameFromPropertyRef(match: Query, nodeRef: string, propertyRef: string) {
   const returnMatch = getMatchFromNodeRef(match, nodeRef);
   if (!returnMatch) return undefined;
   if (returnMatch.return) {
@@ -357,16 +365,16 @@ export function getPathNameFromPropertyRef(match: Match, nodeRef: string, proper
     }
   }
 }
-export function getPathNameFromMatch(match: Match, nodeRef: string): string | undefined {
+export function getPathNameFromMatch(match: Query, nodeRef: string): string | undefined {
   const pathName = getPathName(match, nodeRef);
   if (pathName) return pathName;
-  if (match.any) {
-    for (const any of match.any) {
+  if (match.with) {
+    for (const any of match.with) {
       if (any.node === nodeRef) return any.node + "->";
     }
   }
 }
-export function getPathName(pathable: Match | Path, nodeRef: string | undefined): string | undefined {
+export function getPathName(pathable: Query | Path, nodeRef: string | undefined): string | undefined {
   if (!pathable.path) return undefined;
   if (!nodeRef) return undefined;
   for (const path of pathable.path) {
@@ -376,19 +384,19 @@ export function getPathName(pathable: Match | Path, nodeRef: string | undefined)
   }
 }
 
-export function getRuleAction(match: Match): string {
+export function getRuleAction(match: Query): string {
   if (match.ifTrue) {
     return (match.ifTrue + match.ifFalse).toLowerCase();
   }
   return "nextreject";
 }
 
-export function addMatchToParent(parent: Match, match: Match, defaultOperator?: Bool) {
-  const matches = parent.rule || parent.and || parent.or || parent.any;
+export function addMatchToParent(parent: Query, match: Query, defaultOperator?: Bool) {
+  const matches = parent.rule || parent.and || parent.or || parent.rule;
   if (matches) matches.push(match);
   else if (parent.is) {
     parent.and = [];
-    const isMatch = { uuid: v4(), is: parent.is } as Match;
+    const isMatch = { uuid: v4(), is: parent.is } as Query;
     parent.and.push(isMatch);
     parent.and.push(match);
     delete parent.is;
@@ -398,7 +406,7 @@ export function addMatchToParent(parent: Match, match: Match, defaultOperator?: 
     parent[bool].push(match);
   }
 }
-export function setRuleAction(match: Match, ruleAction: string) {
+export function setRuleAction(match: Query, ruleAction: string) {
   switch (ruleAction) {
     case "selectnext": {
       match.ifTrue = RuleAction.SELECT;
@@ -528,43 +536,43 @@ export function setConstraintOperator(constrainer: Node | Where, valueConstraint
     case "<<":
     case "descendantsOrSelfOf":
       constrainer.descendantsOrSelfOf = true;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case "<":
     case "descendantsOf":
       constrainer.descendantsOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.memberOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.memberOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case "^":
     case "memberOf":
       constrainer.memberOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case ">>":
     case "ancestorsOrSelfOf":
       constrainer.ancestorsOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
       break;
     default:
-      delete constrainer.ancestorsOf;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
+      constrainer.ancestorsOf = false;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
   }
 }
 
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
-  if (!isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
+  if (imQuery.query && !isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
   for (const searchBinding of searchBindings) {
-    const match: Match = {
+    const match = QuerySchema.parse({
       path: [
         {
           iri: IM.BINDING
@@ -582,19 +590,19 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
           }
         ]
       }
-    };
-    imQuery.query.and!.push(match);
+    });
+    imQuery.query?.and?.push(match);
   }
 }
 
-export async function setMandatoryWheres(match: Match): Promise<void> {
+export async function setMandatoryWheres(match: Query): Promise<void> {
   if (match.typeOf) {
     await setMandatoryWheresFromType(match, match.typeOf.iri!, undefined);
   }
   await setMandatoryWheresFromPath(match, match);
 }
 
-export async function setMandatoryWheresFromPath(match: Match, pathable: Match | Path) {
+export async function setMandatoryWheresFromPath(match: Query, pathable: Query | Path) {
   if (pathable.path) {
     for (const path of pathable.path) {
       if (path.typeOf) {
@@ -605,7 +613,7 @@ export async function setMandatoryWheresFromPath(match: Match, pathable: Match |
   }
 }
 
-async function setMandatoryWheresFromType(match: Match, typeIri: string, nodeRef?: string) {
+async function setMandatoryWheresFromType(match: Query, typeIri: string, nodeRef?: string) {
   const nodeShape = await DataModelService.getDataModelProperties(typeIri, false);
   if (!nodeShape) return;
   if (nodeShape.definingProperty) {
@@ -629,7 +637,7 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef?: string): string {
+export function getTypeIriFromMatch(match: Query, baseType: Node, nodeRef?: string): string {
   if (nodeRef) {
     const typeOf = getTypeIriFromNodeRef(match, nodeRef);
     if (typeOf) return typeOf;
@@ -639,7 +647,7 @@ export function getTypeIriFromMatch(match: Match, baseType: Node, nodeRef?: stri
   else return baseType.iri!;
 }
 
-export function getTypeIriFromNodeRef(pathable: Match | Path, nodeRef: string): string | undefined {
+export function getTypeIriFromNodeRef(pathable: Query | Path, nodeRef: string): string | undefined {
   if (pathable.path) {
     for (const path of pathable.path) {
       if (path.node === nodeRef) return path.typeOf!.iri!;
@@ -649,7 +657,7 @@ export function getTypeIriFromNodeRef(pathable: Match | Path, nodeRef: string): 
   }
 }
 
-export function injectReturn(match: Match, iri: string, ref: string) {
+export function injectReturn(match: Query, iri: string, ref: string) {
   if (!match.return) match.return = [];
   for (const ret of match.return) {
     if (ret.iri === iri) return;
@@ -657,7 +665,7 @@ export function injectReturn(match: Match, iri: string, ref: string) {
   match.return.push({ iri: iri, as: ref } as Return);
 }
 
-export function addFilter(match: Match, node: TreeNode, isThen: boolean, optional: boolean): string | undefined {
+export function addFilter(match: Query, node: TreeNode, isThen: boolean, optional: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
     const fullPath = node.data.path;
@@ -675,7 +683,7 @@ export function addFilter(match: Match, node: TreeNode, isThen: boolean, optiona
   return nodeRef;
 }
 
-export function addWhereToWhen(when: When, match: Match, node: TreeNode): string | undefined {
+export function addWhereToWhen(when: When, match: Query, node: TreeNode): string | undefined {
   let nodeRef;
   if (node.type === "property") {
     const fullPath = node.data.path;
@@ -703,11 +711,11 @@ export function addWhereToWhen(when: When, match: Match, node: TreeNode): string
 function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
   const where = { iri: iri, invalid: true } as Where;
   if (nodeRef) where.nodeRef = nodeRef;
-  if (is) where.is = [{ descendantsOrSelfOf: true }];
+  if (is) where.is = [NodeSchema.parse({ descendantsOrSelfOf: true })];
   return where;
 }
 
-export function setPathGetNodeRef(pathable: Match | Path, fullPath: string, optional?: boolean): string | undefined {
+export function setPathGetNodeRef(pathable: Query | Path, fullPath: string, optional?: boolean): string | undefined {
   if (!fullPath) return undefined;
   let i;
   const paths = fullPath.split("\t");
@@ -799,7 +807,7 @@ function addTestFields(where: Where, display: string[]) {
   }
 }
 
-export function getRelativeToOptions(valueType: string, keepAs: Record<string, Ref<Match>>): any[] {
+export function getRelativeToOptions(valueType: string, keepAs: Record<string, Ref<Query>>): any[] {
   const options = [];
   if (valueType === IM.DATE) {
     options.push({
@@ -825,7 +833,7 @@ export function getRelativeToOptions(valueType: string, keepAs: Record<string, R
   return options;
 }
 
-export async function getRelativePropertyOptions(match: Match, valueType?: string): Promise<any[]> {
+export async function getRelativePropertyOptions(match: Query, valueType?: string): Promise<any[]> {
   const options: any[] | PromiseLike<any[]> = [];
   if (!valueType) return options;
   const dataModel = await DataModelService.getDataModelProperties(match.typeOf!.iri!, false);
@@ -843,7 +851,7 @@ export async function getRelativePropertyOptions(match: Match, valueType?: strin
   return options;
 }
 
-export function clauseCheck(importClauses: Map<string, Match>, match: Match, checked: boolean) {
+export function clauseCheck(importClauses: Map<string, Query>, match: Query, checked: boolean) {
   if (checked) {
     importClauses.set(match.uuid!, match);
     for (const subMatch of match.and || match.or || []) {
@@ -852,7 +860,7 @@ export function clauseCheck(importClauses: Map<string, Match>, match: Match, che
   } else importClauses.delete(match.uuid!);
 }
 
-function deleteChecks(importClauses: Map<string, Match>, match: Match) {
+function deleteChecks(importClauses: Map<string, Query>, match: Query) {
   importClauses.delete(match.uuid!);
   for (const subMatch of match.and || match.or || []) {
     deleteChecks(importClauses, subMatch);

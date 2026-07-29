@@ -52,7 +52,6 @@
       <i class="fas fa-info-circle text-blue-500" />
       <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
     </div>
-
   </div>
 </template>
 <script setup lang="ts">
@@ -60,7 +59,7 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { defineComponent } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Where } from "@endeavour/vue-library/interfaces";
+import type { Query,Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
@@ -79,8 +78,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const clause = defineModel<Match | Where>("clause", { required: true });
-const parent = defineModel<Match | Where>("parent", { default: {} });
+const clause = defineModel<Query | Where>("clause", { required: true });
+const parent = defineModel<Query | Where>("parent", { default: {} });
 const group = defineModel<number[]>("group", { default: [] });
 const emit = defineEmits(["rationalise"]);
 const operator = computed(() => {

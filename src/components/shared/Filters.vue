@@ -66,7 +66,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 import { GRAPH, NAMESPACE } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { FilterOptions, TTIriRef } from "@endeavour/vue-library/models";
 
 import { useFilterStore } from "@/stores/filterStore";
 

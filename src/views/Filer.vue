@@ -30,7 +30,7 @@ import { Ref, ref } from "vue";
 
 import { IM, ToastSeverity } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTDocument } from "@endeavour/vue-library/interfaces";
+import type { TTDocument } from "@endeavour/vue-library/models";
 import { ToastOptions } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";

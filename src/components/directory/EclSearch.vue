@@ -85,7 +85,7 @@ import { Ref, computed, onMounted, ref, watch } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM } from "@endeavour/vue-library/enums";
 import { byName } from "@endeavour/vue-library/helpers";
-import type { ECLQueryRequest, GenericObject, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { type ECLQueryRequest, ECLQueryRequestSchema, type GenericObject, type SearchResultSummary, type TTIriRef } from "@endeavour/vue-library/models";
 
 import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
@@ -112,7 +112,7 @@ const builderKey = ref(0);
 const keysPressed: GenericObject = {};
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
-const setDefinition: Ref<ECLQueryRequest> = ref({ status: { valid: true } });
+const setDefinition: Ref<ECLQueryRequest> = ref(ECLQueryRequestSchema.parse({ status: { valid: true } }));
 const debounceTimer = ref(0);
 const lastValidEcl: Ref<string> = ref("");
 const highlightedText = computed(() => {

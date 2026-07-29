@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Match, Node, Return, Where } from "@endeavour/vue-library/interfaces";
+import type {  Node, Query, Return, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
@@ -34,7 +34,7 @@ interface Props {
   baseType: Node;
 }
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];
   addProperty: [where: Where];

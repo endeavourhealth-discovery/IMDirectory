@@ -55,11 +55,11 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type { Match, Node, NodeShape } from "@endeavour/vue-library/interfaces";
+import { type Node, NodeSchema, type NodeShape, Query } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 
@@ -68,14 +68,14 @@ import { DataModelService } from "@/services";
 
 interface Props {
   baseType: Node;
-  match: Match;
+  match: Query;
 
   showPropertySelector: boolean;
 }
 
 const props = defineProps<Props>();
 const showPropertySelector = defineModel<boolean>("showPropertySelector", { default: false });
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
 const { expandNode, createModeView, createFeatureTree } = usePropertyTree();
@@ -98,7 +98,7 @@ async function init() {
   nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false);
   typeNodes.value = await createFeatureTree(nodeShape.value, "return");
   setupTrees("return");
-  if (!props.match.any) expandedKeys.value = { [typeNodes.value[0].key]: true };
+  if (!props.match.with) expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};
   loading.value = false;
 }
@@ -108,10 +108,10 @@ function setupTrees(mode: Mode) {
   if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
 }
 
-async function onReturnNodeSelect(node: any) {
+async function onReturnNodeSelect(node: TreeNode) {
   if (!match.value.typeOf) {
     if (node.data.type) {
-      match.value.typeOf = { iri: node.data.typeOf };
+      match.value.typeOf = NodeSchema.parse({ iri: node.data.typeOf });
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
       typeNodes.value = await createFeatureTree(nodeShape.value, "return");
       setupTrees("return");

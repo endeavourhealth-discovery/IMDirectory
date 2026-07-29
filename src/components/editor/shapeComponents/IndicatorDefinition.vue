@@ -41,7 +41,7 @@ import { Ref, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { DisplayMode, IM } from "@endeavour/vue-library/enums";
-import type { PropertyShape, Query } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape, Query } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -184,7 +184,6 @@ function updateQueryDefinition(test: any) {
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }
-
 
 .validate-error-container {
   width: 100%;

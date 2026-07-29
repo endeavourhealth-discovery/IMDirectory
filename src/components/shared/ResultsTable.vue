@@ -106,13 +106,15 @@ import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from 
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import {
   DownloadByQueryOptions,
+  DownloadByQueryOptionsSchema,
   ECLQueryRequest,
   ExtendedSearchResultSummary,
+  PageSchema,
   QueryRequest,
   SearchResponse,
   SearchResultSummary
-} from "@endeavour/vue-library/interfaces";
-import type { FilterOptions, Namespace } from "@endeavour/vue-library/interfaces";
+} from "@endeavour/vue-library/models";
+import type { FilterOptions, Namespace } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -268,14 +270,14 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
   } else if (props.searchTerm && props.searchTerm.length > 2) {
     if (props.imQuery) {
       props.imQuery.textSearch = props.searchTerm;
-      props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
+      props.imQuery.page = PageSchema.parse({ pageNumber: pageNumber, pageSize: pageSize });
       props.imQuery.textSearchStyle = searchStyle;
       if (offset) props.imQuery.page.offset = offset;
       response = await QueryService.queryIMSearch(props.imQuery);
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
-      searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
+      searchOptions.page = PageSchema.parse({ pageNumber: pageNumber, pageSize: pageSize });
       if (offset) searchOptions.page.offset = offset;
       const imQuery = buildIMQueryFromFilters(searchOptions);
       imQuery.textSearchStyle = searchStyle;
@@ -390,21 +392,21 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     if (props.imQuery) {
       downloadQuery = cloneDeep(props.imQuery);
       downloadQuery.textSearch = props.searchTerm;
-      downloadQuery.page = { pageNumber: 1, pageSize: totalCount.value };
+      downloadQuery.page = PageSchema.parse({ pageNumber: 1, pageSize: totalCount.value });
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
-      searchOptions.page = { pageNumber: 1, pageSize: totalCount.value };
+      searchOptions.page = PageSchema.parse({ pageNumber: 1, pageSize: totalCount.value });
       downloadQuery = buildIMQueryFromFilters(searchOptions);
     }
   }
   if (downloadQuery || eclSearchRequest) {
-    const options: DownloadByQueryOptions = {
+    const options = DownloadByQueryOptionsSchema.parse({
       queryRequest: downloadQuery,
       eclSearchRequest: eclSearchRequest,
       totalCount: totalCount.value,
       format: downloadSettings.selectedFormat
-    };
+    });
     const result = await EntityService.downloadSearchResults(options);
     if (result) downloadFile(result, "search-results-" + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + downloadSettings.selectedFormat);
   }

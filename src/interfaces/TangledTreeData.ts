@@ -1,11 +1,26 @@
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import { type TTIriRef, TTIriRefSchema } from "@endeavour/vue-library/models";
 
-export default interface TangledTreeData {
-  id: string;
-  parents?: TangledTreeData[];
-  name: string;
-  type: string;
-  cardinality?: string;
-  isOr?: boolean;
-  range?: TTIriRef[];
-}
+import z from "zod";
+
+// export default interface TangledTreeData {
+//   id: string;
+//   parents?: TangledTreeData[];
+//   name: string;
+//   type: string;
+//   cardinality?: string;
+//   isOr?: boolean;
+//   range?: TTIriRef[];
+// }
+
+export const TangledTreeDataSchema = z.object({
+  id: z.uuid(),
+  get parents() {
+    return z.array(TangledTreeDataSchema).optional();
+  },
+  name: z.string(),
+  type: z.string(),
+  cardinality: z.string().optional(),
+  isOr: z.boolean().optional(),
+  range: z.array(TTIriRefSchema).optional()
+});
+export type TangledTreeData = z.output<typeof TangledTreeDataSchema>;

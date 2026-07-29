@@ -4,8 +4,7 @@ import { AliasEntity } from "./AliasEntity";
 import AllowableChildProperty from "./AllowableChildProperty";
 import { ChartMapNode } from "./ChartMapNode";
 import { ChartTableNode } from "./ChartTableNode";
-import { CodeTemplate } from "./CodeTemplate";
-import { ComponentDetails } from "./ComponentDetails";
+import { ComponentDetails, ComponentDetailsSchema } from "./ComponentDetails";
 import { ConceptAggregate } from "./ConceptAggregate";
 import { CustomAlert } from "./CustomAlert";
 import { DashboardLayout } from "./DashboardLayout";
@@ -24,7 +23,6 @@ import { MapItem } from "./MapItem";
 import { MatchPattern } from "./MatchPattern";
 import { NextComponentSummary } from "./NextComponentSummary";
 import { Property } from "./Property";
-import { PropertyDisplay } from "./PropertyDisplay";
 import { QueryResponse } from "./QueryResponse";
 import { RelativeTo } from "./RelativeTo";
 import { SearchOptions } from "./SearchOptions";
@@ -35,14 +33,13 @@ import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import TTGraphData from "./TTGraphData";
 import { TTProperty } from "./TTProperty";
-import TangledTreeData from "./TangledTreeData";
+import { type TangledTreeData, TangledTreeDataSchema } from "./TangledTreeData";
 import { TermCode } from "./TermCode";
 import { TreeNode } from "./TreeNode";
 import { TreeParent } from "./TreeParent";
 import { TypedDynamicDialogOptions } from "./TypedDynamicDialogOptions";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
-import { ValidatedEntity } from "./ValidatedEntity";
 import { ValueSetMember } from "./ValueSetMember";
 
 export {
@@ -79,17 +76,16 @@ export {
   type AllowableChildProperty,
   type CustomAlert,
   type AliasEntity,
-  type PropertyDisplay,
   type TTProperty,
   type TreeNode,
   type TypedDynamicDialogOptions,
   type SelectedMatch,
   type QueryResponse,
   type SetDiffObject,
-  type CodeTemplate,
   type SearchOptions,
-  type ValidatedEntity,
   type DownloadSettings,
   type RelativeTo,
-  type SentencePart
+  type SentencePart,
+  TangledTreeDataSchema,
+  ComponentDetailsSchema
 };

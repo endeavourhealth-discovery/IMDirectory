@@ -29,7 +29,7 @@ export default defineComponent({
 import { Ref, inject, onMounted, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { MenuItem } from "primevue/menuitem";
 import TabPanel from "primevue/tabpanel";

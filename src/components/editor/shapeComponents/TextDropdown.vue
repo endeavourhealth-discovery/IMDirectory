@@ -17,9 +17,9 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest } from "@endeavour/vue-library/interfaces";
+import { type PropertyShape, type Query, type QueryRequest, QueryRequestSchema, type TTEntity } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isArray, isString } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
@@ -122,26 +122,30 @@ function setSelectedItem(): string | undefined {
   } else return undefined;
 }
 
-async function getDropdownOptions() {
+async function getDropdownOptions(): Promise<string[]> {
   if (isObjectHasKeys(props.shape, ["select", "argument"])) {
     const args = processArguments(props.shape);
-    const queryRequest = {} as QueryRequest;
+    const queryRequest = QueryRequestSchema.parse({});
     queryRequest.argument = args;
     const query = { iri: props.shape.select![0].iri } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
-    if (result)
-      return result.entities.map((item: any) => {
-        return item[RDFS.LABEL];
-      });
-    else return [];
+    if (isArray(result.entities)) {
+      return result.entities
+        .filter((item: unknown) => isObjectHasKeys(item, [RDFS.LABEL]) && isString(item[RDFS.LABEL]))
+        .map(item => {
+          return item[RDFS.LABEL];
+        });
+    } else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!.iri)).sort();
+    const result = await FunctionService.runFunction(props.shape.function!.iri);
+    if (isArray(result)) return result.sort();
+    else throw new Error("Function result is not an array");
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
 function updateEntity(data: string) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

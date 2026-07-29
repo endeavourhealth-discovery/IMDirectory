@@ -36,7 +36,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import { type Query, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
@@ -47,16 +47,18 @@ import { SearchOptions } from "@/interfaces";
 import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const rootBaseEntities: Ref<string[]> = ref([]);
 const hoverEditClause = ref(false);
 const hoverAddClause = ref(false);
 const baseType: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
-const baseTypeFilterOptions: Ref<SearchOptions> = ref({
-  types: [{ iri: SHACL.NODESHAPE }],
-  status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
-  schemes: []
-});
+const baseTypeFilterOptions: Ref<SearchOptions> = ref(
+  SearchOptionsSchema.parse({
+    types: [{ iri: SHACL.NODESHAPE }],
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    schemes: []
+  })
+);
 const baseCohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
 
 const emit = defineEmits<{
@@ -110,7 +112,7 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
             cohort: true
           }
         ]
-      } as Match;
+      } as Query;
       if (match.value.and) {
         if (match.value.and[0].is) match.value.and[0] = denominator;
         else match.value.and.unshift(denominator);

@@ -2,7 +2,7 @@ import { ref } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { QueryRequest } from "@endeavour/vue-library/interfaces";
+import { type QueryRequest, QueryRequestSchema } from "@endeavour/vue-library/models";
 
 import { defineStore } from "pinia";
 
@@ -14,19 +14,21 @@ export const useQueryStore = defineStore("query", () => {
   const selectedMatches = ref<SelectedMatch[]>([]);
   const variableMap = ref<Map<string, any>>(new Map<string, any>());
   const returnType = ref<string>("");
-  const validationQueryRequest = ref<QueryRequest>({
-    query: {
-      name: "Get by return type",
-      where: {
-        iri: "http://endhealth.info/im#returnType",
-        is: [
-          {
-            parameter: "dataModelIri"
-          }
-        ]
+  const validationQueryRequest = ref<QueryRequest>(
+    QueryRequestSchema.parse({
+      query: {
+        name: "Get by return type",
+        where: {
+          iri: "http://endhealth.info/im#returnType",
+          is: [
+            {
+              parameter: "dataModelIri"
+            }
+          ]
+        }
       }
-    }
-  });
+    })
+  );
 
   function updateQueryIri(iri: string) {
     queryIri.value = iri;
@@ -47,7 +49,7 @@ export const useQueryStore = defineStore("query", () => {
   async function getQueryName(): Promise<string> {
     if (queryIri.value) {
       const result = await EntityService.getPartialEntity(queryIri.value, [RDFS.LABEL]);
-      if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+      if (isObjectHasKeys(result, [RDFS.LABEL]) && typeof result[RDFS.LABEL] === "string") return result[RDFS.LABEL];
     }
     return "";
   }

@@ -2,7 +2,7 @@ import { Ref, ref } from "vue";
 
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Node, PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { Node, PropertyShape } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 

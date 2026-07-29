@@ -1,7 +1,7 @@
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import type { TTEntity } from "@endeavour/vue-library/models";
 
 export interface ConceptAggregate {
-  children: ExtendedTTEntity[];
-  concept: ExtendedTTEntity;
-  parents: ExtendedTTEntity[];
+  children: TTEntity[];
+  concept: TTEntity;
+  parents: TTEntity[];
 }

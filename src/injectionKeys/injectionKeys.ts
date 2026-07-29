@@ -1,12 +1,12 @@
 import type { InjectionKey, Ref } from "vue";
 
-import type { ExtendedTTEntity, FormGenerator, GenericObject, PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { FormGenerator, GenericObject, PropertyShape, TTEntity } from "@endeavour/vue-library/models";
 
 const editorValidity = Symbol("editorValidity") as InjectionKey<{
   validity: Ref<{ key: string; valid: boolean }[]>;
   updateValidity: (
     componentShape: PropertyShape,
-    editorEntity: Ref<ExtendedTTEntity>,
+    editorEntity: Ref<TTEntity>,
     valueVariableMap: Ref<Map<string, GenericObject>>,
     key: string,
     invalid: Ref<boolean>,
@@ -15,7 +15,7 @@ const editorValidity = Symbol("editorValidity") as InjectionKey<{
   removeValidity: (data: { key: string; valid: boolean; message?: string }) => void;
   checkValidity: (
     componentShape: PropertyShape,
-    editorEntity: Ref<ExtendedTTEntity>,
+    editorEntity: Ref<TTEntity>,
     valueVariableMap: Ref<Map<string, GenericObject>>,
     key: string,
     invalid: Ref<boolean>,
@@ -23,8 +23,8 @@ const editorValidity = Symbol("editorValidity") as InjectionKey<{
   ) => Promise<void>;
 }>;
 const editorEntity = Symbol("editorEntity") as InjectionKey<{
-  editorEntity: Ref<ExtendedTTEntity>;
-  updateEntity: (data: ExtendedTTEntity) => void;
+  editorEntity: Ref<TTEntity>;
+  updateEntity: (data: TTEntity) => void;
   deleteEntityKey: (data: string) => void;
 }>;
 const valueVariableMap = Symbol("valueVariableMap") as InjectionKey<{

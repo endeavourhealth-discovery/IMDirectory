@@ -37,7 +37,7 @@ import { Ref, ref } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { ToastSeverity } from "@endeavour/vue-library/enums";
-import type { QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { QueryRequest, SearchResultSummary } from "@endeavour/vue-library/models";
 import { ToastOptions } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";

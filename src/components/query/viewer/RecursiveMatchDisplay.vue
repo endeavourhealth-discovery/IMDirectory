@@ -8,7 +8,7 @@
     <template v-if="boolGroup && operator">
       <BooleanMatchDisplay
         :baseType="baseType"
-        :boolGroup="boolGroup as Match[]"
+        :boolGroup="boolGroup as Query[]"
         :clauseIndex="clauseIndex"
         :depth="depth"
         :expanded="matchExpanded"
@@ -130,7 +130,7 @@
 import { Ref, computed, inject, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Query, Node } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -154,13 +154,13 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
-const parentMatch = defineModel<Match>("parentMatch", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
+const parentMatch = defineModel<Query>("parentMatch", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 const expandSet: Ref<boolean> = ref(false);
-const cohort: Ref<Match | undefined> = ref();
+const cohort: Ref<Query | undefined> = ref();
 const queryIri: Ref<string | undefined> = ref(inject("queryIri", undefined));
 const matchExpanded: Ref<boolean | undefined> = ref(props.expanded);
 const operator = computed(() => {
@@ -176,7 +176,7 @@ const displayOperator = computed(() => {
 const testFields = computed(() => {
   if (match.value.then && match.value.then.where) return getTestFields(match.value.then.where);
 });
-const importClauses: Map<string, Match> | undefined = inject("importClauses", undefined);
+const importClauses: Map<string, Query> | undefined = inject("importClauses", undefined);
 const checked = ref(false);
 const selected = ref(props.parentSelected);
 function getFormattedPath(path: any): string {

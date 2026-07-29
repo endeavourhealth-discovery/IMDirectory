@@ -87,24 +87,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+import type { Node, Query, UIProperty, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import {
-  checkGroupChange,
-  getBooleanOperator,
-  getBoolGroup,
-  getPathPropertyNames,
-  getTypeIriFromMatch,
-  updateBooleans
-} from "@/helpers/buildQuery";
+import { checkGroupChange, getBoolGroup, getBooleanOperator, getPathPropertyNames, getTypeIriFromMatch, updateBooleans } from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
 
 import WhereIsEditor from "./WhereIsEditor.vue";
@@ -113,7 +106,7 @@ import WhereValueEditor from "./WhereValueEditor.vue";
 const props = withDefaults(
   defineProps<{
     showDelete?: boolean;
-    match: Match;
+    match: Query;
     baseType: Node;
     index: number;
     rootBool: boolean;
@@ -125,7 +118,7 @@ const props = withDefaults(
 );
 
 const where = defineModel<Where>("where", { default: {} });
-const parent = defineModel<Where | Match>("parent", { default: {} });
+const parent = defineModel<Where | Query>("parent", { default: {} });
 const selectedWhere: Ref<UIProperty | undefined> = ref();
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);

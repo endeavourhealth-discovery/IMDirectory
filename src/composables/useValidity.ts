@@ -2,7 +2,7 @@ import { Ref, ref } from "vue";
 
 import { COMPONENT, IM } from "@endeavour/vue-library/enums";
 import { TypeGuards, deferred, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FormGenerator, PropertyShape } from "@endeavour/vue-library/interfaces";
+import { type FormGenerator, type PropertyShape, isPropertyShape } from "@endeavour/vue-library/models";
 
 import { isArray } from "lodash-es";
 
@@ -99,7 +99,7 @@ export function useValidity(shape?: FormGenerator) {
   ) {
     let valid = true;
     let message;
-    if (TypeGuards.isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
+    if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
       const customValidationResult = await EntityService.checkValidation(componentShape.validation!.iri, editorEntity.value);
       if (customValidationResult.valid === false) {
         valid = false;
@@ -176,7 +176,7 @@ export function useValidity(shape?: FormGenerator) {
   }
 
   function isValidEntity(entity: any): boolean {
-    return isObjectHasKeys(entity) && entity[IM.ID] && editorValidity.value.every(validity => validity.valid);
+    return isObjectHasKeys(entity) && IM.ID in entity && editorValidity.value.every(validity => validity.valid);
   }
 
   return {

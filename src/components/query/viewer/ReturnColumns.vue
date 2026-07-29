@@ -11,7 +11,7 @@
 import { computed, onMounted, ref } from "vue";
 
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Query, Return } from "@endeavour/vue-library/interfaces";
+import type { Query, Return } from "@endeavour/vue-library/models";
 
 import RecursiveReturnDisplay from "./RecursiveReturnDisplay.vue";
 

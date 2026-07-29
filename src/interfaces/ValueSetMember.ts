@@ -1,4 +1,4 @@
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { TTIriRef } from "@endeavour/vue-library/models";
 
 export interface ValueSetMember {
   entity: TTIriRef;

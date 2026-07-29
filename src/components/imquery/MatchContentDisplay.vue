@@ -1,6 +1,4 @@
 <template>
-
-
   <span v-if="match.notExists" class="not">Exclude</span>
   <div v-if="match.description">
     <span class="match-description">{{ match.description }} </span>
@@ -59,7 +57,7 @@
 import { computed } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Query } from "@endeavour/vue-library/models";
 
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -67,12 +65,12 @@ import { useDirectService } from "@/composables/useDirectService";
 import { getBoolGroup, getBooleanOperator, getTestFields } from "@/helpers/buildQuery";
 
 interface Props {
-  match: Match;
+  match: Query;
   depth: number;
-  parentMatch?: Match;
+  parentMatch?: Query;
   clauseIndex: number;
   parentOperator?: Bool;
-  from?: Match;
+  from?: Query;
   skipThen?: boolean;
 }
 const props = defineProps<Props>();

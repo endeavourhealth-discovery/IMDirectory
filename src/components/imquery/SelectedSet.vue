@@ -10,7 +10,7 @@
         <div class="option-wrapper flex flex-row">
           <div class="option-content flex flex-row items-center gap-1">
             <ToggleButton v-model="option.include" class="shrink-0" offLabel="exclude" onLabel="include" />
-            <InputText v-if="isValueSet(option[RDF.TYPE])" v-model="option.entailment" disabled type="text" />
+            <InputText v-if="entityIsValueSet(option[RDF.TYPE])" v-model="option.entailment" disabled type="text" />
             <Select v-else v-model="option.entailment" :options="entailmentOptions" optionLabel="name" optionValue="id" placeholder="Select an entailment" />
             <div class="flex-col px-1 pb-1">
               <IMFontAwesomeIcon v-if="option.icon" :icon="option.icon" :style="getColourStyleFromType(option[RDF.TYPE])" class="type-icon mr-2" />
@@ -39,8 +39,8 @@ import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { getColourFromType, getFAIconFromType, isArrayHasLength, isConcept, isValueSet } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { entityIsConcept, entityIsValueSet, getColourFromType, getFAIconFromType, isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import { type Node, NodeSchema, Query, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -54,7 +54,7 @@ interface Props {
 const props = defineProps<Props>();
 const { OS, showOverlay, hideOverlay } = useOverlay();
 
-interface SelectedEntity extends ExtendedTTEntity {
+interface SelectedEntity extends TTEntity {
   icon: string[];
   include: boolean;
   entailment: "memberOf" | "descendantsOf" | "descendantsOrSelfOf" | "ancestorsOf";
@@ -87,13 +87,17 @@ async function init() {
     const valueIris = selectedEntities.value.map(entity => entity.iri).filter((iri): iri is string => !!iri);
     if (valueIris.length) {
       let entities = await EntityService.getPartialEntities(valueIris!, [RDF.TYPE, RDFS.LABEL]);
-      entities = entities.filter(entity => isConcept(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]));
+      entities = entities.filter(
+        entity => isArrayOf(entity[RDF.TYPE], isTTIriRef) && (entityIsConcept(entity[RDF.TYPE]) || entityIsValueSet(entity[RDF.TYPE]))
+      );
       if (isArrayHasLength(entities)) {
         for (const entity of entities) {
-          entity.icon = getFAIconFromType(entity[RDF.TYPE]);
-          if (entity.iri) entity.include = !selectedEntities.value.filter(node => node.iri === entity.iri);
-          if (isValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
-          else entity.entailment = "descendantsOrSelfOf";
+          if (isArrayOf(entity[RDF.TYPE], isTTIriRef)) {
+            entity.icon = getFAIconFromType(entity[RDF.TYPE]);
+            if (entity.iri) entity.include = !selectedEntities.value.filter(node => node.iri === entity.iri);
+            if (entityIsValueSet(entity[RDF.TYPE])) entity.entailment = "memberOf";
+            else entity.entailment = "descendantsOrSelfOf";
+          }
         }
       }
     }
@@ -110,11 +114,11 @@ function getColourStyleFromType(types: TTIriRef[]) {
 function updatePathValues() {}
 
 function convertSelectedEntityToNode(selected: SelectedEntity): Node {
-  const node: Node = {
+  const node: Node = NodeSchema.parse({
     iri: selected.iri,
     name: selected["http://www.w3.org/2000/01/rdf-schema#label"],
     exclude: !selected.include
-  };
+  });
   switch (selected.entailment) {
     case "memberOf":
       node.memberOf = true;
@@ -138,7 +142,7 @@ function convertSelectedEntityToNode(selected: SelectedEntity): Node {
 
 function updateValueLabel() {}
 
-async function updateCanHaveValueList(path: Match | undefined) {}
+async function updateCanHaveValueList(path: Query | undefined) {}
 </script>
 
 <style scoped></style>

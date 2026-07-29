@@ -18,12 +18,12 @@
 import { Ref, onMounted, reactive, ref, watch } from "vue";
 
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { TTIriRef } from "@endeavour/vue-library/interfaces";
+import type { PropertyDisplay, TTIriRef } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
 import { cloneDeep } from "lodash-es";
 
-import { PropertyDisplay, TangledTreeData } from "@/interfaces";
+import { TangledTreeData } from "@/interfaces";
 import { DataModelService } from "@/services";
 
 const props = defineProps<{

@@ -49,7 +49,7 @@
 import { Ref, ref } from "vue";
 
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, Query } from "@endeavour/vue-library/interfaces";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import { v4 } from "uuid";
 
@@ -66,9 +66,9 @@ interface Props {
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showEditor");
 const query = defineModel<Query>("query", { default: {} });
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const emit = defineEmits<{
-  (event: "saveColumnGroup", match: Match): void;
+  (event: "saveColumnGroup", match: Query): void;
   (event: "cancel"): void;
 }>();
 const activeTab = ref("columns");
@@ -89,7 +89,7 @@ function cancel() {
 async function onSave() {
   showEditor.value = false;
 }
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {
@@ -100,15 +100,15 @@ async function showInvalid(match: Match) {
     }
   });
 }
-async function addLinked(editedMatch: Match) {
+async function addLinked(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  match.value.any!.push(linkedMatch);
+  match.value.with!.push(linkedMatch);
   showEditor.value = false;
 }
 
-async function saveEditMatch(editedMatch: Match) {
+async function saveEditMatch(editedMatch: Query) {
   showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;

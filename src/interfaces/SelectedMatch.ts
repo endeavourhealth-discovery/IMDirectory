@@ -1,8 +1,8 @@
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Query } from "@endeavour/vue-library/models";
 
 export interface SelectedMatch {
-  selected: Match;
-  parent?: Match;
-  parentList?: Match[];
+  selected: Query;
+  parent?: Query;
+  parentList?: Query[];
   index: number;
 }

@@ -69,7 +69,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import type { UIProperty, Value, Where } from "@endeavour/vue-library/interfaces";
+import { RangeSchema, type UIProperty, type Value, type Where, WhereSchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -85,7 +85,7 @@ interface Props {
 
 const refresh = defineModel<number>("refresh", { default: 0 });
 const props = defineProps<Props>();
-const where = defineModel<Where>("where", { default: {} });
+const where = defineModel<Where>("where", { default: WhereSchema.parse({}) });
 const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }
@@ -138,7 +138,7 @@ function init() {
 function updateRangeOrValue() {
   if (rangeOrValue.value === RangeOrValue.Range) {
     if (!where.value.range) {
-      where.value.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } };
+      where.value.range = RangeSchema.parse({ from: { operator: Operator.gte }, to: { operator: Operator.lte } });
       where.value.range.from.operator = where.value.operator;
       where.value.range.from.value = where.value.value;
       where.value.range.to.operator = (() => {
