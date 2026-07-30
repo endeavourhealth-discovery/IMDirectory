@@ -53,7 +53,7 @@
         <div class="advanced-search-container">
           <small>
             Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
-            {{ results?.count ? results.count : 0 }} results
+            {{ results?.totalCount ? results.totalCount : 0 }} results
           </small>
         </div>
       </div>
