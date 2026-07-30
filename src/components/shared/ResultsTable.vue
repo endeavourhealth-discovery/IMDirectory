@@ -307,8 +307,8 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     //if (searchResults.value && searchResults.value.length) addSearchResults(searchResponse);
     searchResults.value = mapSearchResults(searchResponse);
-    if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.count ?? 0;
-    if (searchResponse.count) total.value = searchResponse.count;
+    if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.totalCount ?? 0;
+    if (searchResponse.size) total.value = searchResponse.size;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
@@ -336,7 +336,7 @@ function addSearchResults(searchResponse: SearchResponse | undefined) {
         searchResults.value.push(copy);
       }
     }
-    totalCount.value = searchResponse.count ?? 0;
+    totalCount.value = searchResponse.totalCount ?? 0;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
@@ -386,17 +386,17 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   if (props.eclQuery) {
     eclSearchRequest = cloneDeep(props.eclQuery);
     eclSearchRequest.page = 1;
-    eclSearchRequest.size = totalCount.value;
+    eclSearchRequest.size = props.pageSize;
   }
   if (props.searchTerm && props.searchTerm.length > 2) {
     if (props.imQuery) {
       downloadQuery = cloneDeep(props.imQuery);
       downloadQuery.textSearch = props.searchTerm;
-      downloadQuery.page = PageSchema.parse({ pageNumber: 1, pageSize: totalCount.value });
+      downloadQuery.page = PageSchema.parse({ pageNumber: 1, pageSize: total.value });
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
-      searchOptions.page = PageSchema.parse({ pageNumber: 1, pageSize: totalCount.value });
+      searchOptions.page = PageSchema.parse({ pageNumber: 1, pageSize: total.value });
       downloadQuery = buildIMQueryFromFilters(searchOptions);
     }
   }
