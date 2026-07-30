@@ -45,7 +45,7 @@ describe("mutations", () => {
     const directoryStore = useDirectoryStore();
 
     const testResult = SearchResponseSchema.parse({
-      count: 1,
+      size: 1,
       page: 1,
       entities: [
         {
