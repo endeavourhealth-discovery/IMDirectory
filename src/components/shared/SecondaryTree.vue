@@ -158,14 +158,17 @@ async function getConceptAggregate(iri: string): Promise<void> {
 
 function createTree(concept: TTEntity, parentHierarchy: ExtendedEntityReferenceNode[], children: ExtendedEntityReferenceNode[], parentPosition: number) {
   loading.value = true;
-  if (
-    isArray(concept[IM.HAS_STATUS]) &&
-    isString(concept[RDFS.LABEL]) &&
-    isString(concept.iri) &&
-    isArrayOf(concept[RDF.TYPE], isTTIriRef)
-  ) {
+  if (isArray(concept[IM.HAS_STATUS]) && isString(concept[RDFS.LABEL]) && isString(concept.iri) && isArrayOf(concept[RDF.TYPE], isTTIriRef)) {
     const summary = { description: concept[RDFS.COMMENT] ?? "", status: concept[IM.HAS_STATUS][0] };
-    const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri, concept[RDF.TYPE], summary,isBoolean(concept.hasChildren) ? concept.hasChildren : false, null, undefined);
+    const selectedConcept = createTreeNode(
+      concept[RDFS.LABEL],
+      concept.iri,
+      concept[RDF.TYPE],
+      summary,
+      isBoolean(concept.hasChildren) ? concept.hasChildren : false,
+      null,
+      undefined
+    );
     children.forEach(child => {
       if (isArrayOf(child.type, isTTIriRef)) {
         const summary = { description: child.description, status: child.status };
@@ -176,12 +179,12 @@ function createTree(concept: TTEntity, parentHierarchy: ExtendedEntityReferenceN
       selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
     }
     root.value = [] as TreeNode[];
-  setParents(parentHierarchy, parentPosition);
-  root.value.push(selectedConcept);
-  if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
-    expandedKeys.value[selectedConcept.key] = true;
-  }
-  if (selectedConcept.key) selectedKeys.value[selectedConcept.key] = true;
+    setParents(parentHierarchy, parentPosition);
+    root.value.push(selectedConcept);
+    if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
+      expandedKeys.value[selectedConcept.key] = true;
+    }
+    if (selectedConcept.key) selectedKeys.value[selectedConcept.key] = true;
   }
   loading.value = false;
 }
@@ -224,8 +227,7 @@ async function expandParents(parentPosition: number): Promise<void> {
   if (root.value[0].key && !expandedKeys.value[root.value[0].key]) {
     expandedKeys.value[root.value[0].key] = true;
   }
-
-  const parents = await EntityService.getEntityParents(root.value[0].data);
+  const parents = await EntityService.getEntityParents(root.value[0].key);
   const parentNode = createExpandedParentTree(parents, parentPosition);
   root.value = [] as TreeNode[];
   root.value.push(parentNode);
@@ -253,7 +255,7 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
 }
 
 async function setExpandedParentParents(): Promise<void> {
-  const result = await EntityService.getEntityParents(root.value[0].data);
+  const result = await EntityService.getEntityParents(root.value[0].key);
   currentParent.value = null;
   alternateParents.value = [] as TreeParent[];
   if (!isArrayHasLength(result)) return;
