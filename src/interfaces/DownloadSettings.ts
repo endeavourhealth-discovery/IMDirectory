@@ -1,9 +1,21 @@
-import type { TTIriRef } from "@endeavour/vue-library/models";
+import { type TTIriRef, TTIriRefSchema } from "@endeavour/vue-library/models";
 
-export interface DownloadSettings {
-  selectedFormat: string;
-  selectedContents: string[];
-  selectedSchemes: TTIriRef[];
-  includeSubsets: boolean;
-  legacyInline: boolean;
-}
+import z from "zod";
+
+// export interface DownloadSettings {
+//   selectedFormat: string;
+//   selectedContents: string[];
+//   selectedSchemes: TTIriRef[];
+//   includeSubsets: boolean;
+//   legacyInline: boolean;
+// }
+
+export const DownloadSettingsSchema = z.strictObject({
+  selectedFormat: z.string(),
+  selectedContents: z.array(z.string()),
+  selectedSchemes: z.array(TTIriRefSchema),
+  includeSubsets: z.boolean(),
+  legacyInline: z.boolean()
+});
+
+export type DownloadSettings = z.output<typeof DownloadSettingsSchema>;

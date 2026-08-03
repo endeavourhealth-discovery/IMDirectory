@@ -1,15 +1,6 @@
 import { Address } from "./Address";
 import { AlertDialogOptions } from "./AlertDialogOptions";
-import { AliasEntity } from "./AliasEntity";
-import AllowableChildProperty from "./AllowableChildProperty";
-import { ChartMapNode } from "./ChartMapNode";
-import { ChartTableNode } from "./ChartTableNode";
 import { ComponentDetails, ComponentDetailsSchema } from "./ComponentDetails";
-import { ConceptAggregate } from "./ConceptAggregate";
-import { CustomAlert } from "./CustomAlert";
-import { DashboardLayout } from "./DashboardLayout";
-import { Dataset } from "./Dataset";
-import { DefinitionConfig } from "./DefinitionConfig";
 import { DownloadSettings } from "./DownloadSettings";
 import { ECLComponentDetails } from "./ECLComponentDetails";
 import { ExportValueSet } from "./ExportValueSet";
@@ -45,13 +36,8 @@ import { ValueSetMember } from "./ValueSetMember";
 export {
   type Address,
   type AlertDialogOptions,
-  type ChartMapNode,
-  type ChartTableNode,
   type ComponentDetails,
-  type ConceptAggregate,
-  type DashboardLayout,
-  type Dataset,
-  type DefinitionConfig,
+  type DownloadSettings,
   type ECLComponentDetails,
   type ExportValueSet,
   type GraphData,
@@ -73,9 +59,6 @@ export {
   type FieldDto,
   type GenericType,
   type TangledTreeData,
-  type AllowableChildProperty,
-  type CustomAlert,
-  type AliasEntity,
   type TTProperty,
   type TreeNode,
   type TypedDynamicDialogOptions,
@@ -83,7 +66,6 @@ export {
   type QueryResponse,
   type SetDiffObject,
   type SearchOptions,
-  type DownloadSettings,
   type RelativeTo,
   type SentencePart,
   TangledTreeDataSchema,

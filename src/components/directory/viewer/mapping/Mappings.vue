@@ -126,12 +126,11 @@ import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { byPriority, byScheme, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type ConceptContextMap, type GenericObject, type Namespace, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
+import { type ChartMapNode,type ChartTableNode, ConceptContextMap, type Context,type GenericObject, type Namespace, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { isNumber, isString } from "lodash-es";
 
-import { ChartMapNode, ChartTableNode, MapItem, SimpleMap, SimpleMapIri } from "@/interfaces";
-import { Context } from "@/interfaces/Context";
+import { MapItem, SimpleMap, SimpleMapIri } from "@/interfaces";
 import { ConceptService, EntityService } from "@/services";
 
 import SimpleMaps from "./SimpleMaps.vue";
