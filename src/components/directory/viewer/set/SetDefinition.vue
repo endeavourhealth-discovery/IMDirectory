@@ -100,7 +100,7 @@ import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { ToastSeverity, UserRole } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import type { SetExportRequest, SetOptions, TTEntity } from "@endeavour/vue-library/models";
-import { ToastOptions } from "@endeavour/vue-library/models";
+import { ToastOptions, hasRole } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { isString } from "lodash-es";
@@ -151,7 +151,7 @@ const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entit
 
 watch(currentUser, async () => {
   if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+    hasPermissionSetPublish.value = hasRole(currentUser.value!, UserRole.PUBLISHER);
   } else hasPermissionSetPublish.value = false;
 });
 
@@ -178,7 +178,7 @@ onMounted(async () => {
   }
   if (!hasDefinition.value) showMembers.value = true;
   if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+    hasPermissionSetPublish.value = hasRole(currentUser.value!, UserRole.PUBLISHER);
   }
 });
 
