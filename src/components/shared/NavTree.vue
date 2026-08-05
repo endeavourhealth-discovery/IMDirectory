@@ -55,7 +55,7 @@ import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM } from "@endeavour/vue-library/enums";
 import { UserRole } from "@endeavour/vue-library/enums";
 import { byKey, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTIriRef } from "@endeavour/vue-library/models";
+import { type TTIriRef, hasRole } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -209,9 +209,10 @@ async function addRootEntitiesToTree() {
 async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
-  const hasPermission = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
+  if (!currentUser.value) return;
+  const hasPermission = hasRole(currentUser.value, UserRole.EDITOR);
 
-  if (!currentUser.value || !hasPermission) return;
+  if (!hasPermission) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
   selectedNode.value = node;
