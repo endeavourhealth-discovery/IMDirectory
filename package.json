@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.1.2",
-    "@endeavour/vue-library": "3.0.17",
+    "@endeavour/vue-library": "3.0.15",
     "@msw/data": "1.1.7",
     "@primeuix/themes": "2.0.3",
     "@primevue/auto-import-resolver": "4.5.4",
