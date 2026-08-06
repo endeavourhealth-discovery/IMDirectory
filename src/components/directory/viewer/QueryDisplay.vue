@@ -130,7 +130,7 @@ const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
 const selectedDisplayOption: Ref<DisplayOptions> = ref(DisplayOptions.LogicalView);
 const requestArguments: Ref<Argument[]> = ref([]);
-const baseType: Ref<Node> = ref(NodeSchema.parse({}));
+const baseType: Ref<Node> = ref({});
 const deepQuery: Ref<Query | undefined> = ref();
 const originalDisplay: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const operator = computed(() => {
@@ -201,7 +201,8 @@ async function init() {
   if (query.value && query.value.rule) {
     originalDisplay.value = DisplayMode.RULES;
   } else originalDisplay.value = DisplayMode.ORIGINAL;
-  baseType.value = query!.value!.typeOf!;
+  if (query.value?.typeOf) baseType.value = query.value.typeOf;
+  else baseType.value = {};
   deepQuery.value = cloneDeep(query.value);
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();

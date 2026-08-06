@@ -61,18 +61,14 @@ const QueryService = {
     return await api.post(API_URL + "/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
-  async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
-    const result = await api.get(API_URL + "/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
-    return QuerySchema.parse(result);
-  },
-
   async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
     const result = await api.post(API_URL + "/queryDisplayFromQuery", { query: query, displayMode: displayMode });
     return QuerySchema.parse(result);
   },
 
-  async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
+  async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query | undefined> {
     const result = await api.get(API_URL + "/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
+    if (!result) return undefined;
     return QuerySchema.parse(result);
   },
   async getQueryFromIri(iri: string): Promise<Query> {
