@@ -4,8 +4,7 @@
   </div>
   <pre class="mermaid"
     >{{ builderString }}
-</pre
-  >
+</pre>
 </template>
 
 <script setup lang="ts">
@@ -46,7 +45,7 @@ async function getDataModelProps(iri: string): Promise<void> {
   if (results && results.length !== 0) {
     results.forEach((result: PropertyDisplay) => {
       result.property[0].name = result.property[0].name?.slice(0, result.property[0].name?.indexOf("(")).replace(/\W/g, "").toUpperCase() as string;
-      if (result.node) properties.value.push(result);
+      if (result.isNode) properties.value.push(result);
     });
     let expand = false;
     if (properties.value.length > 12) expand = true;
