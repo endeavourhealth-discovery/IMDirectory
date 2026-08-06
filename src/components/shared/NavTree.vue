@@ -127,11 +127,11 @@ watch(
 
 watch(
   () => cloneDeep(favourites.value),
-  async () => {
+  async newValue => {
     const favouritesIndex = root.value.findIndex(node => node.key === IM.FAVOURITES);
     if (favouritesIndex !== -1) {
       root.value.splice(favouritesIndex, 1);
-      addFavouritesToTree();
+      await addFavouritesToTree(newValue);
     }
   }
 );
@@ -184,13 +184,20 @@ async function addParentFoldersToRoot() {
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
-  if (isLoggedIn.value) addFavouritesToTree();
+  if (isLoggedIn.value) await addFavouritesToTree(favourites.value);
 }
 
-function addFavouritesToTree() {
-  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], undefined, !!favourites.value.length, null, undefined);
+async function addFavouritesToTree(favourites: string[]) {
+  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], undefined, !!favourites.length, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--p-yellow-500)";
+  if (isArrayHasLength(favourites)) {
+    const favouritesAsSummaries = await EntityService.getAsEntityReferenceNodes(favourites);
+    for (const favItem of favouritesAsSummaries) {
+      const summary = { description: favItem.description, status: favItem.status };
+      favNode.children?.push(createTreeNode(favItem.name, favItem.iri, favItem.type as TTIriRef[], summary, favItem.hasChildren, null));
+    }
+  }
   root.value.push(favNode);
 }
 
