@@ -227,36 +227,40 @@ onMounted(async () => {
       const valueIriFixed = removeEndSlash(valueIri as string);
       if (typeIriFixed === IM.QUERY && propertyIriFixed === IM.IS_CHILD_OF) {
         const baseQuery = await QueryService.getDisplayFromQueryIri(valueIriFixed, DisplayMode.LOGICAL);
-        editorEntity.value[IM.DEFINITION] = JSON.stringify({
-          typeOf: baseQuery.typeOf,
-          and: [
-            {
-              is: [{ iri: valueIriFixed, cohort: true }]
-            }
-          ]
-        });
+        if (baseQuery) {
+          editorEntity.value[IM.DEFINITION] = JSON.stringify({
+            typeOf: baseQuery?.typeOf,
+            and: [
+              {
+                is: [{ iri: valueIriFixed, cohort: true }]
+              }
+            ]
+          });
+        }
       }
       if (propertyIriFixed === IM.DEFINITION) {
-        const newValue = await QueryService.getQueryDisplay(valueIriFixed, false);
-        if (newValue.typeOf) {
-          editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
-        }
-        editorEntity.value[IM.DEFINITION] = JSON.stringify({
-          match: [
-            {
-              is: [
-                {
-                  iri: newValue.iri,
-                  name: newValue.name
-                }
-              ],
-              description: newValue.description
-            }
-          ],
-          typeOf: {
-            iri: newValue.typeOf!.iri
+        const newValue = await QueryService.getDisplayFromQueryIri(valueIriFixed, DisplayMode.ORIGINAL);
+        if (newValue) {
+          if (newValue.typeOf) {
+            editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
           }
-        });
+          editorEntity.value[IM.DEFINITION] = JSON.stringify({
+            match: [
+              {
+                is: [
+                  {
+                    iri: newValue.iri,
+                    name: newValue.name
+                  }
+                ],
+                description: newValue.description
+              }
+            ],
+            typeOf: {
+              iri: newValue.typeOf!.iri
+            }
+          });
+        }
       } else {
         const containingEntity = await EntityService.getPartialEntity(valueIriFixed, [RDFS.LABEL]);
         if (typeof containingEntity.iri === "string" && typeof containingEntity[RDFS.LABEL] === "string")
