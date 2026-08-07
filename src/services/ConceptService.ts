@@ -18,7 +18,7 @@ const ConceptService = {
         iri: iri
       }
     });
-    return parseApiResponse(result, SimpleMapSchema, true);
+    return parseApiResponse(result, z.array(SimpleMapSchema));
   },
 
   async getMatchedTo(iri: string): Promise<SimpleMap[]> {
@@ -27,21 +27,21 @@ const ConceptService = {
         iri: iri
       }
     });
-    return parseApiResponse(result, SimpleMapSchema, true);
+    return parseApiResponse(result, z.array(SimpleMapSchema));
   },
 
   async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
     const result = await api.get(API_URL + "/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
-    return parseApiResponse(result, TermCodeSchema, true);
+    return parseApiResponse(result, z.array(TermCodeSchema));
   },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
     const result = await api.get(API_URL + "/conceptContextMaps", {
       params: { iri: conceptIri }
     });
-    return parseApiResponse(result, ConceptContextMapSchema, true);
+    return parseApiResponse(result, z.array(ConceptContextMapSchema));
   }
 };
 if (process.env.NODE_ENV !== "test") Object.freeze(ConceptService);

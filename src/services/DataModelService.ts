@@ -2,6 +2,8 @@ import { PropertyDisplay, PropertyDisplaySchema, UIPropertySchema, parseArray } 
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
 import { type NodeShape, NodeShapeSchema, type TTIriRef, TTIriRefSchema, type UIProperty } from "@endeavour/vue-library/models";
 
+import z from "zod";
+
 import Env from "./Env";
 import api from "./api";
 
@@ -32,7 +34,7 @@ const DataModelService = {
         valueType: valueType
       }
     });
-    return parseApiResponse(result, NodeShapeSchema, true);
+    return parseApiResponse(result, z.array(NodeShapeSchema));
   },
   async getDataModelsFromProperty(propIri: string): Promise<TTIriRef[]> {
     const result = await api.get(API_URL + "/dataModels", {
@@ -40,7 +42,7 @@ const DataModelService = {
         propIri: propIri
       }
     });
-    return parseApiResponse(result, TTIriRefSchema, true);
+    return parseApiResponse(result, z.array(TTIriRefSchema));
   },
   async checkPropertyType(iri: string): Promise<string> {
     return await api.get(API_URL + "/checkPropertyType", { params: { iri: iri } });
@@ -55,7 +57,7 @@ const DataModelService = {
     const result = await api.get(API_URL + "/propertiesDisplay", {
       params: { iri: iri }
     });
-    return parseApiResponse(result, PropertyDisplaySchema, true);
+    return parseApiResponse(result, z.array(PropertyDisplaySchema));
   },
   async getInversePath(source: string, target: string): Promise<TTIriRef> {
     const result = await api.get(API_URL + "/inversePath", {

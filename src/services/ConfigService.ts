@@ -11,7 +11,7 @@ const API_URL = Env.API + "api/config/public";
 const ConfigService = {
   async getNamespaces(): Promise<Namespace[]> {
     const result = await api.get(API_URL + "/namespaces");
-    return parseApiResponse(result, NamespaceSchema, true);
+    return parseApiResponse(result, z.array(NamespaceSchema));
   }
 };
 

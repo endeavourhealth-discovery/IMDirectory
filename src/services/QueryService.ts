@@ -23,6 +23,8 @@ import {
   TTEntitySchema
 } from "@endeavour/vue-library/models";
 
+import z from "zod";
+
 import Env from "./Env";
 import api from "./api";
 
@@ -121,7 +123,7 @@ const QueryService = {
 
   async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
     const result = api.post(API_URL + "/public/findRequestMissingArguments", request);
-    return parseApiResponse(result, ArgumentReferenceSchema, true);
+    return parseApiResponse(result, z.array(ArgumentReferenceSchema));
   },
   async validateQuery(query: Query): Promise<Query> {
     const result = await api.post(API_URL + "/validateQuery", query);
@@ -130,12 +132,12 @@ const QueryService = {
 
   async getNestedReturns(match: Query): Promise<Return[]> {
     const result = await api.post(API_URL + "/nestedReturns", { match: match });
-    return parseApiResponse(result, ReturnSchema, true);
+    return parseApiResponse(result, z.array(ReturnSchema));
   },
 
   async getSemanticMaps(match: Query, column: Return): Promise<TTEntity[]> {
     const result = await api.post(API_URL + "/semanticMapsForMatch", { match: match, return: column });
-    return parseApiResponse(result, TTEntitySchema, true);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   }
 };
 

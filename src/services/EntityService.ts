@@ -29,6 +29,7 @@ import {
 
 import { OrganizationChartNode } from "primevue/organizationchart";
 import type { TreeNode } from "primevue/treenode";
+import z from "zod";
 
 import { buildDetails } from "@/helpers/DetailsBuilder";
 
@@ -41,12 +42,12 @@ const EntityService = {
   // ============================ PUBLIC ============================
   async getSchemes(): Promise<Namespace[]> {
     const result = await api.get(API_URL + "/public/schemes");
-    return parseApiResponse(result, NamespaceSchema, true);
+    return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getNamespaces(): Promise<Namespace[]> {
     const result = await api.get(API_URL + "/public/namespaces");
-    return parseApiResponse(result, NamespaceSchema, true);
+    return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getFilterOptions(): Promise<FilterOptions> {
@@ -73,7 +74,7 @@ const EntityService = {
 
   async getPartialEntities(typeIris: string[], predicates: string[]): Promise<TTEntity[]> {
     const result = await api.post(API_URL + "/protected/partials", { iris: [...new Set(typeIris)].join(","), predicates: [...new Set(predicates)].join(",") });
-    return parseApiResponse(result, TTEntitySchema, true);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<TTEntity> {
@@ -109,7 +110,7 @@ const EntityService = {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
-    return parseApiResponse(result, ExtendedEntityReferenceNodeSchema, true);
+    return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
   },
 
   async getEntityAsEntityReferenceNode(iri: string): Promise<ExtendedEntityReferenceNode> {
@@ -119,7 +120,7 @@ const EntityService = {
 
   async getAsEntityReferenceNodes(iris: string[]): Promise<ExtendedEntityReferenceNode[]> {
     const result = await api.get(API_URL + "/protected/asEntityReferenceNodes", { params: { iris: iris.join(",") } });
-    return parseApiResponse(result, ExtendedEntityReferenceNodeSchema, true);
+    return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
   },
 
   async getPagedChildren(
@@ -160,7 +161,7 @@ const EntityService = {
     const result = await api.get(API_URL + "/protected/parents", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") }
     });
-    return parseApiResponse(result, ExtendedEntityReferenceNodeSchema, true);
+    return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
   },
 
   async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTEntity[]> {
@@ -171,7 +172,7 @@ const EntityService = {
         size: pageSize
       }
     });
-    return parseApiResponse(result, TTEntitySchema, true);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getUsagesTotalRecords(iri: string): Promise<number> {
@@ -205,14 +206,14 @@ const EntityService = {
     const result = await api.get(API_URL + "/protected/folderPath", {
       params: { iri: iri }
     });
-    return parseApiResponse(result, TTIriRefSchema, true);
+    return parseApiResponse(result, z.array(TTIriRefSchema));
   },
 
   async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
     const result = await api.get(API_URL + "/protected/shortestParentHierarchy", {
       params: { descendant: descendant, ancestor: ancestor }
     });
-    return parseApiResponse(result, TTIriRefSchema, true);
+    return parseApiResponse(result, z.array(TTIriRefSchema));
   },
 
   async getEntityByPredicateExclusions(iri: string, predicates: string[]): Promise<TTEntity> {
@@ -231,7 +232,7 @@ const EntityService = {
 
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<ValidatedEntity[]> {
     const result = await api.post(API_URL + "/protected/validatedEntity", codes);
-    return parseApiResponse(result, ValidatedEntitySchema, true);
+    return parseApiResponse(result, z.array(ValidatedEntitySchema));
   },
 
   async getEntityDetailsDisplay(iri: string): Promise<TreeNode[]> {
@@ -258,12 +259,12 @@ const EntityService = {
     const result = await api.get(API_URL + "/protected/history", {
       params: { iri: iri }
     });
-    return parseApiResponse(result, TTEntitySchema, true);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getAllowableChildTypes(iri: string): Promise<TTEntity[]> {
     const result = await api.get(API_URL + "/protected/allowableChildTypes", { params: { iri: iri } });
-    return parseApiResponse(result, TTEntitySchema, true);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getChildEntities(iri: string): Promise<string[]> {

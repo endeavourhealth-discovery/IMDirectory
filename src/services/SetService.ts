@@ -3,6 +3,8 @@ import { parseApiResponse } from "@endeavour/vue-library/helpers";
 import { type ECLQueryRequest, type PageableNode, PageableNodeSchema, type Query, type SetExportRequest, type TTIriRef } from "@endeavour/vue-library/models";
 import type { TTEntity } from "@endeavour/vue-library/models";
 
+import z from "zod";
+
 import { SetDiffObject } from "@/interfaces";
 
 import Env from "./Env";
@@ -44,7 +46,7 @@ const SetService = {
         iri: iri
       }
     });
-    return parseApiResponse(result, TTIriRefSchema, true);
+    return parseApiResponse(result, z.array(TTIriRefSchema));
   },
 
   async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<Blob> {
