@@ -123,7 +123,7 @@ const emit = defineEmits<{
 const showColumns = ref(false);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
-const rootQuery = ref(QuerySchema.parse({}));
+const rootQuery = ref({});
 const sql: Ref<string> = ref("");
 const loading = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);

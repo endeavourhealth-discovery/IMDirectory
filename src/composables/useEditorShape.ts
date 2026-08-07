@@ -41,7 +41,7 @@ export function useEditorShape() {
   }
 
   function getShape(type: string): FormGenerator {
-    let newShape = FormGeneratorSchema.parse({});
+    let newShape = {} as FormGenerator;
     if (type !== RDFS.CLASS) newShape = getShapeFromType(type);
     return newShape;
   }

@@ -107,7 +107,7 @@ const [setType, typeAttrs] = defineField("type");
 
 const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
-const selectedMember: Ref<Node> = ref(NodeSchema.parse({}));
+const selectedMember: Ref<Node> = ref({} as Node);
 const showSaveCustomSetDialog = ref(false);
 const loading = ref(false);
 watch(
@@ -179,7 +179,7 @@ const onSubmit = handleSubmit(async () => {
   }
   loading.value = false;
   showSaveCustomSetDialog.value = false;
-  emit("onSave", NodeSchema.parse({ iri: setEntity.iri, name: setEntity[RDFS.LABEL] }));
+  emit("onSave", { iri: setEntity.iri, name: setEntity[RDFS.LABEL] } as Node);
 });
 
 function onDiscard() {
@@ -202,7 +202,7 @@ function getDefinition() {
   const matches: Query[] = [];
   for (const member of props.setMembers) {
     if (isString(member.name)) {
-      matches.push(QuerySchema.parse({ name: member.name, is: member }));
+      matches.push({ name: member.name, is: member });
     }
   }
   const definition = {

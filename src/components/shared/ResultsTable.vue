@@ -404,12 +404,12 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     }
   }
   if (downloadQuery || eclSearchRequest) {
-    const options = DownloadByQueryOptionsSchema.parse({
+    const options = {
       queryRequest: downloadQuery,
       eclSearchRequest: eclSearchRequest,
       totalCount: totalCount.value,
       format: downloadSettings.selectedFormat
-    });
+    } as DownloadByQueryOptions;
     const result = await EntityService.downloadSearchResults(options);
     if (result) downloadFile(result, "search-results-" + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + downloadSettings.selectedFormat);
   }

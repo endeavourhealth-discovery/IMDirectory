@@ -1,4 +1,5 @@
 import { parseArray } from "@endeavour/vue-library";
+import { parseApiResponse } from "@endeavour/vue-library/helpers";
 import { type ConceptContextMap, ConceptContextMapSchema, SimpleMapSchema, TermCodeSchema } from "@endeavour/vue-library/models";
 
 import z from "zod";
@@ -17,8 +18,7 @@ const ConceptService = {
         iri: iri
       }
     });
-    console.log(result);
-    return parseArray(result, SimpleMapSchema);
+    return parseApiResponse(result, SimpleMapSchema, true);
   },
 
   async getMatchedTo(iri: string): Promise<SimpleMap[]> {
@@ -27,21 +27,21 @@ const ConceptService = {
         iri: iri
       }
     });
-    return parseArray(result, SimpleMapSchema);
+    return parseApiResponse(result, SimpleMapSchema, true);
   },
 
   async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
     const result = await api.get(API_URL + "/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
-    return parseArray(result, TermCodeSchema);
+    return parseApiResponse(result, TermCodeSchema, true);
   },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
     const result = await api.get(API_URL + "/conceptContextMaps", {
       params: { iri: conceptIri }
     });
-    return parseArray(result, ConceptContextMapSchema);
+    return parseApiResponse(result, ConceptContextMapSchema, true);
   }
 };
 if (process.env.NODE_ENV !== "test") Object.freeze(ConceptService);

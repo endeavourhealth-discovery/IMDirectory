@@ -112,7 +112,7 @@ const builderKey = ref(0);
 const keysPressed: GenericObject = {};
 const updateSearch: Ref<boolean> = ref(false);
 const searchLoading: Ref<boolean> = ref(false);
-const setDefinition: Ref<ECLQueryRequest> = ref(ECLQueryRequestSchema.parse({ status: { valid: true } }));
+const setDefinition: Ref<ECLQueryRequest> = ref({ status: { valid: true } });
 const debounceTimer = ref(0);
 const lastValidEcl: Ref<string> = ref("");
 const highlightedText = computed(() => {

@@ -5,7 +5,7 @@ import { GenericObject, GenericObjectSchema, Node, TTEntity, TTEntitySchema, TTI
 import { isString } from "lodash-es";
 
 export function transformTT(ttEntity: TTEntity, map?: GenericObject) {
-  if (!isObjectHasKeys(ttEntity)) return TTEntitySchema.parse({});
+  if (!isObjectHasKeys(ttEntity)) return {} as TTEntity;
   ttEntity = transformIris(ttEntity);
   transformObjectRecursively(ttEntity, map);
   return ttEntity;
@@ -67,7 +67,7 @@ export function getNameFromRef(ref: Node): string {
 
 export function resolveIri(iri: string) {
   if (!iri) return undefined;
-  const prefixes = GenericObjectSchema.parse({ im: NAMESPACE.IM, sn: NAMESPACE.SNOMED });
+  const prefixes = { im: NAMESPACE.IM, sn: NAMESPACE.SNOMED } as GenericObject;
   if (iri.includes("#") || iri.includes("urn:uuid:")) {
     return iri;
   } else if (iri.includes(":")) {

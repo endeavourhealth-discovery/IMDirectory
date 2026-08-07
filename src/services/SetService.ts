@@ -1,4 +1,5 @@
 import { SetDiffObjectSchema, TTIriRefSchema, parseArray } from "@endeavour/vue-library";
+import { parseApiResponse } from "@endeavour/vue-library/helpers";
 import { type ECLQueryRequest, type PageableNode, PageableNodeSchema, type Query, type SetExportRequest, type TTIriRef } from "@endeavour/vue-library/models";
 import type { TTEntity } from "@endeavour/vue-library/models";
 
@@ -28,13 +29,13 @@ const SetService = {
       params: { iri: iri, entailments: entailments, page: pageIndex, size: pageSize },
       signal: controller?.signal
     });
-    return PageableNodeSchema.parse(result);
+    return parseApiResponse(result, PageableNodeSchema);
   },
 
   async getMembersFromQuery(query: Query, pageIndex: number, pageSize: number): Promise<PageableNode> {
     const request = { query: query, page: pageIndex, size: pageSize } as ECLQueryRequest;
     const result = await api.post(API_URL + "/protected/membersFromQuery", request);
-    return PageableNodeSchema.parse(result);
+    return parseApiResponse(result, PageableNodeSchema);
   },
 
   async getSubsets(iri: string): Promise<TTIriRef[]> {
@@ -43,7 +44,7 @@ const SetService = {
         iri: iri
       }
     });
-    return parseArray(result, TTIriRefSchema);
+    return parseApiResponse(result, TTIriRefSchema, true);
   },
 
   async getFullExportSet(setRequest: SetExportRequest, raw?: boolean): Promise<Blob> {
@@ -60,7 +61,7 @@ const SetService = {
         setIriB: iriB
       }
     });
-    return SetDiffObjectSchema.parse(result);
+    return parseApiResponse(result, SetDiffObjectSchema);
   },
   async updateSubsetsFromSuper(entity: TTEntity): Promise<void> {
     return await api.post(API_URL + "/private/updateSubsetsFromSuper", entity);

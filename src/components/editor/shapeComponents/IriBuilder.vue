@@ -217,7 +217,7 @@ function deconstructInputValue(inputValue: string) {
 async function getDropdownOptions() {
   if (isObjectHasKeys(props.shape, ["select", "argument"])) {
     const args = processArguments(props.shape);
-    const queryRequest = QueryRequestSchema.parse({});
+    const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
     const query = { iri: props.shape.select![0].iri } as Query;
     queryRequest.query = query;

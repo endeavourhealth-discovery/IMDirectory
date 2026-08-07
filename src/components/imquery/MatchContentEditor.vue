@@ -139,7 +139,7 @@ watch(match.value, (newVal, oldVal) => {
 });
 async function onUpdate() {
   edited.value = true;
-  match.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(match.value), DisplayMode.ORIGINAL);
+  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   emit("updateMatch");
 }
 function onDeleteWhere() {

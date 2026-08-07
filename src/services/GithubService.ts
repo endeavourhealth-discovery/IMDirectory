@@ -1,5 +1,5 @@
-import { parseArray } from "@endeavour/vue-library";
 import { REPO } from "@endeavour/vue-library/enums";
+import { parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
 import { type GithubRelease, GithubReleaseSchema } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
@@ -10,12 +10,12 @@ const API_URL = Env.API + "api/github";
 const GithubService = {
   async getLatestRelease(repositoryName: REPO): Promise<GithubRelease> {
     const result = await api.get(API_URL + "/public/githubLatest", { params: { repositoryName: repositoryName } });
-    return GithubReleaseSchema.parse(result);
+    return parseApiResponse(result, GithubReleaseSchema);
   },
 
   async getReleases(repositoryName: REPO): Promise<GithubRelease[]> {
     const result = await api.get(API_URL + "/public/githubAllReleases", { params: { repositoryName: repositoryName } });
-    return parseArray(result, GithubReleaseSchema);
+    return parseApiResponse(result, GithubReleaseSchema, true);
   },
 
   async updateGithubConfig(repositoryName: REPO): Promise<void> {

@@ -153,7 +153,7 @@ function updateValueConstraint(e: { value: string }) {
   setConstraintOperator(node.value, e.value);
 }
 function addValue() {
-  where.value!.is!.push(NodeSchema.parse({}));
+  where.value!.is!.push({} as Node);
 }
 
 async function updateQueryForValueSearch(): Promise<QueryRequest> {

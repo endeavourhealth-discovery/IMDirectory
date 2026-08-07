@@ -111,7 +111,7 @@ function setupTrees(mode: Mode) {
 async function onReturnNodeSelect(node: TreeNode) {
   if (!match.value.typeOf) {
     if (node.data.type) {
-      match.value.typeOf = NodeSchema.parse({ iri: node.data.typeOf });
+      match.value.typeOf = { iri: node.data.typeOf } as Node;
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
       typeNodes.value = await createFeatureTree(nodeShape.value, "return");
       setupTrees("return");

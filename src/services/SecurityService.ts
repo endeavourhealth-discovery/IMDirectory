@@ -1,6 +1,6 @@
-import { UserSchema, parseArray } from "@endeavour/vue-library";
 import { UserRole } from "@endeavour/vue-library/enums";
-import { User } from "@endeavour/vue-library/models";
+import { parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
+import { User, UserSchema } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -27,7 +27,7 @@ const SecurityService = {
   },
   async adminGetUsersByGroup(group: UserRole): Promise<User[]> {
     const result = await api.get(API_URL + "/private/getUsersInGroup", { params: { group: group } });
-    return parseArray(result, UserSchema);
+    return parseApiResponse(result, UserSchema, true);
   },
   async adminGetGroups(): Promise<UserRole[]> {
     return await api.get(API_URL + "/private/getGroups");
@@ -36,7 +36,7 @@ const SecurityService = {
   async getUser(raw?: boolean): Promise<User> {
     const user = await api.get(API_URL + "/private/user", { raw: raw });
     const result = user.data ? user.data : user;
-    return UserSchema.parse(result);
+    return parseApiResponse(result, UserSchema);
   },
 
   async getProfileUrl(): Promise<string> {
