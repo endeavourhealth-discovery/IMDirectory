@@ -32,7 +32,7 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
     const direction = valueTemplates.find((valueTemplate: any) => "direction" === valueTemplate[SHACL.PARAMETER]);
     const property = valueTemplates.find((valueTemplate: any) => "property" === valueTemplate[SHACL.PARAMETER]);
     if (direction && property) {
-      const orderBy = OrderLimitSchema.parse({
+      const orderBy = {
         limit: limit,
         property: [
           {
@@ -40,7 +40,7 @@ function onClick(templateFunctionIri: string, limit: number, valueTemplates: any
             direction: direction[IM.DEFAULT_VALUE] === Order.ascending ? Order.ascending : Order.descending
           }
         ]
-      });
+      } as OrderLimit;
       emit("addFunctionProperty", { property: "orderBy", value: orderBy });
     }
   }

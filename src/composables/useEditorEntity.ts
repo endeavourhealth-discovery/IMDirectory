@@ -14,8 +14,8 @@ import { useEditorStore } from "@/stores/editorStore";
 export function useEditorEntity(mode: EditorMode, updateType: (types: TTIriRef[]) => void) {
   const editorStore = useEditorStore();
   const creatorStore = useCreatorStore();
-  const editorEntityOriginal: Ref<TTEntity> = ref(TTEntitySchema.parse({}));
-  const editorEntity: Ref<TTEntity> = ref(TTEntitySchema.parse({}));
+  const editorEntityOriginal: Ref<TTEntity> = ref({} as TTEntity);
+  const editorEntity: Ref<TTEntity> = ref({} as TTEntity);
   const entityName = ref("");
 
   const editorIri = computed(() => editorStore.editorIri).value;

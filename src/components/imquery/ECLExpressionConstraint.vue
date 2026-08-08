@@ -352,7 +352,7 @@ async function updateQueryForPropertySearch() {
     if (allowableProperties.entities) {
       rootProperties.value = allowableProperties.entities.map(e => e.iri);
     }
-    propertyFilter.value = QueryRequestSchema.parse({
+    propertyFilter.value = {
       query: { iri: QUERY.ENTITY_FILTER },
       argument: [
         {
@@ -360,7 +360,7 @@ async function updateQueryForPropertySearch() {
           valueIriList: allowableProperties.entities
         }
       ]
-    });
+    } as QueryRequest;
   }
 }
 </script>

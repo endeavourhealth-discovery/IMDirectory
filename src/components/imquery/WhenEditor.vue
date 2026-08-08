@@ -37,8 +37,8 @@ interface Props {
 }
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showCaseConditionEditor", { default: false });
-const match: Ref<Query> = defineModel<Query>("match", { default: QuerySchema.parse({}) });
-const when: Ref<When> = defineModel<When>("when", { default: WhenSchema.parse({}) });
+const match: Ref<Query> = defineModel<Query>("match", { default: {} });
+const when: Ref<When> = defineModel<When>("when", { default: {} });
 const edited = ref(false);
 const emit = defineEmits<{
   (event: "saveCondition", when: When): void;
@@ -57,14 +57,14 @@ function onSave() {
 }
 async function onUpdate() {
   edited.value = true;
-  const match = QuerySchema.parse({ return: [{ case: { when: [when.value] } }] });
-  const matchAsQuery = QuerySchema.parse(match);
+  const match = { return: [{ case: { when: [when.value] } }] } as Query;
+  const matchAsQuery = match;
   const displayMatch = await QueryService.getQueryDisplayFromQuery(matchAsQuery, DisplayMode.ORIGINAL);
   const ret = displayMatch.return;
   when.value = ret![0].case!.when![0];
 }
 function deleteWhere() {
-  when.value = WhenSchema.parse({});
+  when.value = {} as When;
 }
 </script>
 

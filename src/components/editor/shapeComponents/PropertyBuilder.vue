@@ -230,45 +230,41 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 const dmProperties: Ref<SimpleProp[]> = ref([]);
 const dmPropertiesInherited: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
-const pSuggestions = ref(
-  QueryRequestSchema.parse({
-    query: {
+const pSuggestions = ref({
+  query: {
+    and: [
+      {
+        typeOf: {
+          iri: RDF.PROPERTY
+        },
+        where: {
+          iri: IM.HAS_STATUS,
+          is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
+        }
+      }
+    ]
+  }
+} as QueryRequest);
+const rSuggestions = ref({
+  query: {
+    where: {
       and: [
         {
-          typeOf: {
-            iri: RDF.PROPERTY
-          },
-          where: {
-            iri: IM.HAS_STATUS,
-            is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
-          }
+          iri: RDF.TYPE,
+          is: [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT }]
+        },
+        {
+          iri: IM.HAS_SCHEME,
+          is: [{ iri: NAMESPACE.SNOMED }, { iri: NAMESPACE.IM }, { iri: NAMESPACE.XSD }]
+        },
+        {
+          iri: IM.HAS_STATUS,
+          is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
         }
       ]
     }
-  })
-);
-const rSuggestions = ref(
-  QueryRequestSchema.parse({
-    query: {
-      where: {
-        and: [
-          {
-            iri: RDF.TYPE,
-            is: [{ iri: IM.CONCEPT_SET }, { iri: IM.VALUE_SET }, { iri: IM.CONCEPT }]
-          },
-          {
-            iri: IM.HAS_SCHEME,
-            is: [{ iri: NAMESPACE.SNOMED }, { iri: NAMESPACE.IM }, { iri: NAMESPACE.XSD }]
-          },
-          {
-            iri: IM.HAS_STATUS,
-            is: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }]
-          }
-        ]
-      }
-    }
-  })
-);
+  }
+} as QueryRequest);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 

@@ -86,7 +86,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
@@ -152,7 +152,7 @@ const showRangeFrom = computed(() => isRangeMap.value);
 const showRangeTo = computed(() => isRangeMap.value);
 const showSourceText = computed(() => isExactValueMap.value);
 const showSourceValue = computed(() => isExactValueMap.value);
-const entityQuery = QueryRequestSchema.parse({
+const entityQuery = {
   query: {
     and: [
       {
@@ -166,8 +166,8 @@ const entityQuery = QueryRequestSchema.parse({
       }
     ]
   }
-});
-const typeQuery = QueryRequestSchema.parse({
+} as QueryRequest;
+const typeQuery = {
   query: {
     and: [
       {
@@ -181,7 +181,7 @@ const typeQuery = QueryRequestSchema.parse({
       }
     ]
   }
-});
+} as QueryRequest;
 const propertyOptions: Ref<Record<string, any[]>> = ref({});
 
 watch(
