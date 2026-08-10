@@ -203,9 +203,10 @@ function createDefaultBuild() {
   build.value = [];
   if (isObjectHasKeys(props.shape, ["property"])) {
     props.shape.property!.forEach(property => {
-      build.value.push(
-        generateNewComponent(ComponentType.BUILDER_CHILD_WRAPPER, property.order - 1, undefined, property, setButtons(property.order - 1, true), props.mode)
-      );
+      if (property.order)
+        build.value.push(
+          generateNewComponent(ComponentType.BUILDER_CHILD_WRAPPER, property.order - 1, undefined, property, setButtons(property.order - 1, true), props.mode)
+        );
     });
   }
 }

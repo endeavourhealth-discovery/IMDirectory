@@ -232,7 +232,7 @@ function isGroupValid(group: Role[]): boolean {
 }
 
 function updateEntity() {
-  const groups = TTEntitySchema.parse({});
+  const groups = {} as TTEntity;
   groups[IM.ROLE_GROUP] = [];
 
   for (const rg in roleGroups.value) {

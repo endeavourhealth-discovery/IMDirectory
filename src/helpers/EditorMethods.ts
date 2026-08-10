@@ -1,6 +1,6 @@
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { TypeGuards, enumToArray, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type Argument, type GenericObject, NodeSchema, type PropertyShape, type QueryRequest, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type Argument, type GenericObject, type Node, type PropertyShape, type QueryRequest, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { ComponentType } from "../enums";
 
@@ -21,12 +21,11 @@ export function updateRangeQuery(rangeQuery: QueryRequest, rangeType: string) {
     const andClauses = rangeQuery.query.where.and;
     const typeClause = andClauses.find(clause => clause.iri === RDF.TYPE);
     if (typeClause) {
-      if (rangeType === "concept")
-        typeClause.is = [NodeSchema.parse({ iri: IM.CONCEPT }), NodeSchema.parse({ iri: IM.CONCEPT_SET }), NodeSchema.parse({ iri: IM.VALUE_SET })];
+      if (rangeType === "concept") typeClause.is = [{ iri: IM.CONCEPT } as Node, { iri: IM.CONCEPT_SET } as Node, { iri: IM.VALUE_SET } as Node];
       else if (rangeType === "datatype") {
-        typeClause.is = [NodeSchema.parse({ iri: RDFS.DATATYPE })];
+        typeClause.is = [{ iri: RDFS.DATATYPE } as Node];
       } else if (rangeType === "shape") {
-        typeClause.is = [NodeSchema.parse({ iri: SHACL.NODESHAPE })];
+        typeClause.is = [{ iri: SHACL.NODESHAPE } as Node];
       }
     }
   }

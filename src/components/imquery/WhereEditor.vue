@@ -147,6 +147,7 @@
 <script lang="ts" setup>
 import { Ref, inject, onMounted, ref } from "vue";
 
+import { OrderLimit } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
@@ -221,7 +222,7 @@ onMounted(async () => {
 });
 
 function addTest() {
-  match.value.then = QuerySchema.parse({ where: {} });
+  match.value.then = { where: {} } as Query;
   emit("addTest");
 }
 function onInput() {
@@ -258,7 +259,7 @@ async function init() {
 async function onNodeSelect(node: any) {
   if (!match.value.typeOf) {
     if (node.data.typeOf) {
-      match.value.typeOf = NodeSchema.parse({ iri: node.data.typeOf });
+      match.value.typeOf = { iri: node.data.typeOf } as Node;
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
       typeNodes.value = await createFeatureTree(nodeShape.value, "match");
       setupTrees("match");
@@ -272,7 +273,7 @@ async function onNodeSelect(node: any) {
     else addFilter(match.value, node, props.editingThen, props.editingWhen);
   }
   await setMandatoryWheres(match.value);
-  const matchAsQuery = QuerySchema.parse(match.value);
+  const matchAsQuery = match.value as Query;
   match.value = await QueryService.getQueryDisplayFromQuery(matchAsQuery, DisplayMode.ORIGINAL);
   edited.value = true;
   setOrderables();
@@ -324,7 +325,7 @@ function updateOrderable(value: any) {
     orderable.value = undefined;
   } else {
     orderable.value = value;
-    match.value.orderBy = OrderLimitSchema.parse({ property: [{ iri: value.iri, direction: value.direction }] });
+    match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] } as OrderLimit;
   }
   emit("updateMatch");
 }
