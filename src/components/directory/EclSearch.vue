@@ -16,16 +16,18 @@
               @keydown="onKeyDown"
               @keyup="onKeyUp"
             />
-            <Button
-              class="copy-button self-start"
-              :disabled="!eclQueryString.length"
-              icon="fa-solid fa-copy"
-              v-tooltip.left="'Copy to clipboard'"
-              v-clipboard:copy="copyToClipboard()"
-              v-clipboard:success="onCopy"
-              v-clipboard:error="onCopyError"
-              data-testid="copy-to-clipboard-button"
-            />
+            <div class="flex items-center">
+              <Button
+                class="ml-4"
+                :disabled="!eclQueryString.length"
+                icon="fa-solid fa-copy"
+                v-tooltip.left="'Copy to clipboard'"
+                v-clipboard:copy="copyToClipboard()"
+                v-clipboard:success="onCopy"
+                v-clipboard:error="onCopyError"
+                data-testid="copy-to-clipboard-button"
+              />
+            </div>
           </div>
 
           <div v-if="setDefinition.status!.valid" class="flex flex-row items-center">
@@ -310,11 +312,6 @@ function setFilterDefaults() {
   padding: 0.5rem;
   color: transparent;
   z-index: 1;
-}
-.copy-button {
-  display: flex;
-  flex-flow: row;
-  margin-left: 1rem;
 }
 .transparent-textarea {
   min-height: 15rem;
