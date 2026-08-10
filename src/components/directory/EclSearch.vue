@@ -28,9 +28,9 @@
             />
           </div>
 
-          <div v-if="setDefinition.status!.valid">
+          <div v-if="setDefinition.status!.valid" class="flex flex-row items-center">
             <label for="">Show names </label>
-            <Checkbox v-model="showNames" :binary="true" class="checkbox" />
+            <Checkbox v-model="showNames" :binary="true" class="m-2" />
           </div>
           <div class="error-message" v-if="!setDefinition.status!.valid">
             Invalid ECL : line {{ setDefinition.status!.line }}, offset {{ setDefinition.status!.offset }} -> {{ setDefinition.status!.message }}
@@ -330,9 +330,5 @@ function setFilterDefaults() {
 .input-container {
   width: 98%;
   flex: 0 1 auto;
-}
-
-.checkbox {
-  margin: 2rem;
 }
 </style>
