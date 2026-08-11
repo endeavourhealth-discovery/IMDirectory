@@ -1,4 +1,4 @@
-import type { GenericObject, TTIriRef } from "@endeavour/vue-library/models";
+import type { GenericObject, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/models";
 
 export interface TreeNode extends GenericObject {
   key: string;
@@ -10,7 +10,7 @@ export interface TreeNode extends GenericObject {
   children?: TreeNode[];
   selectable: boolean;
   leaf: boolean;
-  data: any;
+  data: SearchResultSummary;
   parent?: TreeNode;
   hasVariable: string;
 }
