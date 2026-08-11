@@ -38,7 +38,7 @@
       :loading="loading"
     >
       <template #default="{ node }: any">
-        <div v-if="node.data === 'loadMore'" class="tree-row">
+        <div v-if="node.key.includes('loadMore')" class="tree-row">
           <ProgressSpinner v-if="node.loading" />
           <span class="tree-node-label">{{ node.label }}</span>
         </div>
@@ -278,7 +278,7 @@ async function setExpandedParentParents(): Promise<void> {
 }
 
 async function onNodeSelect(node: TreeNode): Promise<void> {
-  if (node.data === "loadMore") {
+  if (node.key.includes("loadMore")) {
     if (!node.loading) await loadMore(node);
   }
   await nextTick();
