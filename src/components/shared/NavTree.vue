@@ -387,8 +387,6 @@ async function createFolder() {
       life: 3000
     });
   } finally {
-    console.log(selectedNode.value);
-    console.log("wah");
     newFolder.value = null;
     creating.value = false;
     if (selectedNode.value) {
