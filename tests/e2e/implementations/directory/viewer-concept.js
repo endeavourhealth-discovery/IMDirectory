@@ -2,6 +2,7 @@
 
 const assert = require("node:assert");
 const { pw } = require("../playwright");
+const { expect } = require("@playwright/test");
 
 step("Concept title displays <text>", async text => {
   const title = pw.page.locator(".parent-header-container").filter({ hasText: text });
@@ -154,12 +155,14 @@ step("Hierarchy tree has more than <num> nodes", async num => {
   assert(count > Number(num), `Hierarchy tree should have more than ${num} nodes, but has ${count}`);
 });
 
-step("Click parent button", async () => {
-  await pw.page.locator('[data-testid="parent"]').click();
-});
-
-step("Parent hierarchy changed", async () => {
-  await pw.page.waitForLoadState("networkidle");
+step("Click parent button and hierarchy updates", async () => {
+  const parentButton = pw.page.locator('[data-testid="parent"]');
+  await expect(parentButton).toHaveText(/\S+/);
+  const original = await parentButton.textContent();
+  assert.ok(original);
+  await parentButton.click();
+  await expect(parentButton).not.toHaveText(original);
+  await expect(pw.page.locator("#secondary-tree-bar-container .tree-row").filter({ hasText: original }).first()).toBeVisible();
 });
 
 step("Click hierarchy node <text>", async text => {

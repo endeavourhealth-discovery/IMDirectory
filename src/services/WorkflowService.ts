@@ -1,3 +1,4 @@
+import { parseApiResponse } from "@endeavour/vue-library/helpers";
 import {
   type BugReport,
   BugReportSchema,
@@ -26,7 +27,7 @@ const WorkflowService = {
 
   async getBugReport(id: string): Promise<BugReport> {
     const result = await api.get(API_URL + "/getBugReport", { params: { id: id } });
-    return BugReportSchema.parse(result);
+    return parseApiResponse(result, BugReportSchema);
   },
 
   async updateBugReport(bugReport: BugReport): Promise<void> {
@@ -39,7 +40,7 @@ const WorkflowService = {
 
   async getRoleRequest(id: string): Promise<RoleRequest> {
     const result = await api.get(API_URL + "/roleRequest", { params: { id: id } });
-    return RoleRequestSchema.parse(result);
+    return parseApiResponse(result, RoleRequestSchema);
   },
 
   async updateRoleRequest(roleRequest: RoleRequest): Promise<void> {
@@ -52,7 +53,7 @@ const WorkflowService = {
 
   async getNamespaceRequest(id: string): Promise<NamespaceRequest> {
     const result = await api.get(API_URL + "/namespaceRequest", { params: { id: id } });
-    return NamespaceRequestSchema.parse(result);
+    return parseApiResponse(result, NamespaceRequestSchema);
   },
 
   async updateNamespaceRequest(namespaceRequest: NamespaceRequest): Promise<void> {
@@ -65,7 +66,7 @@ const WorkflowService = {
 
   async getEntityApproval(id: string): Promise<EntityApproval> {
     const result = await api.get(API_URL + "/entityApproval", { params: { id: id } });
-    return EntityApprovalSchema.parse(result);
+    return parseApiResponse(result, EntityApprovalSchema);
   },
 
   async updateEntityApproval(entityApproval: EntityApproval): Promise<void> {
@@ -74,17 +75,17 @@ const WorkflowService = {
 
   async getTasksByCreatedBy(page?: number, size?: number): Promise<WorkflowResponse> {
     const result = await api.get(API_URL + "/getTasksByCreatedBy", { params: { page: page, size: size } });
-    return WorkflowResponseSchema.parse(result);
+    return parseApiResponse(result, WorkflowResponseSchema);
   },
 
   async getTasksByAssignedTo(page?: number, size?: number): Promise<WorkflowResponse> {
     const result = await api.get(API_URL + "/getTasksByAssignedTo", { params: { page: page, size: size } });
-    return WorkflowResponseSchema.parse(result);
+    return parseApiResponse(result, WorkflowResponseSchema);
   },
 
   async getUnassignedTasks(page?: number, size?: number): Promise<WorkflowResponse> {
     const result = await api.get(API_URL + "/getUnassignedTasks", { params: { page: page, size: size } });
-    return WorkflowResponseSchema.parse(result);
+    return parseApiResponse(result, WorkflowResponseSchema);
   },
 
   async deleteTask(id: string): Promise<void> {
@@ -97,7 +98,7 @@ const WorkflowService = {
 
   async getTask(id: string): Promise<Task> {
     const result = await api.get(API_URL + "/getTask", { params: { id: id } });
-    return TaskSchema.parse(result);
+    return parseApiResponse(result, TaskSchema);
   },
 
   async approveRoleRequest(roleRequest: RoleRequest) {

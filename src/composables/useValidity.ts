@@ -67,6 +67,7 @@ export function useValidity(shape?: FormGenerator) {
   }
 
   function addPropertyToValidationCheckStatus(property: PropertyShape) {
+    if (!property.componentType) throw new Error("Component type missing from property");
     if (
       ![COMPONENT.HORIZONTAL_LAYOUT.valueOf(), COMPONENT.VERTICAL_LAYOUT.valueOf(), COMPONENT.TOGGLEABLE.valueOf()].includes(property.componentType.iri) &&
       validationCheckStatus.value.findIndex(check => check.key === property.path.iri) === -1

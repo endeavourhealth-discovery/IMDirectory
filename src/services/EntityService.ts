@@ -1,5 +1,5 @@
 import { IM, RDFS } from "@endeavour/vue-library/enums";
-import { isObjectHasKeys, parseArray } from "@endeavour/vue-library/helpers";
+import { isObjectHasKeys, parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
 import {
   DownloadByQueryOptions,
   EditRequest,
@@ -29,6 +29,7 @@ import {
 
 import { OrganizationChartNode } from "primevue/organizationchart";
 import type { TreeNode } from "primevue/treenode";
+import z from "zod";
 
 import { buildDetails } from "@/helpers/DetailsBuilder";
 
@@ -41,22 +42,22 @@ const EntityService = {
   // ============================ PUBLIC ============================
   async getSchemes(): Promise<Namespace[]> {
     const result = await api.get(API_URL + "/public/schemes");
-    return parseArray(result, NamespaceSchema);
+    return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getNamespaces(): Promise<Namespace[]> {
     const result = await api.get(API_URL + "/public/namespaces");
-    return parseArray(result, NamespaceSchema);
+    return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getFilterOptions(): Promise<FilterOptions> {
     const result = await api.get(API_URL + "/public/filterOptions");
-    return FilterOptionsSchema.parse(result);
+    return parseApiResponse(result, FilterOptionsSchema);
   },
 
   async getFilterDefaultOptions(): Promise<FilterOptions> {
     const result = await api.get(API_URL + "/public/filterDefaults");
-    return FilterOptionsSchema.parse(result);
+    return parseApiResponse(result, FilterOptionsSchema);
   },
 
   // ============================ PROTECTED ============================
@@ -68,12 +69,12 @@ const EntityService = {
         predicates: predicates.join(",")
       }
     });
-    return TTEntitySchema.parse(result);
+    return parseApiResponse(result, TTEntitySchema);
   },
 
   async getPartialEntities(typeIris: string[], predicates: string[]): Promise<TTEntity[]> {
     const result = await api.post(API_URL + "/protected/partials", { iris: [...new Set(typeIris)].join(","), predicates: [...new Set(predicates)].join(",") });
-    return parseArray(result, TTEntitySchema);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<TTEntity> {
@@ -83,7 +84,7 @@ const EntityService = {
         includeInactiveTermCodes: includeInactiveTermCodes
       }
     });
-    return TTEntitySchema.parse(result);
+    return parseApiResponse(result, TTEntitySchema);
   },
 
   async getEntityTypes(iri: string): Promise<string[]> {
@@ -101,7 +102,7 @@ const EntityService = {
         predicates: predicates.join(",")
       }
     });
-    return TTBundleSchema.parse(result);
+    return parseApiResponse(result, TTBundleSchema);
   },
 
   async getEntityChildren(iri: string, filters?: FiltersAsIris, controller?: AbortController): Promise<ExtendedEntityReferenceNode[]> {
@@ -109,17 +110,17 @@ const EntityService = {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
-    return parseArray(result, ExtendedEntityReferenceNodeSchema);
+    return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
   },
 
   async getEntityAsEntityReferenceNode(iri: string): Promise<ExtendedEntityReferenceNode> {
     const result = await api.get(API_URL + "/protected/asEntityReferenceNode", { params: { iri: iri } });
-    return ExtendedEntityReferenceNodeSchema.parse(result);
+    return parseApiResponse(result, ExtendedEntityReferenceNodeSchema);
   },
 
   async getAsEntityReferenceNodes(iris: string[]): Promise<ExtendedEntityReferenceNode[]> {
     const result = await api.get(API_URL + "/protected/asEntityReferenceNodes", { params: { iris: iris.join(",") } });
-    return parseArray(result, ExtendedEntityReferenceNodeSchema);
+    return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
   },
 
   async getPagedChildren(
@@ -134,7 +135,7 @@ const EntityService = {
       params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(","), typeFilter: typeFilter?.join(",") },
       signal: controller?.signal
     });
-    return PageableEntityReferenceNodeSchema.parse(result);
+    return parseApiResponse(result, PageableEntityReferenceNodeSchema);
   },
 
   async getPartialAndTotalCount(
@@ -149,7 +150,7 @@ const EntityService = {
       params: { iri: iri, predicate: predicate, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
       signal: controller?.signal
     });
-    return PageableTTIriRefSchema.parse(result);
+    return parseApiResponse(result, PageableTTIriRefSchema);
   },
 
   async downloadEntity(iri: string): Promise<Blob> {
@@ -160,7 +161,7 @@ const EntityService = {
     const result = await api.get(API_URL + "/protected/parents", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") }
     });
-    return parseArray(result, ExtendedEntityReferenceNodeSchema);
+    return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
   },
 
   async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTEntity[]> {
@@ -171,7 +172,7 @@ const EntityService = {
         size: pageSize
       }
     });
-    return parseArray(result, TTEntitySchema);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getUsagesTotalRecords(iri: string): Promise<number> {
@@ -194,7 +195,7 @@ const EntityService = {
     const result = await api.get(API_URL + "/protected/summary", {
       params: { iri: iri }
     });
-    return SearchResultSummarySchema.parse(result);
+    return parseApiResponse(result, SearchResultSummarySchema);
   },
 
   async downloadSearchResults(downloadSettings: DownloadByQueryOptions): Promise<Blob> {
@@ -205,45 +206,45 @@ const EntityService = {
     const result = await api.get(API_URL + "/protected/folderPath", {
       params: { iri: iri }
     });
-    return parseArray(result, TTIriRefSchema);
+    return parseApiResponse(result, z.array(TTIriRefSchema));
   },
 
   async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
     const result = await api.get(API_URL + "/protected/shortestParentHierarchy", {
       params: { descendant: descendant, ancestor: ancestor }
     });
-    return parseArray(result, TTIriRefSchema);
+    return parseApiResponse(result, z.array(TTIriRefSchema));
   },
 
   async getEntityByPredicateExclusions(iri: string, predicates: string[]): Promise<TTEntity> {
     const result = await api.get(API_URL + "/protected/entityByPredicateExclusions", {
       params: { iri: iri, predicates: predicates.join(",") }
     });
-    return TTEntitySchema.parse(result);
+    return parseApiResponse(result, TTEntitySchema);
   },
 
   async getBundleByPredicateExclusions(iri: string, predicates: string[], graph?: string): Promise<TTBundle> {
     const result = await api.get(API_URL + "/protected/bundleByPredicateExclusions", {
       params: { iri: iri, predicates: predicates.join(","), graph: graph }
     });
-    return TTBundleSchema.parse(result);
+    return parseApiResponse(result, TTBundleSchema);
   },
 
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<ValidatedEntity[]> {
     const result = await api.post(API_URL + "/protected/validatedEntity", codes);
-    return parseArray(result, ValidatedEntitySchema);
+    return parseApiResponse(result, z.array(ValidatedEntitySchema));
   },
 
   async getEntityDetailsDisplay(iri: string): Promise<TreeNode[]> {
     const response = await api.get(API_URL + "/protected/detailsDisplay", { params: { iri: iri } });
-    return buildDetails(TTBundleSchema.parse(response));
+    return buildDetails(parseApiResponse(response, TTBundleSchema));
   },
 
   async loadMoreDetailsDisplay(iri: string, predicate: string, pageIndex: number, pageSize: number): Promise<TreeNode[]> {
     const response = await api.get(API_URL + "/protected/detailsDisplay/loadMore", {
       params: { iri: iri, predicate: predicate, pageIndex: pageIndex, pageSize: pageSize }
     });
-    return buildDetails(TTBundleSchema.parse(response));
+    return buildDetails(parseApiResponse(response, TTBundleSchema));
   },
 
   async checkValidation(validationIri: string, data: EntityValidationRequest): Promise<{ valid: boolean; message: string | undefined }> {
@@ -258,12 +259,12 @@ const EntityService = {
     const result = await api.get(API_URL + "/protected/history", {
       params: { iri: iri }
     });
-    return parseArray(result, TTEntitySchema);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getAllowableChildTypes(iri: string): Promise<TTEntity[]> {
     const result = await api.get(API_URL + "/protected/allowableChildTypes", { params: { iri: iri } });
-    return parseArray(result, TTEntitySchema);
+    return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
   async getChildEntities(iri: string): Promise<string[]> {
@@ -276,12 +277,12 @@ const EntityService = {
 
   async createEntity(editRequest: EditRequest): Promise<TTEntity> {
     const result = await api.post(API_URL + "/private/create", editRequest);
-    return TTEntitySchema.parse(result);
+    return parseApiResponse(result, TTEntitySchema);
   },
 
   async updateEntity(editRequest: EditRequest): Promise<TTEntity> {
     const result = await api.post(API_URL + "/private/update", editRequest);
-    return TTEntitySchema.parse(result);
+    return parseApiResponse(result, TTEntitySchema);
   },
   // ========================== HELPERS ==========================
 

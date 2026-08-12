@@ -55,7 +55,7 @@ import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM } from "@endeavour/vue-library/enums";
 import { UserRole } from "@endeavour/vue-library/enums";
 import { byKey, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTIriRef } from "@endeavour/vue-library/models";
+import { SearchResultSummary, type TTIriRef, hasRole } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -99,8 +99,20 @@ const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const favourites = computed(() => userStore.favourites);
 
-const { root, selectedKeys, selectedNode, expandedKeys, expandedData, createTreeNode, loadMore, onNodeExpand, onNodeCollapse, findPathToNode, customOnClick } =
-  useTree(favourites, emit, props.childLength ? props.childLength : 40);
+const {
+  root,
+  selectedKeys,
+  selectedNode,
+  expandedKeys,
+  expandedData,
+  createTreeNode,
+  createNodeSummary,
+  loadMore,
+  onNodeExpand,
+  onNodeCollapse,
+  findPathToNode,
+  customOnClick
+} = useTree(favourites, emit, props.childLength ? props.childLength : 40);
 const { getCreateOptions, checkExists } = useCreateNew();
 
 const loading = ref(true);
@@ -115,7 +127,7 @@ const newFolderIcon = computed(() => {
 });
 
 const menu = ref();
-const { OS, showOverlay, hideOverlay } = useOverlay();
+const { OS, showOverlay, showOverlayTreeNode, hideOverlay } = useOverlay();
 
 watch(
   () => props.findInTree,
@@ -127,11 +139,11 @@ watch(
 
 watch(
   () => cloneDeep(favourites.value),
-  async () => {
+  async newValue => {
     const favouritesIndex = root.value.findIndex(node => node.key === IM.FAVOURITES);
     if (favouritesIndex !== -1) {
       root.value.splice(favouritesIndex, 1);
-      addFavouritesToTree();
+      await addFavouritesToTree(newValue);
     }
   }
 );
@@ -178,19 +190,26 @@ async function addParentFoldersToRoot() {
     for (let IMchild of IMChildren) {
       const hasNode = !!root.value.find(node => node.key === IMchild.iri);
       if (!hasNode) {
-        const summary = { description: IMchild.description, status: IMchild.status };
-        root.value.push(createTreeNode(IMchild.name, IMchild.iri, IMchild.type as TTIriRef[], summary, IMchild.hasGrandChildren, null, IMchild.orderNumber));
+        root.value.push(
+          createTreeNode(IMchild.name, IMchild.iri, IMchild.type as TTIriRef[], createNodeSummary(IMchild), IMchild.hasGrandChildren, null, IMchild.orderNumber)
+        );
       }
     }
   }
   root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
-  if (isLoggedIn.value) addFavouritesToTree();
+  if (isLoggedIn.value) await addFavouritesToTree(favourites.value);
 }
 
-function addFavouritesToTree() {
-  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], undefined, !!favourites.value.length, null, undefined);
+async function addFavouritesToTree(favourites: string[]) {
+  const favNode = createTreeNode("Favourites", IM.FAVOURITES, [], undefined, !!favourites.length, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--p-yellow-500)";
+  if (isArrayHasLength(favourites)) {
+    const favouritesAsSummaries = await EntityService.getAsEntityReferenceNodes(favourites);
+    for (const favItem of favouritesAsSummaries) {
+      favNode.children?.push(createTreeNode(favItem.name, favItem.iri, favItem.type as TTIriRef[], createNodeSummary(favItem), favItem.hasChildren, null));
+    }
+  }
   root.value.push(favNode);
 }
 
@@ -199,8 +218,9 @@ async function addRootEntitiesToTree() {
   const itemSummaries = await EntityService.getAsEntityReferenceNodes(props.rootEntities);
   if (itemSummaries && itemSummaries.length > 0) {
     for (const itemSummary of itemSummaries) {
-      const summary = { description: itemSummary.description, status: itemSummary.status };
-      root.value.push(createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], summary, itemSummary.hasChildren, null));
+      root.value.push(
+        createTreeNode(itemSummary.name, itemSummary.iri, itemSummary.type as TTIriRef[], createNodeSummary(itemSummary), itemSummary.hasChildren, null)
+      );
     }
   }
   root.value.sort(byKey);
@@ -209,9 +229,10 @@ async function addRootEntitiesToTree() {
 async function onNodeContext(event: MouseEvent, node: TreeNode) {
   event.preventDefault();
   items.value = [];
-  const hasPermission = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
+  if (!currentUser.value) return;
+  const hasPermission = hasRole(currentUser.value, UserRole.EDITOR);
 
-  if (!currentUser.value || !hasPermission) return;
+  if (!hasPermission) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
   selectedNode.value = node;
@@ -351,7 +372,7 @@ async function createFolder() {
               name: "Folder"
             } as TTIriRef
           ],
-          undefined,
+          {} as SearchResultSummary,
           false,
           newFolder.value
         )
@@ -369,20 +390,20 @@ async function createFolder() {
     newFolder.value = null;
     creating.value = false;
     if (selectedNode.value) {
-      await onNodeExpand(selectedNode.value);
+      await init();
     }
   }
 }
 
 async function displayOverlay(event: MouseEvent, node: TreeNode): Promise<void> {
-  if (node.data !== "loadMore" && node.key !== "http://endhealth.info/im#Favourites") {
-    await showOverlay(event, node.data);
+  if (node.data === undefined || node.key !== "http://endhealth.info/im#Favourites") {
+    await showOverlayTreeNode(event, node.data);
   }
 }
 
 async function onNodeSelect(event: MouseEvent, node: TreeNode, useEmits?: boolean, updateSelectedKeys?: boolean) {
   if (node.key !== IM.FAVOURITES) {
-    if (node.data === "loadMore") {
+    if (node.data === undefined) {
       if (!node.loading) await loadMore(node);
     } else await customOnClick(event, node, useEmits, updateSelectedKeys);
   }

@@ -58,11 +58,11 @@ export const handlersFaker = [
   http.get(apiUrl + "entity/public/partial", ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
-    const entity = TTEntitySchema.parse({
+    const entity = {
       iri: iri as string,
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": null,
       "http://www.w3.org/2000/01/rdf-schema#label": null
-    });
+    } as TTEntity;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });

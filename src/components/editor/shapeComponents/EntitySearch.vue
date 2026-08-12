@@ -143,7 +143,7 @@ function convertToTTIriRef(data: SearchResultSummary): TTIriRef | undefined {
 
 async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   if (!isObjectHasKeys(data)) {
-    selectedResult.value = SearchResultSummarySchema.parse({});
+    selectedResult.value = {} as SearchResultSummary;
   } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
     const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);

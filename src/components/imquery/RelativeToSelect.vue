@@ -101,7 +101,7 @@ async function updateRelativeProperty(relativeIri: any) {
         relativeProperty.value = relativeIri;
         const ref = relativeIri.substring(relativeIri.lastIndexOf("#") + 1);
         injectReturn(relativeMatch.value, relativeIri, ref);
-        const relativeMatchAsQuery = QuerySchema.parse(relativeMatch.value);
+        const relativeMatchAsQuery = relativeMatch.value;
         const updatedMatch = await QueryService.getQueryDisplayFromQuery(relativeMatchAsQuery, DisplayMode.ORIGINAL);
         Object.assign(keepAs.value[relativeTo.value].value, updatedMatch);
         emit("updateCompare");

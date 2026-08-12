@@ -20,7 +20,12 @@
           @to-search="onSearch"
         />
       </div>
-      <Splitter stateKey="directorySearchSplitterHorizontal" stateStorage="local" style="height: 100%; flex: 1 1 auto" @resizeend="updateSplitter">
+      <Splitter
+        stateKey="directorySearchSplitterHorizontal"
+        stateStorage="local"
+        style="height: 100%; flex: 1 1 auto; overflow: auto"
+        @resizeend="updateSplitter"
+      >
         <SplitterPanel :minSize="10" :size="30">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
@@ -70,10 +75,10 @@
                 @selected-updated="updateSelectedFromIri"
                 @go-to-search-results="goToSearchResults"
               />
-              <span>Show the ecl search</span>
               <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
               <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
             </div>
+            <!-- <span>Show the ecl search</span> -->
           </div>
         </SplitterPanel>
       </Splitter>
@@ -100,6 +105,7 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
+import { Argument } from "@endeavour/vue-library";
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 import { ArgumentSchema, type FilterOptions, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
@@ -204,7 +210,7 @@ function onSearch() {
     lastSearchTerm.value = searchTerm.value;
     activePage.value = 0;
     updateSearch.value = !updateSearch.value;
-  }
+  } else activePage.value = 0;
 }
 
 async function setSelectedName() {
@@ -271,7 +277,7 @@ async function getIsSelectableEntity(): Promise<boolean> {
     const existing = props.validEntityQuery.argument!.find(a => a.parameter === "entity");
     if (existing) {
       existing.valueIri = { iri: detailsIri.value };
-    } else props.validEntityQuery.argument!.push(ArgumentSchema.parse({ parameter: "entity", valueIri: { iri: detailsIri.value } }));
+    } else props.validEntityQuery.argument!.push({ parameter: "entity", valueIri: { iri: detailsIri.value } } as Argument);
     return await QueryService.askQuery(props.validEntityQuery);
   }
   return true;
@@ -301,7 +307,6 @@ function goToSearchResults() {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border-bottom: 10px solid #ccc;
 }
 
 .search-bar {
@@ -313,7 +318,6 @@ function goToSearchResults() {
 }
 
 .im-dialog-footer {
-  border-top: 1px solid #ccc;
   padding: 1rem;
 }
 .dialog-body-wrapper {

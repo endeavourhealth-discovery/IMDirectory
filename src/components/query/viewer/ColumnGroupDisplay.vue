@@ -49,8 +49,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const parentQuery = defineModel<Query>("parentQuery", { default: QuerySchema.parse({}) });
-const datasetEntry = defineModel<Query>("datasetEntry", { default: QuerySchema.parse({}) });
+const parentQuery = defineModel<Query>("parentQuery", { default: {} as Query });
+const datasetEntry = defineModel<Query>("datasetEntry", { default: {} as Query });
 const matchExpand = ref(true);
 const loading = ref(false);
 
@@ -63,7 +63,7 @@ function matchToggle() {
 
 async function init() {
   matchExpand.value = props.matchExpanded;
-  const datasetEntryAsQuery = QuerySchema.parse(datasetEntry.value);
+  const datasetEntryAsQuery = datasetEntry.value;
   datasetEntry.value = await QueryService.getQueryDisplayFromQuery(datasetEntryAsQuery, DisplayMode.ORIGINAL);
 }
 </script>

@@ -58,16 +58,23 @@ const splitterRightSize = computed(() => directoryStore.splitterRightSize);
 watch(
   () => cloneDeep(props.data),
   newValue => {
-    graphData.value = newValue;
-    setRoot();
+    if (mounted.value) {
+      graphData.value = newValue;
+      setRoot();
+    }
   }
 );
 
 watch(
   () => splitterRightSize.value,
-  () => drawGraph()
+  () => {
+    if (mounted.value) {
+      drawGraph();
+    }
+  }
 );
 
+const mounted = ref(false);
 const root: Ref = ref({});
 const simulation: Ref = ref({});
 const svgPan: Ref = ref({});
@@ -93,18 +100,22 @@ const viewBox = computed(() => ["" + -width.value / 2, "" + -height.value / 2, "
 const menu = ref();
 
 onMounted(async () => {
+  mounted.value = true;
   const result = await EntityService.getEntityChildren(IM.GRAPH_EXCLUDE_PREDICATES);
   if (result) graphExcludePredicates.value = result.map(r => r.iri);
   window.addEventListener("resize", onResize);
   graphData.value = props.data;
   setRoot();
+  mounted.value = false;
 });
 
 watch(
   () => cloneDeep(graphData),
   newValue => {
-    root.value = d3.hierarchy(newValue);
-    drawGraph();
+    if (mounted.value) {
+      root.value = d3.hierarchy(newValue);
+      drawGraph();
+    }
   }
 );
 
@@ -186,7 +197,12 @@ function drawGraph() {
     .force("x", d3.forceX())
     .force("y", d3.forceY());
 
-  const svg = d3.select("#force-layout-svg").attr("viewBox", viewBox.value as any);
+  const svgElement = document.getElementById("force-layout-svg");
+  if (!svgElement) {
+    console.warn("graph attempted to draw before element was mounted.");
+    return;
+  }
+  const svg = d3.select(svgElement).attr("viewBox", viewBox.value as any);
 
   const pathLink = svg
     .selectAll(null)

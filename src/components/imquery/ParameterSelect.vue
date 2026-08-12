@@ -67,7 +67,7 @@ async function getParameters() {
 
 async function getOptions(iri: string) {
   let options: SelectOption[] = [];
-  const qr = QueryRequestSchema.parse({
+  const qr = {
     query: { iri: QUERY.GET_SUBCLASSES },
     argument: [
       {
@@ -77,7 +77,7 @@ async function getOptions(iri: string) {
         }
       }
     ]
-  });
+  } as QueryRequest;
   const response = await QueryService.queryIM(qr);
   if (isArrayHasLength(response.entities)) {
     options = response.entities.map(entity => {

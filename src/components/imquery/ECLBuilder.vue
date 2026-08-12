@@ -166,8 +166,8 @@ async function createBuildFromQuery(query: Query) {
 
 async function preview() {
   if (!previewECL.value && build.value) {
-    let rationalised = await QueryService.optimiseECLQuery(QuerySchema.parse(build.value));
-    rationalised = QuerySchema.parse(includeSubtypes(rationalised));
+    let rationalised = await QueryService.optimiseECLQuery(build.value);
+    rationalised = includeSubtypes(rationalised);
     const eclQuery = await EclService.getECLFromQuery(rationalised, includeTerms.value);
     queryString.value = eclQuery.ecl!;
   }
@@ -176,15 +176,15 @@ async function preview() {
 
 function includeSubtypes(query: Query): Query {
   if (checkIncludeSubtypes.value) {
-    return QuerySchema.parse({ is: { descendantsOrSelfOf: true, match: query } });
+    return { is: { descendantsOrSelfOf: true, match: query } } as Query;
   } else return query;
 }
 
 async function submit(): Promise<void> {
   if (build.value) {
-    build.value = await QueryService.optimiseECLQuery(QuerySchema.parse(build.value));
+    build.value = await QueryService.optimiseECLQuery(build.value);
     const rationalised = includeSubtypes(build.value);
-    const eclQuery = await EclService.getECLFromQuery(QuerySchema.parse(rationalised), props.showNames);
+    const eclQuery = await EclService.getECLFromQuery(rationalised, props.showNames);
     if (eclQuery.status && !eclQuery.status.valid) {
       await displayValidationMessage(true, eclQuery.status.message);
     } else emit("eclSubmitted", eclQuery);

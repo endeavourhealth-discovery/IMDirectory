@@ -372,7 +372,10 @@ async function onRowSelect(event: DataTableRowSelectEvent<ExtendedSearchResultSu
     await directService.view(event.data.iri);
   } else {
     const found = searchResults.value.find(result => event.data.iri === result.iri);
-    if (found) emit("rowSelected", found);
+    if (found) {
+      await hideOverlay();
+      emit("rowSelected", found);
+    }
   }
 }
 
@@ -401,12 +404,12 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
     }
   }
   if (downloadQuery || eclSearchRequest) {
-    const options = DownloadByQueryOptionsSchema.parse({
+    const options = {
       queryRequest: downloadQuery,
       eclSearchRequest: eclSearchRequest,
       totalCount: totalCount.value,
       format: downloadSettings.selectedFormat
-    });
+    } as DownloadByQueryOptions;
     const result = await EntityService.downloadSearchResults(options);
     if (result) downloadFile(result, "search-results-" + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + downloadSettings.selectedFormat);
   }

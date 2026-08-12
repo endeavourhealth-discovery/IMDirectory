@@ -228,7 +228,7 @@ function addCase() {
 function addWhen() {
   if (!column.value.case) column.value.case = { when: [], else: {} };
   if (!column.value.case.when) column.value.case.when = [];
-  selectedWhen.value = WhenSchema.parse({ then: {} });
+  selectedWhen.value = { then: {} } as When;
   column.value.case!.when!.push(selectedWhen.value);
   whenIndex = column.value.case!.when!.length - 1;
   showWhenEditor.value = true;
