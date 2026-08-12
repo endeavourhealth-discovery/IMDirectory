@@ -29,3 +29,7 @@ export const ComponentDetailsSchema = z.object({
 });
 
 export type ComponentDetails = z.output<typeof ComponentDetailsSchema>;
+
+export function isComponentDetails(value: unknown): value is ComponentDetails {
+  return ComponentDetailsSchema.safeParse(value).success;
+}

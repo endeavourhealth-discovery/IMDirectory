@@ -126,11 +126,21 @@ import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { byPriority, byScheme, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type ChartMapNode,type ChartTableNode, ConceptContextMap, type Context,type GenericObject, type Namespace, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
+import {
+  type ChartMapNode,
+  type ChartTableNode,
+  ConceptContextMap,
+  type Context,
+  type GenericObject,
+  type Namespace,
+  type SimpleMap,
+  isTTEntity,
+  isTTIriRef
+} from "@endeavour/vue-library/models";
 
 import { isNumber, isString } from "lodash-es";
 
-import { MapItem, SimpleMap, SimpleMapIri } from "@/interfaces";
+import { MapItem } from "@/models";
 import { ConceptService, EntityService } from "@/services";
 
 import SimpleMaps from "./SimpleMaps.vue";
@@ -192,7 +202,7 @@ function createChartTableNode(
         name: string;
         priority: number;
       }[]
-    | SimpleMapIri[],
+    | SimpleMap[],
   location: string,
   position: number,
   type: string
@@ -307,7 +317,7 @@ function generateSimpleMapsNodes(simpleMaps: SimpleMap[], location: string, posi
   if (!isArrayHasLength(simpleMaps)) {
     return [createChartTableNode([], location, positionInLevel, type)];
   }
-  const simpleMapsList = [] as SimpleMapIri[];
+  const simpleMapsList = [] as SimpleMap[];
   simpleMaps.forEach((mapItem: SimpleMap) => {
     simpleMapsList.push({
       name: mapItem.name,

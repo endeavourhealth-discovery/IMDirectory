@@ -43,7 +43,7 @@ import Button from "primevue/button";
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { SearchOptions } from "@/models";
 import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");

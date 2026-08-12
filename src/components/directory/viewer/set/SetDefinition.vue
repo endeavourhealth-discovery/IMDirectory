@@ -111,7 +111,7 @@ import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { DownloadSettings } from "@/interfaces";
+import { DownloadSettings } from "@/models";
 import { EntityService, SetService } from "@/services";
 
 import CompareSetDialog from "./CompareSetDialog.vue";

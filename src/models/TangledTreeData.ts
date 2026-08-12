@@ -12,7 +12,7 @@ import z from "zod";
 //   range?: TTIriRef[];
 // }
 
-export const TangledTreeDataSchema = z.object({
+export const TangledTreeDataSchema = z.strictObject({
   id: z.uuid(),
   get parents() {
     return z.array(TangledTreeDataSchema).optional();
@@ -24,3 +24,7 @@ export const TangledTreeDataSchema = z.object({
   range: z.array(TTIriRefSchema).optional()
 });
 export type TangledTreeData = z.output<typeof TangledTreeDataSchema>;
+
+export function isTangledTreeData(value: unknown): value is TangledTreeData {
+  return TTIriRefSchema.safeParse(value).success;
+}

@@ -127,7 +127,7 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { DownloadSettings, SearchOptions } from "@/interfaces";
+import { DownloadSettings, SearchOptions } from "@/models";
 import { EclService, EntityService, QueryService, UserService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 

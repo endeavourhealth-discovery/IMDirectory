@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { SentencePart } from "@/interfaces/SentencePart";
+import { SentencePart } from "@/models/SentencePart";
 
 interface Props {
   valueSentence: SentencePart[];

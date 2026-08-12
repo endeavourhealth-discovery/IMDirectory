@@ -14,7 +14,7 @@ import { stringAscending } from "@endeavour/vue-library/helpers";
 import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { ComponentType, EditorMode } from "@/enums";
-import { ComponentDetails, NextComponentSummary } from "@/interfaces";
+import { ComponentDetails, NextComponentSummary } from "@/models";
 
 const props = defineProps<{
   id: string;

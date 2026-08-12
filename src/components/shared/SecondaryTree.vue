@@ -75,12 +75,11 @@ import { useTree } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ConceptAggregate, ExtendedEntityReferenceNode, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
+import type { ConceptAggregate, ExtendedEntityReferenceNode, TTEntity, TTIriRef, TreeParent } from "@endeavour/vue-library/models";
 
 import { isArray, isBoolean, isString } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 
-import { TreeParent } from "@/interfaces";
 import { EntityService } from "@/services";
 
 interface Props {

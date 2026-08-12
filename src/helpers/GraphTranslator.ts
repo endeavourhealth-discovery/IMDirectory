@@ -4,8 +4,9 @@ import {
   type GenericObject,
   type TTBundle,
   type TTEntity,
+  type TTGraphData,
   TTGraphDataSchema,
-  type TTIriRef,
+  type TTProperty,
   isTTArray,
   isTTEntity,
   isTTIriRef,
@@ -13,8 +14,6 @@ import {
 } from "@endeavour/vue-library/models";
 
 import { isArray, isString } from "lodash-es";
-
-import { TTGraphData, TTProperty } from "../interfaces";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;

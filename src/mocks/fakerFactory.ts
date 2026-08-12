@@ -21,7 +21,7 @@ import { Collection } from "@msw/data";
 import { output, z } from "zod";
 
 import { ComponentType, EditorMode } from "@/enums";
-import { ComponentDetailsSchema, TangledTreeData, TangledTreeDataSchema } from "@/interfaces";
+import { ComponentDetailsSchema, TangledTreeData, TangledTreeDataSchema } from "@/models";
 
 // const entitySchema = z.object({
 //   iri: z.url(),

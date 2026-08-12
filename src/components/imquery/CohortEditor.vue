@@ -127,7 +127,7 @@ import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { SearchOptions } from "@/models";
 import { EntityService } from "@/services";
 
 interface Props {

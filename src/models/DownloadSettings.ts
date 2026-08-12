@@ -19,3 +19,7 @@ export const DownloadSettingsSchema = z.strictObject({
 });
 
 export type DownloadSettings = z.output<typeof DownloadSettingsSchema>;
+
+export function isDownloadSettings(value: unknown): value is DownloadSettings {
+  return DownloadSettingsSchema.safeParse(value).success;
+}

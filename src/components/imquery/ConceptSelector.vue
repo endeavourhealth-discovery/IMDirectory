@@ -54,7 +54,7 @@ import { cloneDeep, isEqual } from "lodash-es";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { ConstraintOperatorOptions } from "@/constants";
 import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { SearchOptions } from "@/models";
 import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
