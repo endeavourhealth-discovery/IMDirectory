@@ -59,9 +59,8 @@
         </FloatLabel>
       </div>
     </div>
-    <div class="results-container">
+    <div v-if="setDefinition && setDefinition.query" class="results-container">
       <ResultsTable
-        v-if="setDefinition && setDefinition.query"
         v-model:loading="searchLoading"
         :update-search="updateSearch"
         :ecl-query="setDefinition"
@@ -223,7 +222,7 @@ function setFilterDefaults() {
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
-  margin: 1rem;
+  padding: 1rem;
 }
 
 #query-string-container {

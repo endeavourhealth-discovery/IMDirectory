@@ -20,7 +20,12 @@
           @to-search="onSearch"
         />
       </div>
-      <Splitter stateKey="directorySearchSplitterHorizontal" stateStorage="local" style="height: 100%; flex: 1 1 auto" @resizeend="updateSplitter">
+      <Splitter
+        stateKey="directorySearchSplitterHorizontal"
+        stateStorage="local"
+        style="height: 100%; flex: 1 1 auto; overflow: auto"
+        @resizeend="updateSplitter"
+      >
         <SplitterPanel :minSize="10" :size="30">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
@@ -70,10 +75,10 @@
                 @selected-updated="updateSelectedFromIri"
                 @go-to-search-results="goToSearchResults"
               />
-              <span>Show the ecl search</span>
               <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
               <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
             </div>
+            <!-- <span>Show the ecl search</span> -->
           </div>
         </SplitterPanel>
       </Splitter>
@@ -205,7 +210,7 @@ function onSearch() {
     lastSearchTerm.value = searchTerm.value;
     activePage.value = 0;
     updateSearch.value = !updateSearch.value;
-  }
+  } else activePage.value = 0;
 }
 
 async function setSelectedName() {
@@ -302,7 +307,6 @@ function goToSearchResults() {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border-bottom: 10px solid #ccc;
 }
 
 .search-bar {
@@ -314,7 +318,6 @@ function goToSearchResults() {
 }
 
 .im-dialog-footer {
-  border-top: 1px solid #ccc;
   padding: 1rem;
 }
 .dialog-body-wrapper {
