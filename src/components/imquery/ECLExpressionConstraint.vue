@@ -60,7 +60,7 @@
     </div>
   </div>
   <div v-else class="expression-constraint" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
-    <div>
+    <div class="flex items-center">
       <Button
         draggable="true"
         icon="drag-icon fa-solid fa-grip-vertical"
