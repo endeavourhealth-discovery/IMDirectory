@@ -54,10 +54,10 @@
     </div>
   </div>
   <div><Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit Columns" severity="secondary" @click="returnEditor = true" /> /></div>
-  <ReturnEditor v-if="returnEditor" v-model:match="clause as Query" :baseType="baseType" @update-match="onReturnUpdate" />
+  <ReturnEditor v-if="returnEditor && baseType" v-model:match="clause as Query" :baseType="baseType" @update-match="onReturnUpdate" />
 </template>
 <script lang="ts" setup>
-import { Ref, computed, inject, ref } from "vue";
+import { computed, inject, Ref, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { Node, Query, QuerySchema, Where } from "@endeavour/vue-library/models";
@@ -67,7 +67,14 @@ import Button from "primevue/button";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import RoleGroup from "@/components/imquery/RoleGroup.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import { createNewBoolGroup, getBoolGroup, getBooleanOperator, getBooleanOptions, getIsRoleGroup, removeSubgroup } from "@/helpers/buildQuery";
+import {
+  createNewBoolGroup,
+  getBooleanOperator,
+  getBooleanOptions,
+  getBoolGroup,
+  getIsRoleGroup,
+  removeSubgroup
+} from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 interface Props {
@@ -79,7 +86,7 @@ interface Props {
   isInAttributeGroup?: boolean;
   operator?: Bool;
   eclQuery: boolean;
-  baseType: Node;
+  baseType?: Node;
 }
 
 const props = defineProps<Props>();
@@ -173,17 +180,6 @@ function mouseout(event: any) {
 .dropdown-labels {
   min-height: 1rem;
   font-size: 1rem;
-}
-.step-boolean {
-  margin-top: 0.5rem;
-}
-.step {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-.check-ungroup {
-  margin-left: 1rem;
-  margin-right: 1rem;
 }
 
 ::v-deep(.operator-selector .p-select-label) {
