@@ -98,7 +98,7 @@ async function init() {
   nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false);
   typeNodes.value = await createFeatureTree(nodeShape.value, "return");
   setupTrees("return");
-  if (!props.match.with) expandedKeys.value = { [typeNodes.value[0].key]: true };
+  if (!props.match.and) expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};
   loading.value = false;
 }

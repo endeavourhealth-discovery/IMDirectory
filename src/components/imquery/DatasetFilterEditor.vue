@@ -1,5 +1,8 @@
 <template>
-  <template v-if="showEditor">
+  <template v-if="match.and">
+    <BooleanMatchEditor v-model:match="match" v-model:parent="match" :baseType="baseType" :depth="0" :index="0" :parentIndex="parentIndex" :rootBool="true" />
+  </template>
+  <template v-else-if="showEditor">
     <MatchContentEditor
       v-model:match="match"
       :baseType="baseType"
@@ -20,10 +23,11 @@
 import { computed, inject, onMounted, Ref, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Node,Query } from "@endeavour/vue-library/models";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import { v4 } from "uuid";
 
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { getBooleanOperator } from "@/helpers/buildQuery";
@@ -40,7 +44,6 @@ interface Props {
   parentOperator?: Bool;
   parentIndex: number;
   baseType: Node;
-  match: Query;
 }
 
 const props = defineProps<Props>();
@@ -54,16 +57,14 @@ const operator = computed(() => {
 });
 const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const dialogStore = useDialogStore();
-const isDefined = computed(() => {
-  return !!match.value.where;
-});
+
 function cancel() {
   emit("cancel");
 }
 async function onAddLinked() {
   const valid = await saveChanges();
   if (valid) {
-    if (!match.value.node) {
+    if (!match.value.as) {
       match.value.invalid = true;
       match.value.errorMessage = "Please select a name to this clause  to line to";
       await showInvalid(match.value);
@@ -113,30 +114,30 @@ function init() {
 }
 
 function updateKeepAs() {
-  if (match.value.node) {
-    keepAs.value[match.value.node] = match;
+  if (match.value.as) {
+    keepAs.value[match.value.as] = match;
   }
 }
 
 function deleteAny() {
   updateKeepAs();
   showEditor.value = false;
-  delete match.value.with;
+  delete match.value.and;
 }
 function deleteMatch(index: number) {
-  if (match.value.with) {
-    match.value.with.splice(index, 1);
-    if (match.value.with.length === 0) {
-      delete match.value.with;
+  if (match.value.and) {
+    match.value.and.splice(index, 1);
+    if (match.value.and.length === 0) {
+      delete match.value.and;
     }
   }
 }
 
 function createNewMatch() {
   const newMatch = { uuid: v4(), draft: true } as Query;
-  if (match.value.with) match.value.with.push(newMatch);
+  if (match.value.and) match.value.and.push(newMatch);
   else {
-    match.value.with = [newMatch];
+    match.value.and = [newMatch];
   }
   emit("updateMatch");
 }
@@ -154,7 +155,7 @@ async function addLinked(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  match.value.with!.push(linkedMatch);
+  match.value.and!.push(linkedMatch);
   showEditor.value = false;
   emit("updateMatch");
 }

@@ -90,7 +90,7 @@
             </div>
             <div v-if="(match.where || match.orderBy) && !editingThen">
               <span class="keep-as-reference">Keep as reference</span>
-              <InputText v-model="match.node" type="text" @input="onInput" />
+              <InputText v-model="match.as" type="text" @input="onInput" />
             </div>
             <span v-if="match.orderBy">
               <Button v-if="!match.then" class="add-button" data-testid="add-test-button" label="Add further test on the results" @click="addTest" />
@@ -214,7 +214,7 @@ const edited = ref(false);
 const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const typeNodes: Ref<TreeNode[]> = ref([]);
 const nodeShape: Ref<NodeShape | undefined> = ref();
-const keepAsNode: Ref<string | undefined> = ref(match.value.node);
+const keepAsNode: Ref<string | undefined> = ref(match.value.as);
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 onMounted(async () => {
@@ -236,8 +236,8 @@ function onInput() {
 }
 function updateKeepAs() {
   if (keepAsNode.value) delete keepAs.value[keepAsNode.value];
-  keepAsNode.value = match.value.node;
-  if (match.value.node) keepAs.value[match.value.node] = match;
+  keepAsNode.value = match.value.as;
+  if (match.value.as) keepAs.value[match.value.as] = match;
 }
 
 async function init() {

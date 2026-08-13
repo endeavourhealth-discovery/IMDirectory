@@ -18,16 +18,15 @@
         </TabList>
         <TabPanels>
           <TabPanel value="filters">
-            <DatasetFilterEditor
+            <BooleanMatchEditor
               v-model:match="match"
+              v-model:parent="match"
               :baseType="baseType"
               :depth="0"
               :index="0"
-              :parent-index="0"
+              :is-dataset-editor="true"
+              :parentIndex="0"
               :rootBool="true"
-              @cancel="cancel"
-              @add-linked="addLinked"
-              @update-match="edited = true"
             />
           </TabPanel>
           <TabPanel value="columns">
@@ -53,7 +52,7 @@ import type { Node, Query } from "@endeavour/vue-library/models";
 
 import { v4 } from "uuid";
 
-import DatasetFilterEditor from "@/components/imquery/DatasetFilterEditor.vue";
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { QueryService } from "@/services";
@@ -61,14 +60,15 @@ import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   index: number;
+  columnGroup: Query;
 }
 
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showEditor");
 const query = defineModel<Query>("query", { default: {} });
-const match = defineModel<Query>("match", { default: {} });
+const match: Ref<Query> = ref(props.columnGroup);
 const emit = defineEmits<{
-  (event: "saveColumnGroup", match: Query): void;
+  (event: "saveColumnGroup", match: Query, index: number): void;
   (event: "cancel"): void;
 }>();
 const activeTab = ref("columns");
@@ -77,7 +77,8 @@ const edited = ref(false);
 const baseType: Ref<Node> = ref(query.value.typeOf!);
 const dialogStore = useDialogStore();
 
-async function onUpdate() {
+async function onUpdate(newMatch: Query) {
+  match.value = newMatch;
   edited.value = true;
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
 }
@@ -88,6 +89,7 @@ function cancel() {
 }
 async function onSave() {
   showEditor.value = false;
+  emit("saveColumnGroup", match.value, props.index);
 }
 async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
@@ -104,7 +106,7 @@ async function addLinked(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  match.value.with!.push(linkedMatch);
+  match.value.and!.push(linkedMatch);
   showEditor.value = false;
 }
 

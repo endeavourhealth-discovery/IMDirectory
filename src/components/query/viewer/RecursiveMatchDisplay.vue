@@ -98,9 +98,9 @@
               :where="match.then.where"
             />
           </div>
-          <span v-if="match.node">
+          <span v-if="match.as">
             <span class="as">save</span>
-            <span class="node-ref">as {{ match.node }}</span>
+            <span class="node-ref">as {{ match.as }}</span>
           </span>
         </component>
       </template>

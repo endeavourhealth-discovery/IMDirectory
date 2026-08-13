@@ -9,7 +9,9 @@
         <span v-if="column.propertyRef">{{ getPathNameFromPropertyRef(match, column.nodeRef, column.propertyRef) }}</span>
       </template>
       <template v-if="column.iri">
-        <IMViewerLink :iri="column.iri" :label="column.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        <span class="label">
+          <IMViewerLink :iri="column.iri" :label="column.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </span>
         <template v-if="uiProperties[column.iri] && uiProperties[column.iri].unitOptions">
           <Select
             v-model="units"
@@ -21,8 +23,15 @@
             @update:model-value="updateUnits"
           />
         </template>
-        <template v-else-if="column.units">( {{ column.units.name }} )</template>
+        <template v-if="column.semanticMap">
+          <span class="label">Using map</span>
+          <IMViewerLink :iri="column.semanticMap.iri" :label="column.semanticMap.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </template>
+        <template v-else-if="column.units">
+          <span class="label">( {{ column.units.name }} )</span>
+        </template>
       </template>
+
       <template v-else-if="column.function">
         <FunctionClauseDisplay :functionClause="column.function" />
       </template>
@@ -68,14 +77,23 @@
   </div>
   <div v-if="column.case" class="case-editor">
     <div v-for="(when, whenIndex) in column.case.when" :key="whenIndex" class="case-display">
-      <span class="gap-2">if</span>
+      <span class="label">if</span>
       <span v-if="when.exists" class="pl-2">exists</span>
       <template v-else-if="!when.value">
-        <WhereContentDisplay :depth="0" :index="0" :where="when" />
+        <span class="label">
+          <WhereContentDisplay :depth="0" :index="0" :where="when" />
+        </span>
       </template>
       <template v-if="when.then">
-        <span class="pl-2">then</span>
-        <InputText v-model="when.then.value" class="case-value" />
+        <span class="label">then</span>
+        <template v-if="when.then.iri">
+          <span class="label">
+            <IMViewerLink :iri="when.then.iri" :label="when.then.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+          </span>
+        </template>
+        <template>
+          <InputText v-model="when.then.value" class="case-value" />
+        </template>
       </template>
       <Button class="delete-button" icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeWhen(whenIndex)" />
       <span class="pl-4 pt-2 flex items-center gap-2">
@@ -83,7 +101,7 @@
       </span>
     </div>
     <div class="pl-4 pt-2">
-      <span class="pl-2">else</span>
+      <span class="label">else</span>
       <InputText v-model="column.case!.else!.value" class="case-value" />
     </div>
   </div>
@@ -117,7 +135,17 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref } from "vue";
 
-import { type Node, Query, type Return, type TTIriRef, type UIProperty, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
+import {
+  type Node,
+  Query,
+  type Return,
+  type SemanticMap,
+  type TTIriRef,
+  type UIProperty,
+  type When,
+  WhenSchema,
+  type Where
+} from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -130,8 +158,17 @@ import WhenEditor from "@/components/imquery/WhenEditor.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getPathNameFromMatch, getPathNameFromPropertyRef, getSemanticMapOptions, setPathGetNodeRef } from "@/helpers/buildQuery";
+import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import {
+  getPathNameFromMatch,
+  getPathNameFromPropertyRef,
+  getSemanticMapOptions,
+  hasSemanticMap,
+  setPathGetNodeRef,
+  setSemanticMapForMatch
+} from "@/helpers/buildQuery";
 import { DataModelService } from "@/services";
+import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   baseType: Node;
@@ -142,7 +179,7 @@ const column = defineModel<Return>("column", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];
   addProperty: [where: Where];
-  updateMatch: [];
+  updateMatch: [match: Query];
 }>();
 
 const uiProperties: Ref<Record<string, UIProperty>> = ref({});
@@ -151,7 +188,8 @@ const showWhenEditor = ref(false);
 const selectedWhen: Ref<When | undefined> = ref();
 const units: Ref<string | undefined> = ref();
 const semanticMap: Ref<string | undefined> = ref();
-const semanticMaps: Ref<any[] | undefined> = ref();
+const semanticMaps: Ref<SemanticMap[] | undefined> = ref();
+const dialogStore = useDialogStore();
 const semanticMapPrompt = computed(() => {
   return !column.value.semanticMap ? "Output Map : (none) - select to add" : "Output map = ";
 });
@@ -162,11 +200,15 @@ onMounted(async () => {
   if (column.value.semanticMap) semanticMap.value = column.value.semanticMap.iri;
   await findSemanticMaps();
 });
-function updateSemanticMap(val: any) {
+
+async function updateSemanticMap(val: any) {
   if (val && semanticMaps.value) {
     const map = semanticMaps.value.find(o => o.iri === val);
-    column.value.semanticMap = { iri: val, name: map.name } as TTIriRef;
-    //emit("updateMatch");
+    if (map && map.defaultText && map.iri) {
+      column.value.semanticMap = { iri: val, name: map.name } as TTIriRef;
+      setSemanticMapForMatch(match.value, column.value, map);
+      emit("updateMatch", match.value);
+    }
   }
 }
 async function findSemanticMaps() {
@@ -180,7 +222,7 @@ function onInput() {
     clearTimeout(debounceTimer);
   }
   debounceTimer = setTimeout(() => {
-    emit("updateMatch");
+    emit("updateMatch", match.value);
   }, 500);
 }
 
@@ -191,15 +233,17 @@ async function onSelectedProperty(node: TreeNode) {
   }
   column.value!.iri = node.data.iri;
   if (node.data.path) column.value!.nodeRef = setPathGetNodeRef(match.value, node.data.path, true);
-  await findSemanticMaps();
+  if (!hasSemanticMap(match.value)) {
+    await showInvalid(match.value, "Only one map allowed per data set entry");
+  } else await findSemanticMaps();
   showPropertySelector.value = false;
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
 
 function updateUnits(val: any) {
   units.value = val;
   column.value.units = { iri: units.value } as TTIriRef;
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
 
 function addTruthValue() {
@@ -207,7 +251,7 @@ function addTruthValue() {
     when: [{ exists: true, then: { value: "1" } }],
     else: { value: "0" }
   };
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
 
 function openPropertySelector() {
@@ -217,7 +261,7 @@ async function onSaveWhenWhere(when: When) {
   const whenArr = column.value.case?.when;
   if (!whenArr || !whenArr[whenIndex]) return;
   whenArr[whenIndex] = when;
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
 
 function addCase() {
@@ -232,7 +276,7 @@ function addWhen() {
   column.value.case!.when!.push(selectedWhen.value);
   whenIndex = column.value.case!.when!.length - 1;
   showWhenEditor.value = true;
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
 
 function onCancelWhen() {
@@ -245,7 +289,7 @@ function onCancelWhen() {
   }
   showWhenEditor.value = false;
   selectedWhen.value = undefined;
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
 
 function removeWhen(wIndex: number) {
@@ -254,6 +298,17 @@ function removeWhen(wIndex: number) {
   if (column.value.case!.when!.length === 0) {
     delete column.value.case;
   }
+}
+async function showInvalid(match: Query, text: string) {
+  await dialogStore.open(AlertDialog, {
+    props: { modal: true, style: { width: "30vw" }, closable: false },
+    data: {
+      icon: "fa-regular fa-circle-check",
+      title: "Warning",
+      text: text,
+      confirmButtonText: "Close"
+    }
+  });
 }
 </script>
 
@@ -296,5 +351,10 @@ function removeWhen(wIndex: number) {
 }
 .case-value {
   width: 10rem;
+}
+.label {
+  padding-left: 0.5rem;
+  padding-top: 0.5rem;
+  padding-right: 0.5rem;
 }
 </style>

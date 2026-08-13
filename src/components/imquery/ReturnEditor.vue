@@ -10,7 +10,7 @@
     </div>
     <template v-if="match.return">
       <div v-for="(_, rIndex) in match.return" :key="rIndex" class="return-column-editor">
-        <ReturnColumnEditor v-model:column="match.return[rIndex]" v-model:match="match" :baseType="baseType" @updateMatch="emit('updateMatch')" />
+        <ReturnColumnEditor v-model:column="match.return[rIndex]" v-model:match="match" :baseType="baseType" @updateMatch="updateMatch" />
         <div class="flex gap-2 ml-auto">
           <Button class="delete-button" icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeReturn(rIndex)" />
         </div>
@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import type {  Node, Query, Return, Where } from "@endeavour/vue-library/models";
+import type { Node, Query, Return, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
@@ -38,22 +38,24 @@ const match = defineModel<Query>("match", { default: {} });
 const emit = defineEmits<{
   navigateTo: [payload: string];
   addProperty: [where: Where];
-  updateMatch: [];
+  updateMatch: [match: Query];
 }>();
 
 function updateName() {
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
-
+function updateMatch(newMatch: Query) {
+  emit("updateMatch", newMatch);
+}
 function addColumn() {
   if (!match.value.return) match.value.return = [];
   const returnIndex = match.value.return.length - 1;
-  match.value.return.push({ as: "new_column_" + returnIndex } as Return);
+  match.value.return.push({ as: "c" + returnIndex } as Return);
 }
 
 function removeReturn(index: number) {
   match.value.return!.splice(index, 1);
-  emit("updateMatch");
+  emit("updateMatch", match.value);
 }
 </script>
 

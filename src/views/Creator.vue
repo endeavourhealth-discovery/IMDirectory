@@ -179,9 +179,9 @@ const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
-
+const linkedEntities: Ref<TTEntity[]> = ref([]);
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
-
+provide("linkedEntities", linkedEntities);
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap, valueVariableHasChanged });
 provide(injectionKeys.forceValidation, {
@@ -393,6 +393,14 @@ async function submit(): Promise<void> {
                   if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
                     await SetService.updateSubsetsFromSuper(editorEntity.value);
                     delete editorEntity.value[IM.HAS_SUBSET];
+                  }
+                  if (linkedEntities.value.length > 0) {
+                    for (const linkedEntity of linkedEntities.value) {
+                      linkedEntity[IM.ID] = linkedEntity.iri;
+                      await EntityService.createEntity(
+                        EditRequestSchema.parse({ entity: linkedEntity, hostUrl: window.location.origin, namespace: namespace })
+                      );
+                    }
                   }
                   const res = await EntityService.createEntity(
                     EditRequestSchema.parse({ entity: editorEntity.value, hostUrl: window.location.origin, namespace: namespace })

@@ -6,7 +6,7 @@
   </div>
   <span v-if="from">
     <span class="field">and if the above</span>
-    <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
+    <span v-if="match.from" class="as">({{ match.from }})</span>
   </span>
 
   <template v-if="match.is">
@@ -32,7 +32,7 @@
         />
         <div v-for="(subWhere, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
           <WhereContentDisplay
-            :key="subIndex + 1 + subWhere.iri"
+            :key="'where ' + (subIndex + 1)"
             :depth="depth + (match.nodeRef ? 1 : 0)"
             :index="subIndex + 1"
             :parentOperator="whereOperator"
@@ -46,9 +46,9 @@
       <span class="above">then with the {{ testFields }} of the above</span>
       <WhereContentDisplay :key="0" :depth="depth + 1" :index="0" :parentOperator="whereOperator" :root="false" :where="match.then.where" />
     </div>
-    <span v-if="match.node">
+    <span v-if="match.as">
       <span class="field">(as</span>
-      <span class="as">{{ match.node }})</span>
+      <span class="as">{{ match.as }})</span>
     </span>
   </template>
 </template>

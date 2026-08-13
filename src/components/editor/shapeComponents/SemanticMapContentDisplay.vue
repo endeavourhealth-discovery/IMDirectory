@@ -5,6 +5,7 @@
       <div v-if="semanticMap.defaultText" class="flex flex-row">Default text {{ semanticMap.defaultText }}</div>
       <div v-if="semanticMap.defaultValue != undefined" class="flex flex-row">Default value {{ semanticMap.defaultValue }}</div>
       <div v-if="semanticMap.sourceType">Source type {{ semanticMap.sourceType.name }}</div>
+      <div v-if="!mapEntries">No map entries for this semantic map</div>
       <div v-if="semanticMap.sourceEntityProperty">
         <IMViewerLink
           :iri="semanticMap.sourceEntityProperty.iri"
@@ -20,16 +21,10 @@
         />
       </div>
       <div v-if="semanticMap.function">
-        <IMViewerLink
-          :iri="semanticMap.function.iri"
-          :label="'function : ' + semanticMap.function.name"
-          @navigateTo="(iri: string) => emit('navigateTo', iri)"
-        />
+        <IMViewerLink :iri="semanticMap.function.iri" :label="'function : ' + semanticMap.function.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       </div>
-
-      <div v-if="!mapEntries">No map entries for this semantic map</div>
       <DataTable v-else :value="mapEntries" scrollHeight="flex" scrollable showGridlines size="small">
-        <Column header="Output">
+        <Column header="Target text">
           <template #body="{ data }">
             <span v-if="data.targetText">{{ data.targetText }}</span>
           </template>
@@ -44,6 +39,32 @@
                 @navigateTo="(iri: string) => emit('navigateTo', iri)"
               />
             </template>
+          </template>
+        </Column>
+        <Column header="Source Property">
+          <template #body="{ data }">
+            <IMViewerLink
+              v-if="data.sourceEntityProperty"
+              :iri="data.sourceEntityProperty.iri"
+              :label="data.sourceEntityProperty.name"
+              @navigateTo="(iri: string) => emit('navigateTo', iri)"
+            />
+            <IMViewerLink
+              v-else-if="data.function"
+              :iri="data.function.iri"
+              :label="'function : ' + data.function.name"
+              @navigateTo="(iri: string) => emit('navigateTo', iri)"
+            />
+          </template>
+        </Column>
+        <Column header="Source value property">
+          <template #body="{ data }">
+            <IMViewerLink
+              v-if="data.sourceValueProperty"
+              :iri="data.sourceValueProperty.iri"
+              :label="data.sourceValueProperty.name"
+              @navigateTo="(iri: string) => emit('navigateTo', iri)"
+            />
           </template>
         </Column>
         <Column header="Range From">
@@ -69,17 +90,17 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 
-import { SemanticMap, type SemanticMapEntry } from "@endeavour/vue-library/models";
+import { SemanticMap, SemanticMapEntry } from "@endeavour/vue-library/models";
 
 import ProgressSpinner from "primevue/progressspinner";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { DataModelService } from "@/services";
 
 interface Props {
-  entityIri?: string;
+  semanticMap: SemanticMap;
+  mapEntries?: SemanticMapEntry[];
 }
 
 const props = defineProps<Props>();
@@ -88,34 +109,9 @@ const emit = defineEmits<{
 }>();
 
 const loading = ref(true);
-const semanticMap: Ref<SemanticMap> = ref({} as SemanticMap);
-const mapEntries: Ref<SemanticMapEntry[] | undefined> = ref();
-
-watch(
-  () => props.entityIri,
-  async () => {
-    await init();
-  }
-);
-
 onMounted(async () => {
-  await init();
-});
-
-async function init() {
-  loading.value = true;
-  if (props.entityIri) {
-    semanticMap.value = await DataModelService.getSemanticMap(props.entityIri);
-    mapEntries.value = semanticMap.value?.entries;
-  }
   loading.value = false;
-}
+});
 </script>
 
-<style scoped>
-.semantic-map-table {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-}
-</style>
+<style scoped></style>

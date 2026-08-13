@@ -46,9 +46,9 @@
       <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
         <DataSetEditor
           v-if="showEditor && toEdit === index"
-          v-model:match="query.columnGroup[index]"
           v-model:query="query"
           v-model:showEditor="showEditor"
+          :columnGroup="query.columnGroup[index]"
           :index="index"
           @cancel="cancelEditColumnGroup"
           @delete-group="onDeleteGroup(index)"
@@ -111,10 +111,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, onMounted, provide, readonly, ref, shallowRef, watch } from "vue";
+import { onMounted, provide, readonly, Ref, ref, shallowRef, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type {  Query } from "@endeavour/vue-library/models";
+import type { Query } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -187,10 +187,10 @@ function addColumnGroup() {
   toEdit.value = query.value.columnGroup.length - 1;
   showEditor.value = true;
 }
-function saveColumnGroup(editMatch: Query) {
+function saveColumnGroup(editMatch: Query, index: number) {
   showEditor.value = false;
-  if (toEdit.value !== undefined) {
-    query.value.columnGroup![toEdit.value] = editMatch;
+  if (query.value.columnGroup) {
+    query.value.columnGroup[index] = editMatch;
   }
   toEdit.value = undefined;
 }
