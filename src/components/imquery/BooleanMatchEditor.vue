@@ -1,4 +1,5 @@
 <template>
+
   <template v-if="showEditor && editMatch">
     <MatchEditor
       v-if="showEditor"
@@ -9,6 +10,7 @@
       :editCohort="editMatch && !!editMatch.is"
       :match="editMatch"
       :parentOperator="parentOperator"
+      :isDatasetEntry="isDatasetEntry"
       @cancel="cancelEditMatch"
       @deleteMatch="onDeleteMatchList"
       @saveChanges="saveEditMatch"
@@ -17,6 +19,7 @@
     />
   </template>
   <template v-else>
+    <div>{{ editMatch }}</div>
     <div v-if="boolGroup" class="match-container">
       <div class="match-clause-inner">
         <div v-if="canCheck" class="group-checkbox">
@@ -35,11 +38,13 @@
           v-model:group="group"
           v-model:parent="parent"
           :clauseType="'Match'"
+          :eclQuery="false"
           :index="index"
           :operator="operator"
           :parentOperator="parentOperator as Bool"
           :parentType="'Match'"
           :rootBool="rootBool"
+          :baseType="baseType"
         />
 
         <Button
@@ -76,9 +81,9 @@
       </div>
     </div>
     <div v-else-if="isDefined" class="match-clause-outer" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
-      <div v-if="match.nodeRef">
+      <div v-if="match.from">
         <span class="from">from</span>
-        <span class="node-ref">{{ match.nodeRef }}</span>
+        <span class="node-ref">{{ match.from }}</span>
       </div>
       <div class="match-clause-inner">
         <div>
@@ -135,7 +140,7 @@
 import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Node,Query } from "@endeavour/vue-library/models";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import Menu from "primevue/menu";
@@ -159,6 +164,7 @@ interface Props {
   parentIndex: number;
   baseType: Node;
   canCheck?: boolean;
+  isDatasetEntry?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -187,8 +193,7 @@ const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.index);
 });
 const isDefined = computed(() => {
-
-  const matches = match.value.and || match.value.or || match.value.with;
+  const matches = match.value.and || match.value.or;
   if (matches) return true;
   if (match.value.orderBy) return true;
   if (match.value.where) return true;
@@ -219,8 +224,8 @@ function init() {
 }
 
 function updateKeepAs() {
-  if (match.value.node) {
-    keepAs.value[match.value.node] = match;
+  if (match.value.as) {
+    keepAs.value[match.value.as] = match;
   }
 }
 
@@ -238,12 +243,12 @@ function onDeleteMatch(index: number) {
   if (match.value.or) {
     match.value.or.splice(index, 1);
     if (match.value.or.length === 1) {
-      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.or[0];
+      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.as) match.value = match.value.or[0];
     }
   } else if (match.value.and) {
     match.value.and.splice(index, 1);
     if (match.value.and.length === 1) {
-      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.node) match.value = match.value.and[0];
+      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.as) match.value = match.value.and[0];
     }
   } else emit("deleteMatch");
 }
@@ -323,6 +328,29 @@ function mouseout(event: any) {
 </script>
 
 <style scoped>
+.or {
+  color: var(--p-blue-500);
+  font-style: italic;
+  padding-right: 1.2rem;
+}
+
+.union {
+  color: var(--p-blue-500);
+  font-style: italic;
+  padding-right: 1.2rem;
+}
+
+.and {
+  color: #707824;
+  font-style: italic;
+  padding-right: 0.3rem;
+}
+
+.with {
+  color: #707824;
+  font-style: italic;
+  padding-right: 0.3rem;
+}
 .add-button,
 .delete-button {
   color: #444444; /* text */

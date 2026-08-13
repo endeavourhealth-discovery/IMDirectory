@@ -151,11 +151,11 @@ function updateDescription() {
   emit("updateMatch");
 }
 function updateKeepAs(oldVal: Query) {
-  if (oldVal.node) {
-    delete keepAs.value[oldVal.node];
+  if (oldVal.as) {
+    delete keepAs.value[oldVal.as];
   }
-  if (match.value.node) {
-    keepAs.value[match.value.node] = match;
+  if (match.value.as) {
+    keepAs.value[match.value.as] = match;
   }
 }
 

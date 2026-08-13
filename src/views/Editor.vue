@@ -16,7 +16,7 @@
           </div>
           <div v-else class="editor-layout-container">
             <template v-for="(group, index) of groups" v-bind:key="index">
-              <component :is="processComponentType(group.componentType)" :mode="EditorMode.EDIT" :shape="group" :value="processEntityValue(group)" />
+              <<component :is="processComponentType(group.componentType)" :mode="EditorMode.EDIT" :shape="group" :value="processEntityValue(group)" />
             </template>
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
@@ -90,7 +90,7 @@ import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, onUnmounted, pr
 
 import { IM, NAMESPACE, RDF } from "@endeavour/vue-library/enums";
 import { isArrayOf, isEnumValue, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type PropertyShape, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type PropertyShape, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -149,7 +149,8 @@ const currentUser = computed(() => userStore.currentUser);
 const loading = ref(true);
 const showSidebar = ref(false);
 const forceValidation = ref(false);
-
+const linkedEntities: Ref<TTEntity[]> = ref([]);
+provide("linkedEntities", linkedEntities);
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap, valueVariableHasChanged });
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
@@ -187,18 +188,20 @@ onUnmounted(() => {
 });
 
 onMounted(async () => {
-  loading.value = true;
+  loading.value = false;
   if (currentUser.value && currentUser.value.namespaces.length < 1) {
     await router.push({ name: "AccessDenied" });
   }
   document.addEventListener("focusin", onGlobalFocusIn);
   await filterStore.fetchFilterSettings();
   await fetchEntity();
+
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE]) && isArrayOf(editorEntityOriginal.value[RDF.TYPE], isTTIriRef)) {
     getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
   } else await router.push({ path: "/" });
-  loading.value = false;
+
+  //loading.value = false;
 });
 
 watch(
@@ -277,6 +280,12 @@ function submit(): void {
                   if (typeof editorEntity.value[IM.ID] === "string") {
                     const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
                     if (isEnumValue(NAMESPACE, namespace)) {
+                      if (linkedEntities.value.length > 0) {
+                        for (const linkedEntity of linkedEntities.value) {
+                          linkedEntity[IM.ID] = linkedEntity.iri;
+                          const res = await EntityService.updateEntity({ namespace: namespace, entity: linkedEntity, hostUrl: window.location.origin });
+                        }
+                      }
                       const res = await EntityService.updateEntity({ namespace: namespace, entity: editorEntity.value, hostUrl: window.location.origin });
                       if (res) {
                         editorStore.updateEditorSavedEntity(undefined);

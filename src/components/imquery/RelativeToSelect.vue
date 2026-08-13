@@ -76,7 +76,7 @@ async function updateRelativeTo(relative: string) {
   if (!assignable.value.compare.right) assignable.value.compare.right = {};
   const relativeMatch: Ref<Query> = keepAs.value[relativeTo.value];
   if (relativeMatch) {
-    assignable.value.compare.right.nodeRef = relativeMatch.value.node;
+    assignable.value.compare.right.nodeRef = relativeMatch.value.as;
     delete assignable.value.compare.right.parameter;
     relativePropertyOptions.value = await getRelativePropertyOptions(relativeMatch.value, props.uiProperty.valueType);
     if (relativePropertyOptions.value.length === 0) {

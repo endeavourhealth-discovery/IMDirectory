@@ -1,26 +1,26 @@
 <template>
-  <div class="boolean-edit" @drop="onDrop($event, clause, parent, index, 'Match')" @dragover="onDragOver($event, 'Match')">
+  <div class="boolean-edit" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, clause, parent, index, 'Match')">
     <div>
       <Button
+        draggable="true"
         icon="drag-icon fa-solid fa-grip-vertical"
         severity="secondary"
         text
-        draggable="true"
-        @dragstart="onDragStart(clause, parent, index, 'Match')"
         @dragend="onDragEnd()"
+        @dragstart="onDragStart(clause, parent, index, 'Match')"
       />
     </div>
     <div v-if="operator">
       <Select
         :class="'operator-selector'"
         :modelValue="operator"
-        :options="getBooleanOptions(clauseType, index, false, true)"
+        :options="getBooleanOptions(clauseType, index, eclQuery, true)"
         option-label="label"
         option-value="value"
         @update:modelValue="updateOperator"
       >
         <template #option="slotProps">
-          <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip">
+          <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center">
             <div>{{ slotProps.option.label }}</div>
           </div>
         </template>
@@ -28,23 +28,23 @@
     </div>
     <div v-if="!rootBool && parent" class="sub-group-button flex items-center">
       <Button
-        type="button"
-        icon="fa-solid fa-xmark-circle"
         :label="removeLabel"
-        data-testid="add-bool-concept-button"
         :severity="'secondary'"
+        data-testid="add-bool-concept-button"
+        icon="fa-solid fa-xmark-circle"
+        type="button"
         @click.stop="onRemoveSubgroup()"
       />
     </div>
     <div v-if="clauseType === 'Where' && boolGroup">
-      <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:where="clause as Where" v-model:isRoleGroup="isRoleGroup" />
+      <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:isRoleGroup="isRoleGroup" v-model:where="clause as Where" />
     </div>
     <div v-if="group.length > 1" class="sub-group-button flex items-center">
       <Button
-        type="button"
-        icon="fa-solid fa-plus"
         :label="`Create boolean ${subOperator} subgroup`"
         data-testid="add-bool-concept-button"
+        icon="fa-solid fa-plus"
+        type="button"
         @click.stop="onCreateSubgroup()"
       />
     </div>
@@ -53,19 +53,22 @@
       <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
     </div>
   </div>
+  <div><Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit Columns" severity="secondary" @click="returnEditor = true" /> /></div>
+  <ReturnEditor v-if="returnEditor" v-model:match="clause as Query" :baseType="baseType" @update-match="onReturnUpdate" />
 </template>
-<script setup lang="ts">
-import { Ref, computed, inject, onMounted, ref, watch } from "vue";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { Ref, computed, inject, ref } from "vue";
 
-import { Bool } from "@endeavour/vue-library/enums";
-import type { Query,Where } from "@endeavour/vue-library/models";
+import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import { Node, Query, QuerySchema, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
+import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import RoleGroup from "@/components/imquery/RoleGroup.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
 import { createNewBoolGroup, getBoolGroup, getBooleanOperator, getBooleanOptions, getIsRoleGroup, removeSubgroup } from "@/helpers/buildQuery";
+import { QueryService } from "@/services";
 
 interface Props {
   index: number;
@@ -75,6 +78,8 @@ interface Props {
   clauseType: string;
   isInAttributeGroup?: boolean;
   operator?: Bool;
+  eclQuery: boolean;
+  baseType: Node;
 }
 
 const props = defineProps<Props>();
@@ -94,6 +99,7 @@ const removeLabel = computed(() => {
     return "Revert this '" + operator.value!.toUpperCase() + "' subgroup to '" + (parent ? props.parentOperator!.toUpperCase() : "") + "'";
   }
 });
+const returnEditor = ref(false);
 
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const hover = ref();
@@ -110,6 +116,10 @@ function onRemoveSubgroup() {
 }
 function onRationalise() {
   emit("rationalise");
+}
+async function onReturnUpdate() {
+  returnEditor.value = false;
+  clause.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(clause.value), DisplayMode.ORIGINAL);
 }
 function onCreateSubgroup() {
   createNewBoolGroup(clause.value, group.value);

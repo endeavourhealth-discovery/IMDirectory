@@ -10,6 +10,7 @@
       :parentOperator="parentOperator as Bool"
       :parentType="'Match'"
       :rootBool="rootBool"
+      :eclQuery="true"
     />
 
     <div class="nested-match-container">

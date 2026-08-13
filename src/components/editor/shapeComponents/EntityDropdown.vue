@@ -23,7 +23,7 @@
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
-import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type PropertyShape, type Query, type QueryRequest, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isArray } from "lodash-es";
@@ -196,7 +196,7 @@ function hasData() {
 }
 
 .entity-single-dropdown {
-  width: 100%;
+  width: 30rem;
 }
 
 .loading-icon {
