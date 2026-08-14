@@ -1,11 +1,9 @@
-import { SetDiffObjectSchema, TTIriRefSchema, parseArray } from "@endeavour/vue-library";
+import { type SetDiffObject, SetDiffObjectSchema, TTIriRefSchema, parseArray } from "@endeavour/vue-library";
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
 import { type ECLQueryRequest, type PageableNode, PageableNodeSchema, type Query, type SetExportRequest, type TTIriRef } from "@endeavour/vue-library/models";
 import type { TTEntity } from "@endeavour/vue-library/models";
 
 import z from "zod";
-
-import { SetDiffObject } from "@/interfaces";
 
 import Env from "./Env";
 import api from "./api";

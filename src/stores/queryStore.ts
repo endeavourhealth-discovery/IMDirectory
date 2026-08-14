@@ -6,7 +6,7 @@ import { type QueryRequest, QueryRequestSchema } from "@endeavour/vue-library/mo
 
 import { defineStore } from "pinia";
 
-import { SelectedMatch } from "@/interfaces";
+import { SelectedMatch } from "@/models";
 import { EntityService } from "@/services";
 
 export const useQueryStore = defineStore("query", () => {

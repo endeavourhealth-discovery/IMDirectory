@@ -52,7 +52,7 @@ import { useRouter } from "vue-router";
 
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectService } from "@/composables/useDirectService";
-import { TreeNode } from "@/interfaces";
+import { TreeNode } from "@/models";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useLoadingStore } from "@/stores/loadingStore";
 

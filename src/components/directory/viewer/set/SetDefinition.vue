@@ -100,7 +100,7 @@ import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { ToastSeverity, UserRole } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import type { SetExportRequest, SetOptions, TTEntity } from "@endeavour/vue-library/models";
-import { ToastOptions, hasRole } from "@endeavour/vue-library/models";
+import { ToastOptions, hasRole, isUser } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { isString } from "lodash-es";
@@ -111,7 +111,7 @@ import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { DownloadSettings } from "@/interfaces";
+import { DownloadSettings } from "@/models";
 import { EntityService, SetService } from "@/services";
 
 import CompareSetDialog from "./CompareSetDialog.vue";
@@ -150,8 +150,8 @@ const { copyObjectToClipboard } = useCopyToClipboard();
 const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
 
 watch(currentUser, async () => {
-  if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = hasRole(currentUser.value!, UserRole.PUBLISHER);
+  if (isUser(currentUser.value)) {
+    hasPermissionSetPublish.value = hasRole(currentUser.value, UserRole.PUBLISHER);
   } else hasPermissionSetPublish.value = false;
 });
 
@@ -177,8 +177,8 @@ onMounted(async () => {
     showSubsumedBy.value = false;
   }
   if (!hasDefinition.value) showMembers.value = true;
-  if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = hasRole(currentUser.value!, UserRole.PUBLISHER);
+  if (isUser(currentUser.value)) {
+    hasPermissionSetPublish.value = hasRole(currentUser.value, UserRole.PUBLISHER);
   }
 });
 

@@ -103,7 +103,7 @@ import { NodeInclusionOptions } from "@/constants/queryEditor/NodeInclusionOptio
 import { PlainConstraintOperatorOptions } from "@/constants/queryEditor/PlainConstraintOperatorOptions";
 import { getPlainConstraintOperatorLabel, getPlainConstraintOperatorValue } from "@/helpers/QueryEditorMethods";
 import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { SearchOptions } from "@/models";
 import SetService from "@/services/SetService";
 import { useFilterStore } from "@/stores/filterStore";
 

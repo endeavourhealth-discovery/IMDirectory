@@ -57,7 +57,7 @@ import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButto
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentType, EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
-import { ComponentDetails } from "@/interfaces";
+import { ComponentDetails } from "@/models";
 
 interface Props {
   id: string;

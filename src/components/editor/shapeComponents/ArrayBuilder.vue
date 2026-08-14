@@ -56,7 +56,7 @@ import { ComponentType, EditorMode } from "@/enums";
 import { addItem, generateNewComponent, updateItem, updatePositions } from "@/helpers/EditorBuilderJsonMethods";
 import { processComponentType } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { ComponentDetails } from "@/interfaces";
+import { ComponentDetails } from "@/models";
 
 interface Props {
   shape: PropertyShape;

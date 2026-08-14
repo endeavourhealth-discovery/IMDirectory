@@ -52,7 +52,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
-import { SimpleMap } from "@/interfaces";
+import { SimpleMap } from "@endeavour/vue-library/models";
 
 interface Props {
   data: SimpleMap[];

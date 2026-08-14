@@ -69,7 +69,7 @@ import { useConfirm } from "primevue/useconfirm";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { getDisplayFromDate } from "@/helpers/UtilityMethods";
-import { ExtendedRecentActivityItem } from "@/interfaces/ExtendedRecentActivityItem";
+import { ExtendedRecentActivityItem } from "@/models/ExtendedRecentActivityItem";
 import { EntityService, UserService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 

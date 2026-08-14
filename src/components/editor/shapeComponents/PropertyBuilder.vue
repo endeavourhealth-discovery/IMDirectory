@@ -182,7 +182,7 @@ import { EditorMode } from "@/enums";
 import { propertyRangeTypes } from "@/helpers/EditorMethods";
 import { updateRangeQuery } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { Property } from "@/interfaces";
+import { Property } from "@/models";
 import { EntityService } from "@/services";
 
 interface Props {

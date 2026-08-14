@@ -23,7 +23,7 @@ import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
 import { Relativity } from "@/enums";
-import { SearchOptions } from "@/interfaces";
+import { SearchOptions } from "@/models";
 import { DataModelService, QueryService } from "@/services";
 
 interface Options {

@@ -1,9 +1,9 @@
 import { Operator, Order } from "@endeavour/vue-library/enums";
-import type { Compare, Having, Node, Orderable, Range,Query, Where } from "@endeavour/vue-library/models";
+import type { Compare, Having, Node, Orderable, Query, Range, Where } from "@endeavour/vue-library/models";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
-import { SentencePart } from "@/interfaces";
-import { RelativeTo } from "@/interfaces/RelativeTo";
+import { SentencePart } from "@/models";
+import { RelativeTo } from "@/models/RelativeTo";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);

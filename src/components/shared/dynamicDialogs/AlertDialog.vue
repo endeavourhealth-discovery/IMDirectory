@@ -35,7 +35,8 @@ import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 
-import { AlertDialogOptions, TypedDynamicDialogOptions } from "@/interfaces";
+import { TypedDynamicDialogOptions } from "@/interfaces";
+import { AlertDialogOptions } from "@/models";
 import { useDialogStore } from "@/stores/dialogStore";
 
 const dialogRef: Ref<TypedDynamicDialogOptions<AlertDialogOptions>> | undefined = inject("dialogRef");

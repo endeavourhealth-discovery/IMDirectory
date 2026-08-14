@@ -23,7 +23,7 @@ import type { PropertyDisplay, TTIriRef } from "@endeavour/vue-library/models";
 import * as d3 from "d3";
 import { cloneDeep } from "lodash-es";
 
-import { TangledTreeData } from "@/interfaces";
+import { TangledTreeData } from "@/models";
 import { DataModelService } from "@/services";
 
 const props = defineProps<{
