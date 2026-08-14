@@ -47,14 +47,14 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import { type Node, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
+import { type Node, type QueryRequest, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { ConstraintOperatorOptions } from "@/constants";
 import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/models";
+import { SearchOptionsSchema } from "@/models";
 import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {

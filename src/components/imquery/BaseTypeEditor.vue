@@ -36,14 +36,14 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM, NAMESPACE, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
-import { type Query, type QueryRequest, SearchOptionsSchema, type SearchResultSummary } from "@endeavour/vue-library/models";
+import { type Query, type QueryRequest, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
 import BaseTypeSelector from "@/components/imquery/BaseTypeSelector.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { addMatchToParent, buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/models";
+import { SearchOptions, SearchOptionsSchema } from "@/models";
 import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
