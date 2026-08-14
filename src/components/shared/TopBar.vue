@@ -101,7 +101,7 @@
       <Button
         id="account-button"
         v-tooltip.left="'Account'"
-        v-if="currentUser && isLoggedIn"
+        v-if="isUser(currentUser)"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openUserMenu"
         aria-haspopup="true"
