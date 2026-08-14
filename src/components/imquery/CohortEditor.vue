@@ -107,14 +107,7 @@
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, IM, NAMESPACE } from "@endeavour/vue-library/enums";
-import {
-  type Query,
-  type QueryRequest,
-  SearchOptionsSchema,
-  type SearchResponse,
-  type SearchResultSummary,
-  type TTIriRef
-} from "@endeavour/vue-library/models";
+import { type Query, type QueryRequest, type SearchResponse, type SearchResultSummary, type TTIriRef } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
@@ -127,7 +120,7 @@ import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/models";
+import { type SearchOptions, SearchOptionsSchema } from "@/models";
 import { EntityService } from "@/services";
 
 interface Props {
