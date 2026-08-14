@@ -16,6 +16,7 @@
       v-model:group="group"
       v-model:parent="parent"
       :clauseType="'Match'"
+      :eclQuery="false"
       :index="index"
       :operator="operator"
       :parentOperator="parentOperator as Bool"

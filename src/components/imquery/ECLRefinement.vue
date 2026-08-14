@@ -6,6 +6,7 @@
         v-model:group="group"
         v-model:parent="parent"
         :clauseType="'Where'"
+        :eclQuery="true"
         :index="index"
         :isInAttributeGroup="isInAttributeGroup"
         :operator="operator"
@@ -127,10 +128,16 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, Ref, ref } from "vue";
 
 import { Bool, IM } from "@endeavour/vue-library/enums";
-import {  Query, type QueryRequest, type SearchResultSummary, SearchResultSummarySchema, type Where } from "@endeavour/vue-library/models";
+import {
+  Query,
+  type QueryRequest,
+  type SearchResultSummary,
+  SearchResultSummarySchema,
+  type Where
+} from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
@@ -144,8 +151,8 @@ import { ConstraintOperatorOptions } from "@/constants";
 import {
   checkGroupChange,
   createNewBoolGroup,
-  getBoolGroup,
   getBooleanOperator,
+  getBoolGroup,
   getConstraintOperator,
   getIsRoleGroup,
   removeSubgroup,

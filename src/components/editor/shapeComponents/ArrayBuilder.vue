@@ -11,19 +11,19 @@
       <template v-for="item in build" :key="item.id">
         <component
           :is="item.type"
-          :value="item.value"
           :id="item.id"
-          :position="item.position"
-          :showButtons="item.showButtons"
-          :shape="item.shape"
           :mode="mode"
           :nextComponentOptions="getNextComponentOptions()"
-          @deleteClicked="deleteItem"
+          :position="item.position"
+          :shape="item.shape"
+          :showButtons="item.showButtons"
+          :value="item.value"
           @addClicked="addItemWrapper"
-          @updateClicked="updateItemWrapper"
           @addNextOptionsClicked="addItemWrapper"
-          @moveUpClicked="moveItemUp"
+          @deleteClicked="deleteItem"
           @moveDownClicked="moveItemDown"
+          @moveUpClicked="moveItemUp"
+          @updateClicked="updateItemWrapper"
         />
       </template>
     </div>
@@ -43,7 +43,7 @@ export default defineComponent({
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { SHACL } from "@endeavour/vue-library/enums";
@@ -202,12 +202,13 @@ function createBuild() {
 function createDefaultBuild() {
   build.value = [];
   if (isObjectHasKeys(props.shape, ["property"])) {
-    props.shape.property!.forEach(property => {
-      if (property.order)
-        build.value.push(
-          generateNewComponent(ComponentType.BUILDER_CHILD_WRAPPER, property.order - 1, undefined, property, setButtons(property.order - 1, true), props.mode)
-        );
-    });
+    for (let i = 0; i < props.shape.property!.length; i++) {
+      const property = props.shape.property![i];
+      if (property.order === undefined) property.order = i + 1;
+      build.value.push(
+        generateNewComponent(ComponentType.BUILDER_CHILD_WRAPPER, property.order - 1, undefined, property, setButtons(property.order - 1, true), props.mode)
+      );
+    }
   }
 }
 

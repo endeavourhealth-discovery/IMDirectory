@@ -1,9 +1,22 @@
 import { Ref } from "vue";
 
 import { NodeSchema, Operator, QueryRequestSchema, QuerySchema, WhereSchema } from "@endeavour/vue-library";
-import { Bool, IM, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
+import { Bool, IM, Order, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Node, NodeShape, Orderable, Path, PropertyRange, Query, QueryRequest, Return, SearchBinding, When, Where } from "@endeavour/vue-library/models";
+import type {
+  Node,
+  NodeShape,
+  Orderable,
+  Path,
+  PropertyRange,
+  Query,
+  QueryRequest,
+  Return,
+  SearchBinding,
+  SemanticMap,
+  When,
+  Where
+} from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
@@ -21,7 +34,7 @@ interface Options {
 }
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
-  const imQuery = { query: {} } as QueryRequest;
+  const imQuery = QueryRequestSchema.parse({ query: {} });
   if (imQuery.query) {
     if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
     if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
@@ -96,12 +109,12 @@ export function checkGroupChange(e: any, parentGroup: number[], index: number) {
 }
 
 function addFilterToIMQuery(predicate: string, values: unknown[], query: Query) {
-  if (!query.where) query.where = {} as Where;
+  if (!query.where) query.where = WhereSchema.parse({});
   if (!query.where.and) query.where.and = [];
-  const where: Where = {
+  const where: Where = WhereSchema.parse({
     iri: predicate,
-    is: values.map(item => item)
-  } as Where;
+    is: values.map(item => NodeSchema.parse(item))
+  });
   query.where.and.push(where);
 }
 
@@ -139,7 +152,7 @@ export function removeSubgroup(clause: any, parent: Query | Where, index: number
 
 export function createNewBoolGroup(clause: any, group: number[]) {
   group.sort((a, b) => a - b);
-  const newClause = {} as Where;
+  const newClause = WhereSchema.parse({});
   if (clause.and) {
     newClause.or = [];
     group.forEach(index => {
@@ -167,8 +180,8 @@ export function createNewBoolGroup(clause: any, group: number[]) {
 }
 
 export function addConceptToGroup(match: Query) {
-  if (match.or) match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } } as Query);
-  else if (match.and) match.and.push({ uuid: v4(), is: { descendantsOrSelfOf: true } } as Query);
+  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
@@ -176,7 +189,7 @@ export function addConceptToGroup(match: Query) {
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } } as Query);
+    match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   }
 }
 
@@ -195,10 +208,10 @@ export function getDisplayOperator(parentOperator: Bool | undefined, clauseIndex
   if (!parentOperator) return undefined;
   if (parentOperator != Bool.or) {
     if (clauseIndex > 0) {
-      return parentOperator as string;
+      return "and";
     } else return "";
   } else if (clauseIndex === 0) return "Either";
-  else return parentOperator as string;
+  else return "or" as string;
 }
 
 export function getBooleanOperator(clauseType: string, clause: Query | Where | undefined): Bool | undefined {
@@ -212,8 +225,8 @@ export function getBooleanOperator(clauseType: string, clause: Query | Where | u
 export function getMatchFromNodeRef(match: Query, nodeRef: string): Query | undefined {
   if (!match) return undefined;
   if (match.node === nodeRef) return match;
-  if (match.with) {
-    for (const any of match.with) {
+  if (match.and) {
+    for (const any of match.and) {
       const testMatch = getMatchFromNodeRef(any, nodeRef);
       if (testMatch) return testMatch;
     }
@@ -306,7 +319,7 @@ export function addWhereToThen(match: Query, where: Where) {
   } else {
     if (match.then) match.then.where = where;
     else {
-      match.then = { where: where } as Query;
+      match.then = QuerySchema.parse({ where: where });
     }
   }
 }
@@ -356,8 +369,8 @@ export function getPathNameFromPropertyRef(match: Query, nodeRef: string, proper
 export function getPathNameFromMatch(match: Query, nodeRef: string): string | undefined {
   const pathName = getPathName(match, nodeRef);
   if (pathName) return pathName;
-  if (match.with) {
-    for (const any of match.with) {
+  if (match.and) {
+    for (const any of match.and) {
       if (any.node === nodeRef) return any.node + "->";
     }
   }
@@ -380,7 +393,7 @@ export function getRuleAction(match: Query): string {
 }
 
 export function addMatchToParent(parent: Query, match: Query, defaultOperator?: Bool) {
-  const matches = parent.rule || parent.and || parent.or || parent.rule;
+  const matches = parent.rule || parent.and || parent.or;
   if (matches) matches.push(match);
   else if (parent.is) {
     parent.and = [];
@@ -485,9 +498,9 @@ export function getExclusionOptions(): any[] {
   return options;
 }
 
-export function getBooleanOptions(clauseType: string, index: number, standardQuery?: boolean, hasSubgroups?: boolean): any[] {
-  const andLabel = getBooleanLabel(clauseType, Bool.and, index, standardQuery, hasSubgroups);
-  const orLabel = getBooleanLabel(clauseType, Bool.or, index, standardQuery, hasSubgroups);
+export function getBooleanOptions(clauseType: string, index: number, eclQuery?: boolean, hasSubgroups?: boolean): any[] {
+  const andLabel = getBooleanLabel(clauseType, Bool.and, index, eclQuery, hasSubgroups);
+  const orLabel = getBooleanLabel(clauseType, Bool.or, index, eclQuery, hasSubgroups);
   const options = [];
 
   options.push({
@@ -560,7 +573,7 @@ export function setConstraintOperator(constrainer: Node | Where, valueConstraint
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
   if (imQuery.query && !isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
   for (const searchBinding of searchBindings) {
-    const match = {
+    const match = QuerySchema.parse({
       path: [
         {
           iri: IM.BINDING
@@ -578,7 +591,7 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
           }
         ]
       }
-    } as Query;
+    });
     imQuery.query?.and?.push(match);
   }
 }
@@ -699,7 +712,7 @@ export function addWhereToWhen(when: When, match: Query, node: TreeNode): string
 function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
   const where = { iri: iri, invalid: true } as Where;
   if (nodeRef) where.nodeRef = nodeRef;
-  if (is) where.is = [{ descendantsOrSelfOf: true } as Node];
+  if (is) where.is = [NodeSchema.parse({ descendantsOrSelfOf: true })];
   return where;
 }
 
@@ -854,3 +867,168 @@ function deleteChecks(importClauses: Map<string, Query>, match: Query) {
     deleteChecks(importClauses, subMatch);
   }
 }
+
+export function setSemanticMatchCase(defaultText: string, caseReturn: Return) {
+  delete caseReturn.iri;
+  caseReturn.case = {
+    when: [
+      {
+        nodeRef: "mapEntry",
+        iri: IM.TARGET_TEXT.toString(),
+        notNull: true,
+        then: {
+          iri: IM.TARGET_TEXT.toString()
+        }
+      }
+    ],
+    else: {
+      value: defaultText
+    }
+  };
+}
+
+export function hasSemanticMap(match: Query): boolean {
+  if (!match.return) return false;
+  for (const ret of match.return) {
+    if (ret.semanticMap) return true;
+  }
+  return false;
+}
+
+export function setSemanticMapForMatch(match: Query, column: Return, map: SemanticMap) {
+  if (!map.sourceEntityProperty) return;
+  let mapMatch = {} as Query;
+  if (match.or || match.and || match.where || match.then) {
+    if (match.then) match.then.then = mapMatch;
+    else match.then = mapMatch;
+  } else mapMatch = match;
+  const where = {} as Where;
+  const mapWhere = {
+    iri: IM.IN_SEMANTIC_MAP.toString(),
+    is: [{ iri: map.iri }]
+  };
+  if (map.sourceValueProperty) {
+    where.and = [
+      mapWhere,
+      {
+        or: [
+          {
+            and: [
+              {
+                nodeRef: "mapNode",
+                iri: map.sourceValueProperty.iri,
+                notNull: true
+              },
+              {
+                iri: map.sourceValueProperty.iri,
+                range: {
+                  from: {
+                    nodeRef: "mapNode",
+                    iri: IM.RANGE_FROM.toString(),
+                    operator: Operator.gte
+                  },
+                  to: {
+                    nodeRef: "mapNode",
+                    iri: IM.RANGE_TO.toString(),
+                    operator: Operator.lte
+                  }
+                }
+              }
+            ]
+          },
+          {
+            and: [
+              {
+                iri: map.sourceValueProperty.iri,
+                isNull: true
+              },
+              {
+                nodeRef: "mapNode",
+                isNull: true,
+                iri: IM.RANGE_FROM.toString()
+              }
+            ]
+          }
+        ]
+      }
+    ];
+  }
+
+  mapMatch.path = [
+    {
+      optional: true,
+      iri: map.sourceEntityProperty.iri,
+      typeOf: { iri: IM.CONCEPT },
+      node: "mapNode",
+      where: map.sourceValueProperty ? where : mapWhere
+    }
+  ];
+  if (map.sourceValueProperty) {
+    mapMatch.orderBy = {
+      property: [
+        {
+          iri: SHACL.ORDER.toString(),
+          direction: Order.ascending
+        }
+      ],
+      limit: 1
+    };
+  }
+  mapMatch.as = "mapEntry";
+  setSemanticMatchCase(map.defaultText!, column);
+}
+/*
+    mapEntryPath.setOptional(true);
+    mapEntryPath.setIri(IM.HAS_MAP_ENTRY);
+    mapEntryPath.setTypeOf(IM.MAP_ENTRY);
+    mapEntryPath.setNode("mapEntry");
+    Where where = new Where();
+    Where mapWhere = new Where();  //matches only on the map entries needed
+    mapWhere.setNodeRef("mapEntry")
+      .setIri(IM.IN_SEMANTIC_MAP.toString())
+      .is(is -> is.setIri(semanticMapIri));
+    if (sourceValueProperty != null) {
+      mapEntryPath.setWhere(where);
+      where
+        .addAnd(mapWhere)
+        .and(w1 -> w1    //range match rules
+          .or(w2 -> w2
+            .and(w3 -> w3
+              .setIri(sourceValueProperty)
+              .setNotNull(true))
+            .and(w3 -> w3
+              .setIri(sourceValueProperty)
+              .range(r -> r
+                .from(f -> f
+                  .setNodeRef("mapEntry")
+                  .setIri(IM.RANGE_FROM.toString())
+                  .setOperator(Operator.gte))
+                .to(t -> t
+                  .setNodeRef("mapEntry")
+                  .setIri(IM.RANGE_TO.toString())
+                  .setOperator(Operator.lte)))))
+          .or(w2 -> w2.  //match withut range match
+            and(w3 -> w3
+              .setIri(sourceValueProperty)
+              .setIsNull(true))
+            .and(w3 -> w3
+              .setNodeRef("mapEntry")
+              .setIsNull(true)
+              .setIri(IM.RANGE_FROM.toString()))));
+    } else {
+      mapEntryPath.setWhere(mapWhere); //any match
+    }
+    if (sourceValueProperty != null) {
+      match.setOrderBy(new OrderLimit());
+      OrderLimit orderLimit = match.getOrderBy();
+      orderLimit.addProperty(new OrderDirection()
+        .setNodeRef("mapEntry")
+        .setIri(SHACL.ORDER.toString())
+        .setDirection(Order.ascending));
+      orderLimit.setLimit(1);
+      match.setAs("mapEntry");
+    }
+
+  }
+
+   */

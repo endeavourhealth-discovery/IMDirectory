@@ -2,7 +2,7 @@ import { Ref, ref } from "vue";
 
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Query, Node, NodeShape, PropertyShape, TTIriRef } from "@endeavour/vue-library/models";
+import type { Node, NodeShape, PropertyShape, Query, TTIriRef } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 
@@ -36,8 +36,8 @@ export function usePropertyTree() {
   const mode: Ref<Mode> = ref("match");
 
   async function addToTreeFromAny(match: Query, nodes: TreeNode[]) {
-    if (match.with) {
-      for (const [index, any] of match.with.entries()) {
+    if (match.and) {
+      for (const [index, any] of match.and.entries()) {
         if (any.typeOf) {
           const iri = any.typeOf!.iri!;
           const nodeShape = await DataModelService.getDataModelProperties(iri, false);

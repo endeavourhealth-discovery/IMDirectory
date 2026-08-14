@@ -20,6 +20,7 @@ import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
+import NumberInput from "@/components/editor/shapeComponents/NumberInput.vue";
 import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinitionBuilder.vue";
@@ -54,7 +55,8 @@ export default defineComponent({
     EntityDisplay,
     IriBuilder,
     SubsetBuilder,
-    CheckboxDisplay
+    CheckboxDisplay,
+    NumberInput
   }
 });
 </script>

@@ -10,34 +10,40 @@
       @hide="cancel"
     >
       <template #default>
-        <Tabs v-model:value="activeTab">
-          <TabList>
-            <Tab value="filter">Filter</Tab>
-            <Tab value="columns">
-              <span v-if="datasetEntry">Dataset items</span>
-              <span v-else>Return columns/scores</span>
-            </Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel value="filter">
-              <MatchContentEditor
-                v-model:match="editMatch"
-                :baseType="baseType"
-                :depth="depth"
-                :index="clauseIndex"
-                :parentOperator="parentOperator"
-                @addLinked="onAddLinked"
-                @cancel="cancel"
-                @deleteMatch="deleteMatch"
-                @saveChanges="emit('saveChanges', $event)"
-                @updateMatch="onUpdate"
-              />
-            </TabPanel>
-            <TabPanel value="columns">
-              <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        <template v-if="datasetEntry && !editorChoice">
+          <Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit filter" severity="secondary" @click="setEditorChoice('filter')" />
+          <Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit Columns" severity="secondary" @click="setEditorChoice('columns')" />
+        </template>
+        <template v-else>
+          <Tabs v-model:value="activeTab">
+            <TabList>
+              <Tab value="filter">Filter</Tab>
+              <Tab value="columns">
+                <span v-if="datasetEntry">Dataset items</span>
+                <span v-else>Return columns/scores</span>
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel value="filter">
+                <MatchContentEditor
+                  v-model:match="editMatch"
+                  :baseType="baseType"
+                  :depth="depth"
+                  :index="clauseIndex"
+                  :parentOperator="parentOperator"
+                  @addLinked="onAddLinked"
+                  @cancel="cancel"
+                  @deleteMatch="deleteMatch"
+                  @saveChanges="emit('saveChanges', $event)"
+                  @updateMatch="onUpdate"
+                />
+              </TabPanel>
+              <TabPanel value="columns">
+                <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </template>
       </template>
       <template #footer>
         <div class="button-footer">
@@ -64,10 +70,11 @@ import { Ref, ref } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
+import { isArrayOf } from "@endeavour/vue-library/helpers";
 import { type Node, Query, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
+import Button from "primevue/button";
 
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
@@ -102,20 +109,29 @@ const activeTab = ref(props.datasetEntry ? "columns" : "filter");
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const edited = ref(false);
+const editorChoice = ref(false);
 
 async function onUpdate() {
   edited.value = true;
-  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
 }
 
 function deleteMatch() {
   emit("deleteMatch");
 }
-
+function setEditorChoice(choice: string) {
+  if (choice === "filter") {
+    activeTab.value = "filter";
+    editorChoice.value = true;
+  } else {
+    activeTab.value = "columns";
+    editorChoice.value = true;
+  }
+}
 async function onAddLinked() {
   const valid = await saveChanges();
   if (valid) {
-    if (!editMatch.value.node) {
+    if (!editMatch.value.as) {
       editMatch.value.invalid = true;
       editMatch.value.errorMessage = "Please select a name to this clause  to line to";
       await showInvalid(editMatch.value);
@@ -160,13 +176,13 @@ async function showInvalid(match: Query) {
 }
 
 async function saveChanges(): Promise<boolean> {
-  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  const matchCheck = await QueryService.validateQuery(QuerySchema.parse(editMatch.value));
   if (matchCheck.invalid) {
     editMatch.value.draft = true;
     await showInvalid(matchCheck);
     return false;
   } else {
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
     editMatch.value.draft = false;
     return true;
   }
@@ -185,5 +201,9 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 <style scoped>
 .button-footer {
   height: 2vh;
+}
+.edit-choice-btn {
+  align-self: flex-start;
+  width: 220px;
 }
 </style>
