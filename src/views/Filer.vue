@@ -30,7 +30,6 @@ import { Ref, ref } from "vue";
 
 import { IM, ToastSeverity } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTDocument } from "@endeavour/vue-library/models";
 import { ToastOptions } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
@@ -38,6 +37,7 @@ import FileUpload, { FileUploadUploadEvent } from "primevue/fileupload";
 import { useToast } from "primevue/usetoast";
 
 import TopBar from "@/components/shared/TopBar.vue";
+import type { TTDocument } from "@/models";
 import { FilerService } from "@/services";
 
 const toast = useToast();

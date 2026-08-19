@@ -104,17 +104,7 @@ import { useOverlay } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@endeavour/vue-library/helpers";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import {
-  DownloadByQueryOptions,
-  DownloadByQueryOptionsSchema,
-  ECLQueryRequest,
-  ExtendedSearchResultSummary,
-  PageSchema,
-  QueryRequest,
-  SearchResponse,
-  SearchResultSummary
-} from "@endeavour/vue-library/models";
-import type { FilterOptions, Namespace } from "@endeavour/vue-library/models";
+import { PageSchema, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -127,6 +117,7 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import type { DownloadByQueryOptions, DownloadByQueryOptionsSchema, ECLQueryRequest, ExtendedSearchResultSummary, FilterOptions, Namespace } from "@/models";
 import { DownloadSettings, SearchOptions } from "@/models";
 import { EclService, EntityService, QueryService, UserService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";

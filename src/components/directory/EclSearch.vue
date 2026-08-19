@@ -86,10 +86,11 @@ import { Ref, computed, onMounted, ref, watch } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM } from "@endeavour/vue-library/enums";
 import { byName } from "@endeavour/vue-library/helpers";
-import { type ECLQueryRequest, ECLQueryRequestSchema, type GenericObject, type SearchResultSummary, type TTIriRef } from "@endeavour/vue-library/models";
+import { type GenericObject, type SearchResultSummary, type TTIriRef } from "@endeavour/vue-library/models";
 
 import ECLBuilder from "@/components/imquery/ECLBuilder.vue";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { type ECLQueryRequest } from "@/models";
 import { EclService } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";

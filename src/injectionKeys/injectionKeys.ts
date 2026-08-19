@@ -1,6 +1,8 @@
 import type { InjectionKey, Ref } from "vue";
 
-import type { FormGenerator, GenericObject, PropertyShape, TTEntity } from "@endeavour/vue-library/models";
+import type { GenericObject, PropertyShape, TTEntity } from "@endeavour/vue-library/models";
+
+import { type FormGenerator } from "@/models";
 
 const editorValidity = Symbol("editorValidity") as InjectionKey<{
   validity: Ref<{ key: string; valid: boolean }[]>;

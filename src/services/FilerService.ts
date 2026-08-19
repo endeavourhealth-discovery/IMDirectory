@@ -1,5 +1,7 @@
 import { NAMESPACE } from "@endeavour/vue-library/enums";
-import type { TTDocument, TTEntity } from "@endeavour/vue-library/models";
+import type { TTEntity } from "@endeavour/vue-library/models";
+
+import { type TTDocument } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

@@ -1,9 +1,9 @@
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { type FilterOptions, FilterOptionsSchema } from "@endeavour/vue-library/models";
 
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, vi } from "vitest";
 
+import { type FilterOptions, FilterOptionsSchema } from "@/models";
 import { useFilterStore } from "@/stores/filterStore";
 
 describe("state", () => {

@@ -45,13 +45,14 @@
 import { Ref, computed, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, SearchResponse } from "@endeavour/vue-library/models";
+import type { SearchResponse } from "@endeavour/vue-library/models";
 
 import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useRouter } from "vue-router";
 
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { type FilterOptions } from "@/models";
 import { TreeNode } from "@/models";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useLoadingStore } from "@/stores/loadingStore";

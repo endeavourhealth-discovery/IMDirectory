@@ -1,5 +1,7 @@
-import { PropertyDisplay, PropertyDisplaySchema, UIPropertySchema, parseArray } from "@endeavour/vue-library";
-import { type NodeShape, NodeShapeSchema, type SemanticMap, type TTIriRef, TTIriRefSchema, type UIProperty } from "@endeavour/vue-library/models";
+import { parseArray } from "@endeavour/vue-library";
+import { type NodeShape, NodeShapeSchema, type TTIriRef, TTIriRefSchema } from "@endeavour/vue-library/models";
+
+import { PropertyDisplay, PropertyDisplaySchema, type SemanticMap, type UIProperty, UIPropertySchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

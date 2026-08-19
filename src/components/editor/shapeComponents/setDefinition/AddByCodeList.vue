@@ -62,7 +62,6 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, ref } from "vue";
 
-import { ValidatedEntity } from "@endeavour/vue-library";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 
 import * as d3 from "d3";
@@ -70,6 +69,7 @@ import { DSVRowArray } from "d3";
 import { FileUploadUploadEvent } from "primevue/fileupload";
 
 import { entityToAliasEntity } from "@/helpers/Transforms";
+import { ValidatedEntity } from "@/models";
 import { EntityService } from "@/services";
 
 const props = defineProps<{

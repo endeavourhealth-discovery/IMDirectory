@@ -82,12 +82,12 @@
 import { Ref, onMounted, ref, watch } from "vue";
 
 import { XSD } from "@endeavour/vue-library/enums";
-import { type CodeGen, CodeGenSchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep, debounce } from "lodash-es";
 import { useToast } from "primevue/usetoast";
 
 import TopBar from "@/components/shared/TopBar.vue";
+import { type CodeGen, CodeGenSchema } from "@/models";
 import CodeGenService from "@/services/CodeGenService";
 
 const toast = useToast();

@@ -34,11 +34,11 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { UserRole } from "@endeavour/vue-library/enums";
-import { type RoleRequest, RoleRequestSchema, type Task } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 
+import { type RoleRequest, RoleRequestSchema, type Task } from "@/models";
 import SecurityService from "@/services/SecurityService";
 import WorkflowService from "@/services/WorkflowService";
 import { useDialogStore } from "@/stores/dialogStore";

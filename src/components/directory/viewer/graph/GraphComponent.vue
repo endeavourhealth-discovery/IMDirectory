@@ -23,7 +23,7 @@ import { Ref, computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 import { IM, ToastSeverity } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { TTGraphData, ToastOptions } from "@endeavour/vue-library/models";
+import { ToastOptions } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
 import { cloneDeep, isArray, isFunction } from "lodash-es";
@@ -32,6 +32,7 @@ import { useToast } from "primevue/usetoast";
 import svgPanZoom from "svg-pan-zoom";
 
 import { GraphTranslator } from "@/helpers";
+import { type TTGraphData } from "@/models";
 import { EntityService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 

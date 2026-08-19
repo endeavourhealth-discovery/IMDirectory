@@ -100,7 +100,7 @@ import { ComputedRef, Ref, computed, onMounted, onUnmounted, provide, ref, watch
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { EditRequestSchema, type PropertyShape, type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type PropertyShape, type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -119,6 +119,7 @@ import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EditRequestSchema } from "@/models";
 import { QueryService } from "@/services";
 import { EntityService, SecurityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";

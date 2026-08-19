@@ -33,8 +33,9 @@
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
 
-import type { Concept, SearchResultSummary } from "@endeavour/vue-library/models";
+import type { SearchResultSummary } from "@endeavour/vue-library/models";
 
+import { type Concept } from "@/models";
 import { SetService } from "@/services";
 
 import CompareSetSection from "./CompareSetSection.vue";

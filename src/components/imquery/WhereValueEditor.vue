@@ -69,7 +69,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Range, type UIProperty, type Value, type Where, WhereSchema } from "@endeavour/vue-library/models";
+import { type Range, type Value, type Where, WhereSchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -78,6 +78,7 @@ import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue"
 import { RangeValueOptions } from "@/constants";
 import { RangeOrValue } from "@/enums";
 import { buildValueSentence } from "@/helpers/QueryEditorMethods";
+import { type UIProperty } from "@/models";
 
 interface Props {
   uiProperty: UIProperty;

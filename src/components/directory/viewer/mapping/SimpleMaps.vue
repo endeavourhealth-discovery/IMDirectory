@@ -52,7 +52,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
-import { SimpleMap } from "@endeavour/vue-library/models";
+import { SimpleMap } from "@/models";
 
 interface Props {
   data: SimpleMap[];
@@ -120,6 +120,6 @@ function select(iri: string) {
 }
 
 #simple-maps-table-container ::v-deep(.p-datatable-wrapper) {
-  grow: 6;
+  flex-grow: 6;
 }
 </style>

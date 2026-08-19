@@ -1,4 +1,4 @@
-import { TTBundleSchema } from "@endeavour/vue-library/models";
+import { TTBundleSchema } from "@/models";
 
 export const hasDefinition = {
   entityBundle: TTBundleSchema.parse({

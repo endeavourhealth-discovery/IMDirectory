@@ -2,10 +2,11 @@ import { Ref, ref } from "vue";
 
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type FormGenerator, FormGeneratorSchema, type PropertyShape, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type PropertyShape, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import editorShapes from "@/constants/editorShapes";
 import { EditorMode } from "@/enums";
+import { type FormGenerator, FormGeneratorSchema } from "@/models";
 
 export function useEditorShape() {
   const shape: Ref<FormGenerator | undefined> = ref();

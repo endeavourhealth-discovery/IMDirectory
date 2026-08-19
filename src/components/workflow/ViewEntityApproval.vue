@@ -40,13 +40,13 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { ApprovalType } from "@endeavour/vue-library/enums";
-import { type EntityApproval, EntityApprovalSchema, type Task } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
+import { type EntityApproval, EntityApprovalSchema, type Task } from "@/models";
 import WorkflowService from "@/services/WorkflowService";
 import { useDialogStore } from "@/stores/dialogStore";
 

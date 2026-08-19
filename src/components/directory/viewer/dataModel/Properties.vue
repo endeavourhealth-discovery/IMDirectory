@@ -91,12 +91,12 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { PropertyDisplay } from "@endeavour/vue-library";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 
 import { DataTableExpandedRows } from "primevue/datatable";
 
 import { useDirectService } from "@/composables/useDirectService";
+import { type PropertyDisplay } from "@/models";
 import { DataModelService } from "@/services";
 
 const props = defineProps<{

@@ -63,11 +63,12 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Compare, Query, type TTIriRef, type UIProperty, type Value, ValueSchema, type Where } from "@endeavour/vue-library/models";
+import { type Compare, Query, type TTIriRef, type Value, ValueSchema, type Where } from "@endeavour/vue-library/models";
 
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { Relativity } from "@/enums";
 import { getCompareOptions, getOperatorOptions, getRelativeToOptions } from "@/helpers/buildQuery";
+import { type UIProperty } from "@/models";
 
 enum ValueType {
   date,

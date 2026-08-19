@@ -1,8 +1,7 @@
-import { TTBundleSchema } from "@endeavour/vue-library/models";
-
 import { describe, expect, it } from "vitest";
 
 import { translateFromEntityBundle } from "@/helpers/GraphTranslator";
+import { TTBundleSchema } from "@/models";
 
 describe("GraphTranslator", () => {
   describe("translateFromEntityBundle", () => {

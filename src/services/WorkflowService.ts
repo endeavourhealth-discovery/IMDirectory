@@ -1,4 +1,5 @@
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
+
 import {
   type BugReport,
   BugReportSchema,
@@ -12,7 +13,7 @@ import {
   TaskSchema,
   type WorkflowResponse,
   WorkflowResponseSchema
-} from "@endeavour/vue-library/models";
+} from "@/models";
 
 import Env from "./Env";
 import api from "./api";

@@ -1,6 +1,9 @@
-import { FilterOptionsSchema, PageSchema, SearchBindingSchema, TTIriRefSchema } from "@endeavour/vue-library/models";
+import { PageSchema, TTIriRefSchema } from "@endeavour/vue-library/models";
 
 import z from "zod";
+
+import { FilterOptionsSchema } from "./FilterOptions";
+import { SearchBindingSchema } from "./SearchBinding";
 
 // export interface SearchOptions extends FilterOptions {
 //   isA?: TTIriRef[];

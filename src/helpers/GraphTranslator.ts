@@ -1,19 +1,10 @@
 import { IM, NAMESPACE, OWL, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf, isObject, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import {
-  type GenericObject,
-  type TTBundle,
-  type TTEntity,
-  type TTGraphData,
-  TTGraphDataSchema,
-  type TTProperty,
-  isTTArray,
-  isTTEntity,
-  isTTIriRef,
-  isTTProperty
-} from "@endeavour/vue-library/models";
+import { type GenericObject, type TTEntity, isTTArray, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { isArray, isString } from "lodash-es";
+
+import { type TTBundle, type TTGraphData, TTGraphDataSchema, type TTProperty, isTTProperty } from "@/models";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;

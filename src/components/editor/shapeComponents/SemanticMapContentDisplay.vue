@@ -21,7 +21,11 @@
         />
       </div>
       <div v-if="semanticMap.function">
-        <IMViewerLink :iri="semanticMap.function.iri" :label="'function : ' + semanticMap.function.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        <IMViewerLink
+          :iri="semanticMap.function.iri"
+          :label="'function : ' + semanticMap.function.name"
+          @navigateTo="(iri: string) => emit('navigateTo', iri)"
+        />
       </div>
       <DataTable v-else :value="mapEntries" scrollHeight="flex" scrollable showGridlines size="small">
         <Column header="Target text">
@@ -92,11 +96,10 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 
-import { SemanticMap, SemanticMapEntry } from "@endeavour/vue-library/models";
-
 import ProgressSpinner from "primevue/progressspinner";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { SemanticMap, SemanticMapEntry } from "@/models";
 
 interface Props {
   semanticMap: SemanticMap;

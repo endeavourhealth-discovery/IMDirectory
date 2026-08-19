@@ -3,17 +3,9 @@ import { isArrayHasLength, isObjectHasKeys, parseArray } from "@endeavour/vue-li
 import {
   ArgumentReference,
   ArgumentReferenceSchema,
-  IMLLanguage,
-  IMLLanguageSchema,
-  Indicator,
-  IndicatorSchema,
-  PathDocument,
-  PathDocumentSchema,
   PathQuery,
   Query,
   QueryRequest,
-  QueryResponse,
-  QueryResponseSchema,
   QuerySchema,
   Return,
   ReturnSchema,
@@ -22,6 +14,8 @@ import {
   TTEntity,
   TTEntitySchema
 } from "@endeavour/vue-library/models";
+
+import { IMLLanguage, IMLLanguageSchema, Indicator, IndicatorSchema, PathDocument, PathDocumentSchema, QueryResponse, QueryResponseSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

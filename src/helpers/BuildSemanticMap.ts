@@ -1,6 +1,7 @@
 import { IM, RDFS } from "@endeavour/vue-library/enums";
-import { SemanticMapEntry, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
+import { TTEntity, TTIriRef } from "@endeavour/vue-library/models";
 
+import { type SemanticMapEntry } from "@/models";
 import { DataModelService } from "@/services";
 
 export async function getTypePropertyOptions(iri: string): Promise<TTIriRef[]> {
