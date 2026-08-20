@@ -14,21 +14,19 @@ export const useQueryStore = defineStore("query", () => {
   const selectedMatches = ref<SelectedMatch[]>([]);
   const variableMap = ref<Map<string, any>>(new Map<string, any>());
   const returnType = ref<string>("");
-  const validationQueryRequest = ref<QueryRequest>(
-    QueryRequestSchema.parse({
-      query: {
-        name: "Get by return type",
-        where: {
-          iri: "http://endhealth.info/im#returnType",
-          is: [
-            {
-              parameter: "dataModelIri"
-            }
-          ]
-        }
+  const validationQueryRequest = ref<QueryRequest>({
+    query: {
+      name: "Get by return type",
+      where: {
+        iri: "http://endhealth.info/im#returnType",
+        is: [
+          {
+            parameter: "dataModelIri"
+          }
+        ]
       }
-    })
-  );
+    }
+  } as QueryRequest);
 
   function updateQueryIri(iri: string) {
     queryIri.value = iri;

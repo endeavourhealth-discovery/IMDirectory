@@ -40,9 +40,10 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { DisplayMode, QuerySchema } from "@endeavour/vue-library";
-import type { Query, UIProperty, Value, Where } from "@endeavour/vue-library/models";
+import type { Query, Value, Where } from "@endeavour/vue-library/models";
 
 import { getRelativePropertyOptions, getRelativeToOptions, injectReturn } from "@/helpers/buildQuery";
+import { type UIProperty } from "@/models";
 import { QueryService } from "@/services";
 
 interface Props {

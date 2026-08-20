@@ -1,7 +1,8 @@
 import { parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
-import { type Namespace, NamespaceSchema } from "@endeavour/vue-library/models";
 
 import z from "zod";
+
+import { type Namespace, NamespaceSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

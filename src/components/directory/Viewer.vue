@@ -220,7 +220,7 @@ const directService = useDirectService();
 const sharedStore = useSharedStore();
 
 const loading = ref(true);
-const concept: Ref<TTEntity> = ref(TTEntitySchema.parse({}));
+const concept: Ref<TTEntity> = ref({});
 
 const entityIri = computed(() => {
   if (isString(props.entity.iri)) return props.entity.iri;

@@ -1,7 +1,8 @@
 import { Operator, Order } from "@endeavour/vue-library/enums";
-import type { Compare, Having, Node, Orderable, Query, Range, Where } from "@endeavour/vue-library/models";
+import type { Compare, Having, Node, Query, Range, Where } from "@endeavour/vue-library/models";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
+import { type Orderable } from "@/models";
 import { SentencePart } from "@/models";
 import { RelativeTo } from "@/models/RelativeTo";
 

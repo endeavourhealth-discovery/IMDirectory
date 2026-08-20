@@ -113,7 +113,7 @@ const editorChoice = ref(false);
 
 async function onUpdate() {
   edited.value = true;
-  editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
+  editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
 }
 
 function deleteMatch() {
@@ -176,13 +176,13 @@ async function showInvalid(match: Query) {
 }
 
 async function saveChanges(): Promise<boolean> {
-  const matchCheck = await QueryService.validateQuery(QuerySchema.parse(editMatch.value));
+  const matchCheck = await QueryService.validateQuery(editMatch.value);
   if (matchCheck.invalid) {
     editMatch.value.draft = true;
     await showInvalid(matchCheck);
     return false;
   } else {
-    editMatch.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(editMatch.value), DisplayMode.ORIGINAL);
+    editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
     editMatch.value.draft = false;
     return true;
   }

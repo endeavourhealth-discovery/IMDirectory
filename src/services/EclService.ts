@@ -1,5 +1,7 @@
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
-import { type ECLQueryRequest, ECLQueryRequestSchema, type Query, type SearchResponse, SearchResponseSchema } from "@endeavour/vue-library/models";
+import { type Query, type SearchResponse, SearchResponseSchema } from "@endeavour/vue-library/models";
+
+import { type ECLQueryRequest, ECLQueryRequestSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

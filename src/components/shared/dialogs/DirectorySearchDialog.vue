@@ -108,7 +108,7 @@ import { Ref, computed, onMounted, ref, watch } from "vue";
 import { Argument } from "@endeavour/vue-library";
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import { ArgumentSchema, type FilterOptions, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
+import { ArgumentSchema, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isString } from "lodash-es";
 import { SplitterResizeEndEvent } from "primevue/splitter";
@@ -118,6 +118,7 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
+import { type FilterOptions } from "@/models";
 import { EntityService, QueryService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useLoadingStore } from "@/stores/loadingStore";

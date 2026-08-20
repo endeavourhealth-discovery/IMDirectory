@@ -71,11 +71,10 @@
 <script lang="ts" setup>
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { SemanticMap, type SemanticMapEntry } from "@endeavour/vue-library/models";
-
 import ProgressSpinner from "primevue/progressspinner";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import { SemanticMap, type SemanticMapEntry } from "@/models";
 import { DataModelService } from "@/services";
 
 interface Props {

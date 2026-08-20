@@ -2,11 +2,12 @@ import { Ref, ref } from "vue";
 
 import { COMPONENT, IM } from "@endeavour/vue-library/enums";
 import { TypeGuards, deferred, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type FormGenerator, type PropertyShape, isPropertyShape } from "@endeavour/vue-library/models";
+import { type PropertyShape, isPropertyShape } from "@endeavour/vue-library/models";
 
 import { isArray } from "lodash-es";
 
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { type FormGenerator } from "@/models";
 import { EntityService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 

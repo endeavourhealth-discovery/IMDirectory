@@ -1,12 +1,6 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import { FormGeneratorSchema } from "@endeavour/vue-library/models";
 
-
-
-
-
-
-
+import { FormGeneratorSchema } from "@/models";
 
 const SemanticMapShape = FormGeneratorSchema.parse({
   iri: EDITOR.SEMANTIC_MAP_SHAPE,

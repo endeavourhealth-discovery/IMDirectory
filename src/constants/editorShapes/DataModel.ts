@@ -1,5 +1,6 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, SHACL, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import { type FormGenerator, FormGeneratorSchema } from "@endeavour/vue-library/models";
+
+import { type FormGenerator, FormGeneratorSchema } from "@/models";
 
 const DataModelShape = FormGeneratorSchema.parse({
   iri: EDITOR.DATA_MODEL_SHAPE,

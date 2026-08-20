@@ -20,11 +20,11 @@ import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTBundle, TTGraphData } from "@endeavour/vue-library/models";
 
 import { isArray } from "lodash-es";
 
 import { GraphTranslator } from "@/helpers";
+import type { TTBundle, TTGraphData } from "@/models";
 import { EntityService } from "@/services";
 
 import GraphComponent from "./GraphComponent.vue";

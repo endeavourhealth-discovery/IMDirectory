@@ -1,19 +1,11 @@
 import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf, isObject, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import {
-  type TTArray,
-  type TTBundle,
-  type TTEntity,
-  type TTIriRef,
-  TTLiteral,
-  isTTArray,
-  isTTEntity,
-  isTTIriRef,
-  isTTLiteral
-} from "@endeavour/vue-library/models";
+import { type TTEntity } from "@endeavour/vue-library/models";
 
 import { isArray, isBoolean, isNumber, isString } from "lodash-es";
 import { TreeNode } from "primevue/treenode";
+
+import { type TTBundle } from "@/models";
 
 export function buildDetails(definition: TTBundle): TreeNode[] {
   const treeNode = { children: [] as TreeNode[] } as TreeNode;

@@ -135,17 +135,7 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref } from "vue";
 
-import {
-  type Node,
-  Query,
-  type Return,
-  type SemanticMap,
-  type TTIriRef,
-  type UIProperty,
-  type When,
-  WhenSchema,
-  type Where
-} from "@endeavour/vue-library/models";
+import { type Node, Query, type Return, type TTIriRef, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -167,6 +157,7 @@ import {
   setPathGetNodeRef,
   setSemanticMapForMatch
 } from "@/helpers/buildQuery";
+import { type SemanticMap, type UIProperty } from "@/models";
 import { DataModelService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 

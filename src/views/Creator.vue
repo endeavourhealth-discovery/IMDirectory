@@ -100,7 +100,7 @@ import { ComputedRef, Ref, computed, onMounted, onUnmounted, provide, ref, watch
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { EditRequestSchema, type PropertyShape, type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type PropertyShape, type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -119,6 +119,7 @@ import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EditRequest, EditRequestSchema } from "@/models";
 import { QueryService } from "@/services";
 import { EntityService, SecurityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
@@ -304,7 +305,7 @@ async function showEntityFoundWarning() {
     })
     .then(async (result: any) => {
       if (result?.confirm) {
-        editorEntityOriginal.value = TTEntitySchema.parse({});
+        editorEntityOriginal.value = {};
         editorEntity.value = cloneDeep(processEntity(creatorSavedEntity.value));
         currentStep.value = 1;
       } else {
@@ -322,8 +323,8 @@ async function showEntityFoundWarning() {
           })
           .then(async result => {
             if (result.confirm) {
-              editorEntityOriginal.value = TTEntitySchema.parse({});
-              editorEntity.value = TTEntitySchema.parse({});
+              editorEntityOriginal.value = {};
+              editorEntity.value = {};
             } else {
               await showEntityFoundWarning();
             }
@@ -397,14 +398,14 @@ async function submit(): Promise<void> {
                   if (linkedEntities.value.length > 0) {
                     for (const linkedEntity of linkedEntities.value) {
                       linkedEntity[IM.ID] = linkedEntity.iri;
-                      await EntityService.createEntity(
-                        EditRequestSchema.parse({ entity: linkedEntity, hostUrl: window.location.origin, namespace: namespace })
-                      );
+                      await EntityService.createEntity({ entity: linkedEntity, hostUrl: window.location.origin, namespace: namespace } as EditRequest);
                     }
                   }
-                  const res = await EntityService.createEntity(
-                    EditRequestSchema.parse({ entity: editorEntity.value, hostUrl: window.location.origin, namespace: namespace })
-                  );
+                  const res = await EntityService.createEntity({
+                    entity: editorEntity.value,
+                    hostUrl: window.location.origin,
+                    namespace: namespace
+                  } as EditRequest);
                   if (res) {
                     creatorStore.updateCreatorSavedEntity(undefined);
                     return res;

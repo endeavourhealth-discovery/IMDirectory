@@ -84,7 +84,7 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ECLQueryRequest, PropertyShape, SearchResultSummary, TTEntity } from "@endeavour/vue-library/models";
+import type { PropertyShape, SearchResultSummary, TTEntity } from "@endeavour/vue-library/models";
 
 import { useDialog } from "primevue/usedialog";
 
@@ -95,6 +95,7 @@ import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { useEclValidator } from "@/composables/useEclValidator";
 import { EditorMode } from "@/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { type ECLQueryRequest } from "@/models";
 import { EclService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
 

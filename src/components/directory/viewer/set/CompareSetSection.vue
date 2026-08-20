@@ -39,11 +39,12 @@ import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, NAMESPACE } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import { type Concept, type FilterOptions, type QueryRequest, type SearchResultSummary } from "@endeavour/vue-library/models";
+import { type QueryRequest, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
+import { type Concept, type FilterOptions } from "@/models";
 import { SearchOptionsSchema } from "@/models";
 import { EntityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";

@@ -92,7 +92,7 @@
 import { Ref, computed, onMounted, ref } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import { type Node, type QueryRequest, type SearchResultSummary, type UIProperty, type Where } from "@endeavour/vue-library/models";
+import { type Node, type QueryRequest, type SearchResultSummary, type Where } from "@endeavour/vue-library/models";
 
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import Button from "primevue/button";
@@ -103,6 +103,7 @@ import { NodeInclusionOptions } from "@/constants/queryEditor/NodeInclusionOptio
 import { PlainConstraintOperatorOptions } from "@/constants/queryEditor/PlainConstraintOperatorOptions";
 import { getPlainConstraintOperatorLabel, getPlainConstraintOperatorValue } from "@/helpers/QueryEditorMethods";
 import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
+import { type UIProperty } from "@/models";
 import { SearchOptionsSchema } from "@/models";
 import SetService from "@/services/SetService";
 import { useFilterStore } from "@/stores/filterStore";

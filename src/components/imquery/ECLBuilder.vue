@@ -71,13 +71,14 @@ import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type ECLQueryRequest, type Query, QuerySchema } from "@endeavour/vue-library/models";
+import { type Query, QuerySchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
 
 import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
 import { useEclValidator } from "@/composables/useEclValidator";
+import { type ECLQueryRequest } from "@/models";
 import EclService from "@/services/EclService";
 import QueryService from "@/services/QueryService";
 import { useDialogStore } from "@/stores/dialogStore";

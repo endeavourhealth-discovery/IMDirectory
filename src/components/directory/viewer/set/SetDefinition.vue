@@ -99,7 +99,7 @@ import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { ToastSeverity, UserRole } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { SetExportRequest, SetOptions, TTEntity } from "@endeavour/vue-library/models";
+import type { TTEntity } from "@endeavour/vue-library/models";
 import { ToastOptions, hasRole, isUser } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
@@ -111,6 +111,7 @@ import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { type SetExportRequest, type SetOptions } from "@/models";
 import { DownloadSettings } from "@/models";
 import { EntityService, SetService } from "@/services";
 

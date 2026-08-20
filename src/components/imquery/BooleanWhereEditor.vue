@@ -91,7 +91,7 @@
 import { Ref, computed, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Node, Query, UIProperty, Where } from "@endeavour/vue-library/models";
+import type { Node, Query, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -99,6 +99,7 @@ import Button from "primevue/button";
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
 import { checkGroupChange, getBoolGroup, getBooleanOperator, getPathPropertyNames, getTypeIriFromMatch, updateBooleans } from "@/helpers/buildQuery";
+import { type UIProperty } from "@/models";
 import { DataModelService } from "@/services";
 
 import WhereIsEditor from "./WhereIsEditor.vue";

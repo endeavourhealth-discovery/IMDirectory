@@ -10,10 +10,9 @@
 <script setup lang="ts">
 import { Ref, nextTick, onMounted, ref } from "vue";
 
-import { PropertyDisplay } from "@endeavour/vue-library";
-
 import mermaid from "mermaid";
 
+import { PropertyDisplay } from "@/models";
 import { DataModelService } from "@/services";
 
 const props = defineProps<{

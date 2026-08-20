@@ -1,8 +1,9 @@
 import { parseArray } from "@endeavour/vue-library";
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
-import { type ConceptContextMap, ConceptContextMapSchema, SimpleMap, SimpleMapSchema, TermCode, TermCodeSchema } from "@endeavour/vue-library/models";
 
 import z from "zod";
+
+import { type ConceptContextMap, ConceptContextMapSchema, SimpleMap, SimpleMapSchema, TermCode, TermCodeSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

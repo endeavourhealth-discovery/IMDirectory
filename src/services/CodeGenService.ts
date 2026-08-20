@@ -1,4 +1,4 @@
-import type { CodeGen } from "@endeavour/vue-library/models";
+import type { CodeGen } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

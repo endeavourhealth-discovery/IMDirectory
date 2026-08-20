@@ -1,30 +1,19 @@
 import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys, parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
 import {
-  DownloadByQueryOptions,
-  EditRequest,
-  EntityValidationRequest,
   ExtendedEntityReferenceNode,
   ExtendedEntityReferenceNodeSchema,
-  FilterOptions,
-  FilterOptionsSchema,
   FiltersAsIris,
-  Namespace,
-  NamespaceSchema,
   PageableEntityReferenceNode,
   PageableEntityReferenceNodeSchema,
   PageableTTIriRef,
   PageableTTIriRefSchema,
   SearchResultSummary,
   SearchResultSummarySchema,
-  TTBundle,
-  TTBundleSchema,
   TTEntity,
   TTEntitySchema,
   TTIriRef,
-  TTIriRefSchema,
-  ValidatedEntity,
-  ValidatedEntitySchema
+  TTIriRefSchema
 } from "@endeavour/vue-library/models";
 
 import { OrganizationChartNode } from "primevue/organizationchart";
@@ -32,6 +21,19 @@ import type { TreeNode } from "primevue/treenode";
 import z from "zod";
 
 import { buildDetails } from "@/helpers/DetailsBuilder";
+import {
+  DownloadByQueryOptions,
+  EditRequest,
+  EntityValidationRequest,
+  FilterOptions,
+  FilterOptionsSchema,
+  Namespace,
+  NamespaceSchema,
+  TTBundle,
+  TTBundleSchema,
+  ValidatedEntity,
+  ValidatedEntitySchema
+} from "@/models";
 
 import Env from "./Env";
 import api from "./api";

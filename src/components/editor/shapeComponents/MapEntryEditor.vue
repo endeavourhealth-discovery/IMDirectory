@@ -135,7 +135,7 @@ import { Ref, inject, onMounted, ref } from "vue";
 
 import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type PropertyShape, QueryRequestSchema, SearchResultSummary, SemanticMapEntry, TTIriRef } from "@endeavour/vue-library/models";
+import { type PropertyShape, QueryRequest, QueryRequestSchema, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
 import { cloneDeep, isArray } from "lodash-es";
@@ -147,6 +147,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { getTypePropertyOptions } from "@/helpers/BuildSemanticMap";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { type SemanticMapEntry } from "@/models";
 import { useDialogStore } from "@/stores/dialogStore";
 
 const props = defineProps<{
@@ -174,7 +175,7 @@ const propertyOptions: Ref<TTIriRef[] | undefined> = ref();
 const entries: Ref<SemanticMapEntry[]> = ref(cloneDeep(props.originalEntries));
 const edited: Ref<boolean> = ref(false);
 
-const entityQuery = QueryRequestSchema.parse({
+const entityQuery = {
   query: {
     and: [
       {
@@ -188,8 +189,8 @@ const entityQuery = QueryRequestSchema.parse({
       }
     ]
   }
-});
-const typeQuery = QueryRequestSchema.parse({
+} as QueryRequest;
+const typeQuery = {
   query: {
     and: [
       {
@@ -203,7 +204,7 @@ const typeQuery = QueryRequestSchema.parse({
       }
     ]
   }
-});
+} as QueryRequest;
 
 onMounted(async () => {
   await init();

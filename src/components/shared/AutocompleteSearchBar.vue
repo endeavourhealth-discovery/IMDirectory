@@ -83,12 +83,13 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay, useSpeechToText } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import { type FilterOptions, PageSchema, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
+import { PageSchema, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
+import type { FilterOptions } from "@/models";
 import { QueryService } from "@/services";
 
 interface Props {

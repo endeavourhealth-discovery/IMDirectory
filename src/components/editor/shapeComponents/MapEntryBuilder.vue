@@ -39,7 +39,7 @@
 import { Ref, inject, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import { type PropertyShape, SemanticMap, SemanticMapEntry, type TTEntity } from "@endeavour/vue-library/models";
+import { type PropertyShape, type TTEntity } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
@@ -49,6 +49,7 @@ import SemanticMapContentDisplay from "@/components/editor/shapeComponents/Seman
 import { EditorMode } from "@/enums";
 import { buildLinkedEntities } from "@/helpers/BuildSemanticMap";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { type SemanticMap, type SemanticMapEntry } from "@/models";
 import { DataModelService } from "@/services";
 
 interface Props {

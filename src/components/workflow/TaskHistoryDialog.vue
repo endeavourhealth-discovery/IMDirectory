@@ -24,7 +24,8 @@
 
 <script setup lang="ts">
 import { formatDateTime } from "@endeavour/vue-library/helpers";
-import type { TaskHistory } from "@endeavour/vue-library/models";
+
+import type { TaskHistory } from "@/models";
 
 interface Props {
   showDialog: boolean;

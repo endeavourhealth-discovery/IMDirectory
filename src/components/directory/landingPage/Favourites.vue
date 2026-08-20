@@ -61,7 +61,7 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { RDF, RDFS } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type ExtendedSearchResultSummary, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep, isString } from "lodash-es";
@@ -69,6 +69,7 @@ import { useConfirm } from "primevue/useconfirm";
 
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { type ExtendedSearchResultSummary } from "@/models";
 import { EntityService, UserService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 

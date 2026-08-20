@@ -6,7 +6,6 @@ import {
   NodeShapeSchema,
   PageableEntityReferenceNodeSchema,
   ParameterShapeSchema,
-  PropertyDisplaySchema,
   PropertyRangeSchema,
   PropertyShape,
   PropertyShapeSchema,
@@ -21,6 +20,7 @@ import { Collection } from "@msw/data";
 import { output, z } from "zod";
 
 import { ComponentType, EditorMode } from "@/enums";
+import { PropertyDisplaySchema } from "@/models";
 import { ComponentDetailsSchema, TangledTreeData, TangledTreeDataSchema } from "@/models";
 
 // const entitySchema = z.object({
