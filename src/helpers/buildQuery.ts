@@ -22,7 +22,7 @@ interface Options {
 }
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
-  const imQuery = QueryRequestSchema.parse({ query: {} });
+  const imQuery = { query: {} } as QueryRequest;
   if (imQuery.query) {
     if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
     if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
@@ -97,12 +97,12 @@ export function checkGroupChange(e: any, parentGroup: number[], index: number) {
 }
 
 function addFilterToIMQuery(predicate: string, values: unknown[], query: Query) {
-  if (!query.where) query.where = WhereSchema.parse({});
+  if (!query.where) query.where = {} as Where;
   if (!query.where.and) query.where.and = [];
-  const where: Where = WhereSchema.parse({
+  const where: Where = {
     iri: predicate,
-    is: values.map(item => NodeSchema.parse(item))
-  });
+    is: values.map(item => item as Node)
+  } as Where;
   query.where.and.push(where);
 }
 
@@ -140,7 +140,7 @@ export function removeSubgroup(clause: any, parent: Query | Where, index: number
 
 export function createNewBoolGroup(clause: any, group: number[]) {
   group.sort((a, b) => a - b);
-  const newClause = WhereSchema.parse({});
+  const newClause = {} as Where;
   if (clause.and) {
     newClause.or = [];
     group.forEach(index => {
@@ -168,8 +168,8 @@ export function createNewBoolGroup(clause: any, group: number[]) {
 }
 
 export function addConceptToGroup(match: Query) {
-  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
-  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+  if (match.or) match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } }) as Query;
+  else if (match.and) match.and.push({ uuid: v4(), is: { descendantsOrSelfOf: true } }) as Query;
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
@@ -177,7 +177,7 @@ export function addConceptToGroup(match: Query) {
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+    match.or.push({ uuid: v4(), is: { descendantsOrSelfOf: true } }) as Query;
   }
 }
 
@@ -307,7 +307,7 @@ export function addWhereToThen(match: Query, where: Where) {
   } else {
     if (match.then) match.then.where = where;
     else {
-      match.then = QuerySchema.parse({ where: where });
+      match.then = { where: where } as Query;
     }
   }
 }
@@ -561,7 +561,7 @@ export function setConstraintOperator(constrainer: Node | Where, valueConstraint
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
   if (imQuery.query && !isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
   for (const searchBinding of searchBindings) {
-    const match = QuerySchema.parse({
+    const match = {
       path: [
         {
           iri: IM.BINDING
@@ -579,7 +579,7 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
           }
         ]
       }
-    });
+    } as Query;
     imQuery.query?.and?.push(match);
   }
 }
@@ -700,7 +700,7 @@ export function addWhereToWhen(when: When, match: Query, node: TreeNode): string
 function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
   const where = { iri: iri, invalid: true } as Where;
   if (nodeRef) where.nodeRef = nodeRef;
-  if (is) where.is = [NodeSchema.parse({ descendantsOrSelfOf: true })];
+  if (is) where.is = [{ descendantsOrSelfOf: true } as Node];
   return where;
 }
 
