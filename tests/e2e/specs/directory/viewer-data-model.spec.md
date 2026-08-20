@@ -6,7 +6,7 @@
 
 ## Properties tab has properties
 * Open filters
-* Select concept type "Type model /Node shape"
+* Select concept type "Data model"
 * Close filters
 * Search for "Patient"
 * Select "Patient" result

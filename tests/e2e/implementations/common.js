@@ -89,7 +89,8 @@ step("Click shortcut <text>", async text => {
 });
 
 step("Click <text> button", async text => {
-  await pw.page.getByRole("button", { name: text }).click();
+  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  await pw.page.getByRole("button", { name: new RegExp(`^${escaped}$`) }).click();
   await pw.page.waitForLoadState("networkidle");
 });
 
