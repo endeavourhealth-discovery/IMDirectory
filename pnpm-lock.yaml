@@ -451,7 +451,7 @@ packages:
     resolution: {integrity: sha512-N10dEJNSsUx41Z6pZsXU8FjPjpBEplgH24sfkmITrBED1/U2Esum9F3lfLrMjKHHjmi557zQn7kR9R+XWXu5Rg==}
 
   '@endeavour/vue-library@4.0.0':
-    resolution: {integrity: sha512-EON7kolGqZguHAfhrV7oD/5NS8IYPUzlDVixwwUwfbxdu32KjN0bszZP82qZv5tIlXc+H+662YKeNJfezLiLuQ==}
+    resolution: {integrity: sha512-xcQ1Xg8F4ciUxD4P4qkhdbdNaMWYFPCT+Bi2sp+GPpftal7tvWtddw6k9UFOILJloanwRCjSOh6caSoH5cSWVg==}
     peerDependencies:
       '@primeuix/themes': 2.0.3
       pinia: 3.0.4
