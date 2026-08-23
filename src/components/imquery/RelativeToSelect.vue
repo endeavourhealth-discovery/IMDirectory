@@ -39,10 +39,10 @@
 <script lang="ts" setup>
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { DisplayMode, QuerySchema } from "@endeavour/vue-library";
+import { DisplayMode} from "@endeavour/vue-library";
 import type { Query, Value, Where } from "@endeavour/vue-library/models";
 
-import { getRelativePropertyOptions, getRelativeToOptions, injectReturn } from "@/helpers/buildQuery";
+import {addFrom, getRelativePropertyOptions, getRelativeToOptions, injectReturn } from "@/helpers/buildQuery";
 import { type UIProperty } from "@/models";
 import { QueryService } from "@/services";
 
@@ -54,6 +54,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const assignable = defineModel<Where | Value>("assignable", { default: {} });
+const match = defineModel<Query>("match", { required: true });
 const emit = defineEmits(["updateCompare"]);
 const showTreeSearch: Ref<boolean> = ref(false);
 const relativeTo: Ref<string | undefined> = ref();
@@ -78,6 +79,7 @@ async function updateRelativeTo(relative: string) {
   const relativeMatch: Ref<Query> = keepAs.value[relativeTo.value];
   if (relativeMatch) {
     assignable.value.compare.right.nodeRef = relativeMatch.value.as;
+    addFrom(match.value, relativeMatch.value.as!);
     delete assignable.value.compare.right.parameter;
     relativePropertyOptions.value = await getRelativePropertyOptions(relativeMatch.value, props.uiProperty.valueType);
     if (relativePropertyOptions.value.length === 0) {

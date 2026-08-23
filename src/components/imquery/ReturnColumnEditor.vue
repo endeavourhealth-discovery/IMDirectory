@@ -153,7 +153,6 @@ import {
   getPathNameFromMatch,
   getPathNameFromPropertyRef,
   getSemanticMapOptions,
-  hasSemanticMap,
   setPathGetNodeRef,
   setSemanticMapForMatch
 } from "@/helpers/buildQuery";
@@ -224,9 +223,7 @@ async function onSelectedProperty(node: TreeNode) {
   }
   column.value!.iri = node.data.iri;
   if (node.data.path) column.value!.nodeRef = setPathGetNodeRef(match.value, node.data.path, true);
-  if (!hasSemanticMap(match.value)) {
-    await showInvalid(match.value, "Only one map allowed per data set entry");
-  } else await findSemanticMaps();
+  await findSemanticMaps();
   showPropertySelector.value = false;
   emit("updateMatch", match.value);
 }

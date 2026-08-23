@@ -23,14 +23,14 @@
       <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
         <span class="rule">Rule {{ clauseIndex }}</span>
       </span>
-      <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
+      <span v-else-if="parentOperator" :class="parentOperator">{{ displayOperator }}</span>
 
       <span v-if="match.notExists">
-        <span class="not">Exclude if </span>
+        <span class="not">NOT</span>
         <span v-if="parentMatch && parentMatch.notExists">(double negative)</span>
       </span>
 
-      <span v-if="match.description">
+      <template v-if="match.name">
         <Button
           v-if="!eclQuery"
           :icon="!matchExpanded ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'"
@@ -38,8 +38,14 @@
           text
           @click="matchExpanded = !matchExpanded"
         />
-        <span class="match-description"> {{ match.description }}</span>
-      </span>
+        <span class="match-description"> {{ match.name }}</span>
+        <template v-if="match.then">
+          <span v-if="match.then.name">
+            <span class="and">and </span>
+            <span class="match-description">{{ match.then.name }}</span>
+          </span>
+        </template>
+      </template>
 
       <template v-if="match.is">
         <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
@@ -66,8 +72,8 @@
           />
         </template>
       </template>
-      <template v-if="matchExpanded || !match.description">
-        <component :is="match.description ? 'div' : 'span'">
+      <template v-if="matchExpanded || !match.name">
+        <component :is="match.name ? 'div' : 'span'">
           <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
           <span v-if="match.typeOf && match.typeOf.iri != baseType.iri" class="field">{{ match.typeOf.name }}</span>
           <template v-if="match.where">
@@ -84,25 +90,27 @@
               :where="match.where"
             />
           </template>
-          <div v-if="match.then && match.then.where">
-            <span class="node-ref">then with the {{ testFields }} of the above</span>
-            <RecursiveWhereDisplay
-              :key="0"
-              :depth="depth + 1"
-              :eclQuery="eclQuery"
-              :editMode="editMode"
-              :expandedSet="expandSet"
-              :index="0"
-              :inline="false"
-              :root="true"
-              :where="match.then.where"
-            />
-          </div>
-          <span v-if="match.as">
+          <template v-if="match.as">
             <span class="as">save</span>
             <span class="node-ref">as {{ match.as }}</span>
-          </span>
+          </template>
         </component>
+      </template>
+      <template v-if="match.then && matchExpanded">
+        <template v-if="match.then.where">
+          <span class="node-ref">then with the {{ testFields }} of the above</span>
+          <RecursiveWhereDisplay
+            :key="0"
+            :depth="depth + 1"
+            :eclQuery="eclQuery"
+            :editMode="editMode"
+            :expandedSet="expandSet"
+            :index="0"
+            :inline="false"
+            :root="true"
+            :where="match.then.where"
+          />
+        </template>
       </template>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
         <span class="field">if true</span>
@@ -130,7 +138,7 @@
 import { Ref, computed, inject, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Query, Node } from "@endeavour/vue-library/models";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -283,6 +291,7 @@ async function expandCohort() {
 }
 .match-description {
   color: var(--p-blue-700);
+  padding-right: 0.5rem;
 }
 
 .either {

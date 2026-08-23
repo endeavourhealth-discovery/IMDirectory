@@ -24,84 +24,98 @@
       </div>
     </template>
     <BaseTypeEditor v-model:match="query" />
-    <div class="header">Cohort definition</div>
-
-    <template v-if="query.typeOf">
-      <BooleanMatchEditor
-        v-model:match="query"
-        v-model:parent="query"
-        :baseType="query.typeOf!"
-        :depth="0"
-        :index="0"
-        :parentIndex="parentIndex"
-        :rootBool="true"
-        @activateInput="activeInputId = $event"
-        @rationalise="rationaliseBooleans"
-      />
-    </template>
-    <div class="header">Output definition</div>
-
-    <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
-      <div><strong>Dataset entries:</strong></div>
-      <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
-        <DataSetEditor
-          v-if="showEditor && toEdit === index"
-          v-model:query="query"
-          v-model:showEditor="showEditor"
-          :columnGroup="query.columnGroup[index]"
-          :index="index"
-          @cancel="cancelEditColumnGroup"
-          @delete-group="onDeleteGroup(index)"
-          @save-column-group="saveColumnGroup"
-        />
-        <div
-          v-else
-          :class="{ 'drag-over': dragOverColumnIndex === index }"
-          class="column-group-display"
-          @dragover="onColumnDragOver($event, index)"
-          @drop="onColumnDrop($event, index)"
-        >
-          <Button
-            class="drag-handle"
-            draggable="true"
-            icon="fa-solid fa-grip-vertical"
-            severity="secondary"
-            text
-            @dragend="onColumnDragEnd"
-            @dragstart="onColumnDragStart($event, index)"
-          />
-          <div class="column-group-content">
-            <ColumnGroupDisplay
-              v-model:datasetEntry="query.columnGroup![index]!"
+    <Tabs v-model:value="activeTab">
+      <TabList>
+        <Tab value="filter">Main Filters</Tab>
+        <Tab value="columns">Single row column output</Tab>
+        <Tab value="groups">Multi-group column output</Tab>
+      </TabList>
+      <TabPanels>
+        <TabPanel value="filter">
+          <template v-if="query.typeOf">
+            <BooleanMatchEditor
+              v-model:match="query"
+              v-model:parent="query"
               :baseType="query.typeOf!"
-              :index="index"
-              :matchExpanded="true"
-              :parentQuery="query"
-              :returnExpanded="true"
+              :depth="0"
+              :index="0"
+              :parentIndex="parentIndex"
+              :rootBool="true"
+              @activateInput="activeInputId = $event"
+              @rationalise="rationaliseBooleans"
             />
-          </div>
-          <div class="button-group">
-            <Button
-              class="edit-button"
-              data-testid="edit-clause-button"
-              icon="fa-solid fa-pen-to-square"
-              label="Edit entry"
-              text
-              @click="editColumnGroup(index)"
-            />
-            <Button class="delete-button p-button-text" icon="fa-solid fa-trash" @click.stop="deleteColumnGroup(index)" />
-          </div>
-        </div>
-      </template>
-    </template>
-    <Button
-      class="addColumnGroup-btn"
-      data-testid="query-editor-add-column-button"
-      icon="fa-solid fa-plus"
-      label="Add Dataset entry"
-      severity="secondary"
-      @click="addColumnGroup"
-    />
+          </template>
+        </TabPanel>
+        <TabPanel value="columns">
+          <template v-if="query.typeOf">
+            <ReturnEditor v-if="activeTab === 'columns'" v-model:match="query" :baseType="query.typeOf" @update-match="onUpdate" />
+          </template>
+          <template v-else>Define base type before setting columns</template>
+        </TabPanel>
+        <TabPanel value="groups">
+          <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
+            <div><strong>Dataset entries:</strong></div>
+            <template v-for="(columnGroup, index) in query.columnGroup">
+              <MatchEditor
+                v-if="showEditor && toEdit === index"
+                :baseType="query.typeOf"
+                :clauseIndex="index"
+                :depth="0"
+                :match="query.columnGroup[index]"
+                :showEditor="showEditor"
+                @cancel="cancelEditColumnGroup"
+              />
+              <div
+                v-else
+                :class="{ 'drag-over': dragOverColumnIndex === index }"
+                class="column-group-display"
+                @dragover="onColumnDragOver($event, index)"
+                @drop="onColumnDrop($event, index)"
+              >
+                <Button
+                  class="drag-handle"
+                  draggable="true"
+                  icon="fa-solid fa-grip-vertical"
+                  severity="secondary"
+                  text
+                  @dragend="onColumnDragEnd"
+                  @dragstart="onColumnDragStart($event, index)"
+                />
+                <div class="column-group-content">
+                  <ColumnGroupDisplay
+                    v-model:datasetEntry="query.columnGroup![index]!"
+                    :baseType="query.typeOf!"
+                    :index="index"
+                    :matchExpanded="true"
+                    :parentQuery="query"
+                    :returnExpanded="true"
+                  />
+                </div>
+                <div class="button-group">
+                  <Button
+                    class="edit-button"
+                    data-testid="edit-clause-button"
+                    icon="fa-solid fa-pen-to-square"
+                    label="Edit group"
+                    text
+                    @click="editColumnGroup(index)"
+                  />
+                  <Button class="delete-button p-button-text" icon="fa-solid fa-trash" @click.stop="deleteColumnGroup(index)" />
+                </div>
+              </div>
+            </template>
+          </template>
+          <Button
+            class="addColumnGroup-btn"
+            data-testid="query-editor-add-column-button"
+            icon="fa-solid fa-plus"
+            label="Add column group"
+            severity="secondary"
+            @click="addColumnGroup"
+          />
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
 
     <template #footer>
       <Button data-testid="cancel-ecl-builder-button" icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeBuilderDialog" />
@@ -114,6 +128,7 @@
 import { onMounted, provide, readonly, Ref, ref, shallowRef, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Query } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
@@ -122,7 +137,8 @@ import { v4 } from "uuid";
 
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
-import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
+import MatchEditor from "@/components/imquery/MatchEditor.vue";
+import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import QueryService from "@/services/QueryService";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -157,6 +173,7 @@ const toEdit: Ref<number | undefined> = ref();
 const showEditor = ref(false);
 const draggedColumnIndex = ref<number | undefined>();
 const dragOverColumnIndex = ref<number | undefined>();
+const activeTab = ref("filter");
 provide("keepAs", keepAs);
 provide("keepAs", keepAs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
@@ -176,6 +193,9 @@ onMounted(async () => {
 
 function toggle(event: any) {
   op.value.toggle(event);
+}
+async function onUpdate() {
+  query.value = await QueryService.getQueryDisplayFromQuery(query.value, DisplayMode.ORIGINAL);
 }
 function onDeleteGroup(index: number) {
   if (query.value.columnGroup && query.value.columnGroup.length > 0) query.value.columnGroup.splice(index, 1);
@@ -201,6 +221,7 @@ function cancelEditColumnGroup() {
 }
 function deleteColumnGroup(index: number) {
   query.value.columnGroup?.splice(index, 1);
+  if (query.value.columnGroup && query.value.columnGroup.length === 0) delete query.value.columnGroup;
   showEditor.value = false;
   toEdit.value = undefined;
 }
@@ -367,20 +388,10 @@ function stripValidation(build: any) {
   flex: 1;
   min-width: 0;
 }
-#query-builder-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  overflow: auto;
-}
+
 .addColumnGroup-btn {
   align-self: flex-start;
   width: 220px;
-}
-.header {
-  font-weight: bold;
 }
 
 .ecl-builder-dialog-header {

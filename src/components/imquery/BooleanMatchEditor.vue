@@ -1,16 +1,15 @@
 <template>
-
   <template v-if="showEditor && editMatch">
     <MatchEditor
       v-if="showEditor"
       v-model:showEditor="showEditor"
       :baseType="baseType"
       :clauseIndex="index"
+      :datasetEntry="datasetEntry"
       :depth="depth"
       :editCohort="editMatch && !!editMatch.is"
       :match="editMatch"
       :parentOperator="parentOperator"
-      :isDatasetEntry="isDatasetEntry"
       @cancel="cancelEditMatch"
       @deleteMatch="onDeleteMatchList"
       @saveChanges="saveEditMatch"
@@ -19,7 +18,6 @@
     />
   </template>
   <template v-else>
-    <div>{{ editMatch }}</div>
     <div v-if="boolGroup" class="match-container">
       <div class="match-clause-inner">
         <div v-if="canCheck" class="group-checkbox">
@@ -37,6 +35,7 @@
           v-model:clause="match"
           v-model:group="group"
           v-model:parent="parent"
+          :baseType="baseType"
           :clauseType="'Match'"
           :eclQuery="false"
           :index="index"
@@ -44,7 +43,6 @@
           :parentOperator="parentOperator as Bool"
           :parentType="'Match'"
           :rootBool="rootBool"
-          :baseType="baseType"
         />
 
         <Button
@@ -65,6 +63,7 @@
             v-model:parentGroup="group"
             :baseType="baseType"
             :canCheck="boolGroup!.length > 2"
+            :datasetEntry="datasetEntry"
             :depth="depth + 1"
             :index="subIndex"
             :parentIndex="index"
@@ -81,10 +80,6 @@
       </div>
     </div>
     <div v-else-if="isDefined" class="match-clause-outer" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
-      <div v-if="match.from">
-        <span class="from">from</span>
-        <span class="node-ref">{{ match.from }}</span>
-      </div>
       <div class="match-clause-inner">
         <div>
           <Button
@@ -109,7 +104,7 @@
         </div>
         <span v-if="displayOperator" :class="parentOperator">{{ displayOperator }}</span>
         <div class="match-display">
-          <MatchContentDisplay :clauseIndex="index" :depth="depth" :from="from" :match="match" :parentMatch="parent" />
+          <MatchContentDisplay :clauseIndex="index" :depth="depth" :match="match" :parentMatch="parent" />
         </div>
         <div class="edit-button">
           <Button
@@ -137,7 +132,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, Ref, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
@@ -151,7 +146,14 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import { addMatchToParent, checkGroupChange, getBoolGroup, getBooleanOperator, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
+import {
+  addMatchToParent,
+  checkGroupChange,
+  getBooleanOperator,
+  getBoolGroup,
+  getDisplayOperator,
+  updateBooleans
+} from "@/helpers/buildQuery";
 
 interface Props {
   isVariable?: boolean;
@@ -164,7 +166,7 @@ interface Props {
   parentIndex: number;
   baseType: Node;
   canCheck?: boolean;
-  isDatasetEntry?: boolean;
+  datasetEntry?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -176,7 +178,6 @@ const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
 const editMatch: Ref<Query | undefined> = ref();
-const from: Ref<Query | undefined> = ref();
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
@@ -239,18 +240,18 @@ function deleteMatch() {
   showEditor.value = false;
   emit("deleteMatch");
 }
+
 function onDeleteMatch(index: number) {
-  if (match.value.or) {
-    match.value.or.splice(index, 1);
-    if (match.value.or.length === 1) {
-      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.as) match.value = match.value.or[0];
+  for (const op of ["or", "and", "each"]) {
+    const key = op as keyof Query;
+    if (match.value[key]) {
+      match.value[key].splice(index, 1);
+      if (match.value[key].length === 1) {
+        if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.as) match.value = match.value[key][0];
+      }
+      if (match.value[key].length === 0) delete match.value[key];
     }
-  } else if (match.value.and) {
-    match.value.and.splice(index, 1);
-    if (match.value.and.length === 1) {
-      if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.as) match.value = match.value.and[0];
-    }
-  } else emit("deleteMatch");
+  }
 }
 
 function onCheckGroupChange(e: any) {
@@ -267,7 +268,7 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
 }
 function createNewMatch() {
   const match = { uuid: v4(), draft: true } as Query;
-  addMatchToParent(parent.value, match);
+  addMatchToParent(parent.value, match, props.datasetEntry ? Bool.each : undefined);
 }
 
 async function saveEditMatch(editedMatch: Query) {
