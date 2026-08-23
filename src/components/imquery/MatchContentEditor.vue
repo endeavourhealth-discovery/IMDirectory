@@ -1,7 +1,7 @@
 <template>
   <div>
-    <span class="description">Description</span>
-    <InputText v-model="match.description" class="match-description" type="text" @update:model-value="updateDescription" />
+    <span class="description">Name</span>
+    <InputText v-model="match.name" class="match-name" type="text" @update:model-value="updateName" />
   </div>
   <div>
     <Button
@@ -20,6 +20,9 @@
     </TabList>
     <TabPanels>
       <TabPanel value="main">
+        <div v-if="!match.where">
+          <span class="help-text">If no filter, select output column tab</span>
+        </div>
         <div class="filter-editor">
           <WhereEditor
             v-model:match="match"
@@ -73,8 +76,8 @@ import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
-import { type Node, Query, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { isArrayOf } from "@endeavour/vue-library/helpers";
+import { type Node, Query, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -89,6 +92,7 @@ interface Props {
   isStep?: boolean;
   parentOperator?: Bool;
   mustKeep?: boolean;
+  datasetEntry?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -146,7 +150,7 @@ function onDeleteWhere() {
   delete match.value.where;
   emit("deleteMatch");
 }
-function updateDescription() {
+function updateName() {
   edited.value = true;
   emit("updateMatch");
 }
@@ -192,7 +196,7 @@ function onDeleteThen() {
 .description {
   padding-right: 1rem;
 }
-.match-description {
+.match-name {
   width: 50rem;
 }
 .description-container {
@@ -218,5 +222,9 @@ function onDeleteThen() {
 }
 .field {
   padding-right: 1rem;
+}
+.help-text {
+  font-weight: bold;
+  font-style: italic;
 }
 </style>

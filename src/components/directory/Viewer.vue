@@ -93,7 +93,7 @@
             </TabPanel>
             <TabPanel v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="8">
               <div id="query-container" class="concept-panel-content">
-                <QueryDisplay :entityIri="entityIri" :show-dataset="true" />
+                <QueryDisplay :entityIri="entityIri" :show-dataset="true" :viewerDisplayMode="viewerDisplayMode" @updateViewerDisplayMode="updateDisplayMode" />
               </div>
             </TabPanel>
             <TabPanel v-if="entityIsIndicator(types)" value="20">
@@ -143,7 +143,7 @@
             </TabPanel>
             <TabPanel value="18">
               <div id="json-container" class="concept-panel-content">
-                <JSONViewer :entityIri="entityIri" />
+                <JSONViewer :entityIri="entityIri" :viewerDisplayMode="viewerDisplayMode" />
               </div>
             </TabPanel>
             <TabPanel value="19">
@@ -162,7 +162,7 @@
 import { Ref, computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 
 import { ArrayObjectNamesToStringWithLabel, TextHTMLWithLabel, TextWithLabel } from "@endeavour/vue-library/components";
-import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
+import { DisplayMode, IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import {
   entityIsConcept,
   entityIsFeature,
@@ -262,6 +262,7 @@ const returnType = computed(() => {
   if (isArrayOf(concept.value[IM.RETURN_TYPE], isTTIriRef)) return concept.value[IM.RETURN_TYPE];
   else return [];
 });
+const viewerDisplayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 
 const tabMap = reactive(new Map<string, string>());
 
@@ -275,6 +276,9 @@ watch(
   () => props.entity,
   async () => await init()
 );
+function updateDisplayMode(mode: DisplayMode) {
+  viewerDisplayMode.value = mode;
+}
 
 function setDefaultTab() {
   if (entityIsFolder(types.value)) {

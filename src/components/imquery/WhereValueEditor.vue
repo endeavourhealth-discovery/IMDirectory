@@ -16,6 +16,7 @@
     <div v-if="rangeOrValue === RangeOrValue.SingleValue" class="value-editor">
       <ValueEditor
         v-model:assignable="where"
+        v-model:match="match"
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
@@ -27,6 +28,7 @@
       <span class="range-label">between</span>
       <ValueEditor
         v-model:assignable="where.range.from"
+        v-model:match="match"
         v-model:where="where"
         :fromOrTo="'from'"
         :qualifier="where.qualifier"
@@ -37,6 +39,7 @@
       <span class="range-label">and</span>
       <ValueEditor
         v-model:assignable="where.range.to"
+        v-model:match="match"
         v-model:where="where"
         :fromOrTo="'to'"
         :qualifier="where.qualifier"
@@ -66,10 +69,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, Ref, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Range, type Value, type Where, WhereSchema } from "@endeavour/vue-library/models";
+import { type Range, type Query,type Value, type Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -86,6 +89,7 @@ interface Props {
 
 const refresh = defineModel<number>("refresh", { default: 0 });
 const props = defineProps<Props>();
+const match = defineModel<Query>("match", { default: {} as Query });
 const where = defineModel<Where>("where", { default: {} as Where });
 const booleanOptions = [
   { name: "true", value: true },

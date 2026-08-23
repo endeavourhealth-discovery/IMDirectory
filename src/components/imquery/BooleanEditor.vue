@@ -52,29 +52,32 @@
       <i class="fas fa-info-circle text-blue-500" />
       <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
     </div>
+    <div class="column-edit">
+      <Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit return columns" severity="secondary" @click="returnEditor = true" />
+    </div>
   </div>
-  <div><Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit Columns" severity="secondary" @click="returnEditor = true" /> /></div>
-  <ReturnEditor v-if="returnEditor && baseType" v-model:match="clause as Query" :baseType="baseType" @update-match="onReturnUpdate" />
+  <BooleanReturnEditor
+    v-if="returnEditor && baseType"
+    v-model:booleanMatch="clause as Query"
+    v-model:showEditor="returnEditor"
+    :baseType="baseType"
+    :index="0"
+    @cancel="returnEditor = false"
+    @updateBooleanMatch="onReturnUpdate"
+  />
 </template>
 <script lang="ts" setup>
-import { computed, inject, Ref, ref } from "vue";
+import { computed, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { Node, Query, QuerySchema, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
-import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
+import BooleanReturnEditor from "@/components/imquery/BooleanReturnEditor.vue";
 import RoleGroup from "@/components/imquery/RoleGroup.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import {
-  createNewBoolGroup,
-  getBooleanOperator,
-  getBooleanOptions,
-  getBoolGroup,
-  getIsRoleGroup,
-  removeSubgroup
-} from "@/helpers/buildQuery";
+import { createNewBoolGroup, getBoolGroup, getBooleanOperator, getBooleanOptions, getIsRoleGroup, removeSubgroup } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 interface Props {
@@ -88,7 +91,7 @@ interface Props {
   eclQuery: boolean;
   baseType?: Node;
 }
-
+type BooleanOperator = "and" | "or" | "each";
 const props = defineProps<Props>();
 const clause = defineModel<Query | Where>("clause", { required: true });
 const parent = defineModel<Query | Where>("parent", { default: {} });
@@ -108,9 +111,7 @@ const removeLabel = computed(() => {
 });
 const returnEditor = ref(false);
 
-const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const hover = ref();
-const checkUngroup: Ref<boolean> = ref(false);
 const subOperator = computed(() => {
   if (operator.value === Bool.or) return "AND";
   else return "OR";
@@ -121,9 +122,6 @@ function onRemoveSubgroup() {
   removeSubgroup(clause.value, parent.value as Where, props.index);
   group.value = [];
 }
-function onRationalise() {
-  emit("rationalise");
-}
 async function onReturnUpdate() {
   returnEditor.value = false;
   clause.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(clause.value), DisplayMode.ORIGINAL);
@@ -132,14 +130,27 @@ function onCreateSubgroup() {
   createNewBoolGroup(clause.value, group.value);
   group.value = [];
 }
+function updateOperator(val: BooleanOperator) {
+  if (props.clauseType === "Match") {
+    const query = clause.value as Query;
+    for (const op of ["and", "or", "each"] as const) {
+      if (query[op]) {
+        const subObject = query[op];
+        delete query[op];
+        query[val] = subObject;
+      }
+    }
+  }
 
-function updateOperator(val: string) {
-  if (val === "or" && clause.value.and) {
-    clause.value.or = clause.value.and;
-    delete clause.value.and;
-  } else if (val === "and" && clause.value.or) {
-    clause.value.and = clause.value.or;
-    delete clause.value.or;
+  if (props.clauseType === "Where" && val !== "each") {
+    const where = clause.value as Where;
+    for (const op of ["and", "or"] as const) {
+      if (where[op]) {
+        const subObject = where[op];
+        delete where[op];
+        where[val] = subObject;
+      }
+    }
   }
 }
 function mouseover(event: any) {
@@ -191,5 +202,12 @@ function mouseout(event: any) {
 ::v-deep(.operator-selector .p-select-dropdown) {
   padding-left: 0;
   margin-left: 0;
+}
+.column-edit {
+  margin-left: 2rem;
+}
+
+.edit-choice-btn {
+  width: 220px;
 }
 </style>

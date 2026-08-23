@@ -1,4 +1,3 @@
-import { parseArray } from "@endeavour/vue-library";
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
 
 import z from "zod";

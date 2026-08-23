@@ -10,18 +10,10 @@
       @hide="cancel"
     >
       <template #default>
-        <template v-if="datasetEntry && !editorChoice">
-          <Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit filter" severity="secondary" @click="setEditorChoice('filter')" />
-          <Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit Columns" severity="secondary" @click="setEditorChoice('columns')" />
-        </template>
-        <template v-else>
           <Tabs v-model:value="activeTab">
             <TabList>
               <Tab value="filter">Filter</Tab>
-              <Tab value="columns">
-                <span v-if="datasetEntry">Dataset items</span>
-                <span v-else>Return columns/scores</span>
-              </Tab>
+              <Tab value="columns">Column output</Tab>
             </TabList>
             <TabPanels>
               <TabPanel value="filter">
@@ -44,7 +36,6 @@
             </TabPanels>
           </Tabs>
         </template>
-      </template>
       <template #footer>
         <div class="button-footer">
           <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="cancel" />
@@ -71,7 +62,7 @@ import { Ref, ref } from "vue";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayOf } from "@endeavour/vue-library/helpers";
-import { type Node, Query, QuerySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type Node, Query, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -201,9 +192,5 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 <style scoped>
 .button-footer {
   height: 2vh;
-}
-.edit-choice-btn {
-  align-self: flex-start;
-  width: 220px;
 }
 </style>

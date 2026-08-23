@@ -2,71 +2,40 @@ import { Ref, ref } from "vue";
 
 import { IM, RDF, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Node, NodeShape, PropertyShape, Query, TTIriRef } from "@endeavour/vue-library/models";
+import type { Node, NodeShape, PropertyShape } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 
+import { ViewMode } from "@/enums/PropertyViewMode";
+import type { PropertyTreeNode } from "@/interfaces/PropertyTreeNode";
 import { DataModelService } from "@/services";
 
 const codeable: string[] = [IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT];
-export type Mode = "match" | "return";
-type PropertyTreeNode = {
-  key: string;
-  name: string | undefined;
-  iri: string;
-  type: string;
-  iconType: string;
-  typeOf?: string;
-  range?: string | undefined;
-  rangeType?: string | undefined;
-  path?: string | undefined;
-  parentKey?: string;
-  ascending?: string;
-  descending?: string;
-  returnType?: string;
-  inversePath?: TTIriRef;
-  minCount?: number;
-  maxCount?: number;
-  nodeRef?: string;
-};
 
 export function usePropertyTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const loading: Ref<boolean> = ref(false);
-  const mode: Ref<Mode> = ref("match");
+  const mode: Ref<ViewMode> = ref(ViewMode.match);
 
-  async function addToTreeFromAny(match: Query, nodes: TreeNode[]) {
-    if (match.and) {
-      for (const [index, any] of match.and.entries()) {
-        if (any.typeOf) {
-          const iri = any.typeOf!.iri!;
-          const nodeShape = await DataModelService.getDataModelProperties(iri, false);
-          const parent = createNode({
-            key: (index + 1).toString(),
-            name: any.node,
-            iri: "features",
-            type: "folder",
-            iconType: IM.FOLDER,
-            typeOf: nodeShape.iri
-          });
-          parent.data.nodeRef = any.node;
-          parent.selectable = false;
-          parent.leaf = false;
-          nodes.push(parent);
-          const propertyList = [] as TreeNode[];
-          if (nodeShape.property && isArrayHasLength(nodeShape.property)) {
-            for (const [index, property] of nodeShape.property.entries()) {
-              if (!isBase(property))
-                propertyList.push(createPropertyNode(parent.key + "_" + index.toString(), property, "", parent.key, nodeShape.iri, any.node));
-            }
-            if (propertyList.length > 0) parent.children = propertyList;
-          }
-        }
-      }
-    }
+  async function createFeatureTree(nodeShape: NodeShape, viewMode: ViewMode): Promise<TreeNode[]> {
+    mode.value = viewMode;
+    const data = ref([] as TreeNode[]);
+    data.value.push(
+      createNode({
+        key: "0",
+        name: "Select features of  " + nodeShape.name,
+        iri: "features",
+        type: "folder",
+        iconType: IM.FOLDER,
+        typeOf: nodeShape.iri
+      })
+    );
+    data.value[0].selectable = false;
+    await createPropertyTree(nodeShape.iri, nodeShape, data.value[0], viewMode);
+    return data.value;
   }
-
-  async function createPropertyTree(iri: string, nodeShape: NodeShape | undefined, parent: TreeNode) {
+  async function createPropertyTree(iri: string, nodeShape: NodeShape | undefined, parent: TreeNode, viewMode: ViewMode) {
+    mode.value = viewMode;
     const parentKey = parent.key;
     if (!nodeShape) nodeShape = await DataModelService.getDataModelProperties(iri, false);
     const propertyList = [] as TreeNode[];
@@ -133,24 +102,6 @@ export function usePropertyTree() {
     });
     typeNode.selectable = true;
     typeList.push(typeNode);
-  }
-
-  async function createFeatureTree(nodeShape: NodeShape, viewMode: Mode): Promise<TreeNode[]> {
-    mode.value = viewMode;
-    const data = ref([] as TreeNode[]);
-    data.value.push(
-      createNode({
-        key: "0",
-        name: "Select features of  " + nodeShape.name,
-        iri: "features",
-        type: "folder",
-        iconType: IM.FOLDER,
-        typeOf: nodeShape.iri
-      })
-    );
-    data.value[0].selectable = false;
-    await createPropertyTree(nodeShape.iri, nodeShape, data.value[0]);
-    return data.value;
   }
 
   function createNode(pNode: PropertyTreeNode): TreeNode {
@@ -233,7 +184,7 @@ export function usePropertyTree() {
     let returnType;
     if (property.clazz) {
       rangeType = property.clazz.type!.iri;
-      if (mode.value === "return") {
+      if (mode.value === ViewMode.return) {
         if (codeable.includes(rangeType)) {
           returnType = IM.CODEABLE;
         }
@@ -275,6 +226,7 @@ export function usePropertyTree() {
     if (returnType) {
       propertyNode.selectable = false;
       propertyNode.leaf = false;
+      delete propertyNode.children;
     }
     return propertyNode;
   }
@@ -309,7 +261,7 @@ export function usePropertyTree() {
     }
     return false;
   }
-  async function expandNode(node: TreeNode, expandMode: Mode) {
+  async function expandNode(node: TreeNode, expandMode: ViewMode) {
     mode.value = expandMode;
     node.loading = true;
     if (node.children && node.children.length > 0) {
@@ -319,15 +271,15 @@ export function usePropertyTree() {
         }
       }
     } else if (node.data.returnType && expandMode === "return") {
-      await createPropertyTree(node.data.returnType, undefined, node);
+      await createPropertyTree(node.data.returnType, undefined, node, expandMode);
     } else if (node.data.range) {
-      await createPropertyTree(node.data.range, undefined, node);
+      await createPropertyTree(node.data.range, undefined, node, expandMode);
     }
     if (node.children) createModeView(node.children, expandMode);
     node.loading = false;
   }
 
-  function createModeView(nodes: TreeNode[], viewMode: Mode) {
+  function createModeView(nodes: TreeNode[], viewMode: ViewMode) {
     return nodes.map(node => {
       if (node.data.returnType) {
         if (viewMode === "return") {
@@ -347,7 +299,10 @@ export function usePropertyTree() {
     expandNode,
     createPropertyTree,
     createModeView,
-    addToTreeFromAny,
+    createGroupNode,
+    createFolderNode,
+    createPropertyNode,
+    createNode,
     createRelatedTypeTree,
     loading
   };

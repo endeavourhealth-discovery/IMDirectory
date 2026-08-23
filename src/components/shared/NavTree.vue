@@ -2,8 +2,8 @@
   <div id="hierarchy-tree-bar-container" class="flex flex-col justify-start">
     <Tree
       v-model:expandedKeys="expandedKeys"
-      :selectionKeys="selectedKeys"
       :loading="loading"
+      :selectionKeys="selectedKeys"
       :value="root"
       class="tree-root"
       selectionMode="single"
@@ -15,8 +15,8 @@
           :class="allowDragAndDrop && 'grabbable'"
           :draggable="allowDragAndDrop"
           class="tree-row"
-          @contextmenu="onNodeContext($event, node)"
           @click="onNodeSelect($event, node, useEmits ? useEmits : false, true)"
+          @contextmenu="onNodeContext($event, node)"
           @dragstart="dragStart($event, node)"
           @mouseleave="hideOverlay"
           @mouseover="displayOverlay($event, node)"
@@ -48,13 +48,10 @@
 <script lang="ts" setup>
 import { Ref, computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
-import { OverlaySummary } from "@endeavour/vue-library/components";
-import { useTree } from "@endeavour/vue-library/composables";
-import { useOverlay } from "@endeavour/vue-library/composables";
-import { IM } from "@endeavour/vue-library/enums";
-import { UserRole } from "@endeavour/vue-library/enums";
-import { byKey, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { IMFontAwesomeIcon, OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay, useTree } from "@endeavour/vue-library/composables";
+import { IM, UserRole } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { SearchResultSummary, type TTIriRef, hasRole, isUser } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
@@ -183,7 +180,6 @@ async function init() {
 async function expandNode(node: TreeNode) {
   await onNodeExpand(node, props.typeFilter);
 }
-
 async function addParentFoldersToRoot() {
   const IMChildren = await EntityService.getEntityChildren(IM.MODULE_IM);
   if (isArrayHasLength(IMChildren)) {
@@ -223,7 +219,7 @@ async function addRootEntitiesToTree() {
       );
     }
   }
-  root.value.sort(byKey);
+  root.value = root.value.sort((a, b) => a.key.localeCompare(b.key));
 }
 
 async function onNodeContext(event: MouseEvent, node: TreeNode) {

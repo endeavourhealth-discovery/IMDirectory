@@ -58,7 +58,7 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
-      <div v-if="query && query.columnGroup">
+      <div v-if="query && query.columnGroup && query.columnGroup.length > 0">
         <span>Output columns </span>
         <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
         <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
@@ -87,7 +87,7 @@ import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type Argument, type Node, NodeSchema, type Query, type QueryRequest, QuerySchema } from "@endeavour/vue-library/models";
+import { type Argument, type Node, type Query, type QueryRequest } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -113,11 +113,13 @@ interface Props {
   queryDefinition?: Query;
   entityType?: string;
   eclQuery?: boolean;
+  viewerDisplayMode?: DisplayMode;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
   navigateTo: [payload: string];
+  updateViewerDisplayMode: [payload: DisplayMode];
 }>();
 
 const showColumns = ref(false);
@@ -169,14 +171,17 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
     case DisplayOptions.RuleView:
       if (displayMode.value != DisplayMode.RULES) query.value = await getQueryDisplay(DisplayMode.RULES);
       displayMode.value = DisplayMode.RULES;
+      emit("updateViewerDisplayMode", DisplayMode.RULES);
       break;
     case DisplayOptions.LogicalView:
       if (displayMode.value != DisplayMode.LOGICAL) query.value = await getQueryDisplay(DisplayMode.LOGICAL);
       displayMode.value = DisplayMode.LOGICAL;
+      emit("updateViewerDisplayMode", DisplayMode.LOGICAL);
       break;
     case DisplayOptions.Original:
       if (displayMode.value != DisplayMode.ORIGINAL) query.value = await getQueryDisplay(DisplayMode.ORIGINAL);
       displayMode.value = DisplayMode.ORIGINAL;
+      emit("updateViewerDisplayMode", DisplayMode.ORIGINAL);
       break;
     case DisplayOptions.MySQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");

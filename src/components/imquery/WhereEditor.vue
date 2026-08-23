@@ -45,11 +45,11 @@
           <BooleanWhereEditor
             v-if="match.where"
             :key="match.where ? match.where.uuid : 'no-where'"
+            v-model:match="match"
             v-model:parent="match"
             v-model:where="match.where"
             :base-type="baseType"
             :index="0"
-            :match="match"
             :parentIndex="0"
             :rootBool="true"
             @deleteWhere="emit('deleteWhere')"
@@ -145,13 +145,13 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, inject, onMounted, ref } from "vue";
+import { inject, onMounted, Ref, ref } from "vue";
 
 import { OrderLimit } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import { type Node, NodeSchema, type NodeShape, OrderLimitSchema, Query, QuerySchema, type When } from "@endeavour/vue-library/models";
+import { type Node, type NodeShape, Query, type When } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";
@@ -159,8 +159,9 @@ import type { TreeNode } from "primevue/treenode";
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
-import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
-import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
+import { usePropertyTree } from "@/composables/usePropertyTree";
+import { ViewMode } from "@/enums/PropertyViewMode";
+import { getOrderable, getOrderOptions } from "@/helpers/QueryEditorMethods";
 import { addFilter, addWhereToWhen, getOrderables, setMandatoryWheres } from "@/helpers/buildQuery";
 import { DataModelService, QueryService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -244,13 +245,13 @@ async function init() {
   loading.value = true;
   if (match.value.typeOf) {
     nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
-    typeNodes.value = await createFeatureTree(nodeShape.value, "match");
+    typeNodes.value = await createFeatureTree(nodeShape.value, ViewMode.match);
   } else {
     nodeShape.value = await DataModelService.getRelatedTypes(props.baseType.iri!);
-    typeNodes.value = await createRelatedTypeTree(nodeShape.value);
+    typeNodes.value = createRelatedTypeTree(nodeShape.value);
   }
 
-  setupTrees(props.datasetEntry ? "return" : "match");
+  setupTrees(ViewMode.match);
   selectedNodeKey.value = {};
   setOrderables();
   loading.value = false;
@@ -261,8 +262,8 @@ async function onNodeSelect(node: any) {
     if (node.data.typeOf) {
       match.value.typeOf = { iri: node.data.typeOf } as Node;
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
-      typeNodes.value = await createFeatureTree(nodeShape.value, "match");
-      setupTrees("match");
+      typeNodes.value = await createFeatureTree(nodeShape.value, ViewMode.match);
+      setupTrees(ViewMode.match);
       if (!expandedKeys.value[typeNodes.value[0].key]) {
         expandedKeys.value[typeNodes.value[0].key] = true;
       }
@@ -283,7 +284,7 @@ function onDeleteWhere() {
   emit("deleteWhere");
 }
 
-function setupTrees(mode: Mode) {
+function setupTrees(mode: ViewMode) {
   createModeView(typeNodes.value, mode);
   if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
 }
@@ -296,7 +297,7 @@ async function onUpdateWhen() {
   emit("updateMatch");
 }
 async function onMatchNodeExpand(node: any) {
-  await expandNode(node, "match");
+  await expandNode(node, ViewMode.match);
 }
 
 async function showInvalid(match: Query) {

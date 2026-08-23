@@ -1,13 +1,20 @@
 <template>
+  <div v-if="match.from">
+    <span class="field">using</span>
+    <span v-for="(fromMatch, index) in match.from">
+      <span v-if="fromMatch.typeOf" class="field"> {{ fromMatch.typeOf.name }}</span>
+      <span v-if="fromMatch.alias" class="field"> {{ fromMatch.alias }}</span>
+    </span>
+  </div>
   <span v-if="match.notExists" class="not">Exclude</span>
-  <div v-if="match.description">
-    <span class="match-description">{{ match.description }} </span>
+  <div v-if="match.name">
+    <span class="match-description">{{ match.name }} </span>
+    <span v-if="match.then && match.then.name">
+      <span class="field">and</span>
+      <span class="match-description">{{ match.then.name }} </span>
+    </span>
     <span>defined as:</span>
   </div>
-  <span v-if="from">
-    <span class="field">and if the above</span>
-    <span v-if="match.from" class="as">({{ match.from }})</span>
-  </span>
 
   <template v-if="match.is">
     <span class="field">in</span>
@@ -70,7 +77,6 @@ interface Props {
   parentMatch?: Query;
   clauseIndex: number;
   parentOperator?: Bool;
-  from?: Query;
   skipThen?: boolean;
 }
 const props = defineProps<Props>();
@@ -121,5 +127,10 @@ function getFormattedPath(path: any): string {
 .match-description {
   color: var(--p-blue-700);
   padding-right: 1rem;
+}
+
+.not {
+  color: var(--p-red-500) !important;
+  padding-right: 0.2rem;
 }
 </style>
