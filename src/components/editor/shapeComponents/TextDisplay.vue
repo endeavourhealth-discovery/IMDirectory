@@ -2,14 +2,14 @@
   <div class="string-single-display-container">
     <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
-      <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
+      <div v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }" class="tooltip-container">
         <InputText
-          disabled
-          class="p-inputtext input-text"
-          :class="invalid && showValidation && 'invalid'"
           v-model="userInput"
-          type="text"
+          :class="invalid && showValidation && 'invalid'"
+          class="p-inputtext input-text"
           data-testid="text-display"
+          disabled
+          type="text"
         />
       </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
@@ -18,13 +18,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Ref, inject, onMounted, ref, watch } from "vue";
 
-import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Argument, ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/interfaces";
+import { isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type Argument, type PropertyShape, type TTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
@@ -34,7 +34,7 @@ import { FunctionService } from "@/services";
 const props = defineProps<{
   shape: PropertyShape;
   mode: EditorMode;
-  value?: string;
+  value?: any;
   position?: number;
 }>();
 
@@ -44,7 +44,7 @@ const emit = defineEmits<{
 
 watch([() => cloneDeep(props.value), () => cloneDeep(props.shape)], async ([newPropsValue, newShapeValue]) => {
   if (newPropsValue && newShapeValue) userInput.value = newPropsValue;
-  else userInput.value = await processPropertyValue(newShapeValue);
+  else userInput.value = String(await processPropertyValue(newShapeValue));
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
@@ -122,7 +122,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  if (props.value) userInput.value = props.value;
+  if (props.value) userInput.value = String(props.value);
   else {
     loading.value = true;
     const result = await processPropertyValue(props.shape);
@@ -141,21 +141,21 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
         const result = await FunctionService.runFunction(property.function!.iri, args);
-        if (result) return result;
+        if (isString(result)) return result;
       } else return "";
     } else {
       const result = await FunctionService.runFunction(property.function!.iri, args);
-      if (result) return result;
+      if (isString(result)) return result;
     }
   } else if (isObjectHasKeys(property, ["function"])) {
     const result = await FunctionService.runFunction(property.function!.iri);
-    if (result && isObjectHasKeys(result, ["iri"])) return result.iri.iri;
+    if (result && isObjectHasKeys(result, ["iri"]) && isTTIriRef(result.iri)) return result.iri.iri;
   }
   return "";
 }
 
 function updateEntity(data: string) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

@@ -1,8 +1,8 @@
 <template>
   <div class="horizontal-row-container">
     <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
-    <div v-for="(component, index) in components" class="component-container" :style="'width:' + widths[index]" v-bind:key="index">
-      <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
+    <div v-for="(component, index) in components" v-bind:key="index" :style="'width:' + widths[index]" class="component-container">
+      <component :is="processComponentType(component.componentType)" :mode="mode" :shape="component" :value="processEntityValue(component)" />
     </div>
   </div>
 </template>
@@ -19,11 +19,11 @@ export default defineComponent({
 });
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Ref, inject, onMounted, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";

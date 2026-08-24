@@ -15,6 +15,7 @@ export enum ComponentType {
   HTML_INPUT = "HtmlInput",
   TEXT_DISPLAY = "TextDisplay",
   TEXT_INPUT = "TextInput",
+  NUMBER_INPUT = "NumberInput",
   ENTITY_SEARCH = "EntitySearch",
   BUILDER_CHILD_WRAPPER = "BuilderChildWrapper",
   ENTITY_AUTO_COMPLETE = "EntityAutoComplete",
@@ -35,5 +36,6 @@ export enum ComponentType {
   IRI_BUILDER = "IriBuilder",
   AUTOCOMPLETE_SEARCH_BAR_WRAPPER = "AutocompleteSearchBarWrapper",
   SUBSET_BUILDER = "SubsetBuilder",
-  CHECKBOX_DISPLAY = "CheckboxDisplay"
+  CHECKBOX_DISPLAY = "CheckboxDisplay",
+  MAP_ENTRY_BUILDER = "MapEntryBuilder"
 }

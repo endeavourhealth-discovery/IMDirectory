@@ -1,33 +1,37 @@
 import { NAMESPACE } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, GenericObject, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { GenericObject, GenericObjectSchema, Node, TTEntity, TTEntitySchema, TTIriRef, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
-export function transformTT(ttEntity: ExtendedTTEntity, map?: GenericObject) {
-  if (!isObjectHasKeys(ttEntity)) return {} as ExtendedTTEntity;
+import { isString } from "lodash-es";
+
+export function transformTT(ttEntity: TTEntity, map?: GenericObject) {
+  if (!isObjectHasKeys(ttEntity)) return {} as TTEntity;
   ttEntity = transformIris(ttEntity);
   transformObjectRecursively(ttEntity, map);
   return ttEntity;
 }
 
-function transformObjectRecursively(ttEntity: ExtendedTTEntity, map?: GenericObject) {
+function transformObjectRecursively(ttEntity: TTEntity, map?: GenericObject) {
   for (const key of Object.keys(ttEntity)) {
     if (key.startsWith("http")) {
       const property = isObjectHasKeys(map, [key]) ? map?.[key] : getNameFromIri(key);
-      ttEntity[property] = ttEntity[key];
-      delete ttEntity[key];
+      if (typeof property === "string") {
+        ttEntity[property] = ttEntity[key];
+        delete ttEntity[key];
 
-      if (isArrayHasLength(ttEntity[property])) {
-        for (const nestedEntity of ttEntity[property]) {
-          transformObjectRecursively(nestedEntity, map);
+        if (isArrayOf(ttEntity[property], isTTEntity)) {
+          for (const nestedEntity of ttEntity[property]) {
+            transformObjectRecursively(nestedEntity, map);
+          }
+        } else if (isTTEntity(ttEntity[property])) {
+          transformObjectRecursively(ttEntity[property], map);
         }
-      } else if (isObjectHasKeys(ttEntity[property])) {
-        transformObjectRecursively(ttEntity[property], map);
       }
     }
   }
 }
 
-function transformIris(ttEntity: ExtendedTTEntity) {
+function transformIris(ttEntity: TTEntity) {
   const regex = /iri/gm;
   const stringEntity = JSON.stringify(ttEntity);
   return JSON.parse(stringEntity.replace(regex, "iri"));
@@ -53,17 +57,17 @@ export function getNameListFromIriList(iris: TTIriRef[]): string {
   return result.join(", ");
 }
 
-export function getNameFromRef(ref: GenericObject): string {
-  if (ref.name && isObjectHasKeys(ref, ["name"])) return ref.name;
-  else if (ref.iri && isObjectHasKeys(ref, ["iri"])) return getNameFromIri(ref.iri);
-  else if (isObjectHasKeys(ref, ["typeOf"])) return getNameFromIri(ref["typeOf"].iri);
-  else if (isObjectHasKeys(ref, ["parameter"])) return ref["parameter"];
+export function getNameFromRef(ref: Node): string {
+  if (isString(ref.name)) return ref.name;
+  else if (isString(ref.iri)) return getNameFromIri(ref.iri);
+  // else if (isTTIriRef(ref.typeOf) && isTTIriRef(ref["typeOf"])) return getNameFromIri(ref["typeOf"].iri);
+  else if (isString(ref.parameter)) return ref.parameter;
   return "";
 }
 
 export function resolveIri(iri: string) {
   if (!iri) return undefined;
-  const prefixes: GenericObject = { im: NAMESPACE.IM, sn: NAMESPACE.SNOMED };
+  const prefixes = { im: NAMESPACE.IM, sn: NAMESPACE.SNOMED } as GenericObject;
   if (iri.includes("#") || iri.includes("urn:uuid:")) {
     return iri;
   } else if (iri.includes(":")) {

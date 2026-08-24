@@ -1,44 +1,56 @@
+import { useUserStore } from "@endeavour/vue-library";
 import { UserRole } from "@endeavour/vue-library/enums";
-import { User } from "@endeavour/vue-library/models";
+import { parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
+import { User, UserSchema } from "@endeavour/vue-library/models";
 
-import axios from "axios";
+import z from "zod";
 
 import Env from "./Env";
+import api from "./api";
 
 const API_URL = Env.API + "api/security";
 
 const SecurityService = {
   async getRegisterUrl(redirectUrl?: string): Promise<string> {
     if (!redirectUrl) redirectUrl = Env.DIRECTORY_URL + "callback";
-    return await axios.get(API_URL + "/public/registerUrl", { params: { redirectUrl: redirectUrl } });
+    return await api.get(API_URL + "/public/registerUrl", { params: { redirectUrl: redirectUrl } });
   },
 
   async getLoginUrl(redirectUrl?: string): Promise<string> {
     if (!redirectUrl) redirectUrl = Env.DIRECTORY_URL + "callback";
-    return await axios.get(API_URL + "/public/loginUrl", { params: { redirectUrl: redirectUrl } });
+    return await api.get(API_URL + "/public/loginUrl", { params: { redirectUrl: redirectUrl } });
   },
 
   async login(code: string, state: string): Promise<{ user: User; state: string | undefined }> {
-    return await axios.get(API_URL + "/public/login", { params: { code: code, state: state } });
+    try {
+      return await api.get(API_URL + "/public/login", { params: { code: code, state: state } });
+    } catch (e) {
+      await this.logout();
+      throw e;
+    }
   },
 
   async logout() {
-    await axios.get(API_URL + "/private/logout");
+    await api.get(API_URL + "/private/logout");
+    const userStore = useUserStore();
+    userStore.updateCurrentUser(undefined);
   },
   async adminGetUsersByGroup(group: UserRole): Promise<User[]> {
-    return await axios.get(API_URL + "/private/getUsersInGroup", { params: { group: group } });
+    const result = await api.get(API_URL + "/private/getUsersInGroup", { params: { group: group } });
+    return parseApiResponse(result, z.array(UserSchema));
   },
   async adminGetGroups(): Promise<UserRole[]> {
-    return await axios.get(API_URL + "/private/getGroups");
+    return await api.get(API_URL + "/private/getGroups");
   },
 
   async getUser(raw?: boolean): Promise<User> {
-    const user: any = await axios.get(API_URL + "/private/user", { raw: raw });
-    return user.data ? user.data : user;
+    const user = await api.get(API_URL + "/private/user", { raw: raw });
+    const result = user.data ? user.data : user;
+    return parseApiResponse(result, UserSchema);
   },
 
   async getProfileUrl(): Promise<string> {
-    return await axios.get(API_URL + "/private/user/profileUrl");
+    return await api.get(API_URL + "/private/user/profileUrl");
   }
 };
 

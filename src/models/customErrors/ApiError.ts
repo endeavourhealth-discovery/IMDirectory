@@ -1,6 +1,6 @@
 import { dateNow, timeNow } from "@endeavour/vue-library/helpers";
 
-export default class ApiError extends Error {
+export class ApiError extends Error {
   status: number;
   timestamp: string;
   debugMessage?: string;

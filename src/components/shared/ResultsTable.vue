@@ -104,15 +104,7 @@ import { useOverlay } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@endeavour/vue-library/helpers";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import {
-  DownloadByQueryOptions,
-  ECLQueryRequest,
-  ExtendedSearchResultSummary,
-  QueryRequest,
-  SearchResponse,
-  SearchResultSummary
-} from "@endeavour/vue-library/interfaces";
-import type { FilterOptions, Namespace } from "@endeavour/vue-library/interfaces";
+import { PageSchema, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -125,7 +117,8 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { DownloadSettings, SearchOptions } from "@/interfaces";
+import type { DownloadByQueryOptions, DownloadByQueryOptionsSchema, ECLQueryRequest, ExtendedSearchResultSummary, FilterOptions, Namespace } from "@/models";
+import { DownloadSettings, SearchOptions } from "@/models";
 import { EclService, EntityService, QueryService, UserService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 
@@ -268,14 +261,14 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
   } else if (props.searchTerm && props.searchTerm.length > 2) {
     if (props.imQuery) {
       props.imQuery.textSearch = props.searchTerm;
-      props.imQuery.page = { pageNumber: pageNumber, pageSize: pageSize };
+      props.imQuery.page = PageSchema.parse({ pageNumber: pageNumber, pageSize: pageSize });
       props.imQuery.textSearchStyle = searchStyle;
       if (offset) props.imQuery.page.offset = offset;
       response = await QueryService.queryIMSearch(props.imQuery);
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
-      searchOptions.page = { pageNumber: pageNumber, pageSize: pageSize };
+      searchOptions.page = PageSchema.parse({ pageNumber: pageNumber, pageSize: pageSize });
       if (offset) searchOptions.page.offset = offset;
       const imQuery = buildIMQueryFromFilters(searchOptions);
       imQuery.textSearchStyle = searchStyle;
@@ -305,8 +298,8 @@ function processSearchResults(searchResponse: SearchResponse | undefined): void 
   if (searchResponse?.entities && isArrayHasLength(searchResponse.entities)) {
     //if (searchResults.value && searchResults.value.length) addSearchResults(searchResponse);
     searchResults.value = mapSearchResults(searchResponse);
-    if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.count ?? 0;
-    if (searchResponse.count) total.value = searchResponse.count;
+    if (searchResponse.page && searchResponse.page == 1) totalCount.value = searchResponse.totalCount ?? 0;
+    if (searchResponse.size) total.value = searchResponse.size;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
@@ -334,7 +327,7 @@ function addSearchResults(searchResponse: SearchResponse | undefined) {
         searchResults.value.push(copy);
       }
     }
-    totalCount.value = searchResponse.count ?? 0;
+    totalCount.value = searchResponse.totalCount ?? 0;
     highestUsage.value = searchResponse.highestUsage ?? 0;
   }
 }
@@ -370,7 +363,10 @@ async function onRowSelect(event: DataTableRowSelectEvent<ExtendedSearchResultSu
     await directService.view(event.data.iri);
   } else {
     const found = searchResults.value.find(result => event.data.iri === result.iri);
-    if (found) emit("rowSelected", found);
+    if (found) {
+      await hideOverlay();
+      emit("rowSelected", found);
+    }
   }
 }
 
@@ -384,27 +380,27 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   if (props.eclQuery) {
     eclSearchRequest = cloneDeep(props.eclQuery);
     eclSearchRequest.page = 1;
-    eclSearchRequest.size = totalCount.value;
+    eclSearchRequest.size = props.pageSize;
   }
   if (props.searchTerm && props.searchTerm.length > 2) {
     if (props.imQuery) {
       downloadQuery = cloneDeep(props.imQuery);
       downloadQuery.textSearch = props.searchTerm;
-      downloadQuery.page = { pageNumber: 1, pageSize: totalCount.value };
+      downloadQuery.page = PageSchema.parse({ pageNumber: 1, pageSize: total.value });
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
-      searchOptions.page = { pageNumber: 1, pageSize: totalCount.value };
+      searchOptions.page = PageSchema.parse({ pageNumber: 1, pageSize: total.value });
       downloadQuery = buildIMQueryFromFilters(searchOptions);
     }
   }
   if (downloadQuery || eclSearchRequest) {
-    const options: DownloadByQueryOptions = {
+    const options = {
       queryRequest: downloadQuery,
       eclSearchRequest: eclSearchRequest,
       totalCount: totalCount.value,
       format: downloadSettings.selectedFormat
-    };
+    } as DownloadByQueryOptions;
     const result = await EntityService.downloadSearchResults(options);
     if (result) downloadFile(result, "search-results-" + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + downloadSettings.selectedFormat);
   }

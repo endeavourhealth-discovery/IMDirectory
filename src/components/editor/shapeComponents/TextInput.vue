@@ -5,23 +5,23 @@
       <span v-if="showRequired" class="required">*</span>
     </div>
     <InputText
-      class="p-inputtext-lg input-text"
-      :class="invalid && showValidation && 'invalid'"
       v-model="userInput"
+      v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }"
+      :class="invalid && showValidation && 'invalid'"
+      class="p-inputtext-lg input-text"
+      data-testid="text-input"
       type="text"
       @drop.prevent
       @dragover.prevent
-      v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }"
-      data-testid="text-input"
     />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import type { ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape, TTEntity } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -31,7 +31,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 interface Props {
   shape: PropertyShape;
   mode: EditorMode;
-  value?: string;
+  value?: any;
   position?: number;
 }
 
@@ -94,7 +94,7 @@ const userInput = ref("");
 const showValidation = ref(true);
 
 onMounted(() => {
-  if (props.value) userInput.value = props.value;
+  if (props.value) userInput.value = props.value as string;
 });
 watch(
   () => props.value,
@@ -117,7 +117,7 @@ watch(userInput, async newValue => {
 });
 
 function updateEntity(data: string) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

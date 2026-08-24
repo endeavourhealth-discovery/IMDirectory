@@ -1,57 +1,85 @@
-import { Bool, IM, RDF, RuleAction, SHACL } from "@endeavour/vue-library/enums";
+import { Ref } from "vue";
+
+import { NodeSchema, Operator, QuerySchema, WhereSchema } from "@endeavour/vue-library";
+import { Bool, IM, Order, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type {
-  HasPaths,
-  Having,
-  Match,
-  Node,
-  NodeShape,
-  Orderable,
-  Path,
-  PropertyRange,
-  Query,
-  QueryRequest,
-  Return,
-  SearchBinding,
-  Where
-} from "@endeavour/vue-library/interfaces";
+import type { Node, NodeShape, Path, PropertyRange, Query, QueryRequest, Return, When, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
-import { SearchOptions } from "@/interfaces";
-import { DataModelService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
+import { Relativity } from "@/enums";
+import { Orderable, SearchBinding, SearchOptions, SemanticMap } from "@/models";
+import { DataModelService, QueryService } from "@/services";
+
+interface Options {
+  value: string;
+  label?: string;
+  tooltip?: string;
+  name?: string;
+}
 
 export function buildIMQueryFromFilters(filterOptions: SearchOptions): QueryRequest {
-  const imQuery: QueryRequest = { query: {} };
-  if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
-  if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
-  if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery.query);
-  if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery.query);
+  const imQuery = { query: {} } as QueryRequest;
+  if (imQuery.query) {
+    if (isArrayHasLength(filterOptions.status)) addFilterToIMQuery(IM.HAS_STATUS, filterOptions.status, imQuery.query);
+    if (isArrayHasLength(filterOptions.types)) addFilterToIMQuery(RDF.TYPE, filterOptions.types, imQuery.query);
+    if (isArrayHasLength(filterOptions.schemes)) addFilterToIMQuery(IM.HAS_SCHEME, filterOptions.schemes, imQuery.query);
+    if (isArrayHasLength(filterOptions.isA)) addFilterToIMQuery(IM.IS_A, filterOptions.isA!, imQuery.query);
+  }
   if (isArrayHasLength(filterOptions.binding)) addBindingsToIMQuery(filterOptions.binding!, imQuery);
   if (filterOptions.page) imQuery.page = filterOptions.page;
   if (filterOptions.textSearch) imQuery.textSearch = filterOptions.textSearch;
   return imQuery;
 }
 
-export async function setReturn(match: Match, keepAs: string) {
-  const dialogStore = useDialogStore();
-  if (keepAs === "") {
-    if (match.return) {
-      await dialogStore.open(AlertDialog, {
-        props: { modal: true, style: { width: "30vw" }, closable: false },
-        data: {
-          icon: "fa-regular fa-circle-exclamation",
-          title: "Warning",
-          text: "You have already added properties to the output. Cannot remove label",
-          confirmButtonText: "Close"
-        }
-      });
-    } else delete match.node;
-  } else match.node = keepAs;
+export function getOperatorOptions(valueType: string): Options[] {
+  const options: Options[] = [];
+  if (valueType != XSD.STRING) {
+    options.push({
+      label: "equal to",
+      value: Operator.eq,
+      tooltip: "exactly equal to value"
+    });
+    options.push({
+      label: "greater or equal to",
+      value: Operator.gte,
+      tooltip: "inclusive of value"
+    });
+    options.push({
+      label: "less than or equal to",
+      value: Operator.lte,
+      tooltip: "inclusive of value"
+    });
+    options.push({
+      label: "greater than",
+      value: Operator.gt,
+      tooltip: "exclusive of value"
+    });
+    options.push({
+      label: "less than",
+      value: Operator.lt,
+      tooltip: "exclusive of value"
+    });
+  } else {
+    options.push({ label: "is", value: Operator.eq });
+    options.push({ label: "starts with", value: Operator.start });
+    options.push({ label: "contains", value: Operator.contains });
+    options.push({ value: Operator.notNull, label: "is recorded" });
+    options.push({ value: Operator.isNull, name: "is not recorded" });
+  }
+  return options;
+}
+
+export function getCompareOptions(valueType: string): Options[] {
+  const options = [];
+  options.push({ label: "Compare to another value", value: Relativity.Compare });
+  if (valueType != XSD.STRING) {
+    options.push({ label: "Compare with offset from another value", value: Relativity.Relative });
+  }
+  options.push({ label: "Compare with fixed value", value: Relativity.Absolute });
+  return options;
 }
 
 export function checkGroupChange(e: any, parentGroup: number[], index: number) {
@@ -67,24 +95,24 @@ export function checkGroupChange(e: any, parentGroup: number[], index: number) {
   parentGroup.sort((a, b) => a - b);
 }
 
-function addFilterToIMQuery(predicate: string, values: any[], query: Query) {
-  if (!query.where) query.where = {};
+function addFilterToIMQuery(predicate: string, values: unknown[], query: Query) {
+  if (!query.where) query.where = WhereSchema.parse({});
   if (!query.where.and) query.where.and = [];
-  const where: Where = {
+  const where: Where = WhereSchema.parse({
     iri: predicate,
-    is: values.map(item => item as Node)
-  };
+    is: values.map(item => NodeSchema.parse(item))
+  });
   query.where.and.push(where);
 }
 
-export function updateFocusConcepts(match: Match): string[] {
-  if (match.is && match.is[0].iri) return [match.is[0].iri];
+export function updateFocusConcepts(match: Query): string[] {
+  if (match.is && match.is.iri) return [match.is.iri];
   const focusConcepts: string[] = [];
   focusConcepts.push(...focusChildren(match.or));
   focusConcepts.push(...focusChildren(match.and));
   return focusConcepts;
 }
-function focusChildren(children: Match[] | undefined): string[] {
+function focusChildren(children: Query[] | undefined): string[] {
   const focusConcepts: string[] = [];
   if (children) {
     for (const item of children) {
@@ -94,7 +122,7 @@ function focusChildren(children: Match[] | undefined): string[] {
   return focusConcepts;
 }
 
-export function removeSubgroup(clause: Match | Where, parent: Match | Where, index: number) {
+export function removeSubgroup(clause: any, parent: Query | Where, index: number) {
   if (parent.or) {
     parent.or.splice(index, 1);
     if (clause.and) {
@@ -109,9 +137,9 @@ export function removeSubgroup(clause: Match | Where, parent: Match | Where, ind
   }
 }
 
-export function createNewBoolGroup(clause: Match | Where, group: number[]) {
+export function createNewBoolGroup(clause: any, group: number[]) {
   group.sort((a, b) => a - b);
-  const newClause: Where = {};
+  const newClause = WhereSchema.parse({});
   if (clause.and) {
     newClause.or = [];
     group.forEach(index => {
@@ -138,9 +166,9 @@ export function createNewBoolGroup(clause: Match | Where, group: number[]) {
   }
 }
 
-export function addConceptToGroup(match: Match) {
-  if (match.or) match.or.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
-  else if (match.and) match.and.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
+export function addConceptToGroup(match: Query) {
+  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   else {
     const subMatch = cloneDeep(match);
     delete match.is;
@@ -148,43 +176,65 @@ export function addConceptToGroup(match: Match) {
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push({ uuid: v4(), is: [{ descendantsOrSelfOf: true }] });
+    match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
   }
 }
 
-export function updateBooleans(clause: Match | Where, from: Bool, to: Bool) {
+export function updateBooleans(clause: Query | Where, from: Bool, to: Bool) {
   if (from === to) return;
   if (from === Bool.and) {
     clause.or = (clause as Where).and;
-    delete (clause as Where).and;
+    (clause as Where).and = [];
   } else if (from === Bool.or) {
     clause.and = clause.or;
-    delete clause.or;
+    clause.or = [];
   }
 }
 
 export function getDisplayOperator(parentOperator: Bool | undefined, clauseIndex: number): string | undefined {
   if (!parentOperator) return undefined;
-  if (parentOperator != Bool.or) {
+  if (parentOperator === Bool.or) {
+    if (clauseIndex === 0) return "Either";
+    else return "or" as string;
+  }
+  if (parentOperator == Bool.and) {
     if (clauseIndex > 0) {
-      return parentOperator as string;
+      return "and";
     } else return "";
-  } else if (clauseIndex === 0) return "Either";
-  else return parentOperator as string;
+  } else return "";
 }
 
-export function getBooleanOperator(clauseType: string, clause: Match | Where | undefined): Bool | undefined {
+export function getBooleanOperator(clauseType: string, clause: Query | Where | undefined): Bool | undefined {
   if (!clause) return undefined;
   if (clause.and) return Bool.and;
   if (clause.or) return Bool.or;
-  else if ((clause as Match).rule) return Bool.rule;
+  else if ((clause as Query).rule) return Bool.rule;
+  else if ((clause as Query).each) return Bool.each;
   else return undefined;
 }
-export function getBoolGroup(clauseType: string, clause: Match | Where | undefined): Match[] | Where[] | undefined {
+
+export function getMatchFromNodeRef(match: Query, nodeRef: string): Query | undefined {
+  if (!match) return undefined;
+  if (match.node === nodeRef) return match;
+  for (const op of ["and", "or", "each"]) {
+    const operator = op as keyof Query;
+    if (match[operator]) {
+      for (const any of match[operator]) {
+        const testMatch = getMatchFromNodeRef(any, nodeRef);
+        if (testMatch) return testMatch;
+      }
+    }
+  }
+  if (match.then) return getMatchFromNodeRef(match.then, nodeRef);
+  return undefined;
+}
+
+export function getBoolGroup(clauseType: string, clause: Query | Where | undefined): any[] | undefined {
   if (!clause) return undefined;
   if (clause.or) return clause.or;
   if (clause.and) return clause.and;
-  if ((clause as Match).rule) return (clause as Match).rule;
+  if ((clause as Query).rule) return (clause as Query).rule;
+  if ((clause as Query).each) return (clause as Query).each;
   else return undefined;
 }
 
@@ -207,7 +257,7 @@ export function getBooleanLabel(clauseType: string, operator: Bool, index: numbe
   return "";
 }
 
-export function getIsRoleGroup(clause: Where | undefined | Match): boolean {
+export function getIsRoleGroup(clause: Where | undefined | Query): boolean {
   if (!clause) return false;
   const where = clause as Where;
   return !!where.roleGroup;
@@ -234,43 +284,7 @@ function removeRoleSubgroups(where: Where): void {
     removeRoleSubgroups(item);
   }
 }
-
-export function deleteGroupFromQuery(query: Query, index: number) {
-  query.columnGroup!.splice(index, 1);
-}
-
-export function deletePropertyFromParent(match: Match, parentWhere: Where, index: number) {
-  if (parentWhere) {
-    for (const key of ["and", "or"] as const) {
-      if (parentWhere[key]) {
-        parentWhere[key]!.splice(index, 1);
-      }
-    }
-  } else {
-    delete match.where;
-  }
-}
-
-export function hasWhere(match: Match, whereToFind: Where): boolean {
-  if (match.where) {
-    return hasWhereInWhere(match.where, whereToFind);
-  } else return false;
-}
-
-function hasWhereInWhere(where: Where, whereToFind: Where): boolean {
-  if (where.iri) {
-    if (where.iri === whereToFind.iri) return true;
-  }
-  const subWheres = where.and || where.or;
-  if (subWheres) {
-    for (const subWhere of subWheres) {
-      if (hasWhereInWhere(subWhere, whereToFind)) return true;
-    }
-  }
-  return false;
-}
-
-export function addWhereToMatch(match: Match, where: Where, index?: number) {
+export function addWhereToMatch(match: Query, where: Where, index?: number) {
   if (match.where) {
     if (!match.where.and) {
       const currentWhere = match.where;
@@ -282,25 +296,47 @@ export function addWhereToMatch(match: Match, where: Where, index?: number) {
   } else match.where = where;
 }
 
-export function addWhereToThen(match: Match, where: Where) {
-  if (match.then && !match.then.and && !match.then.or && !match.then.iri) {
-    match.then = where;
+export function addWhereToThen(match: Query, where: Where) {
+  if (match.then && !match.then.where) {
+    match.then.where = where;
     return;
   }
-  if (match.then) {
-    if (!match.then.and && !match.then.or) {
-      const currentWhere = match.then;
-      match.then = {} as Where;
-      match.then.and = [currentWhere];
-      match.then.and.push(where);
-    } else if (match.then.and) {
-      match.then.and.push(where);
-    } else if (match.then.or) {
-      match.then.or.push(where);
+  if (match.then && match.then.where) {
+    if (!match.then.where.and && !match.then.where.or) {
+      const currentWhere = match.then.where;
+      match.then.where = {} as Where;
+      match.then.where.and = [currentWhere];
+      match.then.where.and.push(where);
+    } else if (match.then.where.and) {
+      match.then.where.and.push(where);
+    } else if (match.then.where.or) {
+      match.then.where.or.push(where);
     }
-  } else match.then = where;
+  } else {
+    if (match.then) match.then.where = where;
+    else {
+      match.then = QuerySchema.parse({ where: where });
+    }
+  }
 }
-export function getPathPropertyNames(pathable: Match | Path, where: Where): string | undefined {
+export async function getSemanticMapOptions(match: Query, baseType: Node, column: Return): Promise<any[] | undefined> {
+  let mappableMatch = match;
+  if (!match.typeOf) {
+    mappableMatch = cloneDeep(match);
+    mappableMatch.typeOf = { iri: baseType.iri };
+  }
+  const maps = await QueryService.getSemanticMaps(mappableMatch, column);
+  if (!maps) return undefined;
+  const options = [];
+  for (const map of maps) {
+    options.push({
+      iri: map.iri,
+      name: map[RDFS.LABEL]
+    });
+  }
+  return options;
+}
+export function getPathPropertyNames(pathable: Query | Path, where: Where): string | undefined {
   if (!where.nodeRef) return where.name;
   if (pathable.path) {
     for (const path of pathable.path) {
@@ -311,7 +347,31 @@ export function getPathPropertyNames(pathable: Match | Path, where: Where): stri
   }
   return undefined;
 }
-export function getPathName(pathable: Match | Path, nodeRef: string | undefined): string | undefined {
+
+export function getPathNameFromPropertyRef(match: Query, nodeRef: string, propertyRef: string) {
+  const returnMatch = getMatchFromNodeRef(match, nodeRef);
+  if (!returnMatch) return undefined;
+  if (returnMatch.return) {
+    for (const ret of returnMatch.return) {
+      if ((ret.as = propertyRef)) {
+        if (ret.nodeRef) {
+          const pathName = getPathName(returnMatch, ret.nodeRef);
+          if (pathName) return pathName;
+        }
+      }
+    }
+  }
+}
+export function getPathNameFromMatch(match: Query, nodeRef: string): string | undefined {
+  const pathName = getPathName(match, nodeRef);
+  if (pathName) return pathName;
+  if (match.and) {
+    for (const any of match.and) {
+      if (any.node === nodeRef) return any.node + "->";
+    }
+  }
+}
+export function getPathName(pathable: Query | Path, nodeRef: string | undefined): string | undefined {
   if (!pathable.path) return undefined;
   if (!nodeRef) return undefined;
   for (const path of pathable.path) {
@@ -321,25 +381,29 @@ export function getPathName(pathable: Match | Path, nodeRef: string | undefined)
   }
 }
 
-export function getRuleAction(match: Match): string {
+export function getRuleAction(match: Query): string {
   if (match.ifTrue) {
     return (match.ifTrue + match.ifFalse).toLowerCase();
   }
   return "nextreject";
 }
 
-export function addMatchToParent(parent: Match, match: Match) {
+export function addMatchToParent(parent: Query, match: Query, defaultOperator?: Bool) {
   const matches = parent.rule || parent.and || parent.or;
   if (matches) matches.push(match);
   else if (parent.is) {
     parent.and = [];
-    const isMatch = { uuid: v4(), is: parent.is } as Match;
+    const isMatch = { uuid: v4(), is: parent.is } as Query;
     parent.and.push(isMatch);
     parent.and.push(match);
     delete parent.is;
+  } else {
+    const bool = defaultOperator ? defaultOperator : Bool.and;
+    parent[bool] = [];
+    parent[bool].push(match);
   }
 }
-export function setRuleAction(match: Match, ruleAction: string) {
+export function setRuleAction(match: Query, ruleAction: string) {
   switch (ruleAction) {
     case "selectnext": {
       match.ifTrue = RuleAction.SELECT;
@@ -372,14 +436,6 @@ export function setRuleAction(match: Match, ruleAction: string) {
       break;
     }
   }
-}
-
-export function getHavingText(having: Having): string {
-  let text = "";
-  if (having.aggregate) {
-    text = "if " + having.aggregate + " ";
-  }
-  return text;
 }
 export function getRuleActionLabel(value: string): string {
   const match = getRuleActionOptions().find(item => item.value === value);
@@ -438,9 +494,9 @@ export function getExclusionOptions(): any[] {
   return options;
 }
 
-export function getBooleanOptions(clauseType: string, index: number, standardQuery?: boolean, hasSubgroups?: boolean): any[] {
-  const andLabel = getBooleanLabel(clauseType, Bool.and, index, standardQuery, hasSubgroups);
-  const orLabel = getBooleanLabel(clauseType, Bool.or, index, standardQuery, hasSubgroups);
+export function getBooleanOptions(clauseType: string, index: number, eclQuery?: boolean, hasSubgroups?: boolean): any[] {
+  const andLabel = getBooleanLabel(clauseType, Bool.and, index, eclQuery, hasSubgroups);
+  const orLabel = getBooleanLabel(clauseType, Bool.or, index, eclQuery, hasSubgroups);
   const options = [];
 
   options.push({
@@ -453,6 +509,13 @@ export function getBooleanOptions(clauseType: string, index: number, standardQue
     value: "or",
     tooltip: "At least one of this group must be true"
   });
+  if (clauseType === "Match") {
+    options.push({
+      label: "Process all of the following",
+      value: "each",
+      tooltip: "The clauses will be processed independently so results can be accessed later"
+    });
+  }
   if (index > 0) {
     options.push({
       label: "Exclude",
@@ -464,14 +527,6 @@ export function getBooleanOptions(clauseType: string, index: number, standardQue
   return options;
 }
 
-export function isGroupable(rootBool?: boolean, parentClause?: Match | Where, parentOperator?: Bool): boolean {
-  if (parentOperator && parentOperator === Bool.rule) return false;
-  if (parentClause && !rootBool && parentOperator) {
-    const parentGroup = (parentClause[parentOperator as keyof (Match | Where)] as Match[]) || [];
-    return parentGroup.length > 2;
-  }
-  return false;
-}
 export function getConstraintOperator(constrainer: Node | Where) {
   if (constrainer.descendantsOrSelfOf) return "<<";
   if (constrainer.descendantsOf) return "<";
@@ -485,50 +540,43 @@ export function setConstraintOperator(constrainer: Node | Where, valueConstraint
     case "<<":
     case "descendantsOrSelfOf":
       constrainer.descendantsOrSelfOf = true;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case "<":
     case "descendantsOf":
       constrainer.descendantsOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.memberOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.memberOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case "^":
     case "memberOf":
       constrainer.memberOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.ancestorsOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.ancestorsOf = false;
       break;
     case ">>":
     case "ancestorsOrSelfOf":
       constrainer.ancestorsOf = true;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
       break;
     default:
-      delete constrainer.ancestorsOf;
-      delete constrainer.descendantsOrSelfOf;
-      delete constrainer.descendantsOf;
-      delete constrainer.memberOf;
-  }
-}
-export function addRefinementToGroup(where: Where) {
-  if (where.or) {
-    where.or.push({ uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where);
-  } else if (where.and) {
-    where.and.push({ uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where);
+      constrainer.ancestorsOf = false;
+      constrainer.descendantsOrSelfOf = false;
+      constrainer.descendantsOf = false;
+      constrainer.memberOf = false;
   }
 }
 
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
-  if (!isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
+  if (imQuery.query && !isArrayHasLength(imQuery.query.and)) imQuery.query.and = [];
   for (const searchBinding of searchBindings) {
-    const match: Match = {
+    const match = {
       path: [
         {
           iri: IM.BINDING
@@ -546,25 +594,40 @@ export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: Q
           }
         ]
       }
-    };
-    imQuery.query.and!.push(match);
+    } as Query;
+    imQuery.query?.and?.push(match);
   }
 }
 
-export function createNodeVariable(match: Match, index: number): string {
-  let nodeVariable = "";
-  if (match.path) nodeVariable = match.path[0]!.typeOf!.name!.replace(" ", "");
-  else nodeVariable = "Match";
-  return nodeVariable + (index > 0 ? "_" + index : "");
+export async function setMandatoryWheres(match: Query): Promise<void> {
+  if (match.typeOf) {
+    await setMandatoryWheresFromType(match, match.typeOf.iri!, undefined);
+  }
+  await setMandatoryWheresFromPath(match, match);
 }
 
-export function setDefiningProperty(match: Match, nodeShape: NodeShape): void {
+export async function setMandatoryWheresFromPath(match: Query, pathable: Query | Path) {
+  if (pathable.path) {
+    for (const path of pathable.path) {
+      if (path.typeOf) {
+        await setMandatoryWheresFromType(match, path.typeOf.iri!, path.node);
+      }
+      if (path.path) await setMandatoryWheresFromPath(match, path);
+    }
+  }
+}
+
+async function setMandatoryWheresFromType(match: Query, typeIri: string, nodeRef?: string) {
+  const nodeShape = await DataModelService.getDataModelProperties(typeIri, false);
+  if (!nodeShape) return;
   if (nodeShape.definingProperty) {
-    if (!hasProperty(match.where, nodeShape.definingProperty.iri)) {
-      const propertyShape = nodeShape.property?.find(property => property.path.iri === nodeShape.definingProperty!.iri);
-      if (propertyShape) {
-        const where = createWhere(propertyShape.path.iri, propertyShape.clazz, undefined);
-        addWhereToMatch(match, where);
+    const definingProperty = nodeShape.definingProperty.iri;
+    for (const propertyShape of nodeShape.property!) {
+      if (propertyShape.path.iri === definingProperty) {
+        if (!hasProperty(match.where, propertyShape.path.iri)) {
+          const where = createWhere(propertyShape.path.iri, propertyShape.clazz, nodeRef);
+          addWhereToMatch(match, where);
+        }
       }
     }
   }
@@ -578,32 +641,40 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Match, baseType: Node): string {
+export function getTypeIriFromMatch(match: Query, baseType: Node, nodeRef?: string): string {
+  if (nodeRef) {
+    const typeOf = getTypeIriFromNodeRef(match, nodeRef);
+    if (typeOf) return typeOf;
+    else return baseType.iri!;
+  }
   if (match.typeOf) return match.typeOf.iri!;
   else return baseType.iri!;
 }
 
-export function addReturn(match: Match, node: TreeNode) {
-  if (node.type === "property") {
-    const fullPath = node.data.path;
-    let nodeRef;
-    if (fullPath) {
-      nodeRef = setPathGetNodeRef(match, fullPath, true);
+export function getTypeIriFromNodeRef(pathable: Query | Path, nodeRef: string): string | undefined {
+  if (pathable.path) {
+    for (const path of pathable.path) {
+      if (path.node === nodeRef) return path.typeOf!.iri!;
+      const typeIri = getTypeIriFromNodeRef(path, nodeRef);
+      if (typeIri) return typeIri;
     }
-    const ret = { iri: node.data.iri, name: node.label, as: node.label } as Return;
-    if (nodeRef) ret.nodeRef = nodeRef;
-    if (!match.return) match.return = [];
-    match.return.push(ret);
   }
-
-  match.invalid = false;
 }
-export function addFilter(match: Match, node: TreeNode, isThen: boolean): string | undefined {
+
+export function injectReturn(match: Query, iri: string, ref: string) {
+  if (!match.return) match.return = [];
+  for (const ret of match.return) {
+    if (ret.iri === iri) return;
+  }
+  match.return.push({ iri: iri, as: ref } as Return);
+}
+
+export function addFilter(match: Query, node: TreeNode, isThen: boolean, optional: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
     const fullPath = node.data.path;
     if (fullPath) {
-      nodeRef = setPathGetNodeRef(match, fullPath, true);
+      nodeRef = setPathGetNodeRef(match, fullPath, optional);
     }
     if (node.data.rangeType != SHACL.NODESHAPE) {
       const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);
@@ -616,20 +687,45 @@ export function addFilter(match: Match, node: TreeNode, isThen: boolean): string
   return nodeRef;
 }
 
+export function addWhereToWhen(when: When, match: Query, node: TreeNode): string | undefined {
+  let nodeRef;
+  if (node.type === "property") {
+    const fullPath = node.data.path;
+    if (fullPath) {
+      nodeRef = setPathGetNodeRef(match, fullPath, true);
+    }
+    if (node.data.rangeType != SHACL.NODESHAPE) {
+      const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);
+      if (when.and) when.and.push(where);
+      else if (when.or) when.or.push(where);
+      else if (when.iri) {
+        const iri = when.iri;
+        const is = when.is;
+        delete when.iri;
+        delete when.is;
+        const copyWhere = { iri: iri, is: is } as Where;
+        when.and = [copyWhere];
+        when.and.push(where);
+      }
+    }
+  }
+  return nodeRef;
+}
+
 function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
   const where = { iri: iri, invalid: true } as Where;
   if (nodeRef) where.nodeRef = nodeRef;
-  if (is) where.is = [{ descendantsOrSelfOf: true }];
+  if (is) where.is = [NodeSchema.parse({ descendantsOrSelfOf: true })];
   return where;
 }
 
-export function setPathGetNodeRef(pathable: HasPaths, fullPath: string, optional?: boolean): string | undefined {
+export function setPathGetNodeRef(pathable: Query | Path, fullPath: string, optional?: boolean): string | undefined {
   if (!fullPath) return undefined;
-  let i = 0;
+  let i;
   const paths = fullPath.split("\t");
   for (i = 0; i < paths.length; i = i + 2) {
     if (pathable.path) {
-      const path = findPath(pathable.path, fullPath[i]);
+      const path = findPath(pathable.path, paths[i]);
       if (path) {
         pathable = path;
         if (i === paths.length - 2) {
@@ -672,16 +768,6 @@ export function getOrderables(nodeShape: NodeShape): Orderable[] {
   }
   return orderables;
 }
-export function getFormattedPath(path: any): string {
-  let result = "";
-  if (path.path) {
-    for (let i = 0; i < path.path.length; i++) {
-      if (result != "") result = result + " ->";
-      result = result + path.path[i].name;
-    }
-  }
-  return result;
-}
 
 function getAcronym(iri: string | null | undefined): string {
   if (!iri || iri.trim() === "") return "";
@@ -698,21 +784,6 @@ function getAcronym(iri: string | null | undefined): string {
 
 function findPath(paths: Path[], pathIri: string): Path | undefined {
   return paths.find(item => item.iri === pathIri);
-}
-
-export function removeUndefined(obj: any) {
-  Object.keys(obj).forEach(key => {
-    if (obj[key] === undefined) {
-      delete obj[key];
-    }
-  });
-}
-
-export function getResults(nodeRef: string, parentMatch: Match): string | undefined {
-  if (!parentMatch.and) return undefined;
-  const matches = parentMatch.and || parentMatch.or;
-  if (!matches) return undefined;
-  return getFromMatches(nodeRef, matches, false);
 }
 
 export function getTestFields(then: Where): string | undefined {
@@ -740,74 +811,35 @@ function addTestFields(where: Where, display: string[]) {
   }
 }
 
-function getFromMatches(nodeRef: string, matches: Match[], matched: boolean): string | undefined {
-  if (!matches) return undefined;
-  for (const step of matches) {
-    if (matched && step.return) return getReturnFields(step.return);
-    else if (matched) {
-      const subMatches = step.and || step.or;
-      if (subMatches && subMatches.length > 0) {
-        return getFromMatches(nodeRef, subMatches, true);
-      }
-    }
-    if (step.node && step.node === nodeRef && step.return) return getReturnFields(step.return);
-    else if (step.node && step.node === nodeRef) {
-      const subMatches = step.and || step.or;
-      if (subMatches && subMatches.length > 0) {
-        return getFromMatches(nodeRef, subMatches, true);
-      }
-    } else {
-      const subMatches = step.and || step.or;
-      if (subMatches && subMatches.length > 0) {
-        const fields = getFromMatches(nodeRef, subMatches, false);
-        if (fields) return fields;
-      }
-    }
-  }
-  return undefined;
-}
-function getReturnFields(returnFields: Return[]): string {
-  if (Array.isArray(returnFields)) {
-    let display = "";
-    for (let i = 1; i < returnFields.length; i++) {
-      display += display === "" ? returnFields[i].name : ", " + returnFields[i].name;
-    }
-    return display;
-  }
-  return "";
-}
-export function getRelativeToOptions(keepAs: Match[]): any[] {
-  const options = [
-    {
+export function getRelativeToOptions(valueType: string, keepAs: Record<string, Ref<Query>>): any[] {
+  const options = [];
+  if (valueType === IM.DATE) {
+    options.push({
       label: "Search date",
       value: "$searchDate",
       tooltip: "relative to the search date"
-    },
-    {
+    });
+    options.push({
       label: "Achievement date",
       value: "$achievementDate",
       tooltip: "relative to the achievement date"
-    }
-  ];
-  if (keepAs.length > 0) {
-    for (const keepAsMatch of keepAs) {
-      if (keepAsMatch.node) {
-        options.push({
-          label: keepAsMatch.node,
-          value: keepAsMatch.node,
-          tooltip: "relative to a property of the entries found in this  clause"
-        });
-      }
+    });
+  }
+  if (Object.keys(keepAs).length > 0) {
+    for (const node of Object.keys(keepAs)) {
+      options.push({
+        label: node as string,
+        value: node as string,
+        tooltip: "relative to a property of the entries found in this  clause"
+      });
     }
   }
   return options;
 }
 
-export async function getRelativePropertyOptions(keepAs: Match[], nodeRef: string, valueType?: string): Promise<any[]> {
+export async function getRelativePropertyOptions(match: Query, valueType?: string): Promise<any[]> {
   const options: any[] | PromiseLike<any[]> = [];
   if (!valueType) return options;
-  const match = keepAs.find(item => item.node === nodeRef);
-  if (!match) return options;
   const dataModel = await DataModelService.getDataModelProperties(match.typeOf!.iri!, false);
   if (!dataModel) return options;
   if (dataModel.property) {
@@ -823,7 +855,7 @@ export async function getRelativePropertyOptions(keepAs: Match[], nodeRef: strin
   return options;
 }
 
-export function clauseCheck(importClauses: Map<string, Match>, match: Match, checked: boolean) {
+export function clauseCheck(importClauses: Map<string, Query>, match: Query, checked: boolean) {
   if (checked) {
     importClauses.set(match.uuid!, match);
     for (const subMatch of match.and || match.or || []) {
@@ -832,9 +864,137 @@ export function clauseCheck(importClauses: Map<string, Match>, match: Match, che
   } else importClauses.delete(match.uuid!);
 }
 
-function deleteChecks(importClauses: Map<string, Match>, match: Match) {
+function deleteChecks(importClauses: Map<string, Query>, match: Query) {
   importClauses.delete(match.uuid!);
   for (const subMatch of match.and || match.or || []) {
     deleteChecks(importClauses, subMatch);
+  }
+}
+
+export function setSemanticMapForMatch(match: Query, column: Return, map: SemanticMap) {
+  if (!map.sourceEntityProperty) return;
+  let targetMatch;
+  let mapMatch;
+  if (column.nodeRef) targetMatch = getMatchFromNodeRef(match, column.nodeRef);
+  if (!targetMatch) {
+    mapMatch = match;
+  } else {
+    mapMatch = {};
+    targetMatch.then = mapMatch;
+  }
+  if (!mapMatch.as) mapMatch.as = "mapEntry";
+  const mapPath = {
+    optional: true,
+    iri: map.sourceEntityProperty.iri,
+    typeOf: { iri: IM.CONCEPT },
+    path: [
+      {
+        iri: IM.HAS_MAP_ENTRY.toString(),
+        node: "mapNode"
+      }
+    ]
+  } as Path;
+  if (!mapMatch.path) mapMatch.path = [];
+  mapMatch.path.push(mapPath);
+
+  if (map.sourceValueProperty) {
+    mapPath.where = {
+      and: [
+        {
+          nodeRef: "mapNode",
+          iri: IM.IN_SEMANTIC_MAP.toString(),
+          is: [{ iri: map.iri }]
+        },
+        {
+          or: [
+            {
+              and: [
+                {
+                  nodeRef: mapMatch.as,
+                  iri: map.sourceValueProperty.iri,
+                  notNull: true
+                },
+                {
+                  nodeRef: mapMatch.as,
+                  iri: map.sourceValueProperty.iri,
+                  range: {
+                    from: {
+                      nodeRef: "mapNode",
+                      iri: IM.RANGE_FROM.toString(),
+                      operator: Operator.gte
+                    },
+                    to: {
+                      nodeRef: "mapNode",
+                      iri: IM.RANGE_TO.toString(),
+                      operator: Operator.lte
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              and: [
+                {
+                  nodeRef: mapMatch.as,
+                  iri: map.sourceValueProperty.iri,
+                  isNull: true
+                },
+                {
+                  nodeRef: "mapNode",
+                  isNull: true,
+                  iri: IM.RANGE_FROM.toString()
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  } else
+    mapPath.where = {
+      iri: IM.IN_SEMANTIC_MAP.toString(),
+      is: [{ iri: map.iri }]
+    };
+
+  if (map.sourceValueProperty) {
+    mapMatch.orderBy = {
+      property: [
+        {
+          iri: SHACL.ORDER.toString(),
+          direction: Order.ascending
+        }
+      ],
+      limit: 1
+    };
+  }
+
+  setSemanticMatchCase(map.defaultText!, column, mapMatch.as);
+}
+
+export function setSemanticMatchCase(defaultText: string, caseReturn: Return, nodeRef: string) {
+  delete caseReturn.iri;
+  caseReturn.case = {
+    when: [
+      {
+        nodeRef: nodeRef,
+        iri: IM.TARGET_TEXT.toString(),
+        notNull: true,
+        then: {
+          iri: IM.TARGET_TEXT.toString()
+        }
+      }
+    ],
+    else: {
+      value: defaultText
+    }
+  };
+}
+
+export function addFrom(match: Query, from: string) {
+  if (!match.from) {
+    match.from = [];
+    match.from.push({ alias: from });
+  } else {
+    match.from.find(item => item.alias === from) || match.from.push({ alias: from });
   }
 }

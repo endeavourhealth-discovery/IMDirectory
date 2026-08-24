@@ -1,3 +1,4 @@
+import { isUser } from "@endeavour/vue-library";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { createRouter, createWebHashHistory } from "vue-router";
@@ -7,14 +8,7 @@ import { useAuthStore } from "@/stores/authStore";
 
 import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import { endRouterLoading, startRouterLoading } from "./methods/loading";
-import {
-  requiresAuthGuard,
-  requiresOrganisation,
-  requiresReAuth,
-  requiresRole,
-  requiresSnomedLicense,
-  requiresUprnAgreement
-} from "./methods/metaGuards";
+import { requiresAuthGuard, requiresOrganisation, requiresReAuth, requiresRole, requiresSnomedLicense, requiresUprnAgreement } from "./methods/metaGuards";
 import {
   creatorSaveChangesWarning,
   directoryGuard,
@@ -44,11 +38,13 @@ router.beforeEach(async (to, from) => {
   authStore.updateAuthReturnPath(currentPath);
   const iri = to.params.selectedIri;
   const userStore = useUserStore();
-  try {
-    const user = await SecurityService.getUser(true);
-    if (user) userStore.updateCurrentUser(user);
-  } catch (e: any) {
-    console.log("No user session found");
+  if (!userStore.currentUser) {
+    try {
+      const user = await SecurityService.getUser(true);
+      if (user) userStore.updateCurrentUser(user);
+    } catch (e: any) {
+      console.log("No user session found");
+    }
   }
   let routedByGuard: boolean;
   routedByGuard = await requiresAuthGuard(to, from, router);

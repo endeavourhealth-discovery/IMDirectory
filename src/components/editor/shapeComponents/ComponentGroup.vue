@@ -31,7 +31,7 @@ export default defineComponent({
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { TypeGuards, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import { type PropertyShape, isPropertyShape } from "@endeavour/vue-library/models";
 
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
@@ -67,10 +67,10 @@ onMounted(() => {
 });
 
 function processEntityValue(property: PropertyShape) {
-  if (props.value && isObjectHasKeys(props.value) && TypeGuards.isPropertyShape(property) && isObjectHasKeys(props.value, [property.path.iri])) {
+  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path.iri])) {
     return props.value[property.path.iri];
   }
-  if (editorEntity && TypeGuards.isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path.iri])) {
+  if (editorEntity && isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path.iri])) {
     return editorEntity[property.path.iri];
   }
   return undefined;

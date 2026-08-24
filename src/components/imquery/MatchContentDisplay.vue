@@ -1,70 +1,70 @@
 <template>
-  <span v-if="match.notExists" class="not">Exclude if </span>
-  <div v-if="match.description">
-    <span class="match-description">{{ match.description }} </span>
+  <div v-if="match.from">
+    <span class="field">using</span>
+    <span v-for="(fromMatch, index) in match.from">
+      <span v-if="fromMatch.typeOf" class="field"> {{ fromMatch.typeOf.name }}</span>
+      <span v-if="fromMatch.alias" class="field"> {{ fromMatch.alias }}</span>
+    </span>
+  </div>
+  <span v-if="match.notExists" class="not">Exclude</span>
+  <div v-if="match.name">
+    <span class="match-description">{{ match.name }} </span>
+    <span v-if="match.then && match.then.name">
+      <span class="field">and</span>
+      <span class="match-description">{{ match.then.name }} </span>
+    </span>
     <span>defined as:</span>
   </div>
-  <span v-if="from">
-    <span class="field">and if the above</span>
-    <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
-  </span>
 
   <template v-if="match.is">
-    <ul>
-      <template v-for="(item, index) in match.is" :key="index" style="padding-left: 1.5rem">
-        <span v-if="index > 0">or</span>
-        <li class="tight-spacing">
-          <span class="field">in</span>
-          <IMViewerLink v-if="item.iri" :iri="item.iri" :action="'view'" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
-        </li>
-      </template>
-    </ul>
+    <span class="field">in</span>
+    <IMViewerLink v-if="match.is.iri" :action="'view'" :iri="match.is.iri" :label="match.is.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
   </template>
+
   <template v-else>
     <span class="field">{{ getFormattedPath(match) }}</span>
     <span v-if="match.orderBy" class="order-by">{{ match.orderBy.description }}</span>
     <template v-if="match.where">
       <template v-if="!boolWhereGroup">
-        <WhereContentDisplay :where="match.where" :depth="depth + (match.nodeRef ? 1 : 0)" :key="0" :index="0" :root="true" />
+        <WhereContentDisplay :key="0" :depth="depth + (match.nodeRef ? 1 : 0)" :index="0" :root="true" :where="match.where" />
       </template>
       <template v-else>
         <WhereContentDisplay
-          :where="boolWhereGroup![0]"
-          :depth="depth + (match.nodeRef ? 1 : 0)"
-          :parentOperator="whereOperator"
           :key="0"
+          :depth="depth + (match.nodeRef ? 1 : 0)"
           :index="0"
+          :parentOperator="whereOperator"
           :root="true"
+          :where="boolWhereGroup![0]"
         />
-        <div v-for="(nestedProperty, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
+        <div v-for="(subWhere, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
           <WhereContentDisplay
-            :where="boolWhereGroup![subIndex + 1]"
+            :key="'where ' + (subIndex + 1)"
             :depth="depth + (match.nodeRef ? 1 : 0)"
-            :parentOperator="whereOperator"
-            :key="0"
             :index="subIndex + 1"
+            :parentOperator="whereOperator"
             :root="false"
+            :where="boolWhereGroup![subIndex + 1]"
           />
         </div>
       </template>
     </template>
-    <div v-if="match.then && !skipThen">
+    <div v-if="match.then && match.then.where && !skipThen">
       <span class="above">then with the {{ testFields }} of the above</span>
-      <WhereContentDisplay :where="match.then" :depth="depth + 1" :parentOperator="whereOperator" :key="0" :index="0" :root="false" />
+      <WhereContentDisplay :key="0" :depth="depth + 1" :index="0" :parentOperator="whereOperator" :root="false" :where="match.then.where" />
     </div>
-    <span v-if="match.node">
+    <span v-if="match.as">
       <span class="field">(as</span>
-      <span class="as">{{ match.node }})</span>
+      <span class="as">{{ match.as }})</span>
     </span>
   </template>
-  <span v-if="match.score" class="score">Score if true : {{ match.score }}</span>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Query } from "@endeavour/vue-library/models";
 
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -72,12 +72,11 @@ import { useDirectService } from "@/composables/useDirectService";
 import { getBoolGroup, getBooleanOperator, getTestFields } from "@/helpers/buildQuery";
 
 interface Props {
-  match: Match;
+  match: Query;
   depth: number;
-  parentMatch?: Match;
+  parentMatch?: Query;
   clauseIndex: number;
   parentOperator?: Bool;
-  from?: Match;
   skipThen?: boolean;
 }
 const props = defineProps<Props>();
@@ -91,7 +90,7 @@ const boolWhereGroup = computed(() => {
 });
 
 const testFields = computed(() => {
-  if (props.match.then) return getTestFields(props.match.then);
+  if (props.match.then && props.match.then.where) return getTestFields(props.match.then.where);
 });
 function getFormattedPath(path: any): string {
   let result = "";
@@ -125,15 +124,13 @@ function getFormattedPath(path: any): string {
   padding-right: 0.2rem;
 }
 
-.general-field {
-  padding-right: 1rem;
-}
-
 .match-description {
   color: var(--p-blue-700);
   padding-right: 1rem;
 }
-.score {
-  padding-left: 2rem;
+
+.not {
+  color: var(--p-red-500) !important;
+  padding-right: 0.2rem;
 }
 </style>

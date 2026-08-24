@@ -1,5 +1,6 @@
-import { RouteRecordRaw } from "vue-router";
 import { UserRole } from "@endeavour/vue-library/enums";
+
+import { RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {

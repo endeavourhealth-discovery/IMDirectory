@@ -2,24 +2,24 @@
   <ProgressSpinner v-if="loading" />
   <Dialog
     v-if="!eclConversionError.error && !loading"
-    :visible="showDialog"
-    :modal="true"
+    id="ecl-builder-dialog"
+    :auto-z-index="true"
     :closable="false"
+    :contentStyle="{ flexGrow: '100', display: 'flex' }"
     :maximizable="true"
+    :modal="true"
     :style="{
       minWidth: '90vw',
       minHeight: '90vh',
       display: 'flex',
       flexFlow: 'column nowrap'
     }"
-    :contentStyle="{ flexGrow: '100', display: 'flex' }"
-    :auto-z-index="true"
-    id="ecl-builder-dialog"
+    :visible="showDialog"
   >
     <template #header>
       <div class="ecl-builder-dialog-header">
         <strong>ECL Builder:</strong>
-        <Button icon="fa-regular fa-circle-question" text rounded-sm @click="toggle" />
+        <Button icon="fa-regular fa-circle-question" rounded-sm text @click="toggle" />
         <Popover ref="op">Select or drag and drop for grouping</Popover>
       </div>
     </template>
@@ -29,55 +29,56 @@
         <ECLExpressionConstraint v-model:match="build" :index="0" :parentIndex="0" :rootBool="true" @rationalise="rationaliseBooleans" />
         <div v-if="build.where">
           <span class="subtypes-checkbox">Include un-inferred subtypes of the concepts found in this expression </span>
-          <Checkbox :inputId="'subtypeCheck'" name="subtypeCheck" binary v-model="checkIncludeSubtypes" v-tooltip="'Select if subtypes are not needed'" />
+          <Checkbox v-model="checkIncludeSubtypes" v-tooltip="'Select if subtypes are not needed'" :inputId="'subtypeCheck'" binary name="subtypeCheck" />
         </div>
 
-        <small style="color: red" v-if="!build.or && !build.and && !build.where && !build.is && !loading">
+        <small v-if="!build.or && !build.and && !build.where && !build.is && !loading" style="color: red">
           *Move pointer over panel above to add concepts, refinements and groups.
         </small>
       </div>
       <div v-if="previewECL" id="build-string-container">
         <Panel header="Output">
           <div class="field-checkbox">
-            <Checkbox inputId="includeTerms" v-model="includeTerms" :binary="true" />
+            <Checkbox v-model="includeTerms" :binary="true" inputId="includeTerms" />
             <label for="includeTerms">Include terms</label>
           </div>
           <div class="string-copy-container">
             <div v-if="eclStringError.error" class="output-string" style="color: red">Error generating ecl text. Please check your inputs are correct.</div>
             <pre v-else class="output-string">{{ queryString }}</pre>
             <Button
-              icon="fa-solid fa-copy"
-              v-tooltip.left="'Copy to clipboard'"
               v-clipboard:copy="copyToClipboard()"
-              v-clipboard:success="onCopy"
               v-clipboard:error="onCopyError"
+              v-clipboard:success="onCopy"
+              v-tooltip.left="'Copy to clipboard'"
               :disabled="eclConversionError.error"
+              icon="fa-solid fa-copy"
             />
           </div>
         </Panel>
       </div>
     </div>
     <template #footer>
-      <Button label="Cancel" icon="fa-solid fa-xmark" severity="secondary" @click="closeBuilderDialog" data-testid="cancel-ecl-builder-button" />
-      <Button :label="!previewECL ? 'PreviewECL' : 'Show editor'" severity="info" @click="preview" data-testid="ecl-preview-button" />
-      <Button label="Validate model" severity="help" @click="validateBuild" data-testid="ecl-validate-button" />
-      <Button label="OK" icon="fa-solid fa-check" class="p-button-primary" @click="submit" data-testid="ecl-ok-button" />
+      <Button data-testid="cancel-ecl-builder-button" icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeBuilderDialog" />
+      <Button :label="!previewECL ? 'PreviewECL' : 'Show editor'" data-testid="ecl-preview-button" severity="info" @click="preview" />
+      <Button data-testid="ecl-validate-button" label="Validate model" severity="help" @click="validateBuild" />
+      <Button class="p-button-primary" data-testid="ecl-ok-button" icon="fa-solid fa-check" label="OK" @click="submit" />
     </template>
   </Dialog>
 </template>
 
-<script setup lang="ts">
-import { Ref, nextTick, onMounted, provide, readonly, ref, watch } from "vue";
+<script lang="ts" setup>
+import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ECLQueryRequest, Match, Node, Query } from "@endeavour/vue-library/interfaces";
+import { type Query, QuerySchema } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
 
 import ECLExpressionConstraint from "@/components/imquery/ECLExpressionConstraint.vue";
 import { useEclValidator } from "@/composables/useEclValidator";
+import { type ECLQueryRequest } from "@/models";
 import EclService from "@/services/EclService";
 import QueryService from "@/services/QueryService";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -100,7 +101,7 @@ const dialogStore = useDialogStore();
 const checkIncludeSubtypes = ref(false);
 const dynamicDialog = useDialog();
 const activeInputId = ref("");
-const build: Ref<Match> = ref({});
+const build: Ref<Query> = ref({});
 const includeTerms = ref(true);
 const forceValidation = ref(false);
 const queryString = ref("");
@@ -147,9 +148,9 @@ async function init() {
   if (props.query) {
     await createBuildFromQuery(props.query);
   } else createDefaultBuild();
-  if (build.value.is && build.value.is[0].match) {
+  if (build.value?.is && build.value.is.match) {
     checkIncludeSubtypes.value = true;
-    build.value = build.value.is[0].match;
+    build.value = build.value.is.match;
   }
   loading.value = false;
 }
@@ -157,7 +158,7 @@ function createDefaultBuild() {
   build.value = {};
 }
 async function rationaliseBooleans() {
-  build.value = await QueryService.flattenBooleans(build.value);
+  if (build.value) build.value = await QueryService.flattenBooleans(build.value);
 }
 
 async function createBuildFromQuery(query: Query) {
@@ -165,7 +166,7 @@ async function createBuildFromQuery(query: Query) {
 }
 
 async function preview() {
-  if (!previewECL.value) {
+  if (!previewECL.value && build.value) {
     let rationalised = await QueryService.optimiseECLQuery(build.value);
     rationalised = includeSubtypes(rationalised);
     const eclQuery = await EclService.getECLFromQuery(rationalised, includeTerms.value);
@@ -174,19 +175,21 @@ async function preview() {
   previewECL.value = !previewECL.value;
 }
 
-function includeSubtypes(query: Match): Match {
+function includeSubtypes(query: Query): Query {
   if (checkIncludeSubtypes.value) {
-    return { is: [{ descendantsOrSelfOf: true, match: query }] };
+    return { is: { descendantsOrSelfOf: true, match: query } } as Query;
   } else return query;
 }
 
 async function submit(): Promise<void> {
-  build.value = await QueryService.optimiseECLQuery(build.value);
-  const rationalised = includeSubtypes(build.value);
-  const eclQuery = await EclService.getECLFromQuery(rationalised, props.showNames);
-  if (eclQuery.status && !eclQuery.status.valid) {
-    await displayValidationMessage(true, eclQuery.status.message);
-  } else emit("eclSubmitted", eclQuery);
+  if (build.value) {
+    build.value = await QueryService.optimiseECLQuery(build.value);
+    const rationalised = includeSubtypes(build.value);
+    const eclQuery = await EclService.getECLFromQuery(rationalised, props.showNames);
+    if (eclQuery.status && !eclQuery.status.valid) {
+      await displayValidationMessage(true, eclQuery.status.message);
+    } else emit("eclSubmitted", eclQuery);
+  }
 }
 
 function closeBuilderDialog(): void {

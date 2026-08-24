@@ -43,7 +43,6 @@ const getSegments = (l: DiffResult[], r: DiffResult[], options: HideUnchangedLin
   const _options = options === true ? defaultOptions : options;
   const { threshold = 8, margin = 3 } = _options;
   if (threshold < margin * 2 + 1) {
-    // eslint-disable-next-line no-console, max-len
     console.warn(
       `Threshold (${threshold}) is no more than 2 margins + 1 "expand" line (${margin} * 2 + 1), it's not necessary to hide unchanged areas which have less than ${margin * 2 + 1} lines.`
     );

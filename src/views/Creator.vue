@@ -64,6 +64,7 @@ import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import IndicatorDefinition from "@/components/editor/shapeComponents/IndicatorDefinition.vue";
+import MapEntryBuilder from "@/components/editor/shapeComponents/MapEntryBuilder.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
 import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
@@ -87,6 +88,7 @@ export default defineComponent({
     QueryDefinitionBuilder,
     IndicatorDefinition,
     ComponentGroup,
+    MapEntryBuilder,
     DropdownTextInputConcatenator
   }
 });
@@ -97,8 +99,8 @@ import { ComputedRef, Ref, computed, onMounted, onUnmounted, provide, ref, watch
 
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -117,6 +119,7 @@ import { useValueVariableMap } from "@/composables/useValueVariableMap";
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EditRequest, EditRequestSchema } from "@/models";
 import { QueryService } from "@/services";
 import { EntityService, SecurityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
@@ -177,9 +180,9 @@ const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
-
+const linkedEntities: Ref<TTEntity[]> = ref([]);
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
-
+provide("linkedEntities", linkedEntities);
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap, valueVariableHasChanged });
 provide(injectionKeys.forceValidation, {
@@ -208,14 +211,16 @@ onMounted(async () => {
   if (props.type) {
     getShape(props.type.iri);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
-  } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
+  } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayOf(editorEntity.value[RDF.TYPE], isTTIriRef)) {
     getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (typeIri) {
     const typeIriFixed = removeEndSlash(typeIri as string);
     currentStep.value = 1;
     const typeEntity = await EntityService.getPartialEntity(typeIriFixed, [RDFS.LABEL]);
-    editorEntity.value[RDF.TYPE] = [{ iri: typeIriFixed, name: typeEntity[RDFS.LABEL] }];
+    if (typeof typeEntity[RDFS.LABEL] === "string") {
+      editorEntity.value[RDF.TYPE] = [{ iri: typeIriFixed, name: typeEntity[RDFS.LABEL] }];
+    }
     shape.value = getShape(typeIriFixed);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
@@ -223,42 +228,49 @@ onMounted(async () => {
       const valueIriFixed = removeEndSlash(valueIri as string);
       if (typeIriFixed === IM.QUERY && propertyIriFixed === IM.IS_CHILD_OF) {
         const baseQuery = await QueryService.getDisplayFromQueryIri(valueIriFixed, DisplayMode.LOGICAL);
-        editorEntity.value[IM.DEFINITION] = JSON.stringify({
-          typeOf: baseQuery.typeOf,
-          and: [
-            {
-              is: [{ iri: valueIriFixed, cohort: true }]
-            }
-          ]
-        });
+        if (baseQuery) {
+          editorEntity.value[IM.DEFINITION] = JSON.stringify({
+            typeOf: baseQuery?.typeOf,
+            and: [
+              {
+                is: [{ iri: valueIriFixed, cohort: true }]
+              }
+            ]
+          });
+        }
       }
       if (propertyIriFixed === IM.DEFINITION) {
-        const newValue = await QueryService.getQueryDisplay(valueIriFixed, false);
-        editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
-        editorEntity.value[IM.DEFINITION] = JSON.stringify({
-          match: [
-            {
-              is: [
-                {
-                  iri: newValue.iri,
-                  name: newValue.name
-                }
-              ],
-              description: newValue.description
-            }
-          ],
-          typeOf: {
-            iri: newValue.typeOf!.iri
+        const newValue = await QueryService.getDisplayFromQueryIri(valueIriFixed, DisplayMode.ORIGINAL);
+        if (newValue) {
+          if (newValue.typeOf) {
+            editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
           }
-        });
+          editorEntity.value[IM.DEFINITION] = JSON.stringify({
+            match: [
+              {
+                is: [
+                  {
+                    iri: newValue.iri,
+                    name: newValue.name
+                  }
+                ],
+                description: newValue.description
+              }
+            ],
+            typeOf: {
+              iri: newValue.typeOf!.iri
+            }
+          });
+        }
       } else {
         const containingEntity = await EntityService.getPartialEntity(valueIriFixed, [RDFS.LABEL]);
-        editorEntity.value[propertyIriFixed] = [
-          {
-            iri: containingEntity.iri,
-            name: containingEntity[RDFS.LABEL]
-          }
-        ];
+        if (typeof containingEntity.iri === "string" && typeof containingEntity[RDFS.LABEL] === "string")
+          editorEntity.value[propertyIriFixed] = [
+            {
+              iri: containingEntity.iri,
+              name: containingEntity[RDFS.LABEL]
+            }
+          ];
       }
     }
   } else {
@@ -352,93 +364,115 @@ function beforeWindowUnload(e: BeforeUnloadEvent) {
 }
 
 async function submit(): Promise<void> {
-  if (isObjectHasKeys(editorEntity.value, [IM.ID])) if (await checkExists(editorEntity.value[IM.ID])) return;
+  if (isObjectHasKeys(editorEntity.value, [IM.ID]) && typeof editorEntity.value[IM.ID] === "string") {
+    if (await checkExists(editorEntity.value[IM.ID])) return;
+  }
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
   });
-  const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
-  constructValidationCheckStatus(shape.value);
-  forceValidation.value = true;
-  validationChecksCompleted()
-    .then(async () => {
-      forceValidation.value = false;
-      verificationDialog.close();
-      if (isValidEntity(editorEntity.value)) {
-        await dialogStore
-          .open(AlertDialog, {
-            props: { modal: true, style: { width: "30vw" }, closable: false },
-            data: {
-              icon: "fa-regular fa-circle-info",
-              title: "Confirm create",
-              text: "Are you sure you want to create this entity?",
-              showCancelButton: true,
-              confirmButtonText: "Create",
-              reverseButtons: true,
-              preConfirm: async () => {
-                if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
-                  await SetService.updateSubsetsFromSuper(editorEntity.value);
-                  delete editorEntity.value[IM.HAS_SUBSET];
-                }
-                const res = await EntityService.createEntity({ entity: editorEntity.value, hostUrl: window.location.origin });
-                console.log(res);
-                if (res) {
-                  creatorStore.updateCreatorSavedEntity(undefined);
-                  return res;
-                } else {
-                  dialogStore.setError("Error creating entity from server.");
+  if (isObjectHasKeys(editorEntity.value, [IM.ID]) && typeof editorEntity.value[IM.ID] === "string") {
+    const namespace = editorEntity.value[IM.ID].substring(0, editorEntity.value[IM.ID].lastIndexOf("#") + 1);
+    constructValidationCheckStatus(shape.value);
+    forceValidation.value = true;
+    validationChecksCompleted()
+      .then(async () => {
+        forceValidation.value = false;
+        verificationDialog.close();
+        if (isValidEntity(editorEntity.value)) {
+          await dialogStore
+            .open(AlertDialog, {
+              props: { modal: true, style: { width: "30vw" }, closable: false },
+              data: {
+                icon: "fa-regular fa-circle-info",
+                title: "Confirm create",
+                text: "Are you sure you want to create this entity?",
+                showCancelButton: true,
+                confirmButtonText: "Create",
+                reverseButtons: true,
+                preConfirm: async () => {
+                  if (isObjectHasKeys(editorEntity.value, [IM.HAS_SUBSET])) {
+                    await SetService.updateSubsetsFromSuper(editorEntity.value);
+                    delete editorEntity.value[IM.HAS_SUBSET];
+                  }
+                  if (linkedEntities.value.length > 0) {
+                    for (const linkedEntity of linkedEntities.value) {
+                      linkedEntity[IM.ID] = linkedEntity.iri;
+                      await EntityService.createEntity({ entity: linkedEntity, hostUrl: window.location.origin, namespace: namespace } as EditRequest);
+                    }
+                  }
+                  const res = await EntityService.createEntity({
+                    entity: editorEntity.value,
+                    hostUrl: window.location.origin,
+                    namespace: namespace
+                  } as EditRequest);
+                  if (res) {
+                    creatorStore.updateCreatorSavedEntity(undefined);
+                    return res;
+                  } else {
+                    dialogStore.setError("Error creating entity from server.");
+                  }
                 }
               }
-            }
-          })
-          .then(async (result: any) => {
-            if (result?.confirm) {
-              await dialogStore
-                .open(AlertDialog, {
-                  props: { modal: true, style: { width: "30vw" }, closable: false },
-                  data: {
-                    title: "Success",
-                    text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
-                    icon: "fa-regular fa-circle-check",
-                    reverseButtons: true,
-                    confirmButtonText: "Close creator"
-                  }
-                })
-                .then(async result => {
-                  if (result.confirm) {
-                    window.onbeforeunload = null;
-                    // If added via addEventListener
-                    window.removeEventListener("beforeunload", beforeWindowUnload);
-                    setTimeout(() => {
-                      window.close();
-                    }, 0);
-                  }
-                });
+            })
+            .then(async (result: any) => {
+              if (result?.confirm) {
+                await dialogStore
+                  .open(AlertDialog, {
+                    props: { modal: true, style: { width: "30vw" }, closable: false },
+                    data: {
+                      title: "Success",
+                      text: "Entity: " + editorEntity.value[IM.ID] + " has been created.",
+                      icon: "fa-regular fa-circle-check",
+                      reverseButtons: true,
+                      confirmButtonText: "Close creator"
+                    }
+                  })
+                  .then(async result => {
+                    if (result.confirm) {
+                      window.onbeforeunload = null;
+                      // If added via addEventListener
+                      window.removeEventListener("beforeunload", beforeWindowUnload);
+                      router.back();
+                    }
+                  });
+              }
+            });
+        } else {
+          await dialogStore.open(AlertDialog, {
+            props: { modal: true, style: { width: "30vw" }, closable: false },
+            data: {
+              icon: "fa-regular fa-circle-exclamation",
+              title: "Warning",
+              text: "Invalid values found. Please review your entries.",
+              confirmButtonText: "Close"
             }
           });
-      } else {
+        }
+      })
+      .catch(async () => {
         await dialogStore.open(AlertDialog, {
           props: { modal: true, style: { width: "30vw" }, closable: false },
           data: {
-            icon: "fa-regular fa-circle-exclamation",
-            title: "Warning",
-            text: "Invalid values found. Please review your entries.",
+            icon: "fa-regular fa-circle-xmark",
+            title: "Timeout",
+            text: "Validation timed out. Please contact an admin for support",
             confirmButtonText: "Close"
           }
         });
-      }
-    })
-    .catch(async () => {
-      await dialogStore.open(AlertDialog, {
-        props: { modal: true, style: { width: "30vw" }, closable: false },
-        data: {
-          icon: "fa-regular fa-circle-xmark",
-          title: "Timeout",
-          text: "Validation timed out. Please contact an admin for support",
-          confirmButtonText: "Close"
-        }
       });
+  } else {
+    await dialogStore.open(AlertDialog, {
+      props: { modal: true, style: { width: "30vw" }, closable: false },
+      data: {
+        icon: "fa-regular fa-circle-xmark",
+        title: "Warning",
+        text: "No IRI assigned",
+        confirmButtonText: "Close"
+      }
     });
+    verificationDialog.close();
+  }
 }
 
 async function closeCreator() {

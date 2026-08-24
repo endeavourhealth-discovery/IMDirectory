@@ -29,13 +29,13 @@
                 :class="operator === Bool.rule && index > 0 ? 'rule-box' : ''"
               >
                 <RecursiveMatchDisplay
-                  :match="nestedQuery"
-                  :clause-index="index"
-                  :parent-operator="operator"
-                  :depth="1"
-                  :parent-match="query"
-                  :eclQuery="eclQuery"
                   :baseType="baseType"
+                  :clause-index="index"
+                  :depth="1"
+                  :eclQuery="eclQuery"
+                  :match="nestedQuery as Query"
+                  :parent-match="query"
+                  :parent-operator="operator"
                 />
               </div>
             </div>
@@ -43,13 +43,13 @@
           <template v-else>
             <div>
               <RecursiveMatchDisplay
-                :match="query"
+                :baseType="baseType"
                 :clauseIndex="0"
                 :depth="0"
-                :parent-match="rootQuery"
                 :eclQuery="eclQuery"
                 :expanded="query.name === undefined"
-                :baseType="baseType"
+                :match="query"
+                :parent-match="rootQuery"
               />
             </div>
           </template>
@@ -58,36 +58,36 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
-      <div v-if="query && query.columnGroup">
+      <div v-if="query && query.columnGroup && query.columnGroup.length > 0">
         <span>Output columns </span>
-        <Button text :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" @click="showColumns = !showColumns"></Button>
+        <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
         <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
           <ColumnGroupDisplay
-            v-for="(nestedQuery, index) in query?.columnGroup"
-            :match="nestedQuery"
+            v-for="(_, index) in query.columnGroup"
             :key="`nestedQuery-${index}`"
-            :matchExpanded="false"
-            :returnExpanded="true"
-            :index="index"
-            :parentQuery="query"
+            v-model:datasetEntry="query.columnGroup[index]"
             :baseType="baseType"
+            :index="index"
+            :matchExpanded="true"
+            :parentQuery="query"
+            :returnExpanded="true"
           />
         </div>
       </div>
       <div v-if="query && query.return">
         <span>Returns:</span>
-        <ReturnColumns :select="query.return" class="pl-8" :parentQuery="query!" />
+        <ReturnColumns :parentQuery="query!" :select="query.return" class="pl-8" />
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Argument, Node, Query, QueryRequest } from "@endeavour/vue-library/interfaces";
+import { type Argument, type Node, type Query, type QueryRequest } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -113,17 +113,19 @@ interface Props {
   queryDefinition?: Query;
   entityType?: string;
   eclQuery?: boolean;
+  viewerDisplayMode?: DisplayMode;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
   navigateTo: [payload: string];
+  updateViewerDisplayMode: [payload: DisplayMode];
 }>();
 
 const showColumns = ref(false);
 
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
-const rootQuery = ref({} as Query);
+const rootQuery = ref({});
 const sql: Ref<string> = ref("");
 const loading = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
@@ -169,14 +171,17 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
     case DisplayOptions.RuleView:
       if (displayMode.value != DisplayMode.RULES) query.value = await getQueryDisplay(DisplayMode.RULES);
       displayMode.value = DisplayMode.RULES;
+      emit("updateViewerDisplayMode", DisplayMode.RULES);
       break;
     case DisplayOptions.LogicalView:
       if (displayMode.value != DisplayMode.LOGICAL) query.value = await getQueryDisplay(DisplayMode.LOGICAL);
       displayMode.value = DisplayMode.LOGICAL;
+      emit("updateViewerDisplayMode", DisplayMode.LOGICAL);
       break;
     case DisplayOptions.Original:
       if (displayMode.value != DisplayMode.ORIGINAL) query.value = await getQueryDisplay(DisplayMode.ORIGINAL);
       displayMode.value = DisplayMode.ORIGINAL;
+      emit("updateViewerDisplayMode", DisplayMode.ORIGINAL);
       break;
     case DisplayOptions.MySQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
@@ -201,7 +206,8 @@ async function init() {
   if (query.value && query.value.rule) {
     originalDisplay.value = DisplayMode.RULES;
   } else originalDisplay.value = DisplayMode.ORIGINAL;
-  baseType.value = query!.value!.typeOf!;
+  if (query.value?.typeOf) baseType.value = query.value.typeOf;
+  else baseType.value = {};
   deepQuery.value = cloneDeep(query.value);
   displayMode.value = query.value?.rule ? DisplayMode.RULES : DisplayMode.LOGICAL;
   setDisplayOptions();
@@ -243,12 +249,6 @@ async function getQueryRequestFromQueryIri() {
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
 }
-.confirm-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  width: 80%;
-}
 .query-display-container {
   width: 100%;
   height: 100%;
@@ -263,24 +263,11 @@ async function getQueryRequestFromQueryIri() {
   flex: 1 1 auto;
 }
 
-.query-display-view {
-  overflow: auto;
-}
-
 .field {
   padding-right: 1rem;
 }
 
 .rec-query-display {
   padding: 1rem;
-}
-
-.button-bar {
-  flex: 0 1 auto;
-  padding: 1rem 1rem 1rem 0;
-  gap: 0.5rem;
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-end;
 }
 </style>

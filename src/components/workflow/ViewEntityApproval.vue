@@ -40,13 +40,13 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { ApprovalType } from "@endeavour/vue-library/enums";
-import type { EntityApproval, Task } from "@endeavour/vue-library/interfaces";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
+import { type EntityApproval, EntityApprovalSchema, type Task } from "@/models";
 import WorkflowService from "@/services/WorkflowService";
 import { useDialogStore } from "@/stores/dialogStore";
 
@@ -131,7 +131,7 @@ async function updateTask(task: Task) {
         label: "Update"
       },
       accept: async () => {
-        const updatedEntityApproval: EntityApproval = {
+        const updatedEntityApproval = EntityApprovalSchema.parse({
           id: { iri: props.id },
           approvalType: selectedApprovalType.value,
           createdBy: task.createdBy,
@@ -139,8 +139,9 @@ async function updateTask(task: Task) {
           state: task.state,
           assignedTo: task.assignedTo,
           dateCreated: task.dateCreated,
-          history: task.history
-        };
+          history: task.history,
+          hostUrl: window.location.origin
+        });
         await WorkflowService.updateEntityApproval(updatedEntityApproval).then(async () => {
           await dialogStore.open(AlertDialog, {
             props: { modal: true, style: { width: "30vw" } },

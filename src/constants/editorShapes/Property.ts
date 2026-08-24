@@ -1,7 +1,8 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
-const PropertyShape: FormGenerator = {
+import { type FormGenerator, FormGeneratorSchema } from "@/models";
+
+const PropertyShape = FormGeneratorSchema.parse({
   iri: EDITOR.PROPERTY_SHAPE,
   type: [
     {
@@ -282,6 +283,6 @@ const PropertyShape: FormGenerator = {
       ]
     }
   ]
-};
+});
 
 export default PropertyShape;

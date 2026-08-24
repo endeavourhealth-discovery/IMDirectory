@@ -1,5 +1,7 @@
+import { TTBundleSchema } from "@/models";
+
 export const hasDefinition = {
-  entityBundle: {
+  entityBundle: TTBundleSchema.parse({
     entity: {
       iri: "http://endhealth.info/im#CSET_Covid5",
       "http://endhealth.info/im#isContainedIn": [
@@ -26,7 +28,7 @@ export const hasDefinition = {
       "http://endhealth.info/im#definition": "definition",
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "type"
     }
-  },
+  }),
   details: [
     {
       key: "http://endhealth.info/im#isContainedIn",
@@ -62,7 +64,7 @@ export const hasDefinition = {
 };
 
 export const hasMultiplePredicates = {
-  entityBundle: {
+  entityBundle: TTBundleSchema.parse({
     entity: {
       iri: "http://snomed.info/sct#405746006",
       "http://endhealth.info/im#isA": [
@@ -176,7 +178,7 @@ export const hasMultiplePredicates = {
       "http://snomed.info/sct#189851000000107": "Mental and psychological observations",
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "type"
     }
-  },
+  }),
   details: [
     {
       key: "http://endhealth.info/im#isA",
@@ -412,7 +414,7 @@ export const hasMultiplePredicates = {
 };
 
 export const hasMap = {
-  entityBundle: {
+  entityBundle: TTBundleSchema.parse({
     entity: {
       iri: "http://snomed.info/sct#32485007",
       "http://endhealth.info/im#im1Id": "SN_32485007",
@@ -782,7 +784,7 @@ export const hasMap = {
       "http://endhealth.info/im#weighting": "weighting",
       "http://snomed.info/sct#409891000000104": "[V]Other reasons for encounter OS (context-dependent category)"
     }
-  },
+  }),
   details: [
     {
       key: "http://endhealth.info/im#im1Id",
@@ -1512,7 +1514,7 @@ export const hasMap = {
 };
 
 export const hasProperty = {
-  entityBundle: {
+  entityBundle: TTBundleSchema.parse({
     entity: {
       iri: "http://endhealth.info/im#Patient",
       "http://endhealth.info/im#isContainedIn": [
@@ -2845,7 +2847,7 @@ export const hasProperty = {
       "http://endhealth.info/im#Flag": "Flag",
       "http://endhealth.info/im#mobileTelephoneNumber": "mobile telephone number"
     }
-  },
+  }),
   details: [
     {
       key: "http://endhealth.info/im#isContainedIn",
@@ -2893,7 +2895,7 @@ export const hasProperty = {
 };
 
 export const hasParameter = {
-  entityBundle: {
+  entityBundle: TTBundleSchema.parse({
     entity: {
       iri: "http://endhealth.info/im#age",
       "http://endhealth.info/im#isA": [
@@ -2982,7 +2984,7 @@ export const hasParameter = {
       "http://www.w3.org/2000/01/rdf-schema#range": "range",
       "http://endhealth.info/im#TimeDifference": "Time difference"
     }
-  },
+  }),
   details: [
     {
       key: "http://endhealth.info/im#isA",

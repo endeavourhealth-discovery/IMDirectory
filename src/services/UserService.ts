@@ -1,44 +1,53 @@
 import { PrimeVueColors, PrimeVuePresetThemes } from "@endeavour/vue-library/enums";
-import type { RecentActivityItemDto } from "@endeavour/vue-library/interfaces";
-import { NamespacePermission, User } from "@endeavour/vue-library/models";
-
-import axios from "axios";
+import { parseApiResponse } from "@endeavour/vue-library/helpers";
+import type { RecentActivityItemDto } from "@endeavour/vue-library/models";
+import { NamespacePermission, User, UserSchema } from "@endeavour/vue-library/models";
 
 import Env from "./Env";
+import api from "./api";
 
 const API_URL = Env.API + "api/user/private";
 
 const UserService = {
   async updateUserPreset(preset: PrimeVuePresetThemes): Promise<User> {
-    return await axios.post(API_URL + "/preset", preset, { headers: { "Content-Type": "text/plain" } });
+    const result = await api.post(API_URL + "/preset", preset, { headers: { "Content-Type": "text/plain" } });
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserPrimaryColor(color: PrimeVueColors): Promise<User> {
-    return await axios.post(API_URL + "/primaryColor", color, { headers: { "Content-Type": "text/plain" } });
+    const result = await api.post(API_URL + "/primaryColor", color, { headers: { "Content-Type": "text/plain" } });
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserSurfaceColor(color: PrimeVueColors): Promise<User> {
-    return await axios.post(API_URL + "/surfaceColor", color, { headers: { "Content-Type": "text/plain" } });
+    const result = await api.post(API_URL + "/surfaceColor", color, { headers: { "Content-Type": "text/plain" } });
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserDarkMode(bool: boolean): Promise<User> {
-    return await axios.post(API_URL + "/darkMode", { bool: bool });
+    const result = await api.post(API_URL + "/darkMode", { bool: bool });
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserFontSize(fontSize: string): Promise<User> {
-    return await axios.post(API_URL + "/fontSize", fontSize, { headers: { "Content-Type": "text/plain" } });
+    const result = await api.post(API_URL + "/fontSize", fontSize, { headers: { "Content-Type": "text/plain" } });
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserRecentActivity(recentActivity: RecentActivityItemDto[]): Promise<User> {
-    return await axios.post(API_URL + "/recentActivity", recentActivity);
+    const result = await api.post(API_URL + "/recentActivity", recentActivity);
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserFavourites(favourites: string[]): Promise<User> {
-    return await axios.post(API_URL + "/favourites", favourites);
+    const result = await api.post(API_URL + "/favourites", favourites);
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserOrganisations(organisations: string[]): Promise<User> {
-    return await axios.post(API_URL + "/organisations", organisations);
+    const result = await api.post(API_URL + "/organisations", organisations);
+    return parseApiResponse(result, UserSchema);
   },
   async updateUserNamespaces(namespaces: NamespacePermission[]): Promise<User> {
-    return await axios.post(API_URL + "/namespaces", namespaces);
+    const result = await api.post(API_URL + "/namespaces", namespaces);
+    return parseApiResponse(result, UserSchema);
   },
 
   async updateEmailVerified(verified: boolean): Promise<void> {
-    return await axios.post(Env.API + "api/cognito/updateEmailVerified", { value: verified });
+    return await api.post(Env.API + "api/cognito/updateEmailVerified", { value: verified });
   }
 };
 

@@ -1,32 +1,32 @@
 <template>
-  <div class="loading-container flex flex-row items-center justify-center" v-if="loading">
+  <div v-if="loading" class="loading-container flex flex-row items-center justify-center">
     <ProgressSpinner />
   </div>
   <div v-else id="directory-table-container">
     <div class="to-search-button-container">
       <Button
-        link
         v-if="searchResults?.entities?.length"
-        label="Back to search results"
-        icon="fa-solid fa-arrow-left"
         class="back-to-search"
+        icon="fa-solid fa-arrow-left"
+        label="Back to search results"
+        link
         @click="$emit('goToSearchResults')"
       />
     </div>
     <div class="header-container">
       <ParentHierarchy
-        v-if="entity.iri"
-        :entityIri="entity?.iri"
-        @navigateTo="(iri: string) => $emit('navigateTo', iri)"
+        v-if="iri"
+        :entityIri="iri"
         :history="modelHistory"
+        @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
       />
       <ParentHeader
         v-if="selectedIri !== 'http://endhealth.info/im#Favourites'"
         :entity="entity"
-        @locateInTree="(iri: string) => $emit('locateInTree', iri)"
         :showSelectButton="showSelectButton"
         @entitySelected="(iri: string) => emit('selectedUpdated', iri)"
+        @locateInTree="(iri: string) => $emit('locateInTree', iri)"
       />
     </div>
     <div class="datatable-container">
@@ -35,11 +35,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { ExtendedTTEntity, SearchResponse } from "@endeavour/vue-library/interfaces";
+import type { SearchResponse, TTEntity } from "@endeavour/vue-library/models";
+
+import { isString } from "lodash-es";
 
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
@@ -67,8 +69,12 @@ watch(
   async () => await init()
 );
 
-const entity: Ref<ExtendedTTEntity> = ref({});
+const entity: Ref<TTEntity> = ref({});
 const loading = ref(true);
+const iri = computed(() => {
+  if (isString(entity.value.iri)) return entity.value.iri;
+  else return "";
+});
 
 onMounted(async () => await init());
 

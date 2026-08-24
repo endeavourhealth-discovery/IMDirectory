@@ -2,11 +2,11 @@ import { ref } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { QueryRequest } from "@endeavour/vue-library/interfaces";
+import { type QueryRequest, QueryRequestSchema } from "@endeavour/vue-library/models";
 
 import { defineStore } from "pinia";
 
-import { SelectedMatch } from "@/interfaces";
+import { SelectedMatch } from "@/models";
 import { EntityService } from "@/services";
 
 export const useQueryStore = defineStore("query", () => {
@@ -26,7 +26,7 @@ export const useQueryStore = defineStore("query", () => {
         ]
       }
     }
-  });
+  } as QueryRequest);
 
   function updateQueryIri(iri: string) {
     queryIri.value = iri;
@@ -47,7 +47,7 @@ export const useQueryStore = defineStore("query", () => {
   async function getQueryName(): Promise<string> {
     if (queryIri.value) {
       const result = await EntityService.getPartialEntity(queryIri.value, [RDFS.LABEL]);
-      if (isObjectHasKeys(result, [RDFS.LABEL])) return result[RDFS.LABEL];
+      if (isObjectHasKeys(result, [RDFS.LABEL]) && typeof result[RDFS.LABEL] === "string") return result[RDFS.LABEL];
     }
     return "";
   }

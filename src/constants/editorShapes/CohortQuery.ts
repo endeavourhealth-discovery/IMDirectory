@@ -1,7 +1,8 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
-const CohortQueryShape: FormGenerator = {
+import { type FormGenerator, FormGeneratorSchema } from "@/models";
+
+const CohortQueryShape = FormGeneratorSchema.parse({
   iri: EDITOR.COHORT_QUERY_SHAPE,
   type: [
     {
@@ -55,6 +56,7 @@ const CohortQueryShape: FormGenerator = {
               componentType: {
                 iri: COMPONENT.IRI_BUILDER
               },
+              argument: [{ parameter: "prefix", valueData: "Q_" }],
               valueVariable: "conceptIri",
               function: {
                 iri: IM_FUNCTION.GET_USER_EDITABLE_SCHEMES
@@ -289,6 +291,6 @@ const CohortQueryShape: FormGenerator = {
       ]
     }
   ]
-};
+});
 
 export default CohortQueryShape;

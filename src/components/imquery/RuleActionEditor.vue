@@ -21,12 +21,12 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Query } from "@endeavour/vue-library/models";
 
 import { getRuleAction, getRuleActionLabel, getRuleActionOptions, setRuleAction } from "@/helpers/buildQuery";
 
 const ruleAction: Ref<string> = ref("");
-const match = defineModel<Match>("rule", { default: {} });
+const match = defineModel<Query>("rule", { default: {} });
 
 watch(match, (newValue, oldValue) => {
   if (newValue != oldValue) {

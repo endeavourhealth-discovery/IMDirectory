@@ -1,7 +1,8 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
-const ConceptSetShape: FormGenerator = {
+import { type FormGenerator, FormGeneratorSchema } from "@/models";
+
+const ConceptSetShape = FormGeneratorSchema.parse({
   iri: EDITOR.CONCEPT_SET_SHAPE,
   type: [
     {
@@ -373,6 +374,6 @@ const ConceptSetShape: FormGenerator = {
       ]
     }
   ]
-};
+});
 
 export default ConceptSetShape;

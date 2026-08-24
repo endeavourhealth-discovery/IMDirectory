@@ -1,4 +1,4 @@
-import type { SearchResponse } from "@endeavour/vue-library/interfaces";
+import { type SearchResponse, SearchResponseSchema } from "@endeavour/vue-library/models";
 
 import { createTestingPinia } from "@pinia/testing";
 import { beforeEach, describe, expect, vi } from "vitest";
@@ -44,24 +44,24 @@ describe("mutations", () => {
   it("can updateSearchResults", () => {
     const directoryStore = useDirectoryStore();
 
-    const testResult: SearchResponse = {
-      count: 1,
+    const testResult = SearchResponseSchema.parse({
+      size: 1,
       page: 1,
       entities: [
         {
           name: "testConcept",
-          iri: "testIri",
+          iri: "http://endhealth.info/im#testIri",
           scheme: {
             name: "testScheme",
-            iri: "testSchemeIri"
+            iri: "http://endhealth.info/im#testSchemeIri"
           },
           code: "testCode",
-          type: [{ iri: "testType", name: "testType" }],
+          type: [{ iri: "http://endhealth.info/im#testType", name: "testType" }],
           bestMatch: "testMatch",
-          status: { iri: "testStatus", name: "testStatus" }
+          status: { iri: "http://endhealth.info/im#testStatus", name: "testStatus" }
         }
       ]
-    };
+    });
     directoryStore.updateSearchResults(testResult);
     expect(directoryStore.searchResults).toEqual(testResult);
   });

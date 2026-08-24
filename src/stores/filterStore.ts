@@ -1,10 +1,10 @@
 import { ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, Namespace } from "@endeavour/vue-library/interfaces";
 
 import { defineStore } from "pinia";
 
+import { type FilterOptions, FilterOptionsSchema, type Namespace, isFilterOptions } from "@/models";
 import { EntityService } from "@/services";
 
 export const useFilterStore = defineStore("filter", () => {
@@ -18,19 +18,20 @@ export const useFilterStore = defineStore("filter", () => {
     const apiFilterOptions = await EntityService.getFilterOptions();
     const filterDefaults = await EntityService.getFilterDefaultOptions();
     const coreSchemes = await EntityService.getCoreSchemes();
-    if (isObjectHasKeys(apiFilterOptions, ["status", "schemes", "types"]) && isObjectHasKeys(filterDefaults, ["status", "schemes", "types"])) {
+    if (isFilterOptions(apiFilterOptions) && isFilterOptions(filterDefaults)) {
       updateDefaultFilterOptions(filterDefaults);
       updateFilterOptions(apiFilterOptions);
       const selectedStatus = filterOptions.value.status.filter(item => filterDefaults.status.map(defaultOption => defaultOption.iri).includes(item.iri));
       const selectedSchemes = filterOptions.value.schemes.filter(item => filterDefaults.schemes.map(defaultOption => defaultOption.iri).includes(item.iri));
       const selectedTypes = filterOptions.value.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption.iri).includes(item.iri));
 
-      updateSelectedFilterOptions({
-        status: selectedStatus,
-        schemes: selectedSchemes,
-        types: selectedTypes,
-        includeLegacy: false
-      } as FilterOptions);
+      updateSelectedFilterOptions(
+        FilterOptionsSchema.parse({
+          status: selectedStatus,
+          schemes: selectedSchemes,
+          types: selectedTypes
+        })
+      );
       updateHierarchySelectedFilters(selectedSchemes as unknown as Namespace[]);
       updateCoreSchemes(coreSchemes);
     }

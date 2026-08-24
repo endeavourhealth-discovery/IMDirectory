@@ -1,15 +1,15 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
-    <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
+    <SplitterPanel :minSize="10" :size="30" data-testid="splitter-left" style="overflow: auto">
       <NavTree
         :allow-right-click="true"
-        :selected-iri="findInTreeIri"
         :find-in-tree="findInTreeBoolean"
+        :selected-iri="findInTreeIri"
         @row-selected="routeToSelected"
         @found-in-tree="directoryStore.updateFindInTreeBoolean(false)"
       />
     </SplitterPanel>
-    <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
+    <SplitterPanel :minSize="10" :size="70" data-testid="splitter-right" style="overflow: auto">
       <div class="splitter-right">
         <div v-if="directoryLoading" class="loading-container flex flex-row items-center justify-center">
           <ProgressSpinner />
@@ -18,21 +18,21 @@
           v-else
           v-slot="{ Component, route }"
           v-model:history="history"
-          :searchTerm="searchTerm"
-          :updateSearch="updateSearch"
-          :selected-filter-options="selectedFilterOptions"
           :rows="20"
           :searchResults="searchResults"
-          @selectedUpdated="routeToSelected"
-          @navigateTo="navigateTo"
-          @locateInTree="locateInTree"
-          @selected-filters-updated="emit('selectedFiltersUpdated', $event)"
-          @searchResultsUpdated="updateSearchResults"
+          :searchTerm="searchTerm"
+          :selected-filter-options="selectedFilterOptions"
+          :updateSearch="updateSearch"
           @goToSearchResults="goToSearchResults"
+          @locateInTree="locateInTree"
+          @navigateTo="navigateTo"
+          @searchResultsUpdated="updateSearchResults"
+          @selectedUpdated="routeToSelected"
+          @selected-filters-updated="emit('selectedFiltersUpdated', $event)"
         >
-          <transition :name="route?.meta?.transition || 'fade'" :mode="route?.meta?.mode || 'in-out'">
+          <transition :mode="route?.meta?.mode || 'in-out'" :name="route?.meta?.transition || 'fade'">
             <keep-alive>
-              <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
+              <component :is="Component" :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" />
             </keep-alive>
           </transition>
         </router-view>
@@ -41,18 +41,19 @@
   </Splitter>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Ref, computed, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, SearchResponse } from "@endeavour/vue-library/interfaces";
+import type { SearchResponse } from "@endeavour/vue-library/models";
 
 import { SplitterResizeEndEvent } from "primevue/splitter";
 import { useRouter } from "vue-router";
 
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectService } from "@/composables/useDirectService";
-import { TreeNode } from "@/interfaces";
+import { type FilterOptions } from "@/models";
+import { TreeNode } from "@/models";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useLoadingStore } from "@/stores/loadingStore";
 
@@ -81,8 +82,8 @@ function updateSplitter(event: SplitterResizeEndEvent) {
 }
 
 async function routeToSelected(selected: TreeNode) {
-  if (isObjectHasKeys(selected, ["key"])) await directService.select(selected.key);
-  else if (isObjectHasKeys(selected, ["iri"])) await directService.select(selected.iri);
+  if (selected.key) await directService.select(selected.key);
+  else if (selected.iri) await directService.select(selected.iri);
   else if (typeof selected === "string") await directService.select(selected);
 }
 

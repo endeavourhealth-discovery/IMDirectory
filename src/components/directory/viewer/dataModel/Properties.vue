@@ -96,7 +96,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helper
 import { DataTableExpandedRows } from "primevue/datatable";
 
 import { useDirectService } from "@/composables/useDirectService";
-import { PropertyDisplay } from "@/interfaces";
+import { type PropertyDisplay } from "@/models";
 import { DataModelService } from "@/services";
 
 const props = defineProps<{
@@ -128,7 +128,6 @@ onMounted(async () => {
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
   const results = await DataModelService.getPropertiesDisplay(iri);
-  console.log(results);
   if (results && results.length !== 0) {
     results.forEach((result: PropertyDisplay) => {
       if (result.isOr) {

@@ -34,7 +34,8 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type { IMLLanguage } from "@endeavour/vue-library/interfaces";
+
+import type { IMLLanguage } from "@/models";
 
 interface Props {
   iml: IMLLanguage;

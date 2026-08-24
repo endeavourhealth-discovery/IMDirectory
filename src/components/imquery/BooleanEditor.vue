@@ -1,26 +1,26 @@
 <template>
-  <div class="boolean-edit" @drop="onDrop($event, clause, parent, index, 'Match')" @dragover="onDragOver($event, 'Match')">
+  <div class="boolean-edit" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, clause, parent, index, 'Match')">
     <div>
       <Button
+        draggable="true"
         icon="drag-icon fa-solid fa-grip-vertical"
         severity="secondary"
         text
-        draggable="true"
-        @dragstart="onDragStart(clause, parent, index, 'Match')"
         @dragend="onDragEnd()"
+        @dragstart="onDragStart(clause, parent, index, 'Match')"
       />
     </div>
     <div v-if="operator">
       <Select
         :class="'operator-selector'"
         :modelValue="operator"
-        :options="getBooleanOptions(clauseType, index, false, true)"
+        :options="getBooleanOptions(clauseType, index, eclQuery, true)"
         option-label="label"
         option-value="value"
         @update:modelValue="updateOperator"
       >
         <template #option="slotProps">
-          <div class="dropdown-labels flex items-center" v-tooltip="slotProps.option.tooltip">
+          <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center">
             <div>{{ slotProps.option.label }}</div>
           </div>
         </template>
@@ -28,23 +28,23 @@
     </div>
     <div v-if="!rootBool && parent" class="sub-group-button flex items-center">
       <Button
-        type="button"
-        icon="fa-solid fa-xmark-circle"
         :label="removeLabel"
-        data-testid="add-bool-concept-button"
         :severity="'secondary'"
+        data-testid="add-bool-concept-button"
+        icon="fa-solid fa-xmark-circle"
+        type="button"
         @click.stop="onRemoveSubgroup()"
       />
     </div>
     <div v-if="clauseType === 'Where' && boolGroup">
-      <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:where="clause as Where" v-model:isRoleGroup="isRoleGroup" />
+      <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:isRoleGroup="isRoleGroup" v-model:where="clause as Where" />
     </div>
     <div v-if="group.length > 1" class="sub-group-button flex items-center">
       <Button
-        type="button"
-        icon="fa-solid fa-plus"
         :label="`Create boolean ${subOperator} subgroup`"
         data-testid="add-bool-concept-button"
+        icon="fa-solid fa-plus"
+        type="button"
         @click.stop="onCreateSubgroup()"
       />
     </div>
@@ -52,20 +52,33 @@
       <i class="fas fa-info-circle text-blue-500" />
       <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
     </div>
+    <div class="column-edit">
+      <Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit return columns" severity="secondary" @click="returnEditor = true" />
+    </div>
   </div>
+  <BooleanReturnEditor
+    v-if="returnEditor && baseType"
+    v-model:booleanMatch="clause as Query"
+    v-model:showEditor="returnEditor"
+    :baseType="baseType"
+    :index="0"
+    @cancel="returnEditor = false"
+    @updateBooleanMatch="onReturnUpdate"
+  />
 </template>
-<script setup lang="ts">
-import { Ref, computed, inject, onMounted, ref, watch } from "vue";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { computed, ref } from "vue";
 
-import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Where } from "@endeavour/vue-library/interfaces";
+import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import { Node, Query, QuerySchema, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 
+import BooleanReturnEditor from "@/components/imquery/BooleanReturnEditor.vue";
 import RoleGroup from "@/components/imquery/RoleGroup.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
 import { createNewBoolGroup, getBoolGroup, getBooleanOperator, getBooleanOptions, getIsRoleGroup, removeSubgroup } from "@/helpers/buildQuery";
+import { QueryService } from "@/services";
 
 interface Props {
   index: number;
@@ -75,11 +88,13 @@ interface Props {
   clauseType: string;
   isInAttributeGroup?: boolean;
   operator?: Bool;
+  eclQuery: boolean;
+  baseType?: Node;
 }
-
+type BooleanOperator = "and" | "or" | "each";
 const props = defineProps<Props>();
-const clause = defineModel<Match | Where>("clause", { required: true });
-const parent = defineModel<Match | Where>("parent", { default: {} });
+const clause = defineModel<Query | Where>("clause", { required: true });
+const parent = defineModel<Query | Where>("parent", { default: {} });
 const group = defineModel<number[]>("group", { default: [] });
 const emit = defineEmits(["rationalise"]);
 const operator = computed(() => {
@@ -94,10 +109,9 @@ const removeLabel = computed(() => {
     return "Revert this '" + operator.value!.toUpperCase() + "' subgroup to '" + (parent ? props.parentOperator!.toUpperCase() : "") + "'";
   }
 });
+const returnEditor = ref(false);
 
-const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const hover = ref();
-const checkUngroup: Ref<boolean> = ref(false);
 const subOperator = computed(() => {
   if (operator.value === Bool.or) return "AND";
   else return "OR";
@@ -108,21 +122,35 @@ function onRemoveSubgroup() {
   removeSubgroup(clause.value, parent.value as Where, props.index);
   group.value = [];
 }
-function onRationalise() {
-  emit("rationalise");
+async function onReturnUpdate() {
+  returnEditor.value = false;
+  clause.value = await QueryService.getQueryDisplayFromQuery(QuerySchema.parse(clause.value), DisplayMode.ORIGINAL);
 }
 function onCreateSubgroup() {
   createNewBoolGroup(clause.value, group.value);
   group.value = [];
 }
+function updateOperator(val: BooleanOperator) {
+  if (props.clauseType === "Match") {
+    const query = clause.value as Query;
+    for (const op of ["and", "or", "each"] as const) {
+      if (query[op]) {
+        const subObject = query[op];
+        delete query[op];
+        query[val] = subObject;
+      }
+    }
+  }
 
-function updateOperator(val: string) {
-  if (val === "or" && clause.value.and) {
-    clause.value.or = clause.value.and;
-    delete clause.value.and;
-  } else if (val === "and" && clause.value.or) {
-    clause.value.and = clause.value.or;
-    delete clause.value.or;
+  if (props.clauseType === "Where" && val !== "each") {
+    const where = clause.value as Where;
+    for (const op of ["and", "or"] as const) {
+      if (where[op]) {
+        const subObject = where[op];
+        delete where[op];
+        where[val] = subObject;
+      }
+    }
   }
 }
 function mouseover(event: any) {
@@ -164,17 +192,6 @@ function mouseout(event: any) {
   min-height: 1rem;
   font-size: 1rem;
 }
-.step-boolean {
-  margin-top: 0.5rem;
-}
-.step {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-.check-ungroup {
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
 
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;
@@ -185,5 +202,12 @@ function mouseout(event: any) {
 ::v-deep(.operator-selector .p-select-dropdown) {
   padding-left: 0;
   margin-left: 0;
+}
+.column-edit {
+  margin-left: 2rem;
+}
+
+.edit-choice-btn {
+  width: 220px;
 }
 </style>

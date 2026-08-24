@@ -1,18 +1,18 @@
-import type { Match, Where } from "@endeavour/vue-library/interfaces";
+import type { Query, Where } from "@endeavour/vue-library/models";
 
 type DraggedItem = {
-  clause: Match | Where;
+  clause: Query | Where;
   index: number;
   clauseType: string;
-  parent: Match | Where | undefined;
+  parent: Query | Where | undefined;
 };
 let draggedItem: DraggedItem | undefined;
 
-export function onDragStart(item: Match | Where, parent: Match | Where | undefined, index: number, clauseType: string) {
+export function onDragStart(item: Query | Where, parent: Query | Where | undefined, index: number, clauseType: string) {
   draggedItem = { clause: item, parent: parent, index: index, clauseType: clauseType } as DraggedItem;
 }
 
-export function onDrop(event: any, dropzoneItem: Match | Where, parent: Match | Where | undefined, index: number, clauseType: string) {
+export function onDrop(event: any, dropzoneItem: Query | Where, parent: Query | Where | undefined, index: number, clauseType: string) {
   if (!draggedItem) return;
   if (draggedItem.clause.uuid === dropzoneItem.uuid) return;
   if (draggedItem.clauseType != clauseType) return;
@@ -27,7 +27,7 @@ export function onDrop(event: any, dropzoneItem: Match | Where, parent: Match | 
   event.preventDefault();
 }
 
-function moveItem(source: Match[] | Where[], sourceIndex: number, target: Match[] | Where[], targetIndex: number) {
+function moveItem(source: any[], sourceIndex: number, target: Query[] | Where[], targetIndex: number) {
   const [item] = source.splice(sourceIndex, 1);
   target.splice(targetIndex, 0, item);
 }

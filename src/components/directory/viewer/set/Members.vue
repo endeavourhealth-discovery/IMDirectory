@@ -44,7 +44,7 @@ import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Node, Query } from "@endeavour/vue-library/interfaces";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { EntityService, SetService } from "@/services";

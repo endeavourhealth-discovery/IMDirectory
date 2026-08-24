@@ -1,48 +1,48 @@
 <template>
-  <div class="search-container" ref="autocompleteRoot">
+  <div ref="autocompleteRoot" class="search-container">
     <IconField class="autocomplete-search" iconPosition="right">
-      <InputIcon v-if="!searchLoading && !listening" class="pi pi-microphone mic" :class="{ listening }" @click="toggleListen" />
+      <InputIcon v-if="!searchLoading && !listening" :class="{ listening }" class="pi pi-microphone mic" @click="toggleListen" />
       <InputIcon v-if="searchLoading" class="pi pi-spin pi-spinner" />
       <InputText
         id="autocomplete-search"
         ref="searchInput"
-        :disabled="disabled"
         v-model="searchText"
+        :disabled="disabled"
         :placeholder="searchPlaceholder"
+        :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
         data-testid="search-input"
+        @blur="editing = false"
+        @focus="handleFocus"
         @input="debounceForSearch"
+        @mouseleave="hideOverlay"
+        @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
         @keydown.down="select"
         @keydown.enter="onEnter"
         @keydown.up="select"
-        @focus="handleFocus"
-        @blur="editing = false"
-        @mouseover="selected?.iri != 'any' && showOverlay($event, selected?.iri)"
-        @mouseleave="hideOverlay"
-        :pt="{ root: { autocomplete: allowBrowserAutocomplete ? 'on' : 'off' } }"
       />
       <i v-if="editing" class="fa fa-times-circle clear-icon" @mousedown.prevent="clearSearch()"></i>
     </IconField>
 
     <Button
+      v-tooltip="'Advanced search'"
       :disabled="disabled"
-      severity="info"
-      @click="advancedSearch"
       data-testid="autocomplete-search-button"
       icon="pi pi-search"
-      v-tooltip="'Advanced search'"
+      severity="info"
+      @click="advancedSearch"
     />
     <Popover ref="resultsOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }" appendTo="body">
       <div v-if="searchLoading" class="loading-container">
         <ProgressSpinner />
       </div>
-      <div v-else class="results-container" :tabindex="0">
+      <div v-else :tabindex="0" class="results-container">
         <Listbox v-if="results?.entities" v-model="listBoxSelected" :options="results.entities">
           <template #option="slotProps">
             <div
               class="listbox-item"
-              @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
-              @mouseleave="hideOverlay"
               @click="onListBoxOptionClick(slotProps.option)"
+              @mouseleave="hideOverlay"
+              @mouseover="slotProps.option.iri != 'any' ? showOverlay($event, slotProps.option.iri) : null"
             >
               <span>{{ slotProps.option.bestMatch ? slotProps.option.bestMatch : slotProps.option.name }}</span>
             </div>
@@ -53,22 +53,22 @@
         <div class="advanced-search-container">
           <small>
             Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
-            {{ results?.count ? results.count : 0 }} results
+            {{ results?.totalCount ? results.totalCount : 0 }} results
           </small>
         </div>
       </div>
     </Popover>
     <DirectorySearchDialog
       v-if="showDialog"
-      v-model:show-dialog="showDialog"
       v-model:selected="selectedLocal"
+      v-model:show-dialog="showDialog"
       :imQuery="cloneDeep(imQuery)"
-      :root-entities="rootEntities"
-      :selected-filter-options="filterOptions"
-      :searchTerm="searchText"
       :quick-type-filters-allowed="quickTypeFiltersAllowed"
-      :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
+      :root-entities="rootEntities"
+      :searchTerm="searchText"
+      :selected-filter-options="filterOptions"
       :selected-quick-type-filter="selectedQuickTypeFilter"
+      :show-quick-type-filters="isArrayHasLength(quickTypeFiltersAllowed)"
       :validEntityQuery="validEntityQuery"
       @update-selected-filters="(filters: FilterOptions) => $emit('updateSelectedFilters', filters)"
     />
@@ -76,22 +76,21 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { Ref, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import { OverlaySummary } from "@endeavour/vue-library/components";
-import { useSpeechToText } from "@endeavour/vue-library/composables";
-import { useOverlay } from "@endeavour/vue-library/composables";
+import { useOverlay, useSpeechToText } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { FilterOptions } from "@endeavour/vue-library/interfaces";
-import type { QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import { PageSchema, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
-import { EntityService, QueryService } from "@/services";
+import type { FilterOptions } from "@/models";
+import { QueryService } from "@/services";
 
 interface Props {
   selected?: SearchResultSummary;
@@ -120,7 +119,7 @@ const resultsOP = ref();
 const searchText = ref("");
 const results: Ref<SearchResponse | undefined> = ref();
 const showDialog = ref(false);
-const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
+const selectedLocal: Ref<SearchResultSummary | undefined> = ref(props.selected);
 const searchLoading: Ref<boolean> = ref(false);
 const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
 const { listening, toggleListen } = useSpeechToText(searchText, searchPlaceholder);
@@ -285,7 +284,7 @@ async function search() {
     if (imQueryCopy) {
       searchLoading.value = true;
       imQueryCopy.textSearch = searchText.value;
-      imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+      imQueryCopy.page = PageSchema.parse({ pageNumber: 1, pageSize: 10 });
       imQueryCopy.textSearchStyle = TextSearchStyle.autocomplete;
       const response = await QueryService.queryIMSearch(imQueryCopy);
       searchLoading.value = false;

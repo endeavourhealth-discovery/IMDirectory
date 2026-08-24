@@ -1,9 +1,10 @@
 import { Operator, Order } from "@endeavour/vue-library/enums";
-import type { Compare, Having, Match, Node, Orderable, Range, Where } from "@endeavour/vue-library/interfaces";
+import type { Compare, Having, Node, Query, Range, Where } from "@endeavour/vue-library/models";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
-import { SentencePart } from "@/interfaces";
-import { RelativeTo } from "@/interfaces/RelativeTo";
+import { type Orderable } from "@/models";
+import { SentencePart } from "@/models";
+import { RelativeTo } from "@/models/RelativeTo";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
@@ -45,7 +46,7 @@ export function getRelativeTo(where: Where): RelativeTo | undefined {
   return undefined;
 }
 
-export function getOrderable(match: Match, orderables: any[]): Orderable | undefined {
+export function getOrderable(match: Query, orderables: any[]): Orderable | undefined {
   if (match.orderBy) {
     const orderProperty = match.orderBy.property![0];
     return orderables.find(o => o.value.iri === orderProperty.iri && o.value.direction === orderProperty.direction);
@@ -84,7 +85,7 @@ export function isTimeInRange(time: string, start: string, end: string): boolean
 export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
   if (!having) return;
   const parts: SentencePart[] = [];
-  parts.push({ type: "text", value: "True if " + having.aggregate?.toString() + " " });
+  parts.push({ type: "text", value: "True if " + having.function?.toString() + " " });
   if (having.range) {
     const range = buildRangeSentence(having.range);
     if (range) parts.push(...range);
@@ -114,8 +115,12 @@ function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
     parts.push({ type: "text", value: "is present" });
     return parts;
   }
+  if (where.compare && where.compare.left) {
+    parts.push({ type: "text", value: where.compare.left.name + " " });
+  }
   const units = where.compare && where.compare.units ? where.compare.units.name : "";
-  const value = where.value && where.value != "0" ? where.value : undefined;
+  let value = undefined;
+  if (where.value && (where.value != "0" || where.operator)) value = where.value;
   if (where.operator) {
     parts.push({ type: "text", value: getOperatorTerm(where.operator) });
   }
@@ -212,8 +217,10 @@ function getOperatorTerm(operator: Operator): string {
       break;
     case "contains":
       return "contains ";
-    case "isTrue":
-      return "is true ";
+    case "isNull":
+      return "is not recorded ";
+    case "notNull":
+      return "is recorded ";
     default:
       return (operator as string) + " ";
   }

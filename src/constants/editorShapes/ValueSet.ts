@@ -1,7 +1,8 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
-const ValueSetShape: FormGenerator = {
+import { type FormGenerator, FormGeneratorSchema } from "@/models";
+
+const ValueSetShape = FormGeneratorSchema.parse({
   iri: EDITOR.VALUE_SET_SHAPE,
   type: [
     {
@@ -359,6 +360,6 @@ const ValueSetShape: FormGenerator = {
       ]
     }
   ]
-};
+});
 
 export default ValueSetShape;

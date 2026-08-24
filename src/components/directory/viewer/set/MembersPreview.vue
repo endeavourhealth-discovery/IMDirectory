@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ECLQueryRequest, Query } from "@endeavour/vue-library/interfaces";
+import type { Query } from "@endeavour/vue-library/models";
 
 import Members from "@/components/directory/viewer/set/Members.vue";
 

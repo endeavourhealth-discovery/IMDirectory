@@ -16,8 +16,21 @@ export function getDisplayFromDate(now: Date, date: Date) {
   if (date.getFullYear() === now.getFullYear()) return "this year";
   else return "";
 }
+export function flattenArray(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
 
+  for (const [key, value] of Object.entries(obj)) {
+    if (Array.isArray(value)) {
+      result[key] = value[0];
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
 export default {
+  flattenArray,
   debounce,
   getDisplayFromDate
 };

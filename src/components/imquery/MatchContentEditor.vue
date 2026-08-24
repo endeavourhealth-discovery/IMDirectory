@@ -1,147 +1,105 @@
 <template>
-  <div class="match-content-display">
-    <div v-if="!editingThen">
-      <div v-if="match.where || match.orderBy">
-        <span class="description">Description</span>
-        <InputText v-model="match.description" type="text" class="match-description" @update:model-value="updateDescription" />
-      </div>
-
-      <div>
-        <span class="field">With the following conditions:</span>
-      </div>
-      <div>
-        <Button
-          :icon="match.notExists ? 'pi pi-times' : 'pi pi-check'"
-          class="p-button-text p-button-rounded"
-          :class="match.notExists ? 'text-red-500' : 'text-green-500'"
-          v-tooltip="notExistsLabel"
-          @click="toggleNotExists"
-        />
-        <span>{{ notExistsLabel }}</span>
-      </div>
-
-      <div>Select features and properties from left</div>
-      <div v-if="match.where">
-        <BooleanWhereEditor
-          :match="match"
-          :base-type="baseType"
-          v-model:parent="match"
-          v-model:where="match.where"
-          :index="0"
-          :parentIndex="0"
-          :rootBool="true"
-          @updateProperty="onUpdate"
-          @deleteWhere="onDeleteWhere"
-        />
-      </div>
-      <div v-if="orderables && orderables.length > 0 && isDefined()">
-        <span class="keep-as-reference">Select</span>
-        <Select
-          class="test-selector"
-          :modelValue="orderable"
-          :options="orderables"
-          scroll-height="50rem"
-          option-label="label"
-          option-value="value"
-          data-testid="order-selector"
-          @update:modelValue="updateOrderable"
-        >
-          <template #value="slotProps">
-            <div class="test-selector">
-              <div v-if="orderable">{{ orderable.label }}</div>
-            </div>
-          </template>
-          <template #dropdownicon>
-            <i class="pi pi-chevron-down"></i>
-          </template>
-          <template #option="slotProps">
-            <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
-              <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </Select>
-      </div>
-      <div v-if="editingThen">
-        <div>
-          <span class="field">Then further test the above</span>
-          <Button data-testid="edit-test-button" class="add-button" label="Edit these tests" @click="addTest" />
-        </div>
-
-        <WhereContentDisplay v-if="match.then" :where="match.then" :depth="depth" :parentOperator="whereOperator" :key="0" :index="0" :root="false" />
-      </div>
-    </div>
-    <div v-else-if="editingThen">
-      <div>
-        <span class="field">With the following conditions:</span>
-        <Button data-testid="edit-test-button" class="add-button" label="Edit main criteria" @click="editMain" />
-      </div>
-      <MatchContentDisplay :match="match" :depth="0" :parentMatch="match" :clauseIndex="0" :skipThen="true" />
-
-      <div>Then further test the above values after ordering. Add from left</div>
-      <BooleanWhereEditor
-        v-if="match.then"
-        :match="match"
-        :base-type="baseType"
-        v-model:parent="match"
-        v-model:where="match.then"
-        :index="0"
-        :parentIndex="0"
-        :rootBool="true"
-        :key="'test'"
-        @updateProperty="onUpdate"
-        @deleteWhere="onDeleteThen"
-      />
-    </div>
-    <div v-if="(match.where || match.orderBy) && !editingThen">
-      <span class="keep-as-reference">Keep as reference</span>
-      <InputText v-model="match.node" type="text" />
-    </div>
-    <div v-if="!editingThen && orderables && orderables.length > 0 && match.where">
-      <span v-if="match.orderBy">
-        <Button v-if="!match.then" data-testid="add-test-button" class="add-button" label="Add further test on the results" @click="addTest" />
-      </span>
-      <Button data-testid="add-test-button" class="add-button" label="Add related feature" @click="addLinked" />
-    </div>
-    <div v-if="(match.where || match.orderBy) && parentOperator && parentOperator === Bool.or">
-      <span class="description">Optionally assign score if true</span>
-      <InputText v-model="match.score" type="text" class="match-score" @update:model-value="updateScore" />
-    </div>
+  <div>
+    <span class="description">Name</span>
+    <InputText v-model="match.name" class="match-name" type="text" @update:model-value="updateName" />
   </div>
+  <div>
+    <Button
+      v-tooltip="notExistsLabel"
+      :class="match.notExists ? 'text-red-500' : 'text-green-500'"
+      :icon="match.notExists ? 'pi pi-times' : 'pi pi-check'"
+      :label="`${match.notExists ? 'Exclude' : 'Include'} if true (click to change)`"
+      class="p-button-text p-button-rounded"
+      @click="toggleNotExists"
+    />
+  </div>
+  <Tabs v-model:value="activeTab">
+    <TabList>
+      <Tab value="main">Main filter</Tab>
+      <Tab v-if="match.orderBy" value="test">Post ordering tests</Tab>
+    </TabList>
+    <TabPanels>
+      <TabPanel value="main">
+        <div v-if="!match.where">
+          <span class="help-text">If no filter, select output column tab</span>
+        </div>
+        <div class="filter-editor">
+          <WhereEditor
+            v-model:match="match"
+            :baseType="baseType"
+            :clauseIndex="index"
+            :depth="depth"
+            :editingWhere="true"
+            :mustKeep="mustKeep"
+            :parentOperator="parentOperator"
+            :showEditor="showEditor"
+            @addLinked="emit('addLinked')"
+            @addTest="activeTab = 'test'"
+            @cancel="emit('cancel')"
+            @deleteMatch="emit('deleteMatch')"
+            @deleteWhere="onDeleteWhere"
+            @saveChanges="emit('saveChanges', $event)"
+            @delete-then="onDeleteThen"
+            @update-match="onUpdate"
+            @edit-test="activeTab = 'test'"
+            @update:match="onUpdate"
+          />
+        </div>
+      </TabPanel>
+      <TabPanel value="test">
+        <div class="filter-editor">
+          <WhereEditor
+            v-model:match="match"
+            :baseType="baseType"
+            :clauseIndex="index"
+            :depth="depth"
+            :editingThen="true"
+            :parentOperator="parentOperator"
+            :showEditor="showEditor"
+            @addLinked="emit('addLinked')"
+            @addTest="emit('addTest')"
+            @cancel="emit('cancel')"
+            @deleteMatch="emit('deleteMatch')"
+            @deleteWhere="onDeleteThen"
+            @saveChanges="emit('saveChanges', $event)"
+            @update-match="onUpdate"
+            @edit-main="activeTab = 'main'"
+          />
+        </div>
+      </TabPanel>
+    </TabPanels>
+  </Tabs>
 </template>
 
 <script lang="ts" setup>
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import { Bool, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, NodeShape, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
+import { isArrayOf } from "@endeavour/vue-library/helpers";
+import { type Node, Query, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
-import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
-import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
-import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
-import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
-import { getBooleanOperator, getOrderables } from "@/helpers/buildQuery";
-import { EntityService } from "@/services";
+import WhereEditor from "@/components/imquery/WhereEditor.vue";
+import { EntityService, QueryService } from "@/services";
 
 interface Props {
   baseType: Node;
   depth: number;
   index: number;
   isStep?: boolean;
-  nodeShape: NodeShape;
-  editingThen?: boolean;
   parentOperator?: Bool;
+  mustKeep?: boolean;
+  datasetEntry?: boolean;
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
-const showMatchEditor = defineModel<boolean>("showMatchEditor", { default: false });
+const match = defineModel<Query>("match", { default: {} });
+const showEditor = defineModel<boolean>("showMatchEditor", { default: false });
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
   (event: "addLinked"): void;
@@ -153,23 +111,18 @@ const expandedKeys = ref<Record<string, boolean>>({});
 const { onCopy, onCopyError } = useCopyToClipboard(ref(JSON.stringify(match.value)));
 const showPropertySelector = ref(false);
 const loading = ref(true);
-const orderables: Ref<any[] | undefined> = ref();
-const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });
+const activeTab = ref("main");
 const edited = ref(false);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
-const keepAs = inject("keepAs") as Ref<Match[]>;
-const whereOperator = computed(() => {
-  return getBooleanOperator("Where", match.value.then ? match.value.then : match.value.where);
-});
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 
 const toggleNotExists = () => {
   if (match.value.notExists === undefined) {
     match.value.notExists = true;
   } else {
-    delete match.value.notExists;
+    match.value.notExists = false;
   }
-  edited.value = true;
   emit("updateMatch");
 };
 
@@ -186,29 +139,27 @@ onMounted(async () => {
 watch(match.value, (newVal, oldVal) => {
   if (newVal === oldVal) return;
   edited.value = true;
-  updateKeepAs(oldVal, newVal);
+  updateKeepAs(oldVal);
 });
-function onUpdate() {
+async function onUpdate() {
   edited.value = true;
-  setOrderables();
+  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
   emit("updateMatch");
 }
 function onDeleteWhere() {
   delete match.value.where;
   emit("deleteMatch");
 }
-function updateDescription() {
+function updateName() {
   edited.value = true;
   emit("updateMatch");
 }
-function updateScore() {
-  edited.value = true;
-  emit("updateMatch");
-}
-function updateKeepAs(oldVal: Match, newVal: Match) {
-  if (oldVal.node != newVal.node) {
-    keepAs.value = keepAs.value.filter(m => m !== match);
-    if (newVal.node) keepAs.value.push(newVal);
+function updateKeepAs(oldVal: Query) {
+  if (oldVal.as) {
+    delete keepAs.value[oldVal.as];
+  }
+  if (match.value.as) {
+    keepAs.value[match.value.as] = match;
   }
 }
 
@@ -216,58 +167,16 @@ async function init() {
   loading.value = true;
   match.value = cloneDeep(match.value);
   expandedKeys.value["0"] = true;
-  await setOrderables();
   loading.value = false;
   initialized.value = true;
-}
-
-function isDefined(): boolean {
-  return !!(match.value.is || match.value.where);
-}
-
-function editMain() {
-  emit("editMain");
-}
-
-async function setOrderables() {
-  if (match.value.typeOf) {
-    orderables.value = getOrderOptions(getOrderables(props.nodeShape));
-    if (match.value.orderBy) {
-      orderable.value = getOrderable(match.value, orderables.value);
-    }
-  }
-}
-
-function updateOrderable(value: any) {
-  if (!value.iri) {
-    delete match.value.orderBy;
-    orderable.value = undefined;
-  } else {
-    orderable.value = value;
-    match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
-  }
-}
-
-function addTest() {
-  showMatchEditor.value = false;
-  emit("addTest");
-}
-
-function addLinked() {
-  showMatchEditor.value = false;
-  emit("addLinked");
-}
-
-async function onMatchTypeSelected() {
-  showPropertySelector.value = false;
 }
 
 async function getFunctionTemplates() {
   const iri = match.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
-    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
-      const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate.iri);
+    if (isArrayOf(entity[IM.FUNCTION_TEMPLATE], isTTIriRef)) {
+      const iris = entity[IM.FUNCTION_TEMPLATE].map(functionTemplate => functionTemplate.iri);
       return await EntityService.getPartialEntities(iris, []);
     }
   }
@@ -284,56 +193,19 @@ function onDeleteThen() {
 </script>
 
 <style scoped>
-.match-container {
-  box-sizing: border-box;
-  padding: 0.5rem;
-  border: #488bc230 1px solid;
-  border-radius: 5px;
-  background-color: #fafafa;
-  margin: 0.5rem;
-  font-size: 1rem;
-
-  /* Important for scrolling */
-  height: 100%; /* fill parent height */
-  overflow-y: auto; /* enable vertical scrolling */
-  min-height: 0; /* allows flex parents to shrink properly */
-}
-.add-button,
-.delete-button {
-  color: #444444; /* text */
-  background-color: #f0f0f0; /* greyish default */
-  border: 1px solid #ccc;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-.add-button:hover,
-.add-button:focus {
-  background-color: #a5d6a7;
-}
-.delete-button:hover,
-.delete-button:focus {
-  background-color: red;
-}
-.keep-as-reference {
-  padding-right: 1rem;
-}
-
-.match-score {
-  width: 20rem;
-}
 .description {
   padding-right: 1rem;
 }
-.name-display {
-  width: 100%;
+.match-name {
+  width: 50rem;
 }
 .description-container {
   display: flex;
   flex-flow: column;
 }
-.where-container {
+
+.filter-editor {
+  height: 60vh;
   display: flex;
   flex-flow: column;
   gap: 1rem;
@@ -350,5 +222,9 @@ function onDeleteThen() {
 }
 .field {
   padding-right: 1rem;
+}
+.help-text {
+  font-weight: bold;
+  font-style: italic;
 }
 </style>

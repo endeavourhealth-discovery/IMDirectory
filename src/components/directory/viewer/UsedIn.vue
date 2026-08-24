@@ -37,12 +37,14 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 
+import { isTTIriRef } from "@endeavour/vue-library";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { RDF, RDFS } from "@endeavour/vue-library/enums";
-import { getColourFromType, getFAIconFromType } from "@endeavour/vue-library/helpers";
+import { getColourFromType, getFAIconFromType, isArrayOf } from "@endeavour/vue-library/helpers";
 
+import { isString } from "lodash-es";
 import { DataTableRowSelectEvent } from "primevue/datatable";
 
 import { useDirectService } from "@/composables/useDirectService";
@@ -102,13 +104,16 @@ async function onRowSelect(event: DataTableRowSelectEvent<Usage>) {
 
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
   const result = await EntityService.getEntityUsages(iri, pageIndex, pageSize);
-  usages.value = result.map(usage => {
-    return {
-      iri: usage.iri,
-      name: usage[RDFS.LABEL],
-      icon: getFAIconFromType(usage[RDF.TYPE]),
-      colour: getColourFromType(usage[RDF.TYPE])
-    } as Usage;
+  usages.value = [];
+  result.forEach(usage => {
+    if (isString(usage.iri) && isString(usage[RDFS.LABEL]) && isArrayOf(usage[RDF.TYPE], isTTIriRef)) {
+      usages.value.push({
+        iri: usage.iri,
+        name: usage[RDFS.LABEL],
+        icon: getFAIconFromType(usage[RDF.TYPE]),
+        colour: getColourFromType(usage[RDF.TYPE])
+      } satisfies Usage);
+    }
   });
 }
 

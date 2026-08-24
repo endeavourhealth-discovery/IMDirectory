@@ -73,7 +73,15 @@ import { ComputedRef, Ref, computed, inject, onBeforeUnmount, onMounted, ref, wa
 
 import { IM, QUERY, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { TypeGuards, byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import {
+  type PropertyShape,
+  type Query,
+  type QueryRequest,
+  type SearchResultSummary,
+  type TTEntity,
+  type TTIriRef,
+  isTTIriRef
+} from "@endeavour/vue-library/models";
 
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { cloneDeep, isEqual } from "lodash-es";
@@ -183,7 +191,7 @@ const showRequired: ComputedRef<boolean> = computed(() => {
 });
 
 onBeforeUnmount(() => {
-  if (isObjectHasKeys(optionsOverlayLocation.value)) {
+  if (optionsOverlayLocation.value instanceof MouseEvent) {
     hideOptionsOverlay(optionsOverlayLocation.value);
   }
 });
@@ -201,7 +209,7 @@ async function init() {
   if (autocompleteOptions.value.length === 0) {
     await getAutocompleteOptions();
   }
-  if (props.value && TypeGuards.isTTIriRef(props.value)) {
+  if (props.value && isTTIriRef(props.value)) {
     const found = autocompleteOptions.value.find(option => option.name === props.value?.name);
     if (found) selectedResult.value = found;
   }
@@ -357,7 +365,7 @@ function summaryToTTIriRef(summary: SearchResultSummary): TTIriRef {
 }
 
 function updateEntity(value: SearchResultSummary) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key.value] = summaryToTTIriRef(value);
   if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }

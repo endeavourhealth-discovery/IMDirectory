@@ -1,8 +1,9 @@
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
+
+import { ComponentDetails, NextComponentSummary } from "@/models";
 
 import { EditorMode } from "../enums";
 import { ComponentType } from "../enums/ComponentType";
-import { ComponentDetails, NextComponentSummary } from "../interfaces";
 
 export function generateNewComponent(
   type: ComponentType,

@@ -1,5 +1,5 @@
 import { COMPONENT } from "@endeavour/vue-library/enums";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import { PropertyShapeSchema } from "@endeavour/vue-library/models";
 
 import { describe, expect, it } from "vitest";
 
@@ -14,13 +14,13 @@ describe("EditorMethods", () => {
       const argument2 = await fakerFactory.argumentRandom();
       const argument3 = await fakerFactory.argumentRandom();
       // const shape = fakerFactory.propertyShape.create({ argument: [argument1, argument2, argument3], builderChild: true, order: 2 });
-      const propertyShape: PropertyShape = {
+      const propertyShape = PropertyShapeSchema.parse({
         order: 2,
-        componentType: { iri: "componentType" },
-        path: { iri: "path" },
+        componentType: { iri: "http://endhealth.info/im#testComponentType" },
+        path: { iri: "http://endhealth.info/im#testPath" },
         builderChild: true,
         argument: [argument1, argument2, argument3]
-      };
+      });
       const valueVariableMap = new Map().set("testVariable", { id: "testId" }).set("testVariableWithOrder2", { id: "testOrderId" });
       const results = processArguments(propertyShape, valueVariableMap);
       expect(results[0]).toEqual(expect.objectContaining({ valueIri: argument1.valueIri }));
@@ -38,20 +38,20 @@ describe("EditorMethods", () => {
     });
 
     it("handles length < 2", async () => {
-      expect(getTreeQueryIri([await fakerFactory.iriRefRandom()])).toBe(undefined);
+      expect(getTreeQueryIri([await fakerFactory.ttIriRefRandom()])).toBe(undefined);
     });
 
     it("returns position 1 id", async () => {
-      const iri1 = await fakerFactory.iriRefRandom();
-      const iri2 = await fakerFactory.iriRefRandom();
-      const iri3 = await fakerFactory.iriRefRandom();
+      const iri1 = await fakerFactory.ttIriRefRandom();
+      const iri2 = await fakerFactory.ttIriRefRandom();
+      const iri3 = await fakerFactory.ttIriRefRandom();
       expect(getTreeQueryIri([iri1, iri2, iri3])).toBe(iri2.iri);
     });
   });
 
   describe("processComponentType", () => {
     it("processes component type ___ invalid not component", async () => {
-      const testIri = await fakerFactory.iriRefRandom();
+      const testIri = await fakerFactory.ttIriRefRandom();
       expect(() => processComponentType(testIri)).toThrowError("Iri is not of type ComponentType: " + testIri.iri);
     });
 
