@@ -3,27 +3,14 @@ import { Ref } from "vue";
 import { NodeSchema, Operator, QuerySchema, WhereSchema } from "@endeavour/vue-library";
 import { Bool, IM, Order, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type {
-  Node,
-  NodeShape,
-  Orderable,
-  Path,
-  PropertyRange,
-  Query,
-  QueryRequest,
-  Return,
-  SearchBinding,
-  SemanticMap,
-  When,
-  Where
-} from "@endeavour/vue-library/models";
+import type { Node, NodeShape, Path, PropertyRange, Query, QueryRequest, Return, When, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 import { v4 } from "uuid";
 
 import { Relativity } from "@/enums";
-import { SearchOptions } from "@/models";
+import { Orderable, SearchBinding, SearchOptions, SemanticMap } from "@/models";
 import { DataModelService, QueryService } from "@/services";
 
 interface Options {
