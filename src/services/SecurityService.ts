@@ -1,3 +1,4 @@
+import { useUserStore } from "@endeavour/vue-library";
 import { UserRole } from "@endeavour/vue-library/enums";
 import { parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
 import { User, UserSchema } from "@endeavour/vue-library/models";
@@ -21,11 +22,18 @@ const SecurityService = {
   },
 
   async login(code: string, state: string): Promise<{ user: User; state: string | undefined }> {
-    return await api.get(API_URL + "/public/login", { params: { code: code, state: state } });
+    try {
+      return await api.get(API_URL + "/public/login", { params: { code: code, state: state } });
+    } catch (e) {
+      await this.logout();
+      throw e;
+    }
   },
 
   async logout() {
     await api.get(API_URL + "/private/logout");
+    const userStore = useUserStore();
+    userStore.updateCurrentUser(undefined);
   },
   async adminGetUsersByGroup(group: UserRole): Promise<User[]> {
     const result = await api.get(API_URL + "/private/getUsersInGroup", { params: { group: group } });
