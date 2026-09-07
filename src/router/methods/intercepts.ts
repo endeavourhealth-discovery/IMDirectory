@@ -1,8 +1,9 @@
+import { AlertDialog } from "@endeavour/vue-library/components";
+import { useDialogStore } from "@endeavour/vue-library/stores";
+
 import { Router } from "vue-router";
 
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { SecurityService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
 export async function directToLogin(router: Router) {

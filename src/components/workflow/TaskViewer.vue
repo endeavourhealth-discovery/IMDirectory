@@ -77,10 +77,10 @@ import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { TaskState, TaskType, UserRole } from "@endeavour/vue-library/enums";
 import { User } from "@endeavour/vue-library/models";
+import { type Task, type TaskHistory, TaskSchema } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import TaskHistoryDialog from "@/components/workflow/TaskHistoryDialog.vue";
-import { type Task, type TaskHistory, TaskSchema } from "@/models";
 import SecurityService from "@/services/SecurityService";
 import WorkflowService from "@/services/WorkflowService";
 

@@ -125,11 +125,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, provide, readonly, Ref, ref, shallowRef, watch } from "vue";
+import { Ref, onMounted, provide, readonly, ref, shallowRef, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Query } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -141,9 +143,6 @@ import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import QueryService from "@/services/QueryService";
-import { useDialogStore } from "@/stores/dialogStore";
-
-import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   showDialog?: boolean;
