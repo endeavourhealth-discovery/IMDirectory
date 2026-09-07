@@ -47,16 +47,16 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { v4 } from "uuid";
 
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { QueryService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   index: number;

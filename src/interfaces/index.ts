@@ -1,1 +1,1 @@
-export { type TypedDynamicDialogOptions } from "./TypedDynamicDialogOptions";
+export { type PropertyTreeNode } from "./PropertyTreeNode";

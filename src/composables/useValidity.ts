@@ -1,15 +1,15 @@
 import { Ref, ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { COMPONENT, IM } from "@endeavour/vue-library/enums";
 import { TypeGuards, deferred, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type PropertyShape, isPropertyShape } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { isArray } from "lodash-es";
 
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { type FormGenerator } from "@/models";
 import { EntityService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 export function useValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);

@@ -1,7 +1,6 @@
 export { ApiError } from "./customErrors/ApiError";
 export { CustomError } from "./customErrors/CustomError";
 export { type Address, AddressSchema, isAddress } from "./Address";
-export { type AlertDialogOptions, AlertDialogOptionsSchema, isAlertDialogOptions } from "./AlertDialogOptions";
 export { type ComponentDetails, ComponentDetailsSchema, isComponentDetails } from "./ComponentDetails";
 export { type DownloadSettings, DownloadSettingsSchema, isDownloadSettings } from "./DownloadSettings";
 export { type ExportValueSet, ExportValueSetSchema, isExportValueSet } from "./ExportValueSet";
@@ -19,7 +18,6 @@ export { type TreeNode, TreeNodeSchema, isTreeNode } from "./TreeNode";
 export { type UprnSearchResponse, UprnSearchResponseSchema, isUprnSearchResponse } from "./UprnSearchResponse";
 export { type ValueSetMember, ValueSetMemberSchema, isValueSetMember } from "./ValueSetMember";
 export { type Binding, BindingSchema, isBinding } from "./Binding";
-export { type BugReport, BugReportSchema, isBugReport } from "./BugReport";
 export { isChartMapNode, type ChartMapNode, ChartMapNodeSchema } from "./ChartMapNode";
 export { isChartTableNode, type ChartTableNode, ChartTableNodeSchema } from "./ChartTableNode";
 export { isCodeGen, type CodeGen, CodeGenSchema } from "./CodeGen";
@@ -81,7 +79,6 @@ export { isPropertyDisplay, type PropertyDisplay, PropertyDisplaySchema } from "
 export { isQueryDisplayRequest, type QueryDisplayRequest, QueryDisplayRequestSchema } from "./QueryDisplayRequest";
 export { isQueryResponse, type QueryResponse, QueryResponseSchema } from "./QueryResponse";
 export { isRequeueQueryRequest, type RequeueQueryRequest, RequeueQueryRequestSchema } from "./RequeueQueryRequest";
-export { isRoleRequest, type RoleRequest, RoleRequestSchema } from "./RoleRequest";
 export { isSearchBinding, type SearchBinding, SearchBindingSchema } from "./SearchBinding";
 export { isSemanticMap, type SemanticMap, SemanticMapSchema } from "./SemanticMap";
 export { isSemanticMapEntry, type SemanticMapEntry, SemanticMapEntrySchema } from "./SemanticMapEntry";
@@ -95,8 +92,6 @@ export {
   SuperiorPropertiesBoolFocusPagedRequestSchema
 } from "./SuperiorPropertiesBoolFocusPagedRequest";
 export { isWorkflowResponse, type WorkflowResponse, WorkflowResponseSchema } from "./WorkflowResponse";
-export { isTask, type Task, TaskSchema } from "./Task";
-export { isTaskHistory, type TaskHistory, TaskHistorySchema } from "./TaskHistory";
 export { isTermCode, type TermCode, TermCodeSchema } from "./TermCode";
 export { isTransformRequest, type TransformRequest, TransformRequestSchema } from "./TransformRequest";
 export { isTreeParent, type TreeParent, TreeParentSchema } from "./TreeParent";

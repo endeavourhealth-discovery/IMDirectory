@@ -97,11 +97,13 @@ export default defineComponent({
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, onMounted, onUnmounted, provide, ref, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type PropertyShape, type TTEntity, TTEntitySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
@@ -109,7 +111,6 @@ import { useRoute, useRouter } from "vue-router";
 
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { useEditorEntity } from "@/composables/useEditorEntity";
@@ -123,7 +124,6 @@ import { EditRequest, EditRequestSchema } from "@/models";
 import { QueryService } from "@/services";
 import { EntityService, SecurityService, SetService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
-import { useDialogStore } from "@/stores/dialogStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 

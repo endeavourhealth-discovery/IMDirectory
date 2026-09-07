@@ -2,6 +2,7 @@ import { ComponentPublicInstance, createApp } from "vue";
 
 import { injectionKeysVueLibrary } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import "@endeavour/vue-library/components.css";
 import { UserRole } from "@endeavour/vue-library/enums";
 
 import Aura from "@primeuix/themes/aura";
