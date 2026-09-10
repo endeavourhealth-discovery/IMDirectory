@@ -145,13 +145,15 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, Ref, ref } from "vue";
+import { Ref, inject, onMounted, ref } from "vue";
 
 import { OrderLimit } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import { type Node, type NodeShape, Query, type When } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";
@@ -161,12 +163,9 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import { usePropertyTree } from "@/composables/usePropertyTree";
 import { ViewMode } from "@/enums/PropertyViewMode";
-import { getOrderable, getOrderOptions } from "@/helpers/QueryEditorMethods";
+import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
 import { addFilter, addWhereToWhen, getOrderables, setMandatoryWheres } from "@/helpers/buildQuery";
 import { DataModelService, QueryService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
-
-import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   baseType: Node;

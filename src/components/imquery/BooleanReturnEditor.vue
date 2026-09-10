@@ -23,18 +23,18 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { QueryService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   index: number;
   booleanMatch: Query;
-  baseType:Node;
+  baseType: Node;
 }
 
 const props = defineProps<Props>();
@@ -74,7 +74,6 @@ async function showInvalid(match: Query) {
     }
   });
 }
-
 </script>
 
 <style scoped>

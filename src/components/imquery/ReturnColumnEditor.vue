@@ -135,7 +135,9 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { type Node, Query, type Return, type TTIriRef, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -148,17 +150,9 @@ import WhenEditor from "@/components/imquery/WhenEditor.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
-import {
-  getPathNameFromMatch,
-  getPathNameFromPropertyRef,
-  getSemanticMapOptions,
-  setPathGetNodeRef,
-  setSemanticMapForMatch
-} from "@/helpers/buildQuery";
+import { getPathNameFromMatch, getPathNameFromPropertyRef, getSemanticMapOptions, setPathGetNodeRef, setSemanticMapForMatch } from "@/helpers/buildQuery";
 import { type SemanticMap, type UIProperty } from "@/models";
 import { DataModelService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   baseType: Node;

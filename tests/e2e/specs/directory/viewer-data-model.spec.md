@@ -9,7 +9,7 @@
 * Select concept type "Data model"
 * Close filters
 * Search for "Patient"
-* Select "Patient" result
+* Select "Patient [im]" result
 * Click tab "Properties"
 * Properties table has rows
 * Can expand properties

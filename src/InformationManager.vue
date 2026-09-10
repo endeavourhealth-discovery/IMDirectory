@@ -28,6 +28,7 @@ import { REPO } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type GithubRelease, isUser } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
 import { useDialog } from "primevue";
@@ -37,7 +38,6 @@ import { useRoute, useRouter } from "vue-router";
 
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import { Env, GithubService, SecurityService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
