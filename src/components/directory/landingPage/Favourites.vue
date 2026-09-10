@@ -30,7 +30,7 @@
         <Column field="type" header="Type">
           <template #body="{ data }: { data: ExtendedSearchResultSummary }">
             <div class="favourite-type-container flex flex-row">
-              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.type }}</span>
+              <span class="favourite-type flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ data.typeNames }}</span>
             </div>
           </template>
         </Column>
@@ -60,15 +60,16 @@ import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { RDF, RDFS } from "@endeavour/vue-library/enums";
-import { getColourFromType, getFAIconFromType, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedSearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { getColourFromType, getFAIconFromType, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 import { useConfirm } from "primevue/useconfirm";
 
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { useDirectService } from "@/composables/useDirectService";
+import { type ExtendedSearchResultSummary } from "@/models";
 import { EntityService, UserService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
@@ -116,11 +117,13 @@ async function getFavouritesDetails() {
   for (const result of results) {
     const clone: ExtendedSearchResultSummary = {} as ExtendedSearchResultSummary;
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL, "iri"])) {
-      if (result.iri) clone.iri = result.iri;
-      clone.name = result[RDFS.LABEL];
-      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
-      clone.icon = getFAIconFromType(result[RDF.TYPE]);
-      clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
+      if (isString(result.iri)) clone.iri = result.iri;
+      if (isString(result[RDFS.LABEL])) clone.name = result[RDFS.LABEL];
+      if (isArrayOf(result[RDF.TYPE], isTTIriRef)) {
+        clone.typeNames = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+        clone.icon = getFAIconFromType(result[RDF.TYPE]);
+        clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
+      }
     }
     temp.push(clone);
   }

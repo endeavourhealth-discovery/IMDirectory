@@ -6,6 +6,7 @@
         v-model:group="group"
         v-model:parent="parent"
         :clauseType="'Where'"
+        :eclQuery="true"
         :index="index"
         :isInAttributeGroup="isInAttributeGroup"
         :operator="operator"
@@ -130,7 +131,13 @@
 import { computed, inject, onMounted, Ref, ref } from "vue";
 
 import { Bool, IM } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResultSummary, Where } from "@endeavour/vue-library/interfaces";
+import {
+  Query,
+  type QueryRequest,
+  type SearchResultSummary,
+  SearchResultSummarySchema,
+  type Where
+} from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
@@ -168,7 +175,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const where = defineModel<Where>("where", { default: {} });
-const parent = defineModel<Where | Match>("parent", { required: true });
+const parent = defineModel<Where | Query>("parent", { required: true });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "rationalise", "createSubgroup"]);
 const group: Ref<number[]> = ref([]);
@@ -179,7 +186,9 @@ const filterStore = useFilterStore();
 const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or"] as const;
-const selectedProperty: Ref<SearchResultSummary | undefined> = ref(where.value as SearchResultSummary | undefined);
+const selectedProperty: Ref<SearchResultSummary | undefined> = ref(
+  where.value.iri ? SearchResultSummarySchema.parse({ iri: where.value.iri, name: where.value.name, description: where.value.description }) : undefined
+);
 const loadingProperty = ref(true);
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
 const isRoleGroup = computed(() => getIsRoleGroup(where.value));
@@ -234,7 +243,7 @@ function onCheckGroupChange(e: any) {
 
 function deleteProperty() {
   if (props.parentType === "Match") {
-    delete (parent.value! as Match).where;
+    delete (parent.value! as Query).where;
   } else {
     if (parent.value) {
       const operator = props.parentOperator as keyof Where;
@@ -263,10 +272,10 @@ function mouseout(event: any) {
 function updateOperator(val: string) {
   if (val === "or" && where.value.and) {
     where.value.or = where.value.and;
-    delete where.value.and;
+    where.value.and = [];
   } else if (val === "and" && where.value.or) {
     where.value.and = where.value.or;
-    delete where.value.or;
+    where.value.or = [];
   }
 }
 
@@ -391,7 +400,6 @@ async function updateProperty(property: SearchResultSummary | undefined) {
   line-height: 1.25rem;
   font-weight: normal;
 }
-
 
 ::v-deep(.operator-selector .p-select-label) {
   font-size: 0.85rem;

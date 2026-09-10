@@ -1,5 +1,8 @@
 <template>
-  <template v-if="showEditor">
+  <template v-if="match.and">
+    <BooleanMatchEditor v-model:match="match" v-model:parent="match" :baseType="baseType" :depth="0" :index="0" :parentIndex="parentIndex" :rootBool="true" />
+  </template>
+  <template v-else-if="showEditor">
     <MatchContentEditor
       v-model:match="match"
       :baseType="baseType"
@@ -20,10 +23,11 @@
 import { computed, inject, onMounted, Ref, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import { v4 } from "uuid";
 
+import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { getBooleanOperator } from "@/helpers/buildQuery";
@@ -40,30 +44,27 @@ interface Props {
   parentOperator?: Bool;
   parentIndex: number;
   baseType: Node;
-  match: Match;
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const emit = defineEmits(["activateInput", "navigateTo", "cancel", "addLinked", "updateMatch"]);
 const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);
-const from: Ref<Match | undefined> = ref();
+const from: Ref<Query | undefined> = ref();
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const dialogStore = useDialogStore();
-const isDefined = computed(() => {
-  return !!match.value.where;
-});
+
 function cancel() {
   emit("cancel");
 }
 async function onAddLinked() {
   const valid = await saveChanges();
   if (valid) {
-    if (!match.value.node) {
+    if (!match.value.as) {
       match.value.invalid = true;
       match.value.errorMessage = "Please select a name to this clause  to line to";
       await showInvalid(match.value);
@@ -73,7 +74,7 @@ async function onAddLinked() {
   }
 }
 
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {
@@ -113,35 +114,35 @@ function init() {
 }
 
 function updateKeepAs() {
-  if (match.value.node) {
-    keepAs.value[match.value.node] = match;
+  if (match.value.as) {
+    keepAs.value[match.value.as] = match;
   }
 }
 
 function deleteAny() {
   updateKeepAs();
   showEditor.value = false;
-  delete match.value.any;
+  delete match.value.and;
 }
 function deleteMatch(index: number) {
-  if (match.value.any) {
-    match.value.any.splice(index, 1);
-    if (match.value.any.length === 0) {
-      delete match.value.any;
+  if (match.value.and) {
+    match.value.and.splice(index, 1);
+    if (match.value.and.length === 0) {
+      delete match.value.and;
     }
   }
 }
 
 function createNewMatch() {
-  const newMatch = { uuid: v4(), draft: true } as Match;
-  if (match.value.any) match.value.any.push(newMatch);
+  const newMatch = { uuid: v4(), draft: true } as Query;
+  if (match.value.and) match.value.and.push(newMatch);
   else {
-    match.value.any = [newMatch];
+    match.value.and = [newMatch];
   }
   emit("updateMatch");
 }
 
-async function saveEditMatch(editedMatch: Match) {
+async function saveEditMatch(editedMatch: Query) {
   showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
@@ -150,11 +151,11 @@ async function saveEditMatch(editedMatch: Match) {
   emit("updateMatch");
 }
 
-async function addLinked(editedMatch: Match) {
+async function addLinked(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   showEditor.value = false;
   const linkedMatch = { uuid: v4(), draft: true };
-  match.value.any!.push(linkedMatch);
+  match.value.and!.push(linkedMatch);
   showEditor.value = false;
   emit("updateMatch");
 }

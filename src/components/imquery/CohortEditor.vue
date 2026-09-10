@@ -107,7 +107,7 @@
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { Bool, IM, NAMESPACE } from "@endeavour/vue-library/enums";
-import type { Match, QueryRequest, SearchResponse, SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { type Query, type QueryRequest, type SearchResponse, type SearchResultSummary, type TTIriRef } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
@@ -120,7 +120,7 @@ import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { type SearchOptions, SearchOptionsSchema } from "@/models";
 import { EntityService } from "@/services";
 
 interface Props {
@@ -129,10 +129,10 @@ interface Props {
 
 const props = defineProps<Props>();
 const editMode = defineModel<boolean>("editMode");
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const exclude = defineModel<boolean>("exclude", { default: false });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
-const importClauses: Ref<Map<string, Match>> = ref(new Map() as Map<string, Match>);
+const importClauses: Ref<Map<string, Query>> = ref(new Map() as Map<string, Query>);
 provide("importClauses", importClauses.value);
 const rootEntities: Ref<string[]> = ref([]);
 const cohort: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
@@ -145,11 +145,13 @@ const updateSearch: Ref<boolean> = ref(false);
 const findInDialogTree = ref(false);
 const searchResults: Ref<SearchResponse | undefined> = ref();
 const edited: Ref<boolean> = ref(false);
-const cohortFilterOptions: Ref<SearchOptions> = ref({
-  types: [{ iri: IM.QUERY }],
-  status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
-  schemes: []
-});
+const cohortFilterOptions: Ref<SearchOptions> = ref(
+  SearchOptionsSchema.parse({
+    types: [{ iri: IM.QUERY }],
+    status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
+    schemes: []
+  })
+);
 const typeFilter: Ref<string[]> = ref([IM.QUERY]);
 const loading = ref(false);
 const cohortQuery: Ref<QueryRequest> = ref({} as QueryRequest);
@@ -159,7 +161,7 @@ const directoryHistory: Ref<string[]> = ref([]);
 const isSelectableEntity: Ref<boolean> = ref(false);
 const emit = defineEmits<{
   (event: "updateCohort"): void;
-  (event: "updateClauses", clause: Match): void;
+  (event: "updateClauses", clause: Query): void;
   (event: "navigateTo", iri: string): void;
   (event: "cancel"): void;
   (event: "updateMatch"): void;
@@ -262,7 +264,7 @@ function updateClauses() {
       }
       emit("updateClauses", match);
     } else {
-      const match = { uuid: v4() } as Match;
+      const match = { uuid: v4() } as Query;
       match.and = [];
       for (const value of importClauses.value.values()) {
         if (value.or || value.and) {
@@ -324,5 +326,4 @@ async function updateSelectedFromIri(iri: string) {
 .description {
   padding-right: 1rem;
 }
-
 </style>

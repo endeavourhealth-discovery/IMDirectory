@@ -1,5 +1,5 @@
 import { IM } from "@endeavour/vue-library/enums";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import { type TTEntity, TTEntitySchema } from "@endeavour/vue-library/models";
 
 import { faker } from "@faker-js/faker";
 import { isArray } from "lodash-es";
@@ -58,30 +58,30 @@ export const handlersFaker = [
   http.get(apiUrl + "entity/public/partial", ({ params }) => {
     console.log("using msw");
     const { iri, predicatesArray } = params;
-    const entity = fakerFactory.entity.create({
+    const entity = {
       iri: iri as string,
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": null,
       "http://www.w3.org/2000/01/rdf-schema#label": null
-    }) as ExtendedTTEntity;
+    } as TTEntity;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });
     return HttpResponse.json(entity);
   }),
   http.get(apiUrl + "entity/public/parents", async () => {
-    const parents = await fakerFactory.iriRef.createMany(2, () => ({ iri: faker.internet.url(), name: faker.lorem.sentence() }));
-    return HttpResponse.json(fakerFactory.entitySummaryRandomMany(2));
+    const parents = await fakerFactory.ttIriRef.createMany(2, () => ({ iri: faker.internet.url(), name: faker.lorem.sentence() }));
+    return HttpResponse.json(fakerFactory.entityReferenceNodeRandomMany(2));
   }),
   http.get(apiUrl + "entity/public/childrenPaged", async () => {
-    const children = await fakerFactory.entitySummaryRandomMany(4);
-    return HttpResponse.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4, pageSize: 25, currentPage: 1 }));
+    const children = await fakerFactory.entityReferenceNodeRandomMany(4);
+    return HttpResponse.json(fakerFactory.pageableEntityReferenceNode.create({ result: children, totalCount: 4, pageSize: 25, currentPage: 1 }));
   }),
   http.get(apiUrl + "entity/public/summary", ({ params }) => {
     const { iri } = params;
     if (iri && typeof iri === "string") {
-      const found = fakerFactory.entitySummary.findFirst(q => q.where({ iri: iri }));
+      const found = fakerFactory.entityReferenceNode.findFirst(q => q.where({ iri: iri }));
       if (found) return HttpResponse.json(found);
-      else return HttpResponse.json(fakerFactory.pagedChildrenRandom());
+      else return HttpResponse.json(fakerFactory.pageableEntityReferenceNodeRandom());
     } else
       return new HttpResponse(
         JSON.stringify({

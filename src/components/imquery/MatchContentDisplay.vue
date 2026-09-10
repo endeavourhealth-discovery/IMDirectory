@@ -1,15 +1,20 @@
 <template>
-
-
+  <div v-if="match.from">
+    <span class="field">using</span>
+    <span v-for="(fromMatch, index) in match.from">
+      <span v-if="fromMatch.typeOf" class="field"> {{ fromMatch.typeOf.name }}</span>
+      <span v-if="fromMatch.alias" class="field"> {{ fromMatch.alias }}</span>
+    </span>
+  </div>
   <span v-if="match.notExists" class="not">Exclude</span>
-  <div v-if="match.description">
-    <span class="match-description">{{ match.description }} </span>
+  <div v-if="match.name">
+    <span class="match-description">{{ match.name }} </span>
+    <span v-if="match.then && match.then.name">
+      <span class="field">and</span>
+      <span class="match-description">{{ match.then.name }} </span>
+    </span>
     <span>defined as:</span>
   </div>
-  <span v-if="from">
-    <span class="field">and if the above</span>
-    <span v-if="match.nodeRef" class="as">({{ match.nodeRef }})</span>
-  </span>
 
   <template v-if="match.is">
     <span class="field">in</span>
@@ -34,7 +39,7 @@
         />
         <div v-for="(subWhere, subIndex) in boolWhereGroup!.slice(1)" :key="subIndex + 1" class="where-container">
           <WhereContentDisplay
-            :key="subIndex + 1 + subWhere.iri"
+            :key="'where ' + (subIndex + 1)"
             :depth="depth + (match.nodeRef ? 1 : 0)"
             :index="subIndex + 1"
             :parentOperator="whereOperator"
@@ -48,9 +53,9 @@
       <span class="above">then with the {{ testFields }} of the above</span>
       <WhereContentDisplay :key="0" :depth="depth + 1" :index="0" :parentOperator="whereOperator" :root="false" :where="match.then.where" />
     </div>
-    <span v-if="match.node">
+    <span v-if="match.as">
       <span class="field">(as</span>
-      <span class="as">{{ match.node }})</span>
+      <span class="as">{{ match.as }})</span>
     </span>
   </template>
 </template>
@@ -59,7 +64,7 @@
 import { computed } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Query } from "@endeavour/vue-library/models";
 
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -67,12 +72,11 @@ import { useDirectService } from "@/composables/useDirectService";
 import { getBoolGroup, getBooleanOperator, getTestFields } from "@/helpers/buildQuery";
 
 interface Props {
-  match: Match;
+  match: Query;
   depth: number;
-  parentMatch?: Match;
+  parentMatch?: Query;
   clauseIndex: number;
   parentOperator?: Bool;
-  from?: Match;
   skipThen?: boolean;
 }
 const props = defineProps<Props>();
@@ -123,5 +127,10 @@ function getFormattedPath(path: any): string {
 .match-description {
   color: var(--p-blue-700);
   padding-right: 1rem;
+}
+
+.not {
+  color: var(--p-red-500) !important;
+  padding-right: 0.2rem;
 }
 </style>

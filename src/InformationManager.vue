@@ -26,7 +26,7 @@ import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
 import { REPO } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { GithubRelease } from "@endeavour/vue-library/models";
+import { type GithubRelease, isUser } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
@@ -74,6 +74,7 @@ const showDevBanner: ComputedRef<boolean> = computed(() => sharedStore.showDevBa
 const isPublicMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isPublicMode);
 const isDevMode: ComputedRef<boolean | undefined> = computed(() => sharedStore.isDevMode);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
 const currentFontSize = computed(() => userStore.currentFontSize);
 const currentPreset = computed(() => userStore.currentPreset);
 const currentPrimaryColor = computed(() => userStore.currentPrimaryColor);
@@ -103,11 +104,13 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  try {
-    const user = await SecurityService.getUser(true);
-    if (user) userStore.updateCurrentUser(user);
-  } catch (e: any) {
-    console.log("No user session found");
+  if (!currentUser) {
+    try {
+      const user = await SecurityService.getUser(true);
+      if (user) userStore.updateCurrentUser(user);
+    } catch (e: any) {
+      console.log("No user session found");
+    }
   }
 
   await setModes();

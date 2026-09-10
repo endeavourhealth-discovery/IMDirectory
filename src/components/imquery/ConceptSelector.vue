@@ -1,11 +1,11 @@
 <template>
   <div class="concept-container">
     <Select
-      style="width: 5.5rem; min-height: 2.3rem"
       v-model="constraintOperator"
       :options="ConstraintOperatorOptions"
       option-label="label"
       option-value="value"
+      style="width: 5.5rem; min-height: 2.3rem"
       @change="updateConstraintOperator"
     >
       <template #value="slotProps">
@@ -14,7 +14,7 @@
         </div>
       </template>
       <template #option="slotProps">
-        <div class="flex items-center" v-tooltip="slotProps.option.tooltip" style="min-height: 1rem">
+        <div v-tooltip="slotProps.option.tooltip" class="flex items-center" style="min-height: 1rem">
           <div>{{ slotProps.option.label }}</div>
         </div>
       </template>
@@ -31,10 +31,10 @@
     <template v-if="searchBar?.searchText && node.name">
       <Button
         v-if="searchBar?.searchText && searchBar.searchText !== node.name"
-        label="?"
-        class="sync-warning"
-        severity="danger"
         v-tooltip="'Revert'"
+        class="sync-warning"
+        label="?"
+        severity="danger"
         @click="searchBar.searchText = node.name!"
       />
     </template>
@@ -43,18 +43,18 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, onMounted, Ref, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { Node, QueryRequest, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import { type Node, type QueryRequest, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 
 import AutocompleteSearchBar from "@/components/shared/AutocompleteSearchBar.vue";
 import { ConstraintOperatorOptions } from "@/constants";
 import { buildIMQueryFromFilters, getConstraintOperator, setConstraintOperator } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { SearchOptionsSchema } from "@/models";
 import { useFilterStore } from "@/stores/filterStore";
 
 interface Props {
@@ -105,11 +105,11 @@ function buildIMQueryForConceptSearch() {
   const coreSchemesAsIris = coreSchemes.value.map(iri => {
     return { iri: iri };
   });
-  const searchOptions: SearchOptions = {
+  const searchOptions = SearchOptionsSchema.parse({
     schemes: coreSchemesAsIris,
     status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
     types: [{ iri: IM.CONCEPT }]
-  };
+  });
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 
@@ -122,7 +122,7 @@ function updateConcept(concept: SearchResultSummary) {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .concept-container {
   flex: 1 0 0%;
   display: flex;

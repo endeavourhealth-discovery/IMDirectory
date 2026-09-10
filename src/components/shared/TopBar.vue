@@ -101,7 +101,7 @@
       <Button
         id="account-button"
         v-tooltip.left="'Account'"
-        v-if="currentUser && isLoggedIn"
+        v-if="isUser(currentUser)"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openUserMenu"
         aria-haspopup="true"
@@ -150,6 +150,7 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
+import { hasRole, isUser } from "@endeavour/vue-library";
 import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
 import { presets, primaryColors, surfaceColors } from "@endeavour/vue-library/constants";
 import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "@endeavour/vue-library/enums";
@@ -231,7 +232,7 @@ watch(includeUserGraph, async newValue => {
 
 watch(currentUser, async newValue => {
   if (newValue) {
-    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
+    hasPermissionDocumentWrite.value = hasRole(newValue, UserRole.EDITOR);
   } else hasPermissionDocumentWrite.value = false;
 });
 
@@ -244,8 +245,8 @@ onMounted(async () => {
   setUserMenuItems();
   setAppMenuItems();
   setUploadDownloadMenuItems();
-  if (isLoggedIn.value) {
-    hasPermissionDocumentWrite.value = currentUser.value?.roles.includes(UserRole.EDITOR)!!;
+  if (isUser(currentUser.value)) {
+    hasPermissionDocumentWrite.value = hasRole(currentUser.value, UserRole.EDITOR);
   }
 });
 

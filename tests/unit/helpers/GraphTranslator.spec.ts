@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { translateFromEntityBundle } from "@/helpers/GraphTranslator";
+import { TTBundleSchema } from "@/models";
 
 describe("GraphTranslator", () => {
   describe("translateFromEntityBundle", () => {
     it("can translateFromEntityBundle", () => {
-      const testBundle = {
+      const testBundle = TTBundleSchema.parse({
         entity: {
           iri: "http://snomed.info/sct#105590001",
           "http://endhealth.info/im#isA": [
@@ -749,7 +750,7 @@ describe("GraphTranslator", () => {
           "http://endhealth.info/im#scheme": "scheme",
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "type"
         }
-      };
+      });
       const testPredicates = [
         "http://www.w3.org/2000/01/rdf-schema#subClassOf",
         "http://endhealth.info/im#code",
@@ -769,7 +770,7 @@ describe("GraphTranslator", () => {
           {
             _children: [],
             children: [],
-            iri: undefined,
+            iri: "",
             name: "105590001",
             relToParent: "code"
           },
@@ -786,26 +787,26 @@ describe("GraphTranslator", () => {
               {
                 _children: [],
                 children: [],
-                iri: undefined,
+                iri: "",
                 name: "Substance",
                 relToParent: "Substance"
               },
               {
                 _children: [],
                 children: [],
-                iri: undefined,
+                iri: "",
                 name: "Substances",
                 relToParent: "Substances"
               },
               {
                 _children: [],
                 children: [],
-                iri: undefined,
+                iri: "",
                 name: "Substance (substance)",
                 relToParent: "Substance (substance)"
               }
             ],
-            iri: "",
+            iri: "http://endhealth.info/im#testIri",
             name: "middle-node-" + "http://endhealth.info/im#hasTermCode",
             relToParent: "has term code"
           }

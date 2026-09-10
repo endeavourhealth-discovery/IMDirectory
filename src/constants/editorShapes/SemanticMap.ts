@@ -1,7 +1,8 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import type { FormGenerator } from "@endeavour/vue-library/interfaces";
 
-const SemanticMapShape: FormGenerator = {
+import { FormGeneratorSchema } from "@/models";
+
+const SemanticMapShape = FormGeneratorSchema.parse({
   iri: EDITOR.SEMANTIC_MAP_SHAPE,
   type: [
     {
@@ -223,48 +224,6 @@ const SemanticMapShape: FormGenerator = {
           componentType: { iri: COMPONENT.VERTICAL_LAYOUT },
           property: [
             {
-              name: "Map type",
-              order: 7,
-              path: { iri: IM.HAS_MAP_TYPE },
-              componentType: { iri: COMPONENT.ARRAY_BUILDER },
-              minCount: 1,
-              arrayButtons: { up: false, down: false, plus: false, minus: false },
-              property: [
-                {
-                  comment: "selects the map type with a default of direct",
-                  order: 6,
-                  select: [
-                    {
-                      iri: QUERY.GET_SUBCLASSES
-                    }
-                  ],
-                  name: "Map type",
-                  showTitle: true,
-                  builderChild: true,
-                  maxCount: 1,
-                  path: {
-                    iri: IM.HAS_MAP_TYPE
-                  },
-                  argument: [
-                    {
-                      valueIri: {
-                        iri: IM.MAP_TYPE
-                      },
-                      parameter: "this"
-                    }
-                  ],
-                  isIri: {
-                    iri: IM.DIRECT_MAP
-                  },
-                  minCount: 1,
-                  componentType: {
-                    iri: COMPONENT.ENTITY_DROPDOWN
-                  },
-                  forceIsValue: true
-                }
-              ]
-            },
-            {
               comment: "text of default target text",
               order: 4,
               name: "Default target text",
@@ -292,10 +251,10 @@ const SemanticMapShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                iri: COMPONENT.TEXT_INPUT
+                iri: COMPONENT.NUMBER_INPUT
               },
               datatype: {
-                iri: XSD.STRING
+                iri: XSD.DOUBLE
               }
             },
 
@@ -309,7 +268,7 @@ const SemanticMapShape: FormGenerator = {
               },
               validationErrorMessage: "Map entries are not valid",
               path: {
-                iri: IM.MAP_ENTRY
+                iri: IM.HAS_ENTRY
               }
             }
           ]
@@ -317,6 +276,6 @@ const SemanticMapShape: FormGenerator = {
       ]
     }
   ]
-};
+});
 
 export default SemanticMapShape;

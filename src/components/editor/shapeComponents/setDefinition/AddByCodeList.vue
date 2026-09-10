@@ -69,7 +69,7 @@ import { DSVRowArray } from "d3";
 import { FileUploadUploadEvent } from "primevue/fileupload";
 
 import { entityToAliasEntity } from "@/helpers/Transforms";
-import { ValidatedEntity } from "@/interfaces";
+import { ValidatedEntity } from "@/models";
 import { EntityService } from "@/services";
 
 const props = defineProps<{

@@ -26,13 +26,13 @@ import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helper
 import { ToastOptions } from "@endeavour/vue-library/models";
 
 import * as d3 from "d3";
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isArray, isFunction } from "lodash-es";
 import ContextMenu from "primevue/contextmenu";
 import { useToast } from "primevue/usetoast";
 import svgPanZoom from "svg-pan-zoom";
 
 import { GraphTranslator } from "@/helpers";
-import { TTGraphData } from "@/interfaces";
+import { type TTGraphData } from "@/models";
 import { EntityService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
@@ -58,16 +58,23 @@ const splitterRightSize = computed(() => directoryStore.splitterRightSize);
 watch(
   () => cloneDeep(props.data),
   newValue => {
-    graphData.value = newValue;
-    setRoot();
+    if (mounted.value) {
+      graphData.value = newValue;
+      setRoot();
+    }
   }
 );
 
 watch(
   () => splitterRightSize.value,
-  () => drawGraph()
+  () => {
+    if (mounted.value) {
+      drawGraph();
+    }
+  }
 );
 
+const mounted = ref(false);
 const root: Ref = ref({});
 const simulation: Ref = ref({});
 const svgPan: Ref = ref({});
@@ -93,18 +100,22 @@ const viewBox = computed(() => ["" + -width.value / 2, "" + -height.value / 2, "
 const menu = ref();
 
 onMounted(async () => {
+  mounted.value = true;
   const result = await EntityService.getEntityChildren(IM.GRAPH_EXCLUDE_PREDICATES);
   if (result) graphExcludePredicates.value = result.map(r => r.iri);
   window.addEventListener("resize", onResize);
   graphData.value = props.data;
   setRoot();
+  mounted.value = false;
 });
 
 watch(
   () => cloneDeep(graphData),
   newValue => {
-    root.value = d3.hierarchy(newValue);
-    drawGraph();
+    if (mounted.value) {
+      root.value = d3.hierarchy(newValue);
+      drawGraph();
+    }
   }
 );
 
@@ -129,7 +140,7 @@ async function getContextMenu(d: any) {
       bundle.entity[IM.HAS_MEMBER] = hasMember.result;
       bundle.predicates[IM.HAS_MEMBER] = "has member";
     }
-    if (hasMember.totalCount && hasMember.totalCount >= 10) {
+    if (hasMember.totalCount && hasMember.totalCount >= 10 && isArray(bundle.entity[IM.HAS_MEMBER])) {
       bundle.entity[IM.HAS_MEMBER] = bundle.entity[IM.HAS_MEMBER].concat({ iri: "seeMore", name: "see more..." });
     }
     Object.keys(bundle.entity)
@@ -186,7 +197,12 @@ function drawGraph() {
     .force("x", d3.forceX())
     .force("y", d3.forceY());
 
-  const svg = d3.select("#force-layout-svg").attr("viewBox", viewBox.value as any);
+  const svgElement = document.getElementById("force-layout-svg");
+  if (!svgElement) {
+    console.warn("graph attempted to draw before element was mounted.");
+    return;
+  }
+  const svg = d3.select(svgElement).attr("viewBox", viewBox.value as any);
 
   const pathLink = svg
     .selectAll(null)
@@ -393,12 +409,12 @@ function drag(simulation: any) {
 }
 
 function stopSimulation() {
-  if (isObjectHasKeys(svgPan.value, ["destroy"])) {
+  if (isObjectHasKeys(svgPan.value, ["destroy"]) && isFunction(svgPan.value.destroy)) {
     svgPan.value.destroy();
   }
   d3.select("#force-layout-graph").selectAll("div").remove();
   d3.select("#force-layout-graph").selectAll("g").remove();
-  if (isObjectHasKeys(simulation.value, ["stop"])) {
+  if (isObjectHasKeys(simulation.value, ["stop"]) && isFunction(simulation.value.stop)) {
     simulation.value.stop();
   }
 }

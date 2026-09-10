@@ -89,10 +89,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import type { Node, QueryRequest, SearchResultSummary, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+import { type Node, type QueryRequest, type SearchResultSummary, type Where } from "@endeavour/vue-library/models";
 
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import Button from "primevue/button";
@@ -103,7 +103,8 @@ import { NodeInclusionOptions } from "@/constants/queryEditor/NodeInclusionOptio
 import { PlainConstraintOperatorOptions } from "@/constants/queryEditor/PlainConstraintOperatorOptions";
 import { getPlainConstraintOperatorLabel, getPlainConstraintOperatorValue } from "@/helpers/QueryEditorMethods";
 import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
-import { SearchOptions } from "@/interfaces";
+import { type UIProperty } from "@/models";
+import { SearchOptionsSchema } from "@/models";
 import SetService from "@/services/SetService";
 import { useFilterStore } from "@/stores/filterStore";
 
@@ -185,11 +186,11 @@ function buildIMQueryForConceptSearch() {
   const coreSchemesAsIris = coreSchemes.value.map(iri => {
     return { iri: iri };
   });
-  const searchOptions: SearchOptions = {
+  const searchOptions = SearchOptionsSchema.parse({
     schemes: coreSchemesAsIris,
     status: [{ iri: IM.ACTIVE }, { iri: IM.DRAFT }],
     types: [{ iri: IM.CONCEPT }, { iri: IM.CONCEPT_SET }]
-  };
+  });
   imQueryForConceptSearch.value = buildIMQueryFromFilters(searchOptions);
 }
 

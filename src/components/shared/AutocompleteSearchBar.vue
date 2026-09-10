@@ -53,7 +53,7 @@
         <div class="advanced-search-container">
           <small>
             Showing {{ results?.entities?.length ? 1 : 0 }}-{{ results?.entities?.length ? results.entities.length : 0 }} of
-            {{ results?.count ? results.count : 0 }} results
+            {{ results?.totalCount ? results.totalCount : 0 }} results
           </small>
         </div>
       </div>
@@ -83,12 +83,13 @@ import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay, useSpeechToText } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { FilterOptions, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import { PageSchema, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
 
 import { cloneDeep, debounce, isEqual } from "lodash-es";
 
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
+import type { FilterOptions } from "@/models";
 import { QueryService } from "@/services";
 
 interface Props {
@@ -118,7 +119,7 @@ const resultsOP = ref();
 const searchText = ref("");
 const results: Ref<SearchResponse | undefined> = ref();
 const showDialog = ref(false);
-const selectedLocal: Ref<SearchResultSummary | undefined> = ref();
+const selectedLocal: Ref<SearchResultSummary | undefined> = ref(props.selected);
 const searchLoading: Ref<boolean> = ref(false);
 const searchPlaceholder: Ref<string> = ref(props.searchPlaceholder ?? "Search");
 const { listening, toggleListen } = useSpeechToText(searchText, searchPlaceholder);
@@ -283,7 +284,7 @@ async function search() {
     if (imQueryCopy) {
       searchLoading.value = true;
       imQueryCopy.textSearch = searchText.value;
-      imQueryCopy.page = { pageNumber: 1, pageSize: 10 };
+      imQueryCopy.page = PageSchema.parse({ pageNumber: 1, pageSize: 10 });
       imQueryCopy.textSearchStyle = TextSearchStyle.autocomplete;
       const response = await QueryService.queryIMSearch(imQueryCopy);
       searchLoading.value = false;

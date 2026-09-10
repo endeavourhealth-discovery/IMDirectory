@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Node } from "@endeavour/vue-library/interfaces";
+import type { Node } from "@endeavour/vue-library/models";
 
 defineProps<{
   list: Node[];

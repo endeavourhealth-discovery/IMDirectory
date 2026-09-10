@@ -45,13 +45,13 @@
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
 import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Indicator } from "@endeavour/vue-library/interfaces";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
 
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import type { Indicator } from "@/models";
 import { QueryService } from "@/services";
 
 interface Props {

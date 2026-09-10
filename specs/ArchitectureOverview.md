@@ -30,7 +30,7 @@ Vue Components (Views -> Sub-components)
 5. **MSW mocking** — Activated via `pnpm dev:mocked`; uses `@faker-js/faker` + `@msw/data` + Zod schemas in `src/mocks/`.
 6. **Provide/Inject** — Heavily used in the editor for propagating `editorEntity`, `editorValidity`, `valueVariableMap`, and `forceValidation` down the component tree.
 7. **Router guards** — Hash-based history (`createWebHashHistory`) with extensive `beforeEach` guards: auth, roles, licenses, agreements, unsaved-changes warnings.
-8. **Internal shared library** (`@endeavour/vue-library`) — Provides core types (`ExtendedTTEntity`, `PropertyShape`, `NodeShape`, `User`), enums (`UserRole`, `SHACL`, `IM`, `RDF`, `RDFS`), and utilities.
+8. **Internal shared library** (`@endeavour/vue-library`) — Provides core types (`TTEntity`, `PropertyShape`, `NodeShape`, `User`), enums (`UserRole`, `SHACL`, `IM`, `RDF`, `RDFS`), and utilities.
 
 ## Project Structure
 
@@ -80,7 +80,7 @@ Vue Components (Views -> Sub-components)
 1. User clicks a node in `NavTree.vue`
 2. Emit bubbles to `DirectorySplitter.vue` → `router.push({ name: "Folder", params: { selectedIri } })`
 3. Route loads `DirectoryDetails.vue`, calls `EntityService.getFullEntity(iri)` on mount
-4. Service makes Axios GET to IMAPI; response (`ExtendedTTEntity`) renders entity details
+4. Service makes Axios GET to IMAPI; response (`TTEntity`) renders entity details
 
 ### Editing an Entity
 1. Navigate to `/editor/:iri` → `Editor.vue` mounts

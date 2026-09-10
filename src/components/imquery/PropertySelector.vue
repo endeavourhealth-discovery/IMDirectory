@@ -59,26 +59,24 @@ import { onMounted, Ref, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
-import type { Match, Node, NodeShape } from "@endeavour/vue-library/interfaces";
+import { type Node, type NodeShape, Query } from "@endeavour/vue-library/models";
 
 import type { TreeNode } from "primevue/treenode";
 
-import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
-import { DataModelService } from "@/services";
+import { useReturnTree } from "@/composables/useReturnTrees";
 
 interface Props {
   baseType: Node;
-  match: Match;
-
+  match: Query;
   showPropertySelector: boolean;
 }
 
 const props = defineProps<Props>();
 const showPropertySelector = defineModel<boolean>("showPropertySelector", { default: false });
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
-const { expandNode, createModeView, createFeatureTree } = usePropertyTree();
+const { expandNode, createReturnTree } = useReturnTree();
 const editMatchString: Ref<string> = ref("");
 const emit = defineEmits<{
   (e: "cancel"): void;
@@ -95,40 +93,19 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  nodeShape.value = await DataModelService.getDataModelProperties(props.match.typeOf ? props.match.typeOf.iri! : props.baseType.iri!, false);
-  typeNodes.value = await createFeatureTree(nodeShape.value, "return");
-  setupTrees("return");
-  if (!props.match.any) expandedKeys.value = { [typeNodes.value[0].key]: true };
+  typeNodes.value = await createReturnTree(match.value, props.baseType);
+  if (!props.match.and) expandedKeys.value = { [typeNodes.value[0].key]: true };
   selectedNodeKey.value = {};
   loading.value = false;
 }
 
-function setupTrees(mode: Mode) {
-  createModeView(typeNodes.value, mode);
-  if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
-}
-
-async function onReturnNodeSelect(node: any) {
-  if (!match.value.typeOf) {
-    if (node.data.type) {
-      match.value.typeOf = { iri: node.data.typeOf };
-      nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
-      typeNodes.value = await createFeatureTree(nodeShape.value, "return");
-      setupTrees("return");
-      if (!expandedKeys.value[typeNodes.value[0].key]) {
-        expandedKeys.value[typeNodes.value[0].key] = true;
-      }
-    }
-  }
+async function onReturnNodeSelect(node: TreeNode) {
   emit("selectedProperty", node);
 }
 async function onReturnNodeExpand(node: any) {
-  await expandNode(node, "return");
+  await expandNode(node);
 }
 
-async function onMatchNodeExpand(node: any) {
-  await expandNode(node, "match");
-}
 function onCancel() {
   showPropertySelector.value = false;
   emit("cancel");

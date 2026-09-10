@@ -115,13 +115,13 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Browser, OperatingSystem, REPO, Status, TaskModule, TaskState, TaskType } from "@endeavour/vue-library/enums";
-import type { BugReport } from "@endeavour/vue-library/interfaces";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { useRouter } from "vue-router";
 
 import TopBar from "@/components/shared/TopBar.vue";
 import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import type { BugReport } from "@/models";
 import GithubService from "@/services/GithubService";
 import WorkflowService from "@/services/WorkflowService";
 import { useDialogStore } from "@/stores/dialogStore";

@@ -52,11 +52,12 @@ import { Ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useSpeechToText } from "@endeavour/vue-library/composables";
-import type { FilterOptions, SearchResultSummary } from "@endeavour/vue-library/interfaces";
+import type { SearchResultSummary } from "@endeavour/vue-library/models";
 
 import InputGroupAddon from "primevue/inputgroupaddon";
 
 import Filters from "@/components/shared/Filters.vue";
+import { type FilterOptions } from "@/models";
 
 interface Props {
   showFilters: boolean;

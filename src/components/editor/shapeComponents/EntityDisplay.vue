@@ -14,10 +14,10 @@
 import { Ref, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
-import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { TypeGuards, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type Query, type QueryRequest, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
@@ -84,7 +84,7 @@ let key = props.shape.path.iri;
 
 let selectedEntity: Ref<TTIriRef> = ref({ iri: "", name: "" });
 watch(selectedEntity, async newValue => {
-  if (TypeGuards.isTTIriRef(newValue)) {
+  if (isTTIriRef(newValue)) {
     updateEntity(newValue);
     updateValueVariableMap(newValue);
     if (updateValidity) {
@@ -104,23 +104,23 @@ onMounted(async () => {
   loading.value = false;
 });
 
-async function setSelectedEntity() {
+async function setSelectedEntity(): Promise<TTIriRef> {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue && props.shape.isIri?.iri) {
     let name = "";
     if (props.shape.isIri.name) name = props.shape.isIri.name;
     else {
       const result = await EntityService.getPartialEntity(props.shape.isIri?.iri, [RDFS.LABEL]);
-      name = result[RDFS.LABEL];
+      if (isString(result[RDFS.LABEL])) name = result[RDFS.LABEL];
     }
     return { iri: props.shape.isIri.iri, name: name };
   }
-  if (props.value && TypeGuards.isTTIriRef(props.value)) return props.value;
+  if (props.value && isTTIriRef(props.value)) return props.value;
   else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri?.iri) {
     let name = "";
     if (props.shape.isIri.name) name = props.shape.isIri.name;
     else {
       const result = await EntityService.getPartialEntity(props.shape.isIri?.iri, [RDFS.LABEL]);
-      name = result[RDFS.LABEL];
+      if (isString(result[RDFS.LABEL])) name = result[RDFS.LABEL];
     }
     return { iri: props.shape.isIri.iri, name: name };
   } else if (isObjectHasKeys(props.shape, ["select", "argument"])) {
@@ -139,16 +139,17 @@ async function setSelectedEntity() {
     const args = processArguments(props.shape, valueVariableMap?.value);
     if (args.filter(a => isObjectHasKeys(a, ["valueVariable"])).every(a => a.valueVariable)) {
       const result = await FunctionService.runFunction(props.shape.function!.iri, args);
-      if (isArrayHasLength(result)) return result[0];
-      else return result;
+      if (isArrayHasLength(result) && isArrayOf(result, isTTIriRef)) return result[0];
+      else if (isTTIriRef(result)) return result;
+      else return { iri: "", name: "" };
     } else return { iri: "", name: "" };
   } else return { iri: "", name: "" };
 }
 
 function updateEntity(data: TTIriRef) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = data;
-  if (!TypeGuards.isTTIriRef(data) && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  if (!isTTIriRef(data) && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
   else emit("updateClicked", data);
 }
@@ -163,8 +164,8 @@ function updateValueVariableMap(data: TTIriRef) {
 function hasData() {
   invalid.value = false;
   validationErrorMessage.value = undefined;
-  if (props.shape.minCount === 0 && !TypeGuards.isTTIriRef(selectedEntity.value)) return;
-  if (!TypeGuards.isTTIriRef(selectedEntity.value)) {
+  if (props.shape.minCount === 0 && !isTTIriRef(selectedEntity.value)) return;
+  if (!isTTIriRef(selectedEntity.value)) {
     invalid.value = true;
     validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required.";
   }

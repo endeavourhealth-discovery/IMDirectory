@@ -1,19 +1,24 @@
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { isArrayHasLength, isObjectHasKeys, parseArray } from "@endeavour/vue-library/helpers";
+import { parseApiResponse } from "@endeavour/vue-library/helpers";
 import {
   ArgumentReference,
-  ExtendedTTEntity,
-  IMLLanguage,
-  Indicator,
-  Match,
+  ArgumentReferenceSchema,
   PathQuery,
   Query,
   QueryRequest,
+  QuerySchema,
   Return,
-  SearchResponse
-} from "@endeavour/vue-library/interfaces";
+  ReturnSchema,
+  SearchResponse,
+  SearchResponseSchema,
+  TTEntity,
+  TTEntitySchema
+} from "@endeavour/vue-library/models";
 
-import { QueryResponse } from "@/interfaces";
+import z from "zod";
+
+import { IMLLanguage, IMLLanguageSchema, Indicator, IndicatorSchema, PathDocument, PathDocumentSchema, QueryResponse, QueryResponseSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -22,60 +27,73 @@ const API_URL = Env.API + "api/query/protected";
 
 const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
-    if (controller) return await api.post(API_URL + "/queryIM", query, { signal: controller.signal, raw: raw });
-    else return await api.post(API_URL + "/queryIM", query, { raw: raw });
+    if (controller) {
+      const result = await api.post(API_URL + "/queryIM", query, { signal: controller.signal, raw: raw });
+      return parseApiResponse(result, QueryResponseSchema);
+    } else {
+      const result = await api.post(API_URL + "/queryIM", query, { raw: raw });
+      return parseApiResponse(result, QueryResponseSchema);
+    }
   },
-  async flattenBooleans(query: Query | Match): Promise<Query | Match> {
-    return await api.post(API_URL + "/flattenBooleans", query);
+  async flattenBooleans(query: Query): Promise<Query> {
+    const result = await api.post(API_URL + "/flattenBooleans", query);
+    return parseApiResponse(result, QuerySchema);
   },
   async optimiseECLQuery(query: Query): Promise<Query> {
-    return await api.post(API_URL + "/optimiseECLQuery", query);
+    const result = await api.post(API_URL + "/optimiseECLQuery", query);
+    return parseApiResponse(result, QuerySchema);
   },
 
   async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
-    return await api.post(API_URL + "/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+    const result = await api.post(API_URL + "/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+    return parseApiResponse(result, SearchResponseSchema);
   },
 
-  async pathQuery(pathQuery: PathQuery, controller?: AbortController, raw: boolean = false): Promise<{ match: Match[] }> {
-    return await api.post(API_URL + "/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
+  async pathQuery(pathQuery: PathQuery, controller?: AbortController, raw: boolean = false): Promise<PathDocument> {
+    const result = await api.post(API_URL + "/pathQuery", pathQuery, { signal: controller?.signal, raw: raw });
+    return parseApiResponse(result, PathDocumentSchema);
   },
 
   async askQuery(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<boolean> {
     return await api.post(API_URL + "/askQueryIM", query, { signal: controller?.signal, raw: raw });
   },
 
-  async getQueryDisplay(iri: string, includeLogicDesc: boolean): Promise<Query> {
-    return await api.get(API_URL + "/queryDisplay", { params: { queryIri: iri, includeLogicDesc: includeLogicDesc } });
-  },
-
   async getQueryDisplayFromQuery(query: Query, displayMode: DisplayMode): Promise<Query> {
-    return await api.post(API_URL + "/queryDisplayFromQuery", { query: query, displayMode: displayMode });
+    const result = await api.post(API_URL + "/queryDisplayFromQuery", { query: query, displayMode: displayMode });
+    return parseApiResponse(result, QuerySchema);
   },
 
-  async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query> {
-    return await api.get(API_URL + "/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
+  async getDisplayFromQueryIri(iri: string, displayMode: DisplayMode): Promise<Query | undefined> {
+    const result = await api.get(API_URL + "/queryDisplay", { params: { queryIri: iri, displayMode: displayMode } });
+    if (!result) return undefined;
+    return parseApiResponse(result, QuerySchema);
   },
   async getQueryFromIri(iri: string): Promise<Query> {
-    return await api.get(API_URL + "/queryFromIri", { params: { queryIri: iri } });
+    const result = await api.get(API_URL + "/queryFromIri", { params: { queryIri: iri } });
+    return parseApiResponse(result, QuerySchema);
   },
 
   async getDisplayFromIndicatorIri(iri: string): Promise<Indicator> {
-    return await api.get(API_URL + "/indicatorDisplay", { params: { queryIri: iri } });
+    const result = await api.get(API_URL + "/indicatorDisplay", { params: { queryIri: iri } });
+    return parseApiResponse(result, IndicatorSchema);
   },
 
   async expandCohort(cohortIri: string, displayMode: DisplayMode): Promise<Query> {
-    return await api.get(API_URL + "/expandCohort", { params: { cohortIri: cohortIri, displayMode: displayMode } });
+    const result = await api.get(API_URL + "/expandCohort", { params: { cohortIri: cohortIri, displayMode: displayMode } });
+    return parseApiResponse(result, QuerySchema);
   },
 
   async getDefaultQuery(): Promise<Query> {
-    return await api.get(API_URL + "/defaultQuery");
+    const result = await api.get(API_URL + "/defaultQuery");
+    return parseApiResponse(result, QuerySchema);
   },
   async generateQuerySQL(queryIri: string, lang?: string): Promise<string> {
     return await api.get(API_URL + "/sql", { params: { queryIri: queryIri, lang: lang } });
   },
 
   async generateQueryIML(queryIri: string): Promise<IMLLanguage> {
-    return await api.get(API_URL + "/imlFromIri", { params: { queryIri: queryIri } });
+    const result = await api.get(API_URL + "/imlFromIri", { params: { queryIri: queryIri } });
+    return parseApiResponse(result, IMLLanguageSchema);
   },
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
     return await api.post(API_URL + "/sql", query);
@@ -86,7 +104,7 @@ const QueryService = {
     return (
       isObjectHasKeys(queryResponse, ["entities"]) &&
       isArrayHasLength(queryResponse.entities) &&
-      queryResponse.entities.some((entity: ExtendedTTEntity) => entity.iri === selectedIri)
+      queryResponse.entities.some((entity: TTEntity) => entity.iri === selectedIri)
     );
   },
 
@@ -99,18 +117,23 @@ const QueryService = {
   },
 
   async findMissingArguments(request: QueryRequest): Promise<ArgumentReference[]> {
-    return api.post(API_URL + "/public/findRequestMissingArguments", request);
+    const result = api.post(API_URL + "/public/findRequestMissingArguments", request);
+    return parseApiResponse(result, z.array(ArgumentReferenceSchema));
   },
   async validateQuery(query: Query): Promise<Query> {
-    return await api.post(API_URL + "/validateQuery", query);
+    const result = await api.post(API_URL + "/validateQuery", query);
+    return parseApiResponse(result, QuerySchema);
   },
 
-  async getNestedReturns(match: Match): Promise<Return[]> {
-    return await api.post(API_URL + "/nestedReturns", { match: match });
+  async getNestedReturns(match: Query): Promise<Return[]> {
+    const result = await api.post(API_URL + "/nestedReturns", { match: match });
+    return parseApiResponse(result, z.array(ReturnSchema));
   },
 
-  async getSemanticMaps(match: Match, column: Return): Promise<any[]> {
-    return await api.post(API_URL + "/semanticMapsForMatch", { match: match, return: column });
+  async getSemanticMaps(match: Query, column: Return): Promise<TTEntity[] | undefined> {
+    const result = await api.post(API_URL + "/semanticMapsForMatch", { match: match, return: column });
+    if (!result) return undefined;
+    return parseApiResponse(result, z.array(TTEntitySchema));
   }
 };
 

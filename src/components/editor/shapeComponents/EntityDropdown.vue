@@ -23,10 +23,10 @@
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
-import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type Query, type QueryRequest, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isArray } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
@@ -98,7 +98,7 @@ let key = props.shape.path.iri;
 
 let selectedEntity: Ref<TTIriRef | undefined> = ref();
 watch(selectedEntity, async newValue => {
-  if (TypeGuards.isTTIriRef(newValue)) {
+  if (isTTIriRef(newValue)) {
     updateEntity(newValue);
     updateValueVariableMap(newValue);
     if (updateValidity) {
@@ -124,7 +124,7 @@ function setSelectedEntity() {
     const found = dropdownOptions.value.find(o => o.iri === props.shape.isIri!.iri);
     if (found) return found;
   }
-  if (props.value && TypeGuards.isTTIriRef(props.value)) return props.value;
+  if (props.value && isTTIriRef(props.value)) return props.value;
   else if (props.value && isArrayHasLength(props.value)) return props.value[0];
   else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!.iri) {
     const found = dropdownOptions.value.find(o => o.iri === props.shape.isIri!.iri);
@@ -146,12 +146,14 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!.iri)).options.sort(byName);
+    const result = await FunctionService.runFunction(props.shape.function!.iri);
+    if (isObjectHasKeys(result, ["options"]) && isArray(result.options)) return result.options.sort(byName);
+    else throw new Error("Function result must be an array");
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
 function updateEntity(data: TTIriRef) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
@@ -194,7 +196,7 @@ function hasData() {
 }
 
 .entity-single-dropdown {
-  width: 100%;
+  width: 30rem;
 }
 
 .loading-icon {

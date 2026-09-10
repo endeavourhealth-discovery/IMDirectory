@@ -53,7 +53,13 @@
       </Select>
       <div v-if="relativity === Relativity.Relative || relativity === Relativity.Compare">
         <span class="field">Relative to</span>
-        <RelativeToSelect v-model:assignable="assignable" :property-iri="where.iri!" :uiProperty="uiProperty" @updateCompare="emit('updateAssignable')" />
+        <RelativeToSelect
+          v-model:assignable="assignable"
+          v-model:match="match"
+          :property-iri="where.iri!"
+          :uiProperty="uiProperty"
+          @updateCompare="emit('updateAssignable')"
+        />
       </div>
     </div>
   </div>
@@ -63,11 +69,12 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
-import type { Compare, Match, TTIriRef, UIProperty, Value, Where } from "@endeavour/vue-library/interfaces";
+import { type Compare, type Query, type TTIriRef,  type Value, type Where } from "@endeavour/vue-library/models";
 
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { Relativity } from "@/enums";
 import { getCompareOptions, getOperatorOptions, getRelativeToOptions } from "@/helpers/buildQuery";
+import { type UIProperty } from "@/models";
 
 enum ValueType {
   date,
@@ -84,9 +91,10 @@ const props = defineProps<{
 const refresh = defineModel<number>("refresh", { default: 0 });
 const assignable = defineModel<Value | Where>("assignable", { default: {} });
 const where = defineModel<Where>("where", { required: true });
+const match = defineModel<Query>("match", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const operator = ref(Operator.eq);
 const compareOptions = computed(() => {
   return getCompareOptions(props.uiProperty.valueType);

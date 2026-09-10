@@ -20,6 +20,7 @@ import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
+import NumberInput from "@/components/editor/shapeComponents/NumberInput.vue";
 import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinitionBuilder.vue";
@@ -54,7 +55,8 @@ export default defineComponent({
     EntityDisplay,
     IriBuilder,
     SubsetBuilder,
-    CheckboxDisplay
+    CheckboxDisplay,
+    NumberInput
   }
 });
 </script>
@@ -63,7 +65,7 @@ export default defineComponent({
 import { ComputedRef, Ref, computed, inject, onMounted, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";

@@ -1,4 +1,7 @@
-import type { ECLQueryRequest, Query, SearchResponse } from "@endeavour/vue-library/interfaces";
+import { parseApiResponse } from "@endeavour/vue-library/helpers";
+import { type Query, type SearchResponse, SearchResponseSchema } from "@endeavour/vue-library/models";
+
+import { type ECLQueryRequest, ECLQueryRequestSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -10,7 +13,7 @@ const EclService = {
     const results: SearchResponse = await api.post(API_URL + "/eclSearch", eclSearchRequest, {
       signal: controller?.signal
     });
-    return results;
+    return parseApiResponse(results, SearchResponseSchema);
   },
 
   async getEcl(query: Query): Promise<string> {
@@ -18,38 +21,47 @@ const EclService = {
   },
 
   async getQueryFromECL(ecl: string, raw: boolean = false): Promise<ECLQueryRequest> {
-    return await api.post(API_URL + "/queryFromEcl", { ecl: ecl, status: { valid: true } }, { headers: { "Content-Type": "application/json" }, raw: raw });
+    const result = await api.post(
+      API_URL + "/queryFromEcl",
+      { ecl: ecl, status: { valid: true } },
+      { headers: { "Content-Type": "application/json" }, raw: raw }
+    );
+    return parseApiResponse(result, ECLQueryRequestSchema);
   },
 
   async getEclFromEcl(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
-    return await api.post(
+    const result = await api.post(
       API_URL + "/eclFromEcl",
       { ecl: ecl, showNames: showNames, status: { valid: true } },
       { headers: { "Content-Type": "application/json" }, raw: true }
     );
+    return parseApiResponse(result, ECLQueryRequestSchema);
   },
 
   async validateECL(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
-    return await api.post(
+    const result = await api.post(
       API_URL + "/validateEcl",
       { ecl: ecl, showNames: showNames, status: { valid: true } },
       { headers: { "Content-Type": "application/json" } }
     );
+    return parseApiResponse(result, ECLQueryRequestSchema);
   },
 
   async validateModelFromECL(ecl: string, showNames: boolean): Promise<ECLQueryRequest> {
-    return await api.post(
+    const result = await api.post(
       API_URL + "/validateModelFromECL",
       { ecl: ecl, showNames: showNames, status: { valid: true } },
       { headers: { "Content-Type": "application/json" }, raw: true }
     );
+    return parseApiResponse(result, ECLQueryRequestSchema);
   },
   async validateModelFromQuery(query: Query): Promise<ECLQueryRequest> {
-    return await api.post(
+    const result = await api.post(
       API_URL + "/validateModelFromQuery",
       { query: query, status: { valid: true } },
       { headers: { "Content-Type": "application/json" }, raw: true }
     );
+    return parseApiResponse(result, ECLQueryRequestSchema);
   },
 
   async getPropertiesForDomains(conceptIri: string[], controller?: AbortController): Promise<string[]> {
@@ -74,7 +86,12 @@ const EclService = {
   },
 
   async getECLFromQuery(query: Query, showNames?: boolean): Promise<ECLQueryRequest> {
-    return await api.post(API_URL + "/eclFromQuery", { query: query, showNames: showNames }, { headers: { "Content-Type": "application/json" }, raw: true });
+    const result = await api.post(
+      API_URL + "/eclFromQuery",
+      { query: query, showNames: showNames },
+      { headers: { "Content-Type": "application/json" }, raw: true }
+    );
+    return parseApiResponse(result, ECLQueryRequestSchema);
   }
 };
 export default EclService;

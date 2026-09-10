@@ -21,9 +21,9 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { TypeGuards, byName, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { type PropertyShape, type Query, type QueryRequest, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isArray } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
@@ -94,11 +94,7 @@ const userInput = ref("");
 const showValidation = ref(false);
 
 watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, newUserInput], [oldSelectedDropdownOption, oldUserInput]) => {
-  if (
-    TypeGuards.isTTIriRef(newSelectedDropdownOption) &&
-    newUserInput &&
-    (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)
-  ) {
+  if (isTTIriRef(newSelectedDropdownOption) && newUserInput && (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)) {
     const concatenated = newSelectedDropdownOption.iri + newUserInput;
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);
@@ -148,7 +144,7 @@ function deconstructInputValue(inputValue: string) {
   }
 }
 
-async function getDropdownOptions() {
+async function getDropdownOptions(): Promise<TTIriRef[]> {
   if (isObjectHasKeys(props.shape, ["select", "argument"])) {
     const args = processArguments(props.shape);
     const queryRequest = {} as QueryRequest;
@@ -162,7 +158,9 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!.iri)).sort(byName);
+    const result = await FunctionService.runFunction(props.shape.function!.iri);
+    if (isArray(result)) return result.sort(byName);
+    else throw new Error("Function result must be an array");
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 

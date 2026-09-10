@@ -1,4 +1,19 @@
-import type { BugReport, EntityApproval, NamespaceRequest, RoleRequest, Task, WorkflowResponse } from "@endeavour/vue-library/interfaces";
+import { parseApiResponse } from "@endeavour/vue-library/helpers";
+
+import {
+  type BugReport,
+  BugReportSchema,
+  type EntityApproval,
+  EntityApprovalSchema,
+  type NamespaceRequest,
+  NamespaceRequestSchema,
+  type RoleRequest,
+  RoleRequestSchema,
+  type Task,
+  TaskSchema,
+  type WorkflowResponse,
+  WorkflowResponseSchema
+} from "@/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -12,7 +27,8 @@ const WorkflowService = {
   },
 
   async getBugReport(id: string): Promise<BugReport> {
-    return await api.get(API_URL + "/getBugReport", { params: { id: id } });
+    const result = await api.get(API_URL + "/getBugReport", { params: { id: id } });
+    return parseApiResponse(result, BugReportSchema);
   },
 
   async updateBugReport(bugReport: BugReport): Promise<void> {
@@ -24,7 +40,8 @@ const WorkflowService = {
   },
 
   async getRoleRequest(id: string): Promise<RoleRequest> {
-    return await api.get(API_URL + "/roleRequest", { params: { id: id } });
+    const result = await api.get(API_URL + "/roleRequest", { params: { id: id } });
+    return parseApiResponse(result, RoleRequestSchema);
   },
 
   async updateRoleRequest(roleRequest: RoleRequest): Promise<void> {
@@ -36,7 +53,8 @@ const WorkflowService = {
   },
 
   async getNamespaceRequest(id: string): Promise<NamespaceRequest> {
-    return await api.get(API_URL + "/namespaceRequest", { params: { id: id } });
+    const result = await api.get(API_URL + "/namespaceRequest", { params: { id: id } });
+    return parseApiResponse(result, NamespaceRequestSchema);
   },
 
   async updateNamespaceRequest(namespaceRequest: NamespaceRequest): Promise<void> {
@@ -48,7 +66,8 @@ const WorkflowService = {
   },
 
   async getEntityApproval(id: string): Promise<EntityApproval> {
-    return await api.get(API_URL + "/entityApproval", { params: { id: id } });
+    const result = await api.get(API_URL + "/entityApproval", { params: { id: id } });
+    return parseApiResponse(result, EntityApprovalSchema);
   },
 
   async updateEntityApproval(entityApproval: EntityApproval): Promise<void> {
@@ -56,15 +75,18 @@ const WorkflowService = {
   },
 
   async getTasksByCreatedBy(page?: number, size?: number): Promise<WorkflowResponse> {
-    return await api.get(API_URL + "/getTasksByCreatedBy", { params: { page: page, size: size } });
+    const result = await api.get(API_URL + "/getTasksByCreatedBy", { params: { page: page, size: size } });
+    return parseApiResponse(result, WorkflowResponseSchema);
   },
 
   async getTasksByAssignedTo(page?: number, size?: number): Promise<WorkflowResponse> {
-    return await api.get(API_URL + "/getTasksByAssignedTo", { params: { page: page, size: size } });
+    const result = await api.get(API_URL + "/getTasksByAssignedTo", { params: { page: page, size: size } });
+    return parseApiResponse(result, WorkflowResponseSchema);
   },
 
   async getUnassignedTasks(page?: number, size?: number): Promise<WorkflowResponse> {
-    return await api.get(API_URL + "/getUnassignedTasks", { params: { page: page, size: size } });
+    const result = await api.get(API_URL + "/getUnassignedTasks", { params: { page: page, size: size } });
+    return parseApiResponse(result, WorkflowResponseSchema);
   },
 
   async deleteTask(id: string): Promise<void> {
@@ -76,7 +98,8 @@ const WorkflowService = {
   },
 
   async getTask(id: string): Promise<Task> {
-    return await api.get(API_URL + "/getTask", { params: { id: id } });
+    const result = await api.get(API_URL + "/getTask", { params: { id: id } });
+    return parseApiResponse(result, TaskSchema);
   },
 
   async approveRoleRequest(roleRequest: RoleRequest) {

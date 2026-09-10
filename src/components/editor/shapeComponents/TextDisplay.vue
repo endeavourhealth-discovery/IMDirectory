@@ -19,12 +19,12 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 
-import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { Argument, ExtendedTTEntity, PropertyShape } from "@endeavour/vue-library/interfaces";
+import { isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type Argument, type PropertyShape, type TTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
@@ -141,21 +141,21 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
         const result = await FunctionService.runFunction(property.function!.iri, args);
-        if (result) return result;
+        if (isString(result)) return result;
       } else return "";
     } else {
       const result = await FunctionService.runFunction(property.function!.iri, args);
-      if (result) return result;
+      if (isString(result)) return result;
     }
   } else if (isObjectHasKeys(property, ["function"])) {
     const result = await FunctionService.runFunction(property.function!.iri);
-    if (result && isObjectHasKeys(result, ["iri"])) return result.iri.iri;
+    if (result && isObjectHasKeys(result, ["iri"]) && isTTIriRef(result.iri)) return result.iri.iri;
   }
   return "";
 }
 
 function updateEntity(data: string) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

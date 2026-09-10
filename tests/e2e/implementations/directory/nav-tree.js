@@ -2,6 +2,7 @@
 
 const assert = require("node:assert");
 const { pw } = require("../playwright");
+const { expect } = require("@playwright/test");
 
 async function getNodeByText(text) {
   await pw.page.waitForSelector("#hierarchy-tree-bar-container");
@@ -25,6 +26,19 @@ step("Expand tree node <text>", async text => {
 step("Tree contains <text>", async text => {
   const node = await getNodeByText(text);
   await node.waitFor({ state: "visible" });
+});
+
+step("Parent <text> has child <text>", async (parent, child) => {
+  const parentElement = await getNodeByText(parent);
+  await parentElement.waitFor({ state: "visible" });
+  const childElement = parentElement.locator("li").filter({ hasText: child });
+  await childElement.waitFor({ state: "visible" });
+});
+
+step("Parent <text> has no children", async parent => {
+  const parentElement = await getNodeByText(parent);
+  await parentElement.waitFor({ state: "visible" });
+  await expect(parentElement.locator("li")).toHaveCount(0);
 });
 
 step("<text> has at most <num> children", async (text, num) => {

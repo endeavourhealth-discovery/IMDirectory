@@ -23,7 +23,7 @@ export default defineComponent({
 import { Ref, inject, onMounted, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";

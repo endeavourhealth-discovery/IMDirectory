@@ -51,13 +51,13 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import type { PropertyShape } from "@endeavour/vue-library/interfaces";
+import type { PropertyShape } from "@endeavour/vue-library/models";
 
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentType, EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
-import { ComponentDetails } from "@/interfaces";
+import { ComponentDetails } from "@/models";
 
 interface Props {
   id: string;

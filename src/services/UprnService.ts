@@ -1,4 +1,4 @@
-import { UprnSearchResponse } from "@/interfaces";
+import { UprnSearchResponse } from "@/models";
 
 import Env from "./Env";
 import api from "./api";

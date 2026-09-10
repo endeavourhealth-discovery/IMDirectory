@@ -3,20 +3,20 @@
     <div class="title-buttons-container">
       <div class="title-container">
         <h2 v-if="!showSelect" class="title">
-          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity.iri" class="p-mx-1 type-icon" />
-          <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
+          <IMFontAwesomeIcon :icon="getIcon()" :style="getColour()" :key="iri" class="p-mx-1 type-icon" />
+          <span>{{ name || "Favourites" }}</span>
         </h2>
         <h2 v-else class="title">
-          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity.iri" class="p-mx-1 type-icon" />
-          <span>{{ entity[RDFS.LABEL] || "Favourites" }}</span>
+          <IMFontAwesomeIcon :icon="getIcon()" :style="getColour()" :key="iri" class="p-mx-1 type-icon" />
+          <span>{{ name || "Favourites" }}</span>
         </h2>
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
           v-if="entity.iri"
           :buttons="!showSelect ? ['findInTree', 'view', 'edit', 'download', 'favourite'] : ['findInTree', 'view', 'addToList']"
-          :iri="entity.iri"
-          :name="entity[RDFS.LABEL]"
+          :iri="iri"
+          :name="name"
           :type="'entityButton'"
           @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
           @view-hierarchy="(iri: string) => emit('viewHierarchy', iri)"
@@ -28,15 +28,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { getColourFromType, getFAIconFromType } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity } from "@endeavour/vue-library/interfaces";
+import { getColourFromType, getFAIconFromType, isArrayOf } from "@endeavour/vue-library/helpers";
+import { type TTEntity, isTTIriRef } from "@endeavour/vue-library/models";
+
+import { isString } from "lodash-es";
 
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 
-defineProps<{
-  entity: ExtendedTTEntity;
+const props = defineProps<{
+  entity: TTEntity;
   showSelect?: boolean;
 }>();
 const emit = defineEmits<{
@@ -46,13 +50,26 @@ const emit = defineEmits<{
   viewHierarchy: [payload: string];
 }>();
 
-function getIcon(entity: ExtendedTTEntity) {
-  if (entity.iri === IM.FAVOURITES) return ["fa-solid", "star"];
-  return getFAIconFromType(entity[RDF.TYPE]);
+const iri = computed(() => {
+  if (isString(props.entity.iri)) return props.entity.iri;
+  else return "";
+});
+const types = computed(() => {
+  if (isArrayOf(props.entity[RDF.TYPE], isTTIriRef)) return props.entity[RDF.TYPE];
+  else return [];
+});
+const name = computed(() => {
+  if (isString(props.entity[RDFS.LABEL])) return props.entity[RDFS.LABEL];
+  else return "";
+});
+
+function getIcon() {
+  if (iri.value === IM.FAVOURITES) return ["fa-solid", "star"];
+  return getFAIconFromType(types.value);
 }
 
-function getColour(entity: ExtendedTTEntity) {
-  return "color: " + getColourFromType(entity[RDF.TYPE]);
+function getColour() {
+  return "color: " + getColourFromType(types.value);
 }
 </script>
 

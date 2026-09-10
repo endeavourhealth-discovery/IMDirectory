@@ -99,10 +99,11 @@ import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { IM, RDFS } from "@endeavour/vue-library/enums";
 import { ToastSeverity, UserRole } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, SetExportRequest, SetOptions } from "@endeavour/vue-library/interfaces";
-import { ToastOptions } from "@endeavour/vue-library/models";
+import type { TTEntity } from "@endeavour/vue-library/models";
+import { ToastOptions, hasRole, isUser } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
+import { isString } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
 import { useToast } from "primevue/usetoast";
 
@@ -110,7 +111,8 @@ import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 import DownloadByQueryOptionsDialog from "@/components/shared/dialogs/DownloadByQueryOptionsDialog.vue";
 import Footer from "@/components/shared/dynamicDialogs/Footer.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { DownloadSettings } from "@/interfaces";
+import { type SetExportRequest, type SetOptions } from "@/models";
+import { DownloadSettings } from "@/models";
 import { EntityService, SetService } from "@/services";
 
 import CompareSetDialog from "./CompareSetDialog.vue";
@@ -141,7 +143,7 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const downloading = ref(false);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const entity: Ref<ExtendedTTEntity> = ref({});
+const entity: Ref<TTEntity> = ref({});
 const hasPermissionSetPublish = ref(false);
 
 const { copyObjectToClipboard } = useCopyToClipboard();
@@ -149,8 +151,8 @@ const { copyObjectToClipboard } = useCopyToClipboard();
 const hasDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(entity.value, [IM.DEFINITION]) && entity.value[IM.DEFINITION] != undefined);
 
 watch(currentUser, async () => {
-  if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+  if (isUser(currentUser.value)) {
+    hasPermissionSetPublish.value = hasRole(currentUser.value, UserRole.PUBLISHER);
   } else hasPermissionSetPublish.value = false;
 });
 
@@ -176,15 +178,15 @@ onMounted(async () => {
     showSubsumedBy.value = false;
   }
   if (!hasDefinition.value) showMembers.value = true;
-  if (isLoggedIn.value) {
-    hasPermissionSetPublish.value = currentUser.value?.roles.includes(UserRole.PUBLISHER)!!;
+  if (isUser(currentUser.value)) {
+    hasPermissionSetPublish.value = hasRole(currentUser.value, UserRole.PUBLISHER);
   }
 });
 
 async function onCopy(event: MouseEvent) {
   event.stopPropagation();
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
-  if (isObjectHasKeys(entity, [IM.DEFINITION])) {
+  if (isString(entity[IM.DEFINITION])) {
     const definition = JSON.parse(entity[IM.DEFINITION]);
     await copyObjectToClipboard(navigator, definition);
   }
@@ -235,7 +237,7 @@ async function download(downloadSettings: DownloadSettings): Promise<void> {
   const labelResult = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL, IM.VERSION]);
   let label = "";
   if (isObjectHasKeys(labelResult, [RDFS.LABEL, IM.VERSION])) label = labelResult[RDFS.LABEL] + " v" + labelResult[IM.VERSION];
-  else if (isObjectHasKeys(labelResult, [RDFS.LABEL])) label = labelResult[RDFS.LABEL];
+  else if (isString(labelResult[RDFS.LABEL])) label = labelResult[RDFS.LABEL];
   let format = downloadSettings.selectedFormat;
   if ("FHIR" === downloadSettings.selectedFormat) format = "json";
   downloadFile(result, getFileName(label, format));
@@ -261,7 +263,7 @@ async function downloadIMV1(): Promise<void> {
   }
   let label = "";
   const resultLabel = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]);
-  if (isObjectHasKeys(resultLabel, [RDFS.LABEL])) label = resultLabel[RDFS.LABEL];
+  if (isString(resultLabel[RDFS.LABEL])) label = resultLabel[RDFS.LABEL];
   downloadFile(result, label + ".txt");
   downloadDialog.close();
 }

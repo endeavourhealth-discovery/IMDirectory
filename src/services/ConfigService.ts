@@ -1,4 +1,8 @@
-import type { Namespace } from "@endeavour/vue-library/interfaces";
+import { parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
+
+import z from "zod";
+
+import { type Namespace, NamespaceSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -7,7 +11,8 @@ const API_URL = Env.API + "api/config/public";
 
 const ConfigService = {
   async getNamespaces(): Promise<Namespace[]> {
-    return await api.get(API_URL + "/namespaces");
+    const result = await api.get(API_URL + "/namespaces");
+    return parseApiResponse(result, z.array(NamespaceSchema));
   }
 };
 

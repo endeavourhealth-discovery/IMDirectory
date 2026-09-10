@@ -20,7 +20,12 @@
           @to-search="onSearch"
         />
       </div>
-      <Splitter stateKey="directorySearchSplitterHorizontal" stateStorage="local" style="height: 100%; flex: 1 1 auto" @resizeend="updateSplitter">
+      <Splitter
+        stateKey="directorySearchSplitterHorizontal"
+        stateStorage="local"
+        style="height: 100%; flex: 1 1 auto; overflow: auto"
+        @resizeend="updateSplitter"
+      >
         <SplitterPanel :minSize="10" :size="30">
           <div style="height: 100%; display: flex; flex-direction: column">
             <div style="flex: 1; overflow-y: auto">
@@ -70,10 +75,10 @@
                 @selected-updated="updateSelectedFromIri"
                 @go-to-search-results="goToSearchResults"
               />
-              <span>Show the ecl search</span>
               <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
               <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
             </div>
+            <!-- <span>Show the ecl search</span> -->
           </div>
         </SplitterPanel>
       </Splitter>
@@ -98,18 +103,14 @@
   </Dialog>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
+import { Argument } from "@endeavour/vue-library";
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type {
-  FilterOptions,
-  QueryRequest,
-  SearchResponse,
-  SearchResultSummary
-} from "@endeavour/vue-library/interfaces";
+import { ArgumentSchema, type QueryRequest, type SearchResponse, type SearchResultSummary } from "@endeavour/vue-library/models";
 
-import { cloneDeep } from "lodash-es";
+import { cloneDeep, isString } from "lodash-es";
 import { SplitterResizeEndEvent } from "primevue/splitter";
 
 import EclSearch from "@/components/directory/EclSearch.vue";
@@ -117,6 +118,7 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
+import { type FilterOptions } from "@/models";
 import { EntityService, QueryService } from "@/services";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useLoadingStore } from "@/stores/loadingStore";
@@ -209,13 +211,15 @@ function onSearch() {
     lastSearchTerm.value = searchTerm.value;
     activePage.value = 0;
     updateSearch.value = !updateSearch.value;
-  }
+  } else activePage.value = 0;
 }
 
 async function setSelectedName() {
   if (detailsIri.value) {
     const entity = await EntityService.getPartialEntity(detailsIri.value, [RDFS.LABEL]);
-    selectedName.value = entity[RDFS.LABEL];
+    if (isString(entity[RDFS.LABEL])) {
+      selectedName.value = entity[RDFS.LABEL];
+    }
   }
 }
 
@@ -274,7 +278,7 @@ async function getIsSelectableEntity(): Promise<boolean> {
     const existing = props.validEntityQuery.argument!.find(a => a.parameter === "entity");
     if (existing) {
       existing.valueIri = { iri: detailsIri.value };
-    } else props.validEntityQuery.argument!.push({ parameter: "entity", valueIri: { iri: detailsIri.value } });
+    } else props.validEntityQuery.argument!.push({ parameter: "entity", valueIri: { iri: detailsIri.value } } as Argument);
     return await QueryService.askQuery(props.validEntityQuery);
   }
   return true;
@@ -304,7 +308,6 @@ function goToSearchResults() {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border-bottom: 10px solid #ccc;
 }
 
 .search-bar {
@@ -316,7 +319,6 @@ function goToSearchResults() {
 }
 
 .im-dialog-footer {
-  border-top: 1px solid #ccc;
   padding: 1rem;
 }
 .dialog-body-wrapper {

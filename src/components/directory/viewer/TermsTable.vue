@@ -41,7 +41,7 @@ import { computed, ref } from "vue";
 
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
 
-import { TermCode } from "@/interfaces";
+import { type TermCode } from "@/models";
 
 interface Props {
   label?: string;

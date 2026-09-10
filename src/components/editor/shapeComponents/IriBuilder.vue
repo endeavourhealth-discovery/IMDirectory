@@ -36,10 +36,10 @@
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { NAMESPACE, RDFS } from "@endeavour/vue-library/enums";
-import { TypeGuards, byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedTTEntity, PropertyShape, Query, QueryRequest, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { TypeGuards, byName, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type Query, type QueryRequest, QueryRequestSchema, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { cloneDeep, isEqual } from "lodash-es";
+import { cloneDeep, isArray, isEqual } from "lodash-es";
 
 import { EditorMode } from "@/enums";
 import { processArguments } from "@/helpers/EditorMethods";
@@ -125,11 +125,7 @@ const showValidation = ref(false);
 const prefix = ref("");
 
 watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, newUserInput], [oldSelectedDropdownOption, oldUserInput]) => {
-  if (
-    TypeGuards.isTTIriRef(newSelectedDropdownOption) &&
-    newUserInput &&
-    (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)
-  ) {
+  if (isTTIriRef(newSelectedDropdownOption) && newUserInput && (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)) {
     let concatenated = "";
     concatenated += newSelectedDropdownOption.iri;
     if (includePrefix.value) concatenated += prefix.value;
@@ -142,7 +138,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
       }
       showValidation.value = true;
     }
-  } else if (!newUserInput && newUserInput !== oldUserInput && TypeGuards.isTTIriRef(newSelectedDropdownOption)) {
+  } else if (!newUserInput && newUserInput !== oldUserInput && isTTIriRef(newSelectedDropdownOption)) {
     let concatenated = "";
     concatenated += newSelectedDropdownOption.iri;
     if (includePrefix.value) concatenated += prefix.value;
@@ -156,7 +152,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
       }
       showValidation.value = true;
     }
-  } else if (!TypeGuards.isTTIriRef(newSelectedDropdownOption) && isEqual(newSelectedDropdownOption, oldSelectedDropdownOption) && newUserInput) {
+  } else if (!isTTIriRef(newSelectedDropdownOption) && isEqual(newSelectedDropdownOption, oldSelectedDropdownOption) && newUserInput) {
     let concatenated = "";
     if (includePrefix.value) concatenated += prefix.value;
     concatenated += newUserInput;
@@ -232,12 +228,14 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await FunctionService.runFunction(props.shape.function!.iri)).sort(byName);
+    const result = await FunctionService.runFunction(props.shape.function!.iri);
+    if (isArray(result)) return result.sort(byName);
+    else throw new Error("Function result must an array");
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
 function updateEntity(data: string) {
-  const result = {} as ExtendedTTEntity;
+  const result = {} as TTEntity;
   result[key] = data;
   if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);

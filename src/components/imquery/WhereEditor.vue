@@ -45,11 +45,11 @@
           <BooleanWhereEditor
             v-if="match.where"
             :key="match.where ? match.where.uuid : 'no-where'"
+            v-model:match="match"
             v-model:parent="match"
             v-model:where="match.where"
             :base-type="baseType"
             :index="0"
-            :match="match"
             :parentIndex="0"
             :rootBool="true"
             @deleteWhere="emit('deleteWhere')"
@@ -90,7 +90,7 @@
             </div>
             <div v-if="(match.where || match.orderBy) && !editingThen">
               <span class="keep-as-reference">Keep as reference</span>
-              <InputText v-model="match.node" type="text" @input="onInput" />
+              <InputText v-model="match.as" type="text" @input="onInput" />
             </div>
             <span v-if="match.orderBy">
               <Button v-if="!match.then" class="add-button" data-testid="add-test-button" label="Add further test on the results" @click="addTest" />
@@ -145,12 +145,13 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, inject, onMounted, ref } from "vue";
+import { inject, onMounted, Ref, ref } from "vue";
 
+import { OrderLimit } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
-import type { Match, Node, NodeShape, When } from "@endeavour/vue-library/interfaces";
+import { type Node, type NodeShape, Query, type When } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import type { TreeNode } from "primevue/treenode";
@@ -158,8 +159,9 @@ import type { TreeNode } from "primevue/treenode";
 import BooleanWhereEditor from "@/components/imquery/BooleanWhereEditor.vue";
 import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
-import { Mode, usePropertyTree } from "@/composables/usePropertyTree";
-import { getOrderOptions, getOrderable } from "@/helpers/QueryEditorMethods";
+import { usePropertyTree } from "@/composables/usePropertyTree";
+import { ViewMode } from "@/enums/PropertyViewMode";
+import { getOrderable, getOrderOptions } from "@/helpers/QueryEditorMethods";
 import { addFilter, addWhereToWhen, getOrderables, setMandatoryWheres } from "@/helpers/buildQuery";
 import { DataModelService, QueryService } from "@/services";
 import { useDialogStore } from "@/stores/dialogStore";
@@ -183,11 +185,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match: Ref<Match> = defineModel<Match>("match", { default: {} });
+const match: Ref<Query> = defineModel<Query>("match", { default: {} });
 const when = defineModel<When>("when", { default: {} });
 
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "updateMatch"): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
@@ -210,10 +212,10 @@ const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const loading = ref(true);
 const edited = ref(false);
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 const typeNodes: Ref<TreeNode[]> = ref([]);
 const nodeShape: Ref<NodeShape | undefined> = ref();
-const keepAsNode: Ref<string | undefined> = ref(match.value.node);
+const keepAsNode: Ref<string | undefined> = ref(match.value.as);
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 onMounted(async () => {
@@ -221,7 +223,7 @@ onMounted(async () => {
 });
 
 function addTest() {
-  match.value.then = { where: {} };
+  match.value.then = { where: {} } as Query;
   emit("addTest");
 }
 function onInput() {
@@ -235,21 +237,21 @@ function onInput() {
 }
 function updateKeepAs() {
   if (keepAsNode.value) delete keepAs.value[keepAsNode.value];
-  keepAsNode.value = match.value.node;
-  if (match.value.node) keepAs.value[match.value.node] = match;
+  keepAsNode.value = match.value.as;
+  if (match.value.as) keepAs.value[match.value.as] = match;
 }
 
 async function init() {
   loading.value = true;
   if (match.value.typeOf) {
     nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
-    typeNodes.value = await createFeatureTree(nodeShape.value, "match");
+    typeNodes.value = await createFeatureTree(nodeShape.value, ViewMode.match);
   } else {
     nodeShape.value = await DataModelService.getRelatedTypes(props.baseType.iri!);
-    typeNodes.value = await createRelatedTypeTree(nodeShape.value);
+    typeNodes.value = createRelatedTypeTree(nodeShape.value);
   }
 
-  setupTrees(props.datasetEntry ? "return" : "match");
+  setupTrees(ViewMode.match);
   selectedNodeKey.value = {};
   setOrderables();
   loading.value = false;
@@ -258,10 +260,10 @@ async function init() {
 async function onNodeSelect(node: any) {
   if (!match.value.typeOf) {
     if (node.data.typeOf) {
-      match.value.typeOf = { iri: node.data.typeOf };
+      match.value.typeOf = { iri: node.data.typeOf } as Node;
       nodeShape.value = await DataModelService.getDataModelProperties(match.value.typeOf.iri!, false);
-      typeNodes.value = await createFeatureTree(nodeShape.value, "match");
-      setupTrees("match");
+      typeNodes.value = await createFeatureTree(nodeShape.value, ViewMode.match);
+      setupTrees(ViewMode.match);
       if (!expandedKeys.value[typeNodes.value[0].key]) {
         expandedKeys.value[typeNodes.value[0].key] = true;
       }
@@ -272,7 +274,8 @@ async function onNodeSelect(node: any) {
     else addFilter(match.value, node, props.editingThen, props.editingWhen);
   }
   await setMandatoryWheres(match.value);
-  match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+  const matchAsQuery = match.value as Query;
+  match.value = await QueryService.getQueryDisplayFromQuery(matchAsQuery, DisplayMode.ORIGINAL);
   edited.value = true;
   setOrderables();
   emit("updateMatch");
@@ -281,7 +284,7 @@ function onDeleteWhere() {
   emit("deleteWhere");
 }
 
-function setupTrees(mode: Mode) {
+function setupTrees(mode: ViewMode) {
   createModeView(typeNodes.value, mode);
   if (typeNodes.value[0].children && typeNodes.value[0].children.length === 0) expandNode(typeNodes.value[0], mode);
 }
@@ -294,10 +297,10 @@ async function onUpdateWhen() {
   emit("updateMatch");
 }
 async function onMatchNodeExpand(node: any) {
-  await expandNode(node, "match");
+  await expandNode(node, ViewMode.match);
 }
 
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {
@@ -323,7 +326,7 @@ function updateOrderable(value: any) {
     orderable.value = undefined;
   } else {
     orderable.value = value;
-    match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] };
+    match.value.orderBy = { property: [{ iri: value.iri, direction: value.direction }] } as OrderLimit;
   }
   emit("updateMatch");
 }

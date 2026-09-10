@@ -16,6 +16,7 @@
     <div v-if="rangeOrValue === RangeOrValue.SingleValue" class="value-editor">
       <ValueEditor
         v-model:assignable="where"
+        v-model:match="match"
         v-model:where="where"
         :qualifier="where.qualifier"
         :refresh="refresh"
@@ -27,6 +28,7 @@
       <span class="range-label">between</span>
       <ValueEditor
         v-model:assignable="where.range.from"
+        v-model:match="match"
         v-model:where="where"
         :fromOrTo="'from'"
         :qualifier="where.qualifier"
@@ -37,6 +39,7 @@
       <span class="range-label">and</span>
       <ValueEditor
         v-model:assignable="where.range.to"
+        v-model:match="match"
         v-model:where="where"
         :fromOrTo="'to'"
         :qualifier="where.qualifier"
@@ -66,10 +69,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, Ref, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import type { UIProperty, Value, Where } from "@endeavour/vue-library/interfaces";
+import { type Range, type Query,type Value, type Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -78,6 +81,7 @@ import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue"
 import { RangeValueOptions } from "@/constants";
 import { RangeOrValue } from "@/enums";
 import { buildValueSentence } from "@/helpers/QueryEditorMethods";
+import { type UIProperty } from "@/models";
 
 interface Props {
   uiProperty: UIProperty;
@@ -85,7 +89,8 @@ interface Props {
 
 const refresh = defineModel<number>("refresh", { default: 0 });
 const props = defineProps<Props>();
-const where = defineModel<Where>("where", { default: {} });
+const match = defineModel<Query>("match", { default: {} as Query });
+const where = defineModel<Where>("where", { default: {} as Where });
 const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }
@@ -138,7 +143,7 @@ function init() {
 function updateRangeOrValue() {
   if (rangeOrValue.value === RangeOrValue.Range) {
     if (!where.value.range) {
-      where.value.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } };
+      where.value.range = { from: { operator: Operator.gte }, to: { operator: Operator.lte } } as Range;
       where.value.range.from.operator = where.value.operator;
       where.value.range.from.value = where.value.value;
       where.value.range.to.operator = (() => {

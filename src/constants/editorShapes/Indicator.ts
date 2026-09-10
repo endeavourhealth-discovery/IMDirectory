@@ -1,7 +1,7 @@
 import { COMPONENT, EDITOR, IM, IM_FUNCTION, QUERY, RDF, RDFS, VALIDATION, XSD } from "@endeavour/vue-library/enums";
-import type { FormGenerator } from "@endeavour/vue-library/interfaces";
+import {FormGeneratorSchema } from "@/models";
 
-const IndicatorShape: FormGenerator = {
+const IndicatorShape = FormGeneratorSchema.parse({
   iri: EDITOR.INDICATOR_SHAPE,
   type: [
     {
@@ -61,7 +61,6 @@ const IndicatorShape: FormGenerator = {
               },
               validation: { iri: VALIDATION.IS_IRI }
             },
-
             {
               comment: "name or main term of concept",
               order: 3,
@@ -240,7 +239,23 @@ const IndicatorShape: FormGenerator = {
                   }
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          label: "Property group - Summary details",
+          name: "Summary",
+          showTitle: false,
+          order: 1,
+          maxCount: 1,
+          path: {
+            iri: RDF.TYPE
+          },
+          componentType: {
+            iri: COMPONENT.VERTICAL_LAYOUT
+          },
+
+          property: [
             {
               label: "Property group - denominator in array builder",
               name: "Denominator for indicator",
@@ -387,6 +402,6 @@ const IndicatorShape: FormGenerator = {
       ]
     }
   ]
-};
+});
 
 export default IndicatorShape;

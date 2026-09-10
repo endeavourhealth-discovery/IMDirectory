@@ -27,15 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ComputedRef, Ref, ref } from "vue";
-
-import type { FilterOptions } from "@endeavour/vue-library/interfaces";
+import { ComputedRef, Ref, computed, ref } from "vue";
 
 import { useRouter } from "vue-router";
 
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import type { FilterOptions } from "@/models";
 import { useFilterStore } from "@/stores/filterStore";
 
 const router = useRouter();

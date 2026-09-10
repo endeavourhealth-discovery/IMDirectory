@@ -10,35 +10,32 @@
       @hide="cancel"
     >
       <template #default>
-        <Tabs v-model:value="activeTab">
-          <TabList>
-            <Tab value="filter">Filter</Tab>
-            <Tab value="columns">
-              <span v-if="datasetEntry">Dataset items</span>
-              <span v-else>Return columns/scores</span>
-            </Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel value="filter">
-              <MatchContentEditor
-                v-model:match="editMatch"
-                :baseType="baseType"
-                :depth="depth"
-                :index="clauseIndex"
-                :parentOperator="parentOperator"
-                @addLinked="onAddLinked"
-                @cancel="cancel"
-                @deleteMatch="deleteMatch"
-                @saveChanges="emit('saveChanges', $event)"
-                @updateMatch="onUpdate"
-              />
-            </TabPanel>
-            <TabPanel value="columns">
-              <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </template>
+          <Tabs v-model:value="activeTab">
+            <TabList>
+              <Tab value="filter">Filter</Tab>
+              <Tab value="columns">Column output</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel value="filter">
+                <MatchContentEditor
+                  v-model:match="editMatch"
+                  :baseType="baseType"
+                  :depth="depth"
+                  :index="clauseIndex"
+                  :parentOperator="parentOperator"
+                  @addLinked="onAddLinked"
+                  @cancel="cancel"
+                  @deleteMatch="deleteMatch"
+                  @saveChanges="emit('saveChanges', $event)"
+                  @updateMatch="onUpdate"
+                />
+              </TabPanel>
+              <TabPanel value="columns">
+                <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </template>
       <template #footer>
         <div class="button-footer">
           <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="cancel" />
@@ -64,10 +61,11 @@ import { Ref, ref } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayOf } from "@endeavour/vue-library/helpers";
+import { type Node, Query, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
+import Button from "primevue/button";
 
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
@@ -79,7 +77,7 @@ import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   baseType: Node;
-  match: Match;
+  match: Query;
   depth: number;
   clauseIndex: number;
   showEditor: boolean;
@@ -89,34 +87,42 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const editMatch: Ref<Match> = ref(cloneDeep(props.match));
+const editMatch: Ref<Query> = ref(cloneDeep(props.match));
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
-  (event: "addTest", match: Match): void;
-  (event: "addLinked", match: Match): void;
+  (event: "addTest", match: Query): void;
+  (event: "addLinked", match: Query): void;
 }>();
 const dialogStore = useDialogStore();
 const activeTab = ref(props.datasetEntry ? "columns" : "filter");
 const editMatchString: Ref<string> = ref("");
 const { onCopy, onCopyError } = useCopyToClipboard(editMatchString);
 const edited = ref(false);
+const editorChoice = ref(false);
 
 async function onUpdate() {
   edited.value = true;
   editMatch.value = await QueryService.getQueryDisplayFromQuery(editMatch.value, DisplayMode.ORIGINAL);
 }
 
-
 function deleteMatch() {
   emit("deleteMatch");
 }
-
+function setEditorChoice(choice: string) {
+  if (choice === "filter") {
+    activeTab.value = "filter";
+    editorChoice.value = true;
+  } else {
+    activeTab.value = "columns";
+    editorChoice.value = true;
+  }
+}
 async function onAddLinked() {
   const valid = await saveChanges();
   if (valid) {
-    if (!editMatch.value.node) {
+    if (!editMatch.value.as) {
       editMatch.value.invalid = true;
       editMatch.value.errorMessage = "Please select a name to this clause  to line to";
       await showInvalid(editMatch.value);
@@ -130,14 +136,14 @@ async function getFunctionTemplates() {
   const iri = editMatch.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
-    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
+    if (isArrayOf(entity[IM.FUNCTION_TEMPLATE], isTTIriRef)) {
       const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate.iri);
       return await EntityService.getPartialEntities(iris, []);
     }
   }
 }
 
-async function onUpdateClauses(match: Match) {
+async function onUpdateClauses(match: Query) {
   emit("saveChanges", match);
 }
 
@@ -148,7 +154,7 @@ async function onSave() {
   }
 }
 
-async function showInvalid(match: Match) {
+async function showInvalid(match: Query) {
   await dialogStore.open(AlertDialog, {
     props: { modal: true, style: { width: "30vw" }, closable: false },
     data: {

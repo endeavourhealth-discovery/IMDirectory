@@ -1,8 +1,0 @@
-import type { FilterOptions, Page, SearchBinding, TTIriRef } from "@endeavour/vue-library/interfaces";
-
-export interface SearchOptions extends FilterOptions {
-  isA?: TTIriRef[];
-  binding?: SearchBinding[];
-  page?: Page;
-  textSearch?: string;
-}

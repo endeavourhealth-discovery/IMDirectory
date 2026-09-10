@@ -8,8 +8,8 @@
         :disabled="loading || altParent.name === ''"
         icon="fa-solid fa-chevron-up"
         @click="expandParents(altParent.listPosition)"
-        @mouseenter="showPopup($event, altParent.iri)"
-        @mouseleave="hidePopup"
+        @mouseenter="showOverlay($event, altParent.iri)"
+        @mouseleave="hideOverlay"
         class="p-button-text p-button-plain"
         data-testid="alt-parent"
       />
@@ -20,8 +20,8 @@
         :disabled="loading || !currentParent"
         icon="fa-solid fa-chevron-up"
         @click="expandParents(parentPosition)"
-        @mouseenter="showPopup($event, currentParent?.iri)"
-        @mouseleave="hidePopup"
+        @mouseenter="showOverlay($event, currentParent?.iri)"
+        @mouseleave="hideOverlay"
         class="p-button-text p-button-plain"
         data-testid="parent"
       />
@@ -38,11 +38,18 @@
       :loading="loading"
     >
       <template #default="{ node }: any">
-        <div v-if="node.data === 'loadMore'" class="tree-row">
+        <div v-if="node.key.includes('loadMore')" class="tree-row">
           <ProgressSpinner v-if="node.loading" />
           <span class="tree-node-label">{{ node.label }}</span>
         </div>
-        <div v-else class="tree-row" @click="customOnClick($event, node, true)" @mouseover="showPopup($event, node)" @mouseleave="hidePopup" data-testid="row">
+        <div
+          v-else
+          class="tree-row"
+          @click="customOnClick($event, node, true)"
+          @mouseover="showOverlayTreeNode($event, node.data)"
+          @mouseleave="hideOverlay"
+          data-testid="row"
+        >
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
@@ -61,18 +68,19 @@
 <script setup lang="ts">
 import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import { useUserStore } from "@endeavour/vue-library";
+import { isTTIriRef, useUserStore } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useTree } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
 import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedEntityReferenceNode, ExtendedTTEntity, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import type { ExtendedEntityReferenceNode, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
 
+import { isArray, isBoolean, isString } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 
-import { ConceptAggregate, TreeParent } from "@/interfaces";
+import type { ConceptAggregate, TreeParent } from "@/models";
 import { EntityService } from "@/services";
 
 interface Props {
@@ -92,12 +100,9 @@ const emit = defineEmits<{
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, customOnClick, onNodeExpand, loadMore } = useTree(
-  favourites,
-  emit,
-  20
-);
-const { showOverlay, hideOverlay, OS } = useOverlay();
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, createNodeSummary, onNodeCollapse, customOnClick, onNodeExpand, loadMore } =
+  useTree(favourites, emit, 20);
+const { showOverlay, showOverlayTreeNode, hideOverlay, OS } = useOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);
@@ -115,66 +120,60 @@ watch(
     alternateParents.value = [];
     expandedKeys.value = {};
     await getConceptAggregate(newValue);
-    await createTree(
-      conceptAggregate.value.concept,
-      conceptAggregate.value.parents as ExtendedEntityReferenceNode[],
-      conceptAggregate.value.children as ExtendedEntityReferenceNode[],
-      parentPosition.value
-    );
+    await createTree(parentPosition.value);
   }
 );
 
 watch(loading, newValue => {
-  if (newValue) hidePopup();
+  if (newValue) hideOverlay();
 });
 
 onMounted(async () => {
   await getConceptAggregate(props.entityIri);
-  await createTree(
-    conceptAggregate.value.concept,
-    conceptAggregate.value.parents as ExtendedEntityReferenceNode[],
-    conceptAggregate.value.children as ExtendedEntityReferenceNode[],
-    0
-  );
+  await createTree(0);
 });
 
 onBeforeUnmount(() => {
   if (overlayLocation.value) {
-    hidePopup();
+    hideOverlay();
   }
 });
 
 async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = true;
-  conceptAggregate.value.concept = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS]);
+  const conceptNode = await EntityService.getAsEntityReferenceNodes([iri]);
+  conceptAggregate.value.concept = conceptNode[0];
   conceptAggregate.value.parents = await EntityService.getEntityParents(iri);
 
   const pagedChildren = await EntityService.getPagedChildren(iri, 1, pageSize.value);
   totalCount.value = pagedChildren.totalCount;
-  conceptAggregate.value.children = pagedChildren.result;
+  conceptAggregate.value.children = pagedChildren.result as ExtendedEntityReferenceNode[];
   loading.value = false;
 }
 
-function createTree(
-  concept: ExtendedTTEntity,
-  parentHierarchy: ExtendedEntityReferenceNode[],
-  children: ExtendedEntityReferenceNode[],
-  parentPosition: number
-) {
+async function createTree(parentPosition: number) {
   loading.value = true;
-  const summary = { description: concept[RDFS.COMMENT], status: concept[IM.HAS_STATUS][0] };
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept.iri as string, concept[RDF.TYPE], summary, concept.hasChildren, null, undefined);
-  children.forEach(child => {
-    const summary = { description: child.description, status: child.status };
-    selectedConcept.children?.push(
-      createTreeNode(child.name, child.iri, child.type as TTIriRef[], summary, child.hasChildren, selectedConcept, child.orderNumber)
-    );
+  const selectedConcept = createTreeNode(
+    conceptAggregate.value.concept.name,
+    conceptAggregate.value.concept.iri,
+    conceptAggregate.value.concept.type as TTIriRef[],
+    createNodeSummary(conceptAggregate.value.concept),
+    isBoolean(conceptAggregate.value.concept.hasChildren) ? conceptAggregate.value.concept.hasChildren : false,
+    null,
+    undefined
+  );
+  conceptAggregate.value.children.forEach(child => {
+    if (isArrayOf(child.type, isTTIriRef)) {
+      selectedConcept.children?.push(
+        createTreeNode(child.name, child.iri, child.type, createNodeSummary(child), child.hasChildren, selectedConcept, child.orderNumber)
+      );
+    }
   });
   if (totalCount.value >= pageSize.value) {
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
   }
   root.value = [] as TreeNode[];
-  setParents(parentHierarchy, parentPosition);
+  setParents(conceptAggregate.value.parents, parentPosition);
   root.value.push(selectedConcept);
   if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
     expandedKeys.value[selectedConcept.key] = true;
@@ -187,7 +186,7 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
   if (isArrayHasLength(parentHierarchy)) {
     if (parentHierarchy.length === 1) {
       currentParent.value = {
-        name: parentHierarchy[parentPosition].name,
+        name: parentHierarchy[parentPosition].name ?? "",
         iri: parentHierarchy[parentPosition].iri,
         listPosition: 0
       };
@@ -196,13 +195,13 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
       for (let i = 0; i < parentHierarchy.length; i++) {
         if (i === parentPosition) {
           currentParent.value = {
-            name: parentHierarchy[parentPosition].name,
+            name: parentHierarchy[parentPosition].name ?? "",
             iri: parentHierarchy[parentPosition].iri,
             listPosition: i
           };
         } else {
           alternateParents.value.push({
-            name: parentHierarchy[i].name,
+            name: parentHierarchy[i].name ?? "",
             iri: parentHierarchy[i].iri,
             listPosition: i
           });
@@ -218,11 +217,10 @@ function setParents(parentHierarchy: ExtendedEntityReferenceNode[], parentPositi
 async function expandParents(parentPosition: number): Promise<void> {
   loading.value = true;
   if (!isArrayHasLength(root.value)) return;
-  if (root.value[0].key && !isObjectHasKeys(expandedKeys.value, [root.value[0].key])) {
+  if (root.value[0].key && !expandedKeys.value[root.value[0].key]) {
     expandedKeys.value[root.value[0].key] = true;
   }
-
-  const parents = await EntityService.getEntityParents(root.value[0].data);
+  const parents = await EntityService.getEntityParents(root.value[0].key);
   const parentNode = createExpandedParentTree(parents, parentPosition);
   root.value = [] as TreeNode[];
   root.value.push(parentNode);
@@ -236,11 +234,10 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
   let parentNode = {} as TreeNode;
   for (let i = 0; i < parents.length; i++) {
     if (i === parentPosition) {
-      const summary = { description: parents[i].description, status: parents[i].status };
-      parentNode = createTreeNode(parents[i].name, parents[i].iri, parents[i].type as TTIriRef[], summary, true, null, undefined);
+      parentNode = createTreeNode(parents[i].name, parents[i].iri, parents[i].type as TTIriRef[], createNodeSummary(parents[i]), true, null, undefined);
       if (parentNode.children && parentNode.key) {
         parentNode.children.push(root.value[0]);
-        if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
+        if (!expandedKeys.value[parentNode.key]) {
           expandedKeys.value[parentNode.key] = true;
         }
       }
@@ -250,14 +247,14 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
 }
 
 async function setExpandedParentParents(): Promise<void> {
-  const result = await EntityService.getEntityParents(root.value[0].data);
+  const result = await EntityService.getEntityParents(root.value[0].key);
   currentParent.value = null;
   alternateParents.value = [] as TreeParent[];
   if (!isArrayHasLength(result)) return;
   if (result.length === 1) {
     parentPosition.value = 0;
     currentParent.value = {
-      name: result[0].name,
+      name: result[0].name ?? "",
       iri: result[0].iri,
       listPosition: 0
     };
@@ -265,13 +262,13 @@ async function setExpandedParentParents(): Promise<void> {
     for (let i = 0; i < result.length; i++) {
       if (i === 0) {
         currentParent.value = {
-          name: result[i].name,
+          name: result[i].name ?? "",
           iri: result[i].iri,
           listPosition: i
         };
       } else {
         alternateParents.value.push({
-          name: result[i].name,
+          name: result[i].name ?? "",
           iri: result[i].iri,
           listPosition: i
         });
@@ -281,23 +278,14 @@ async function setExpandedParentParents(): Promise<void> {
 }
 
 async function onNodeSelect(node: TreeNode): Promise<void> {
-  if (node.data === "loadMore") {
+  if (node.key.includes("loadMore")) {
     if (!node.loading) await loadMore(node);
   }
   await nextTick();
   selectedKeys.value = {};
-  selectedKeys.value[conceptAggregate.value.concept[RDFS.LABEL]] = true;
-}
-
-async function showPopup(event: MouseEvent, data?: any): Promise<void> {
-  if (isObjectHasKeys(data, ["data"]) && data.data !== "loadMore") await showOverlay(event, data.data);
-  else if (data && data !== "loadMode") {
-    await showOverlay(event, data);
+  if (isString(conceptAggregate.value.concept.name)) {
+    selectedKeys.value[conceptAggregate.value.concept.name] = true;
   }
-}
-
-function hidePopup(): void {
-  hideOverlay();
 }
 </script>
 

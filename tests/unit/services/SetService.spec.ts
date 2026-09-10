@@ -12,18 +12,18 @@ describe("SetService.ts ___ axios success", () => {
   });
 
   it("can publish", async () => {
-    const result = await SetService.publish("testIri");
+    const result = await SetService.publish("http://endhealth.info/im#testIri");
     expect(api.get).toBeCalledTimes(1);
     expect(api.get).toHaveBeenCalledWith(Env.API + "api/set/private/publish", {
-      params: { iri: "testIri" }
+      params: { iri: "http://endhealth.info/im#testIri" }
     });
     expect(result).toBe("axios get return");
   });
 
   it("can get IMV1", async () => {
-    const result = await SetService.IMV1("testIri");
+    const result = await SetService.IMV1("http://endhealth.info/im#testIri");
     expect(api.get).toBeCalledTimes(1);
-    expect(api.get).toHaveBeenCalledWith(Env.API + "api/set/protected/export", { params: { iri: "testIri" }, responseType: "blob" });
+    expect(api.get).toHaveBeenCalledWith(Env.API + "api/set/protected/export", { params: { iri: "http://endhealth.info/im#testIri" }, responseType: "blob" });
     expect(result).toBe("axios get return");
   });
 });

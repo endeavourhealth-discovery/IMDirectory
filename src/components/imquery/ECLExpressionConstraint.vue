@@ -10,12 +10,13 @@
       :parentOperator="parentOperator as Bool"
       :parentType="'Match'"
       :rootBool="rootBool"
+      :eclQuery="true"
     />
 
     <div class="nested-match-container">
       <div v-for="(item, subIndex) in boolGroup" :key="item.uuid">
         <ECLExpressionConstraint
-          v-model:match="boolGroup![subIndex] as Match"
+          v-model:match="boolGroup![subIndex] as Query"
           v-model:parent="match"
           v-model:parentGroup="group"
           :activeInputId="activeInputId"
@@ -60,7 +61,7 @@
     </div>
   </div>
   <div v-else class="expression-constraint" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, match, parent, index, 'Match')">
-    <div>
+    <div class="flex items-center">
       <Button
         draggable="true"
         icon="drag-icon fa-solid fa-grip-vertical"
@@ -151,7 +152,7 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Bool, QUERY } from "@endeavour/vue-library/enums";
-import type { Match, Node, QueryRequest, TTIriRef, Where } from "@endeavour/vue-library/interfaces";
+import { type Node, Query, type QueryRequest, QueryRequestSchema, type TTIriRef, type Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { v4 } from "uuid";
@@ -183,8 +184,8 @@ interface Props {
   parentIndex: number;
 }
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
-const parent = defineModel<Match | undefined>("parent") as Ref<Match | undefined>;
+const match = defineModel<Query>("match", { default: {} });
+const parent = defineModel<Query | undefined>("parent") as Ref<Query | undefined>;
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const activeInputId = defineModel<string>("activeInputId", { default: "" });
 const exclude = defineModel<boolean>("exclude", { default: false });
@@ -222,7 +223,7 @@ watch(isRoleGroup, (newValue, oldValue) => {
   }
 });
 function onCreateSubgroup() {
-  createNewBoolGroup(parent.value as Match, parentGroup.value);
+  createNewBoolGroup(parent.value as Query, parentGroup.value);
   parentGroup.value = [];
 }
 
@@ -264,9 +265,9 @@ function deleteMatch() {
     return;
   }
   if (parent.value) {
-    const operator = props.parentOperator as keyof Match;
+    const operator = props.parentOperator as keyof Query;
     if (parent.value[operator]) {
-      (parent.value[operator] as Match[]).splice(props.index, 1);
+      (parent.value[operator] as Query[]).splice(props.index, 1);
     }
   }
 }
@@ -360,7 +361,7 @@ async function updateQueryForPropertySearch() {
           valueIriList: allowableProperties.entities
         }
       ]
-    };
+    } as QueryRequest;
   }
 }
 </script>

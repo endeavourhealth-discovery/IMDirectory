@@ -125,11 +125,13 @@
 import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
-import { byPriority, byScheme, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ConceptContextMap, GenericObject, Namespace } from "@endeavour/vue-library/interfaces";
+import { byPriority, byScheme, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type GenericObject, isTTEntity, isTTIriRef } from "@endeavour/vue-library/models";
 
-import { ChartMapNode, ChartTableNode, MapItem, SimpleMap, SimpleMapIri } from "@/interfaces";
-import { Context } from "@/interfaces/Context";
+import { isNumber, isString } from "lodash-es";
+
+import { type ChartMapNode, type ChartTableNode, ConceptContextMap, type Context, type Namespace, type SimpleMap } from "@/models";
+import { MapItem } from "@/models";
 import { ConceptService, EntityService } from "@/services";
 
 import SimpleMaps from "./SimpleMaps.vue";
@@ -172,7 +174,9 @@ async function updateMappings() {
 }
 
 async function getMappings(): Promise<void> {
-  mappings.value = (await EntityService.getPartialEntity(props.entityIri, [IM.HAS_MAP]))[IM.HAS_MAP] ?? [];
+  const result = await EntityService.getPartialEntity(props.entityIri, [IM.HAS_MAP]);
+  if (isArrayOf(result[IM.HAS_MAP], isTTEntity)) mappings.value = result[IM.HAS_MAP];
+  else mappings.value = [];
   contextMaps.value = (await ConceptService.getContextMaps(props.entityIri)) ?? [];
   data.value = {};
 
@@ -189,7 +193,7 @@ function createChartTableNode(
         name: string;
         priority: number;
       }[]
-    | SimpleMapIri[],
+    | SimpleMap[],
   location: string,
   position: number,
   type: string
@@ -233,12 +237,19 @@ function generateChildNodes(mapObject: GenericObject[], location: string, positi
   if (isObjectHasKeys(mapObject[0], [IM.MAPPED_TO])) {
     const mappedList = [] as MapItem[];
     mapObject.forEach(item => {
-      mappedList.push({
-        name: item[IM.MAPPED_TO][0].name,
-        iri: item[IM.MAPPED_TO][0].iri,
-        priority: item[IM.MAP_PRIORITY],
-        assuranceLevel: item[IM.ASSURANCE_LEVEL][0].name
-      });
+      if (
+        isArrayOf(item[IM.MAPPED_TO], isTTIriRef) &&
+        isString(item[IM.MAPPED_TO][0].name) &&
+        isNumber(item[IM.MAP_PRIORITY]) &&
+        isArrayOf(item[IM.ASSURANCE_LEVEL], isTTIriRef) &&
+        isString(item[IM.ASSURANCE_LEVEL][0].name)
+      )
+        mappedList.push({
+          name: item[IM.MAPPED_TO][0].name,
+          iri: item[IM.MAPPED_TO][0].iri,
+          priority: item[IM.MAP_PRIORITY],
+          assuranceLevel: item[IM.ASSURANCE_LEVEL][0].name
+        });
     });
     mappedList.sort(byPriority);
     return [createChartTableNode(mappedList, location, positionInLevel, "childList")];
@@ -247,9 +258,10 @@ function generateChildNodes(mapObject: GenericObject[], location: string, positi
     const results = [] as ChartMapNode[];
     let count = 0;
     for (const item of mapObject) {
+      const key = Object.keys(item)[0];
       let mapNode = createChartMapNode(Object.keys(item)[0], location, count);
-      if (mapNode) {
-        mapNode.children = generateChildNodes(item[Object.keys(item)[0]], location + "_" + count, 0);
+      if (mapNode && isArrayOf(item[key], isTTEntity)) {
+        mapNode.children = generateChildNodes(item[key], location + "_" + count, 0);
         results.push(mapNode);
       }
       count++;
@@ -296,7 +308,7 @@ function generateSimpleMapsNodes(simpleMaps: SimpleMap[], location: string, posi
   if (!isArrayHasLength(simpleMaps)) {
     return [createChartTableNode([], location, positionInLevel, type)];
   }
-  const simpleMapsList = [] as SimpleMapIri[];
+  const simpleMapsList = [] as SimpleMap[];
   simpleMaps.forEach((mapItem: SimpleMap) => {
     simpleMapsList.push({
       name: mapItem.name,

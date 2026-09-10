@@ -20,10 +20,11 @@ import { Ref, onMounted, ref, watch } from "vue";
 
 import { IM } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { TTBundle } from "@endeavour/vue-library/interfaces";
+
+import { isArray } from "lodash-es";
 
 import { GraphTranslator } from "@/helpers";
-import { TTGraphData } from "@/interfaces";
+import type { TTBundle, TTGraphData } from "@/models";
 import { EntityService } from "@/services";
 
 import GraphComponent from "./GraphComponent.vue";
@@ -75,7 +76,7 @@ async function getEntityBundle(iri: string) {
     bundle.value.entity[IM.HAS_MEMBER] = hasMember.result;
     bundle.value.predicates[IM.HAS_MEMBER] = "has member";
   }
-  if (hasMember.totalCount && hasMember.totalCount >= 10) {
+  if (hasMember.totalCount && hasMember.totalCount >= 10 && isArray(bundle.value.entity[IM.HAS_MEMBER])) {
     bundle.value.entity[IM.HAS_MEMBER] = bundle.value.entity[IM.HAS_MEMBER].concat({ iri: "seeMore", name: "see more..." });
   }
   predicatesIris.value = Object.keys(bundle.value.entity).filter(value => value !== "iri");

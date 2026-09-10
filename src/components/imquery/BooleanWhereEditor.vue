@@ -15,11 +15,12 @@
       v-model:clause="where"
       v-model:group="group"
       v-model:parent="parent"
-      :clauseType="'Match'"
+      :clauseType="'Where'"
+      :eclQuery="false"
       :index="index"
       :operator="operator"
       :parentOperator="parentOperator as Bool"
-      :parentType="'Match'"
+      :parentType="'Where'"
       :rootBool="rootBool"
     />
 
@@ -87,24 +88,18 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref } from "vue";
+import { Ref, computed, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node, UIProperty, Where } from "@endeavour/vue-library/interfaces";
+import type { Node, Query, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import {
-  checkGroupChange,
-  getBooleanOperator,
-  getBoolGroup,
-  getPathPropertyNames,
-  getTypeIriFromMatch,
-  updateBooleans
-} from "@/helpers/buildQuery";
+import { checkGroupChange, getBoolGroup, getBooleanOperator, getPathPropertyNames, getTypeIriFromMatch, updateBooleans } from "@/helpers/buildQuery";
+import { type UIProperty } from "@/models";
 import { DataModelService } from "@/services";
 
 import WhereIsEditor from "./WhereIsEditor.vue";
@@ -113,7 +108,6 @@ import WhereValueEditor from "./WhereValueEditor.vue";
 const props = withDefaults(
   defineProps<{
     showDelete?: boolean;
-    match: Match;
     baseType: Node;
     index: number;
     rootBool: boolean;
@@ -125,7 +119,8 @@ const props = withDefaults(
 );
 
 const where = defineModel<Where>("where", { default: {} });
-const parent = defineModel<Where | Match>("parent", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
+const parent = defineModel<Where | Query>("parent", { default: {} });
 const selectedWhere: Ref<UIProperty | undefined> = ref();
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);
@@ -152,13 +147,13 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   if (where.value.iri) {
-    dataModelIri.value = getTypeIriFromMatch(props.match, props.baseType, where.value.nodeRef);
+    dataModelIri.value = getTypeIriFromMatch(match.value, props.baseType, where.value.nodeRef);
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);
       if (selectedWhere.value!.propertyType === "class" && !where.value.is) where.value.is = [{}];
     }
-    pathPropertyName.value = getPathPropertyNames(props.match, where.value);
+    pathPropertyName.value = getPathPropertyNames(match.value, where.value);
   }
   loading.value = false;
 }

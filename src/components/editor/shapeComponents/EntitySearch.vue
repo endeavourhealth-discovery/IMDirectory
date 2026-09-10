@@ -28,8 +28,8 @@ import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { RDFS, ToastSeverity } from "@endeavour/vue-library/enums";
 import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { SearchResultSummary, TTIriRef } from "@endeavour/vue-library/interfaces";
-import type { ExtendedTTEntity, PropertyShape, QueryRequest } from "@endeavour/vue-library/interfaces";
+import { type SearchResultSummary, SearchResultSummarySchema, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import type { PropertyShape, QueryRequest, TTEntity } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isEqual } from "lodash-es";
 import { useToast } from "primevue/usetoast";
@@ -147,7 +147,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
   } else if (isObjectHasKeys(data, ["iri"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef).iri) {
     const asSummary = await EntityService.getEntitySummary((data as TTIriRef).iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
-  } else if (TypeGuards.isTTIriRef(data)) {
+  } else if (isTTIriRef(data)) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as SearchResultSummary);
   } else {
@@ -171,7 +171,7 @@ async function updateSelectedResult(data: SearchResultSummary | TTIriRef) {
 
 function updateEntity() {
   if (selectedResult.value) {
-    const result = {} as ExtendedTTEntity;
+    const result = {} as TTEntity;
     result[key.value] = convertToTTIriRef(selectedResult.value);
     if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
     else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);

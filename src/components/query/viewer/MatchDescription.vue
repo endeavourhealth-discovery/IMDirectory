@@ -5,10 +5,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Match } from "@endeavour/vue-library/interfaces";
+import type { Query } from "@endeavour/vue-library/models";
 
 interface Props {
-  match: Match;
+  match: Query;
   depth: number;
 }
 const props = defineProps<Props>();

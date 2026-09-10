@@ -146,6 +146,7 @@ describe("EditorBuilderJsonMethods", () => {
       build[1].position = 1;
       const shape = await fakerFactory.propertyShapeRandom();
       addItem(itemToAdd, build, { minus: true, plus: true, up: true, down: true }, shape, EditorMode.EDIT, false);
+      console.log("here");
       expect(build.length).toBe(3);
       expect(build[1].value.id).toEqual(itemToAdd.value.id);
     });

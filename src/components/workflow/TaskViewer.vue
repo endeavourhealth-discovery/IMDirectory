@@ -76,11 +76,11 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { TaskState, TaskType, UserRole } from "@endeavour/vue-library/enums";
-import type { Task, TaskHistory } from "@endeavour/vue-library/interfaces";
 import { User } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import TaskHistoryDialog from "@/components/workflow/TaskHistoryDialog.vue";
+import { type Task, type TaskHistory, TaskSchema } from "@/models";
 import SecurityService from "@/services/SecurityService";
 import WorkflowService from "@/services/WorkflowService";
 
@@ -96,16 +96,19 @@ watch(
   () => props.submitRequested,
   newValue => {
     if (newValue && isValidTask.value)
-      emit("updatedTask", {
-        id: { iri: props.id },
-        createdBy: createdBy.value,
-        type: taskType.value,
-        state: state.value,
-        assignedTo: assignedTo.value?.id,
-        dateCreated: dateCreated.value,
-        history: history.value,
-        hostUrl: hostUrl.value
-      });
+      emit(
+        "updatedTask",
+        TaskSchema.parse({
+          id: { iri: props.id },
+          createdBy: createdBy.value,
+          type: taskType.value,
+          state: state.value,
+          assignedTo: assignedTo.value?.id,
+          dateCreated: dateCreated.value,
+          history: history.value,
+          hostUrl: hostUrl.value
+        })
+      );
   }
 );
 

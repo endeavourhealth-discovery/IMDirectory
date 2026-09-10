@@ -5,7 +5,7 @@
       <span class="rule">Rule {{ clauseIndex }}</span>
     </template>
     <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
-    <span v-if="match.notExists" class="not">Exclude if </span>
+    <span v-if="match.notExists" class="not">NOT if</span>
     <span v-if="boolGroup.length" :class="operator">
       {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }}
     </span>
@@ -50,7 +50,7 @@
 import { computed, inject, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
-import type { Match, Node } from "@endeavour/vue-library/interfaces";
+import type { Node, Query } from "@endeavour/vue-library/models";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
@@ -58,9 +58,9 @@ import { buildHavingSentence } from "@/helpers/QueryEditorMethods";
 import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
 
 interface Props {
-  match: Match;
-  parentMatch: Match;
-  boolGroup: Match[];
+  match: Query;
+  parentMatch: Query;
+  boolGroup: Query[];
   parentOperator?: Bool;
   operator: Bool;
   depth: number;
@@ -72,7 +72,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const importClauses: Map<string, Match> | undefined = inject("importClauses", undefined);
+const importClauses: Map<string, Query> | undefined = inject("importClauses", undefined);
 const checked = ref(false);
 const selected = ref(props.parentSelected);
 const havingSentence = computed(() => {
@@ -85,63 +85,12 @@ function onClauseCheckChange() {
 </script>
 
 <style scoped>
-.number {
-  font-weight: bold;
-  padding-right: 0.5rem;
-}
-.text {
-  display: inline;
-}
-.tight-spacing {
-  margin-top: -1rem;
-  margin-bottom: 0.5rem;
-}
-.indent {
-  padding-right: 2rem;
-}
-
-.node-ref {
-  padding-right: 0.2rem;
-  font-style: italic;
-}
 .field {
   padding-right: 0.2rem;
 }
 .rule {
   font-weight: bold;
   padding-right: 1rem;
-}
-.where {
-  padding-left: 0.2rem;
-  padding-right: 0.2rem;
-}
-
-#recursive-match-display:deep(.or) {
-  color: var(--p-blue-500);
-  font-style: italic;
-  padding-right: 1.2rem;
-}
-
-.as {
-  padding-left: 0.5rem;
-  color: var(--p-amber-700) !important;
-}
-.linked-match {
-  color: var(--p-amber-700) !important;
-  padding-left: 0.5rem;
-  padding-right: 0.2rem;
-  cursor: pointer !important;
-}
-
-.either {
-  color: var(--p-blue-500);
-  padding-right: 0.3rem;
-}
-
-.or {
-  color: var(--p-blue-500);
-  font-style: italic;
-  padding-right: 1.2rem;
 }
 
 .and {

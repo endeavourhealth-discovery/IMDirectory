@@ -1,7 +1,7 @@
 <template>
   <div>
-    <span class="description">Description</span>
-    <InputText v-model="match.description" class="match-description" type="text" @update:model-value="updateDescription" />
+    <span class="description">Name</span>
+    <InputText v-model="match.name" class="match-name" type="text" @update:model-value="updateName" />
   </div>
   <div>
     <Button
@@ -20,6 +20,9 @@
     </TabList>
     <TabPanels>
       <TabPanel value="main">
+        <div v-if="!match.where">
+          <span class="help-text">If no filter, select output column tab</span>
+        </div>
         <div class="filter-editor">
           <WhereEditor
             v-model:match="match"
@@ -69,12 +72,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Match, Node, TTIriRef } from "@endeavour/vue-library/interfaces";
+import { isArrayOf } from "@endeavour/vue-library/helpers";
+import { type Node, Query, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -89,13 +92,14 @@ interface Props {
   isStep?: boolean;
   parentOperator?: Bool;
   mustKeep?: boolean;
+  datasetEntry?: boolean;
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Match>("match", { default: {} });
+const match = defineModel<Query>("match", { default: {} });
 const showEditor = defineModel<boolean>("showMatchEditor", { default: false });
 const emit = defineEmits<{
-  (event: "saveChanges", match: Match): void;
+  (event: "saveChanges", match: Query): void;
   (event: "cancel"): void;
   (event: "deleteMatch"): void;
   (event: "addLinked"): void;
@@ -111,13 +115,13 @@ const activeTab = ref("main");
 const edited = ref(false);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Match>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
 
 const toggleNotExists = () => {
   if (match.value.notExists === undefined) {
     match.value.notExists = true;
   } else {
-    delete match.value.notExists;
+    match.value.notExists = false;
   }
   emit("updateMatch");
 };
@@ -146,16 +150,16 @@ function onDeleteWhere() {
   delete match.value.where;
   emit("deleteMatch");
 }
-function updateDescription() {
+function updateName() {
   edited.value = true;
   emit("updateMatch");
 }
-function updateKeepAs(oldVal: Match) {
-  if (oldVal.node) {
-    delete keepAs.value[oldVal.node];
+function updateKeepAs(oldVal: Query) {
+  if (oldVal.as) {
+    delete keepAs.value[oldVal.as];
   }
-  if (match.value.node) {
-    keepAs.value[match.value.node] = match;
+  if (match.value.as) {
+    keepAs.value[match.value.as] = match;
   }
 }
 
@@ -171,8 +175,8 @@ async function getFunctionTemplates() {
   const iri = match.value?.typeOf?.iri;
   if (iri) {
     const entity = await EntityService.getPartialEntity(iri, [IM.FUNCTION_TEMPLATE]);
-    if (isArrayHasLength(entity[IM.FUNCTION_TEMPLATE])) {
-      const iris = entity[IM.FUNCTION_TEMPLATE].map((functionTemplate: TTIriRef) => functionTemplate.iri);
+    if (isArrayOf(entity[IM.FUNCTION_TEMPLATE], isTTIriRef)) {
+      const iris = entity[IM.FUNCTION_TEMPLATE].map(functionTemplate => functionTemplate.iri);
       return await EntityService.getPartialEntities(iris, []);
     }
   }
@@ -192,7 +196,7 @@ function onDeleteThen() {
 .description {
   padding-right: 1rem;
 }
-.match-description {
+.match-name {
   width: 50rem;
 }
 .description-container {
@@ -218,5 +222,9 @@ function onDeleteThen() {
 }
 .field {
   padding-right: 1rem;
+}
+.help-text {
+  font-weight: bold;
+  font-style: italic;
 }
 </style>
