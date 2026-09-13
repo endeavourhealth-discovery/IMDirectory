@@ -10,31 +10,18 @@
       @hide="cancel"
     >
       <template #default>
-        <Tabs v-model:value="activeTab">
-          <TabList>
-            <Tab value="filter">Filter</Tab>
-            <Tab value="columns">Column output</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel value="filter">
-              <MatchContentEditor
-                v-model:match="editMatch"
-                :baseType="baseType"
-                :depth="depth"
-                :index="clauseIndex"
-                :parentOperator="parentOperator"
-                @addLinked="onAddLinked"
-                @cancel="cancel"
-                @deleteMatch="deleteMatch"
-                @saveChanges="emit('saveChanges', $event)"
-                @updateMatch="onUpdate"
-              />
-            </TabPanel>
-            <TabPanel value="columns">
-              <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        <MatchContentEditor
+          v-model:match="editMatch"
+          :baseType="baseType"
+          :depth="depth"
+          :index="clauseIndex"
+          :parentOperator="parentOperator"
+          @addLinked="onAddLinked"
+          @cancel="cancel"
+          @deleteMatch="deleteMatch"
+          @saveChanges="emit('saveChanges', $event)"
+          @updateMatch="onUpdate"
+        />
       </template>
       <template #footer>
         <div class="button-footer">

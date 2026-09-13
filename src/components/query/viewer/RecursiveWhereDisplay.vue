@@ -6,7 +6,7 @@
   <span v-if="whereName" class="field">{{ whereName }}</span>
   <span v-if="where.valueLabel && where.is">
     <span class="field">{{ getIsOperator(where.is, eclQuery) }}</span>
-    <span @click="isExpanded = !isExpanded" class="hover-label flex-auto justify-start p-0"> {{ where.valueLabel }}</span>
+    <span class="hover-label flex-auto justify-start p-0" @click="isExpanded = !isExpanded"> {{ where.valueLabel }}</span>
   </span>
   <span v-if="valueSentence">
     <ValueSentenceDisplay :value-sentence="valueSentence" />
@@ -20,7 +20,7 @@
             <li class="tight-spacing">
               <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
               <span v-if="item.description" v-html="item.description"></span>
-              <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" :action="editMode ? 'view' : 'select'" />
+              <IMViewerLink v-if="item.iri" :action="editMode ? 'view' : 'select'" :iri="item.iri" :label="item.name" />
               <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
               <span v-if="item.descendantsOrSelfOf">+subtypes</span>
             </li>
@@ -34,16 +34,17 @@
     <template v-for="(nestedProperty, index) in wheres" :key="index">
       <div :style="{ marginLeft: `${depth * 12}px` }">
         <RecursiveWhereDisplay
-          :where="nestedProperty"
-          :index="index"
-          :operator="type as Bool"
+          :bracketed="!root && index === wheres!.length - 1"
           :depth="depth + 1"
-          :expandedSet="expandedSet"
-          :inline="false"
-          :root="false"
           :eclQuery="eclQuery"
           :editMode="editMode"
-          :bracketed="!root && index === wheres!.length - 1"
+          :expandedSet="expandedSet"
+          :index="index"
+          :inline="false"
+          :lastIndex="index === wheres!.length - 1"
+          :operator="type as Bool"
+          :root="false"
+          :where="nestedProperty"
         />
       </div>
     </template>
@@ -51,12 +52,12 @@
   <span v-if="bracketed">)</span>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, onMounted, ref } from "vue";
+<script lang="ts" setup>
+import { Ref, computed, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import { getIconColor, getTypeIcon, isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Node, Where } from "@endeavour/vue-library/models";
+import type { Where } from "@endeavour/vue-library/models";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -73,6 +74,7 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
+
 }
 
 const props = defineProps<Props>();
@@ -159,4 +161,9 @@ function getOperator(operator: Bool | undefined, index: number): string {
 .hover-label:hover {
   text-decoration: underline;
 }
+.node-ref {
+  padding-right: 0.2rem;
+  font-style: italic;
+}
+
 </style>

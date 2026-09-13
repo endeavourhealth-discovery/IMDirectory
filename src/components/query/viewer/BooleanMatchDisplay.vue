@@ -4,11 +4,18 @@
     <template v-if="parentOperator === Bool.rule">
       <span class="rule">Rule {{ clauseIndex }}</span>
     </template>
-    <span v-else-if="parentOperator && clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
-    <span v-if="match.notExists" class="not">NOT if</span>
-    <span v-if="boolGroup.length" :class="operator">
-      {{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }}
+    <span v-if="match.name">
+      <span :class="parentOperator">{{ parentOperator }}</span>
+      <span class="match-description">{{ match.name }}</span>
+      <span>consisting of </span>
     </span>
+    <span v-else-if="parentOperator">
+      <span v-if="clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
+      <span v-else-if="parentOperator === Bool.or" class="or">Either</span>
+    </span>
+
+    <span v-if="match.notExists" class="not">NOT if</span>
+    <span v-if="boolGroup.length" :class="operator">{{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }} </span>
     <span v-if="importClauses" class="clause-checkbox">
       <Checkbox
         v-model="checked"
@@ -93,10 +100,20 @@ function onClauseCheckChange() {
   padding-right: 1rem;
 }
 
+.or {
+  color: var(--p-blue-500);
+  font-style: italic;
+  padding-right: 1.2rem;
+}
+
 .and {
   color: #707824;
   font-style: italic;
   padding-right: 0.3rem;
+}
+.match-description {
+  color: var(--p-blue-700);
+  padding-right: 0.5rem;
 }
 .not {
   color: var(--p-red-500) !important;
