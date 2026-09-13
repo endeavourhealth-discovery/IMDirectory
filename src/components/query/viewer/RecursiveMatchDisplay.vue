@@ -5,6 +5,9 @@
       backgroundColor: selected || parentSelected ? '#e5e5e5' : ''
     }"
   >
+    <template v-if="then">
+      <span class="from">then from this</span>
+    </template>
     <template v-if="boolGroup && operator">
       <BooleanMatchDisplay
         :baseType="baseType"
@@ -39,12 +42,6 @@
           @click="matchExpanded = !matchExpanded"
         />
         <span class="match-description"> {{ match.name }}</span>
-        <template v-if="match.then">
-          <span v-if="match.then.name">
-            <span class="and">and </span>
-            <span class="match-description">{{ match.then.name }}</span>
-          </span>
-        </template>
       </template>
 
       <template v-if="match.is">
@@ -74,7 +71,11 @@
       </template>
       <template v-if="matchExpanded || !match.name">
         <component :is="match.name ? 'div' : 'span'">
-          <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
+          <span v-if="match.orderBy">
+            <span v-if="!match.where" class="field">get </span>
+            <span class="field">{{ match.orderBy.description }}</span>
+            <span v-if="!then && !match.typeOf" class="field">from the above</span>
+          </span>
           <span v-if="match.typeOf && match.typeOf.iri != baseType.iri" class="field">{{ match.typeOf.name }}</span>
           <template v-if="match.where">
             <span class="where">where</span>
@@ -91,27 +92,28 @@
             />
           </template>
           <template v-if="match.as">
-            <span class="as">save</span>
-            <span class="node-ref">as {{ match.as }}</span>
+            <component :is="booleanWhere ? 'span' : 'div'">
+              <span class="as">as</span>
+              <span class="node-ref">{{ match.as }}</span>
+            </component>
           </template>
         </component>
       </template>
-      <template v-if="match.then && matchExpanded">
-        <template v-if="match.then.where">
-          <span class="node-ref">then with the {{ testFields }} of the above</span>
-          <RecursiveWhereDisplay
-            :key="0"
-            :depth="depth + 1"
-            :eclQuery="eclQuery"
-            :editMode="editMode"
-            :expandedSet="expandSet"
-            :index="0"
-            :inline="false"
-            :root="true"
-            :where="match.then.where"
-          />
-        </template>
-      </template>
+      <div v-if="match.then">
+        <RecursiveMatchDisplay
+          :key="0"
+          :baseType="baseType"
+          :clauseIndex="0"
+          :depth="depth + 1"
+          :eclQuery="eclQuery"
+          :editMode="editMode"
+          :expandedSet="expandSet"
+          :inline="false"
+          :match="match.then"
+          :root="true"
+          :then="true"
+        />
+      </div>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
         <span class="field">if true</span>
         <span :class="match.ifTrue">{{ match.ifTrue }},</span>
@@ -142,7 +144,7 @@ import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
+import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -159,6 +161,7 @@ interface Props {
   baseType: Node;
   expanded?: boolean;
   parentSelected?: boolean;
+  then?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -181,8 +184,8 @@ const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.clauseIndex);
 });
 
-const testFields = computed(() => {
-  if (match.value.then && match.value.then.where) return getTestFields(match.value.then.where);
+const booleanWhere = computed(() => {
+  return !!(match.value.where && (match.value.where.or || match.value.where.and));
 });
 const importClauses: Map<string, Query> | undefined = inject("importClauses", undefined);
 const checked = ref(false);
@@ -226,6 +229,9 @@ async function expandCohort() {
   font-weight: bold;
   padding-right: 0.5rem;
 }
+.from {
+  padding-right: 0.5rem;
+}
 .text {
   display: inline;
 }
@@ -254,7 +260,7 @@ async function expandCohort() {
 }
 
 .as {
-  padding-left: 20rem;
+  padding-left: 10rem;
   color: var(--p-amber-700) !important;
   padding-right: 0.2rem;
 }
@@ -279,6 +285,9 @@ async function expandCohort() {
 .tree-node-line {
   position: relative;
   text-indent: -1rem;
+}
+.then {
+  padding-left: 1rem;
 }
 
 .tree-node-line::before {

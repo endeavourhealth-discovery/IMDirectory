@@ -9,6 +9,7 @@
     @hide="cancel"
   >
     <template #default>
+      <div>{{ columnGroup }}</div>
       <Tabs v-model:value="activeTab">
         <TabList>
           <Tab value="filters">Filters</Tab>
@@ -22,11 +23,13 @@
               v-model:match="match"
               v-model:parent="match"
               :baseType="baseType"
+              :datasetEntry="true"
               :depth="0"
               :index="0"
-              :datasetEntry="true"
               :parentIndex="0"
               :rootBool="true"
+              @update-match="onUpdate"
+              @delete-match="onDeleteMatch"
             />
           </TabPanel>
           <TabPanel value="columns">
@@ -81,6 +84,13 @@ async function onUpdate(newMatch: Query) {
   match.value = newMatch;
   edited.value = true;
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+}
+
+function onDeleteMatch() {
+  delete match.value.typeOf;
+  delete match.value.where;
+  delete match.value.orderBy;
+  edited.value = true;
 }
 
 function cancel() {

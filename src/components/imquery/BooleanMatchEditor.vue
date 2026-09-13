@@ -71,11 +71,19 @@
             :rootBool="false"
             @deleteMatch="onDeleteMatch(subIndex)"
             @updateBool="updateBool"
+            @updateMatch="emit('updateMatch', $event)"
           />
         </div>
       </div>
       <div>
-        <Button class="add-button" data-testid="add-clause-button" icon="fa-solid fa-plus" label="Add clause" type="button" @click="menu.toggle($event)" />
+        <Button
+          class="add-button"
+          data-testid="add-clause-button"
+          icon="fa-solid fa-plus"
+          label="Add filter clause"
+          type="button"
+          @click="menu.toggle($event)"
+        />
         <Menu ref="menu" :model="addItems" popup />
       </div>
     </div>
@@ -125,14 +133,21 @@
       </div>
     </div>
     <div v-if="rootBool && !boolGroup">
-      <Button class="add-button" data-testid="add-clause-button" icon="fa-solid fa-plus" label="Add clause" type="button" @click="menu.toggle($event)" />
+      <Button
+        class="add-button"
+        data-testid="add-clause-button"
+        icon="fa-solid fa-plus"
+        label="Add filterx clause"
+        type="button"
+        @click="menu.toggle($event)"
+      />
       <Menu ref="menu" :model="addItems" popup />
     </div>
   </template>
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref } from "vue";
+import { Ref, computed, inject, onMounted, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
@@ -146,14 +161,7 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import {
-  addMatchToParent,
-  checkGroupChange,
-  getBooleanOperator,
-  getBoolGroup,
-  getDisplayOperator,
-  updateBooleans
-} from "@/helpers/buildQuery";
+import { addMatchToParent, checkGroupChange, getBoolGroup, getBooleanOperator, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
 
 interface Props {
   isVariable?: boolean;
@@ -173,7 +181,7 @@ const props = defineProps<Props>();
 const match = defineModel<Query>("match", { default: {} });
 const parent = defineModel<Query>("parent", { default: {} });
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
-const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo", "deleteMatch"]);
+const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo", "deleteMatch", "updateMatch"]);
 const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
@@ -276,6 +284,7 @@ async function saveEditMatch(editedMatch: Query) {
   match.value = editedMatch;
   match.value.draft = false;
   updateKeepAs();
+  emit("updateMatch", editedMatch);
   showEditor.value = false;
 }
 

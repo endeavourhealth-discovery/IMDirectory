@@ -2,8 +2,7 @@ import { Operator, Order } from "@endeavour/vue-library/enums";
 import type { Compare, Having, Node, Query, Range, Where } from "@endeavour/vue-library/models";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
-import { type Orderable } from "@/models";
-import { SentencePart } from "@/models";
+import { type Orderable, SentencePart } from "@/models";
 import { RelativeTo } from "@/models/RelativeTo";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
@@ -85,12 +84,13 @@ export function isTimeInRange(time: string, start: string, end: string): boolean
 export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
   if (!having) return;
   const parts: SentencePart[] = [];
-  parts.push({ type: "text", value: "True if " + having.function?.toString() + " " });
+
   if (having.range) {
-    const range = buildRangeSentence(having.range);
+    const range = buildRangeSentence(having.range, having.function?.toString());
     if (range) parts.push(...range);
     return parts;
   } else {
+    parts.push({ type: "text", value: "True if " + having.function?.toString() + " " });
     if (having.operator) {
       parts.push({ type: "text", value: getOperatorTerm(having.operator) });
     }
@@ -101,7 +101,7 @@ export function buildHavingSentence(having?: Having): SentencePart[] | undefined
 }
 
 export function buildValueSentence(where: Where): SentencePart[] | undefined {
-  if (where.range) return buildRangeSentence(where.range);
+  if (where.range) return buildRangeSentence(where.range, where.name);
   return buildNonRangeSentence(where);
 }
 
@@ -131,12 +131,15 @@ function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
   return parts;
 }
 
-function buildRangeSentence(range: Range): SentencePart[] | undefined {
+function buildRangeSentence(range: Range, name?: string): SentencePart[] | undefined {
   const parts: SentencePart[] = [];
   const { from, to } = range;
   const units = from.compare && from.compare.units ? from.compare.units.name : "";
   const fromVal = from.value && from.value != "0" ? from.value : undefined;
   const toVal = to.value;
+  if (!name && from.compare && from.compare.left && from.compare.left.name) {
+    parts.push({ type: "text", value: from.compare.left.name + " " });
+  }
   parts.push({ type: "text", value: " is between " });
   let inclusive = false;
   if (from.operator) {
