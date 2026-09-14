@@ -22,6 +22,7 @@
         :parentSelected="parentSelected"
       />
     </template>
+
     <template v-else>
       <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
         <span class="rule">Rule {{ clauseIndex }}</span>

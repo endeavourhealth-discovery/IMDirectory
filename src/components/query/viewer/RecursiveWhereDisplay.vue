@@ -41,7 +41,6 @@
           :expandedSet="expandedSet"
           :index="index"
           :inline="false"
-          :lastIndex="index === wheres!.length - 1"
           :operator="type as Bool"
           :root="false"
           :where="nestedProperty"
@@ -74,7 +73,6 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
-
 }
 
 const props = defineProps<Props>();
@@ -165,5 +163,4 @@ function getOperator(operator: Bool | undefined, index: number): string {
   padding-right: 0.2rem;
   font-style: italic;
 }
-
 </style>
