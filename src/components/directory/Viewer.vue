@@ -24,7 +24,7 @@
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
         <Tabs id="viewer-tabs" v-model:value="activeTab" :lazy="true" scrollable>
-          <TabList id="tab-list">
+          <TabList id="tab-list" class="sticky top-0 z-100">
             <Tab value="0">Details</Tab>
             <Tab v-if="showTerms" value="1">Terms</Tab>
             <Tab v-if="showMappings" value="2">Maps</Tab>
@@ -382,13 +382,11 @@ async function handleControlClick(iri: string) {
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
-  overflow: hidden;
   height: 100%;
 }
 
 #concept-content-dialogs-container {
   flex: 1 1 auto;
-  overflow: auto;
   display: flex;
   flex-flow: column nowrap;
 }
@@ -397,7 +395,6 @@ async function handleControlClick(iri: string) {
   height: 100%;
   background-color: var(--p-content-background);
   display: flex;
-  overflow: auto;
 }
 
 #concept-panel-container:deep(.p-tabview-panels) {
@@ -412,17 +409,12 @@ async function handleControlClick(iri: string) {
   display: flex;
 }
 
-#concept-panel-container:deep(.p-tabpanels) {
-  overflow: auto;
-}
-
 #concept-panel-container:deep(.p-tabpanel) {
   height: 100%;
 }
 
 #viewer-tabs {
   height: 100%;
-  overflow: hidden;
 }
 
 #tab-list {
@@ -431,6 +423,6 @@ async function handleControlClick(iri: string) {
 }
 
 .info-container {
-  padding: 0.25rem;
+  padding: 0.75rem 0.25rem 0.25rem 0.25rem;
 }
 </style>
