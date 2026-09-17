@@ -55,12 +55,8 @@
             @deleteWhere="emit('deleteWhere')"
             @updateProperty="onUpdate"
           />
-          <div v-if="match.then && match.then.where">
-            <div>Then test:</div>
-            <WhereContentDisplay :depth="0" :index="0" :where="match.then.where" />
-          </div>
 
-          <div v-if="!editingThen && orderables && orderables.length > 0 && match.where">
+          <div v-if="orderables && orderables.length > 0 && match.where">
             <div v-if="orderables && orderables.length > 0">
               <span class="keep-as-reference">Select</span>
               <Select
@@ -93,35 +89,10 @@
               <InputText v-model="match.as" type="text" @input="onInput" />
             </div>
             <span v-if="match.orderBy">
-              <Button v-if="!match.then" class="add-button" data-testid="add-test-button" label="Add further test on the results" @click="addTest" />
+              <Button class="add-button" data-testid="add-test-button" label="Add further test on the results" @click="addTest" />
             </span>
             <Button class="add-button" data-testid="add-test-button" label="Add related feature" @click="emit('addLinked')" />
-            <span v-if="match.then">
-              <Button class="add-button" data-testid="edit-test-button" label="Edit test criteria" @click="emit('editTest')" />
-            </span>
           </div>
-        </div>
-
-        <div v-else-if="editingThen" class="column-selector">
-          <span class="field">With the following conditions:</span>
-          <MatchContentDisplay :clauseIndex="0" :depth="0" :match="match" :parentMatch="match" :skipThen="true" />
-          <div>
-            <Button class="add-button" data-testid="edit-test-button" label="Edit main criteria" @click="emit('editMain')" />
-          </div>
-          <div>Then further test the above values after ordering. Add from left</div>
-          <BooleanWhereEditor
-            v-if="match.then && match.then.where"
-            :key="'test'"
-            v-model:parent="match"
-            v-model:where="match.then.where"
-            :base-type="baseType"
-            :index="0"
-            :match="match"
-            :parentIndex="0"
-            :rootBool="true"
-            @deleteWhere="emit('deleteThen')"
-            @updateProperty="onUpdate"
-          />
         </div>
         <div v-else-if="editingWhen" class="column-selector">
           <div>Add properties to test from left</div>
@@ -222,7 +193,6 @@ onMounted(async () => {
 });
 
 function addTest() {
-  match.value.then = { where: {} } as Query;
   emit("addTest");
 }
 function onInput() {
@@ -270,7 +240,7 @@ async function onNodeSelect(node: any) {
   }
   if (node.type === "property") {
     if (props.editingWhen && when.value) addWhereToWhen(when.value, match.value, node);
-    else addFilter(match.value, node, props.editingThen, props.editingWhen);
+    else addFilter(match.value, node,props.editingWhen);
   }
   await setMandatoryWheres(match.value);
   const matchAsQuery = match.value as Query;

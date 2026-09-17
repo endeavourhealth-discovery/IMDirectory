@@ -54,6 +54,7 @@
 <script lang="ts" setup>
 import { Ref, computed, ref } from "vue";
 
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { Bool } from "@endeavour/vue-library/enums";
 import { getIconColor, getTypeIcon, isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type { Where } from "@endeavour/vue-library/models";
@@ -80,7 +81,10 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const whereName: Ref<string | undefined> = ref(props.where.name);
+const whereName: Ref<string | undefined> = computed(() => {
+  if (props.where.name) return props.where.name;
+  if (props.where.compare && props.where.compare.left) return props.where.compare.left.name;
+});
 const isExpanded = ref(props.expandedSet);
 const relativeTo = computed(() => {
   return getRelativeTo(props.where);

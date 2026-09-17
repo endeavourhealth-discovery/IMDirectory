@@ -5,9 +5,6 @@
       backgroundColor: selected || parentSelected ? '#e5e5e5' : ''
     }"
   >
-    <template v-if="then">
-      <span class="from">then from this</span>
-    </template>
     <template v-if="boolGroup && operator">
       <BooleanMatchDisplay
         :baseType="baseType"
@@ -28,6 +25,9 @@
         <span class="rule">Rule {{ clauseIndex }}</span>
       </span>
       <span v-else-if="parentOperator" :class="parentOperator">{{ displayOperator }}</span>
+      <template v-if="match.from">
+        <span class="from">then from this</span>
+      </template>
 
       <span v-if="match.notExists">
         <span class="not">NOT</span>
@@ -75,7 +75,6 @@
           <span v-if="match.orderBy">
             <span v-if="!match.where" class="field">get </span>
             <span class="field">{{ match.orderBy.description }}</span>
-            <span v-if="!then && !match.typeOf" class="field">from the above</span>
           </span>
           <span v-if="match.typeOf && match.typeOf.iri != baseType.iri" class="field">{{ match.typeOf.name }}</span>
           <template v-if="match.where">
@@ -100,21 +99,6 @@
           </template>
         </component>
       </template>
-      <div v-if="match.then">
-        <RecursiveMatchDisplay
-          :key="0"
-          :baseType="baseType"
-          :clauseIndex="0"
-          :depth="depth + 1"
-          :eclQuery="eclQuery"
-          :editMode="editMode"
-          :expandedSet="expandSet"
-          :inline="false"
-          :match="match.then"
-          :root="true"
-          :then="true"
-        />
-      </div>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
         <span class="field">if true</span>
         <span :class="match.ifTrue">{{ match.ifTrue }},</span>
@@ -138,14 +122,14 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, inject, ref } from "vue";
+import { computed, inject, Ref, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
+import { clauseCheck, getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -162,7 +146,6 @@ interface Props {
   baseType: Node;
   expanded?: boolean;
   parentSelected?: boolean;
-  then?: boolean;
 }
 
 const props = defineProps<Props>();

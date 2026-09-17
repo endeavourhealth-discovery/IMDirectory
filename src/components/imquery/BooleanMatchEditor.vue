@@ -303,7 +303,7 @@ function getStepParent(): Query {
 async function addTest(editedMatch: Query) {
   await saveEditMatch(editedMatch);
   const stepMatch = getStepParent();
-  const testMatch = { uuid: v4(), nodeRef: match.value!.node, draft: true };
+  const testMatch = { uuid: v4(), from: match.value!.as, draft: true };
   stepMatch.and!.push(testMatch);
   showEditor.value = false;
 }

@@ -47,19 +47,6 @@
       <span class="field">{{ match.orderBy.description }}</span>
       <span class="field">from the above</span>
     </template>
-    <template v-if="match.then">
-      <RecursiveMatchDisplay
-        :key="0"
-        :baseType="baseType"
-        :clauseIndex="0"
-        :depth="depth + 1"
-        :eclQuery="eclQuery"
-        :inline="false"
-        :match="match.then"
-        :root="true"
-        :then="true"
-      />
-    </template>
     <template v-if="parentOperator === Bool.rule">
       <span class="tree-node-line" style="display: block; margin-left: 1.5rem">
         <span class="field">if true</span>

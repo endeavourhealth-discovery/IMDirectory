@@ -1,18 +1,10 @@
 <template>
   <div v-if="match.from">
-    <span class="field">using</span>
-    <span v-for="(fromMatch, index) in match.from">
-      <span v-if="fromMatch.typeOf" class="field"> {{ fromMatch.typeOf.name }}</span>
-      <span v-if="fromMatch.alias" class="field"> {{ fromMatch.alias }}</span>
-    </span>
+    <span class="field">using {{ match.from }}</span>
   </div>
   <span v-if="match.notExists" class="not">Exclude</span>
   <div v-if="match.name">
     <span class="match-description">{{ match.name }} </span>
-    <span v-if="match.then && match.then.name">
-      <span class="field">and</span>
-      <span class="match-description">{{ match.then.name }} </span>
-    </span>
     <span>defined as:</span>
   </div>
 
@@ -49,10 +41,6 @@
         </div>
       </template>
     </template>
-    <div v-if="match.then && match.then.where && !skipThen">
-      <span class="above">then with the {{ testFields }} of the above</span>
-      <WhereContentDisplay :key="0" :depth="depth + 1" :index="0" :parentOperator="whereOperator" :root="false" :where="match.then.where" />
-    </div>
     <span v-if="match.as">
       <span class="field">(as</span>
       <span class="as">{{ match.as }})</span>
@@ -69,7 +57,7 @@ import type { Query } from "@endeavour/vue-library/models";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useDirectService } from "@/composables/useDirectService";
-import { getBoolGroup, getBooleanOperator, getTestFields } from "@/helpers/buildQuery";
+import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
 
 interface Props {
   match: Query;
@@ -89,9 +77,6 @@ const boolWhereGroup = computed(() => {
   return getBoolGroup("Where", props.match.where);
 });
 
-const testFields = computed(() => {
-  if (props.match.then && props.match.then.where) return getTestFields(props.match.then.where);
-});
 function getFormattedPath(path: any): string {
   let result = "";
   if (path.path) {

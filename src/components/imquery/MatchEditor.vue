@@ -17,6 +17,7 @@
           :index="clauseIndex"
           :parentOperator="parentOperator"
           @addLinked="onAddLinked"
+          @addTest="onAddTest"
           @cancel="cancel"
           @deleteMatch="deleteMatch"
           @saveChanges="emit('saveChanges', $event)"
@@ -115,6 +116,18 @@ async function onAddLinked() {
       return;
     }
     emit("addLinked", editMatch.value);
+  }
+}
+async function onAddTest() {
+  const valid = await saveChanges();
+  if (valid) {
+    if (!editMatch.value.as) {
+      editMatch.value.invalid = true;
+      editMatch.value.errorMessage = "Please select a name to this clause  to line to";
+      await showInvalid(editMatch.value);
+      return;
+    }
+    emit("addTest", editMatch.value);
   }
 }
 
