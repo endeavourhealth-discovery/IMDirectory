@@ -1,19 +1,9 @@
 import { Ref } from "vue";
 
 import { NodeSchema, Operator, QuerySchema, WhereSchema } from "@endeavour/vue-library";
-import { Bool, IM, Order, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
+import { Bool, IM, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type {
-  Node,
-  NodeShape,
-  Path,
-  PropertyRange,
-  Query,
-  QueryRequest,
-  Return,
-  When,
-  Where
-} from "@endeavour/vue-library/models";
+import type { Node, NodeShape, Path, PropertyRange, Query, QueryRequest, Return, When, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
@@ -21,7 +11,7 @@ import { v4 } from "uuid";
 
 import { Relativity } from "@/enums";
 import { PropertyMatch } from "@/interfaces/PropertyMatch";
-import { Orderable, SearchBinding, SearchOptions, SemanticMap } from "@/models";
+import { Orderable, SearchBinding, SearchOptions } from "@/models";
 import { DataModelService, QueryService } from "@/services";
 
 interface Options {
@@ -236,7 +226,6 @@ export function getMatchFromNodeRef(match: Query, nodeRef: string): Query | unde
       }
     }
   }
-  if (match.then) return getMatchFromNodeRef(match.then, nodeRef);
   return undefined;
 }
 
@@ -307,29 +296,6 @@ export function addWhereToMatch(match: Query, where: Where, index?: number) {
   } else match.where = where;
 }
 
-export function addWhereToThen(match: Query, where: Where) {
-  if (match.then && !match.then.where) {
-    match.then.where = where;
-    return;
-  }
-  if (match.then && match.then.where) {
-    if (!match.then.where.and && !match.then.where.or) {
-      const currentWhere = match.then.where;
-      match.then.where = {} as Where;
-      match.then.where.and = [currentWhere];
-      match.then.where.and.push(where);
-    } else if (match.then.where.and) {
-      match.then.where.and.push(where);
-    } else if (match.then.where.or) {
-      match.then.where.or.push(where);
-    }
-  } else {
-    if (match.then) match.then.where = where;
-    else {
-      match.then = QuerySchema.parse({ where: where });
-    }
-  }
-}
 export async function getSemanticMapOptions(propertyMatch: PropertyMatch, baseType: Node, column: Return): Promise<any[] | undefined> {
   const maps = await QueryService.getSemanticMaps(propertyMatch.typeOf.iri!);
   if (!maps) return undefined;
@@ -647,14 +613,20 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Query, baseType: Node, nodeRef?: string): string {
+export function getTypeIriFromMatch(match: Query, baseType: Node, parentMatch:Query|undefined,nodeRef?: string): string {
   if (nodeRef) {
     const typeOf = getTypeIriFromNodeRef(match, nodeRef);
     if (typeOf) return typeOf;
     else return baseType.iri!;
   }
   if (match.typeOf) return match.typeOf.iri!;
-  else return baseType.iri!;
+  if (match.from &&parentMatch && parentMatch.and){
+    for (const siblingMatch of parentMatch.and){
+      if (siblingMatch.as &&siblingMatch.as===match.from &&siblingMatch.typeOf)
+        return siblingMatch.typeOf.iri!;
+    }
+  }
+  return baseType.iri!;
 }
 
 export function getTypeIriFromNodeRef(pathable: Query | Path, nodeRef: string): string | undefined {
@@ -675,7 +647,9 @@ export function injectReturn(match: Query, iri: string, ref?: string) {
   match.return.push({ iri: iri, as: ref } as Return);
 }
 
-export function addFilter(match: Query, node: TreeNode, isThen: boolean, optional: boolean): string | undefined {
+
+
+export function addFilter(match: Query, node: TreeNode, optional: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
     const fullPath = node.data.path;
@@ -684,8 +658,7 @@ export function addFilter(match: Query, node: TreeNode, isThen: boolean, optiona
     }
     if (node.data.rangeType != SHACL.NODESHAPE) {
       const where = createWhere(node.data.iri, node.data.rangeType, nodeRef);
-      if (!isThen) addWhereToMatch(match, where);
-      else addWhereToThen(match, where);
+      addWhereToMatch(match, where);
     }
   }
 
@@ -884,12 +857,7 @@ function deleteChecks(importClauses: Map<string, Query>, match: Query) {
 }
 
 export function addFrom(match: Query, from: string) {
-  if (!match.from) {
-    match.from = [];
-    match.from.push({ alias: from });
-  } else {
-    match.from.find(item => item.alias === from) || match.from.push({ alias: from });
-  }
+  match.from = from;
 }
 export function createMatchList(match: Query, baseType: Node, matchList: any[]) {
   const counter = { value: 0 };
@@ -897,9 +865,6 @@ export function createMatchList(match: Query, baseType: Node, matchList: any[]) 
   if (matches) {
     for (const m of matches) {
       addToMatchList(matchList, m, undefined, baseType, counter);
-    }
-    if (match.then) {
-      addToMatchList(matchList, match.then, undefined, baseType, counter);
     }
   }
   if (matchList.length > 0) {
@@ -933,9 +898,6 @@ function addToMatchList(matchList: any[], subMatch: Query, parentType: Node | un
       label: subMatch.name ? subMatch.name : subMatch.as,
       as: subMatch.as ? subMatch.as : "m_" + counter.value
     });
-  }
-  if (subMatch.then) {
-    addToMatchList(matchList, subMatch.then, typeOf, baseType, counter);
   }
 }
 export function updateMatchesFromUuid(match: Query, column: Return, uuid: string): Query {

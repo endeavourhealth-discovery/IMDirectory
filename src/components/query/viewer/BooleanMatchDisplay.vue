@@ -42,6 +42,11 @@
         :parentSelected="selected"
       />
     </template>
+    <template v-if="match.orderBy">
+      <span class="field">get </span>
+      <span class="field">{{ match.orderBy.description }}</span>
+      <span class="field">from the above</span>
+    </template>
     <template v-if="parentOperator === Bool.rule">
       <span class="tree-node-line" style="display: block; margin-left: 1.5rem">
         <span class="field">if true</span>

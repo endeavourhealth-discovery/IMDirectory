@@ -41,7 +41,6 @@
           :expandedSet="expandedSet"
           :index="index"
           :inline="false"
-          :lastIndex="index === wheres!.length - 1"
           :operator="type as Bool"
           :root="false"
           :where="nestedProperty"
@@ -55,6 +54,7 @@
 <script lang="ts" setup>
 import { Ref, computed, ref } from "vue";
 
+import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { Bool } from "@endeavour/vue-library/enums";
 import { getIconColor, getTypeIcon, isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type { Where } from "@endeavour/vue-library/models";
@@ -74,7 +74,6 @@ interface Props {
   eclQuery?: boolean;
   root?: boolean;
   editMode?: boolean;
-
 }
 
 const props = defineProps<Props>();
@@ -82,7 +81,10 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();
 
-const whereName: Ref<string | undefined> = ref(props.where.name);
+const whereName: Ref<string | undefined> = computed(() => {
+  if (props.where.name) return props.where.name;
+  if (props.where.compare && props.where.compare.left) return props.where.compare.left.name;
+});
 const isExpanded = ref(props.expandedSet);
 const relativeTo = computed(() => {
   return getRelativeTo(props.where);
@@ -165,5 +167,4 @@ function getOperator(operator: Bool | undefined, index: number): string {
   padding-right: 0.2rem;
   font-style: italic;
 }
-
 </style>

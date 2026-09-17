@@ -36,7 +36,7 @@
       <InputText v-else-if="showValue" v-model="assignable.value" @input="updateNumericValue" />
 
       <Select
-        v-if="assignable.compare || showUnits"
+        v-if="where.compare || showUnits"
         v-model="units"
         :options="uiProperty.unitOptions"
         option-label="name"
@@ -54,8 +54,8 @@
       <div v-if="relativity === Relativity.Relative || relativity === Relativity.Compare">
         <span class="field">Relative to</span>
         <RelativeToSelect
-          v-model:assignable="assignable"
           v-model:match="match"
+          v-model:where="where"
           :property-iri="where.iri!"
           :uiProperty="uiProperty"
           @updateCompare="emit('updateAssignable')"
@@ -69,7 +69,7 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Compare, type Query, type TTIriRef,  type Value, type Where } from "@endeavour/vue-library/models";
+import { type Compare, type Query, type TTIriRef, type Value, type Where } from "@endeavour/vue-library/models";
 
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { Relativity } from "@/enums";
@@ -103,7 +103,7 @@ const operatorOptions = computed(() => {
   return getOperatorOptions(props.uiProperty.valueType);
 });
 
-const relativity: Ref<Relativity> = ref(assignable.value.compare ? (assignable.value.value ? Relativity.Relative : Relativity.Compare) : Relativity.Absolute);
+const relativity: Ref<Relativity> = ref(where.value.compare ? (assignable.value.value ? Relativity.Relative : Relativity.Compare) : Relativity.Absolute);
 const units: Ref<string | undefined> = ref();
 const emit = defineEmits<{
   (event: "updateAssignable"): void;
@@ -173,8 +173,8 @@ function init() {
   if (assignable.value.operator) {
     operator.value = assignable.value.operator;
   }
-  if (assignable.value.compare && assignable.value.compare.units) {
-    units.value = assignable.value.compare.units.iri;
+  if (where.value.compare && where.value.units) {
+    units.value = where.value.units.iri;
     if (!assignable.value.value) assignable.value.value = "0";
   }
 }
@@ -182,22 +182,15 @@ function init() {
 function onChangeRelativeTo(e: any) {
   if (e === Relativity.Relative || e === Relativity.Compare) {
     relativity.value = e;
-    if (!assignable.value.compare && relativeToOptions.value.length > 0) {
+    if (!where.value.compare && relativeToOptions.value.length > 0) {
       const compare: Compare = { left: { iri: where.value.iri, name: where.value.name }, right: {} };
       if (props.uiProperty.valueType === IM.DATE) {
         compare.right!.parameter = "$searchDate";
       } else compare.right!.parameter = relativeToOptions.value[0].value;
-      assignable.value.compare = compare;
-    }
-    if (assignable.value.compare && !assignable.value.compare.units) {
-      if (e === Relativity.Compare) {
-        assignable.value.compare.units = undefined;
-        units.value = undefined;
-        assignable.value.value = undefined;
-      }
+      where.value.compare = compare;
     }
   } else {
-    delete assignable.value.compare;
+    delete where.value.compare;
     relativity.value = Relativity.Absolute;
   }
   emit("updateAssignable");
@@ -263,8 +256,7 @@ function updateOperator(value: Operator) {
 }
 
 function updateUnits() {
-  if (!assignable.value.compare) assignable.value.compare = { left: {}, right: {} };
-  if (props.uiProperty.unitOptions) assignable.value.compare.units = props.uiProperty.unitOptions.find(opt => opt.iri === units.value);
+  if (props.uiProperty.unitOptions) assignable.value.units = props.uiProperty.unitOptions.find(opt => opt.iri === units.value);
   emit("updateAssignable");
 }
 </script>

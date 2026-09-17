@@ -39,7 +39,6 @@
             @deleteMatch="emit('deleteMatch')"
             @deleteWhere="onDeleteWhere"
             @saveChanges="emit('saveChanges', $event)"
-            @delete-then="onDeleteThen"
             @update-match="onUpdate"
             @edit-test="activeTab = 'test'"
             @update:match="onUpdate"
@@ -60,7 +59,6 @@
             @addTest="emit('addTest')"
             @cancel="emit('cancel')"
             @deleteMatch="emit('deleteMatch')"
-            @deleteWhere="onDeleteThen"
             @saveChanges="emit('saveChanges', $event)"
             @update-match="onUpdate"
             @edit-main="activeTab = 'main'"
@@ -186,9 +184,6 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
   if (args.property === "orderBy") {
     match.value!.orderBy = args.value;
   }
-}
-function onDeleteThen() {
-  delete match.value.then;
 }
 </script>
 
