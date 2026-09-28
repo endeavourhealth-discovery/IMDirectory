@@ -81,7 +81,7 @@
             <span class="where">where</span>
             <RecursiveWhereDisplay
               :key="0"
-              :depth="depth + 1"
+              :depth="depth"
               :eclQuery="eclQuery"
               :editMode="editMode"
               :expandedSet="expandSet"
@@ -98,6 +98,20 @@
             </component>
           </template>
         </component>
+      </template>
+      <template v-if="match.then">
+        <RecursiveMatchDisplay
+          :baseType="baseType"
+          :clauseIndex="clauseIndex"
+          :depth="depth + 4"
+          :eclQuery="eclQuery"
+          :editMode="editMode"
+          :expandedSet="expandSet"
+          :index="0"
+          :inline="false"
+          :match="match.then"
+          :root="false"
+        />
       </template>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
         <span class="field">if true</span>
@@ -122,14 +136,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, Ref, ref } from "vue";
+import { Ref, computed, inject, ref } from "vue";
 
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
+import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -209,22 +223,12 @@ async function expandCohort() {
 </script>
 
 <style scoped>
-.number {
-  font-weight: bold;
-  padding-right: 0.5rem;
-}
 .from {
   padding-right: 0.5rem;
-}
-.text {
-  display: inline;
 }
 .tight-spacing {
   margin-top: -1rem;
   margin-bottom: 0.5rem;
-}
-.indent {
-  padding-right: 2rem;
 }
 
 .node-ref {
@@ -249,29 +253,9 @@ async function expandCohort() {
   padding-right: 0.2rem;
 }
 
-.tree-node-wrapper {
-  left: 0;
-  position: relative;
-}
-
-.tree-node-wrapper::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0.1rem;
-  height: 100%;
-  border-left: 0.1rem dotted #999;
-}
-.tree-node {
-  position: relative;
-}
 .tree-node-line {
   position: relative;
   text-indent: -1rem;
-}
-.then {
-  padding-left: 1rem;
 }
 
 .tree-node-line::before {
@@ -328,8 +312,5 @@ async function expandCohort() {
 }
 .clause-label {
   padding-left: 1rem;
-}
-.score {
-  padding-left: 2rem;
 }
 </style>

@@ -55,10 +55,6 @@ export function getOrderOptions(orderables: Orderable[]): any[] {
   return results;
 }
 
-function toMinutes(time: string): number {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-}
 
 export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
   if (!having) return;
@@ -80,11 +76,14 @@ export function buildHavingSentence(having?: Having): SentencePart[] | undefined
 
 export function buildValueSentence(where: Where): SentencePart[] | undefined {
   const parts: SentencePart[] = [];
-  if (where.range) buildRangeSentence(where, parts);
-  else buildNonRangeSentence(where, parts);
-  if (where.compare) {
-    parts.push({ type: "text", value: " relative to " });
-    addReference(parts, where.compare);
+  if (where.range) {
+    buildRangeSentence(where, parts);
+    if (where.compare) {
+      parts.push({ type: "text", value: " relative to " });
+      addReference(parts, where.compare);
+    }
+  } else {
+    buildNonRangeSentence(where, parts);
   }
   return parts;
 }
@@ -136,9 +135,6 @@ function buildRangeSentence(where: Where | Having, parts: SentencePart[]) {
 }
 
 function addReference(parts: SentencePart[], compare: Compare) {
-  if (compare.units) {
-    parts.push({ type: "text", value: "relative to " });
-  }
   const source = compare.right!;
   if (source.parameter) {
     parts.push({

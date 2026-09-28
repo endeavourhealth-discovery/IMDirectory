@@ -12,8 +12,8 @@ importers:
         specifier: 7.1.2
         version: 7.1.2
       '@endeavour/vue-library':
-        specifier: 4.1.5
-        version: 4.1.5(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
+        specifier: 4.1.6
+        version: 4.1.6(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
       '@msw/data':
         specifier: 1.1.7
         version: 1.1.7
@@ -450,8 +450,8 @@ packages:
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
 
-  '@endeavour/vue-library@4.1.5':
-    resolution: {integrity: sha512-kyBduwEx2ccOQDXW/cN/swz6DN+mEf6Ui9cQUCA119wsFHa+0hW8XqW/NpkeHMI6Es0nXHW6rtqEUhcqkhbprg==}
+  '@endeavour/vue-library@4.1.6':
+    resolution: {integrity: sha512-8/8EkRG6sum1gpFproun/YCO+M7zNc9JR++LEsE7byd8btObQFGdKrUGXRtlcn1UhAZN36CdTzOvHrMseSExig==}
     peerDependencies:
       '@primeuix/themes': 2.0.3
       '@tailwindcss/vite': 4.3.3
@@ -5041,7 +5041,7 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@endeavour/vue-library@4.1.5(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))':
+  '@endeavour/vue-library@4.1.6(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))':
     dependencies:
       '@primeuix/themes': 2.0.3
       '@tailwindcss/vite': 4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))
