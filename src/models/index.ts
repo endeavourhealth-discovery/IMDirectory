@@ -47,7 +47,6 @@ export { isEntityValidationRequest, type EntityValidationRequest, EntityValidati
 export { isEntityValidationResponse, type EntityValidationResponse, EntityValidationResponseSchema } from "./EntityValidationResponse";
 export { isExtendedSearchResultSummary, type ExtendedSearchResultSummary, ExtendedSearchResultSummarySchema } from "./ExtendedSearchResultSummary";
 export { isFileDocumentRequest, type FileDocumentRequest, FileDocumentRequestSchema } from "./FileDocumentRequest";
-export { isSearchRequest, type SearchRequest, SearchRequestSchema } from "./SearchRequest";
 export { isFilter, type Filter, FilterSchema } from "./Filter";
 export { isFilterOptions, type FilterOptions, FilterOptionsSchema } from "./FilterOptions";
 export { isFormGenerator, type FormGenerator, FormGeneratorSchema } from "./FormGenerator";
@@ -62,7 +61,6 @@ export { isMapFunction, type MapFunction, MapFunctionSchema } from "./MapFunctio
 export { isMatchDisplayRequest, type MatchDisplayRequest, MatchDisplayRequestSchema } from "./MatchDisplayRequest";
 export { isNamespace, type Namespace, NamespaceSchema } from "./Namespace";
 export { isNamespaceRequest, type NamespaceRequest, NamespaceRequestSchema } from "./NamespaceRequest";
-export { isOdsResponse, type OdsResponse, OdsResponseSchema } from "./OdsResponse";
 export { isOrderable, type Orderable, OrderableSchema } from "./Orderable";
 export { isOrderBy, type OrderBy, OrderBySchema } from "./OrderBy";
 export { isOrganisation, type Organisation, OrganisationSchema } from "./Organisation";
@@ -86,11 +84,6 @@ export { isSetDistillationRequest, type SetDistillationRequest, SetDistillationR
 export { isSetExportRequest, type SetExportRequest, SetExportRequestSchema } from "./SetExportRequest";
 export { isSetOptions, type SetOptions, SetOptionsSchema } from "./SetOptions";
 export { isSimpleMap, type SimpleMap, SimpleMapSchema } from "./SimpleMap";
-export {
-  isSuperiorPropertiesBoolFocusPagedRequest,
-  type SuperiorPropertiesBoolFocusPagedRequest,
-  SuperiorPropertiesBoolFocusPagedRequestSchema
-} from "./SuperiorPropertiesBoolFocusPagedRequest";
 export { isWorkflowResponse, type WorkflowResponse, WorkflowResponseSchema } from "./WorkflowResponse";
 export { isTermCode, type TermCode, TermCodeSchema } from "./TermCode";
 export { isTransformRequest, type TransformRequest, TransformRequestSchema } from "./TransformRequest";
