@@ -3,7 +3,7 @@ import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { createRouter, createWebHashHistory } from "vue-router";
 
-import { SecurityService } from "@/services";
+import { AuthService, SecurityService } from "@/services";
 import { useAuthStore } from "@/stores/authStore";
 
 import { setBrowserTabTitles } from "./methods/browserTabTitles";
@@ -22,13 +22,17 @@ import {
 import routes from "./methods/routes";
 import { setModes } from "./methods/setModes";
 
+// Coming back from Casdoor, the sign-in must be finished (which restores the address bar) before the router reads the address.
+// This has to happen here: top-level await does not hold back sibling imports, only modules that import this one.
+await AuthService.completeSigninIfRedirected();
+
 const router = createRouter({
   history: createWebHashHistory(),
   routes
 });
 
 const errorRoutes = ["/error", "/500", "/404", "/401"];
-const skipModeNames = ["Callback", "PageNotFound"];
+const skipModeNames = ["PageNotFound"];
 
 router.beforeEach(async (to, from) => {
   if (!skipModeNames.includes(to.name as string) && !errorRoutes.includes(to.path)) await setModes();
