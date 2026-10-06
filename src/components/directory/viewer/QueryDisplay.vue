@@ -58,6 +58,9 @@
       <div v-else-if="[DisplayOptions.MySQL, DisplayOptions.PostreSQL].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SQLDisplay :sql="sql" />
       </div>
+      <div v-else-if="[DisplayOptions.Comparison].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
+        <SplitViewer :queryJson="queryJson" :querySql="sql" />
+      </div>
       <div v-if="query && query.columnGroup && query.columnGroup.length > 0">
         <span>Output columns </span>
         <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
@@ -91,6 +94,7 @@ import { type Argument, type Node, type Query, type QueryRequest } from "@endeav
 
 import { cloneDeep } from "lodash-es";
 
+import SplitViewer from "@/components/directory/viewer/SplitViewer.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
@@ -104,7 +108,8 @@ enum DisplayOptions {
   LogicalView = "Logical view",
   Original = "Original view",
   MySQL = "MySQL",
-  PostreSQL = "PostgreSQL"
+  PostreSQL = "PostgreSQL",
+  Comparison = "Comparison"
 }
 
 interface Props {
@@ -127,6 +132,7 @@ const showColumns = ref(false);
 const query: Ref<Query | undefined> = ref<Query | undefined>(props.queryDefinition);
 const rootQuery = ref({});
 const sql: Ref<string> = ref("");
+const queryJson: Ref<string> = ref("");
 const loading = ref(true);
 const displayMode: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const displayOptions: Ref<string[]> = ref([]);
@@ -189,6 +195,15 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
     case DisplayOptions.PostreSQL:
       if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "POSTGRESQL");
       break;
+    case DisplayOptions.Comparison:
+      if (props.entityIri) {
+        const fullQuery = await QueryService.getQueryFromIri(props.entityIri);
+        const request: QueryRequest = { query: fullQuery };
+        const queryRequest = await QueryService.getQueryRequestForSQL(request);
+        queryJson.value = JSON.stringify(queryRequest.query, null, 2);
+      }
+      if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri, "MYSQL");
+      break;
     default:
       break;
   }
@@ -221,9 +236,16 @@ async function init() {
 
 function setDisplayOptions() {
   if (originalDisplay.value == DisplayMode.RULES) {
-    displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
+    displayOptions.value = [DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL, DisplayOptions.Comparison];
   } else {
-    displayOptions.value = [DisplayOptions.Original, DisplayOptions.RuleView, DisplayOptions.LogicalView, DisplayOptions.MySQL, DisplayOptions.PostreSQL];
+    displayOptions.value = [
+      DisplayOptions.Original,
+      DisplayOptions.RuleView,
+      DisplayOptions.LogicalView,
+      DisplayOptions.MySQL,
+      DisplayOptions.PostreSQL,
+      DisplayOptions.Comparison
+    ];
   }
 }
 
