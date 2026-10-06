@@ -1,6 +1,6 @@
 <template>
-  <div class="json-display">
-    <div v-html="displayHtml" @click="handleClick" @pointerover="handlePointerOver" @pointerout="handlePointerOut" />
+  <div class="json-display" @click="handleClick" @pointerover="handlePointerOver" @pointerout="handlePointerOut">
+    <div v-html="displayHtml" />
   </div>
 </template>
 
@@ -55,26 +55,13 @@ watch(
   () => nextTick(updateHoveredJsonBlocks)
 );
 
-function findLastAs(value: JsonValue): string | null {
+function findLastAs(object: JsonObject): string | null {
   let lastName: string | null = null;
 
-  if (value === null || typeof value !== "object") return null;
-
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const name = findLastAs(item);
-      if (name !== null) lastName = name;
+  for (const [key, value] of Object.entries(object)) {
+    if (key === "as" && typeof value === "string") {
+      lastName = value;
     }
-    return lastName;
-  }
-
-  for (const [key, child] of Object.entries(value)) {
-    if (key === "as" && typeof child === "string") {
-      lastName = child;
-    }
-
-    const nestedName = findLastAs(child);
-    if (nestedName !== null) lastName = nestedName;
   }
 
   return lastName;
@@ -136,45 +123,58 @@ function renderValue(value: JsonValue): string {
   }
 
   if (Array.isArray(value)) {
-    return escapeHtml(JSON.stringify(value, null, 2));
+    return value.map(item => renderValue(item)).join("");
   }
 
+  return renderObject(value);
+}
+
+function renderObject(object: JsonObject, indent = 0): string {
   let html = "";
+  const entries = Object.entries(object);
 
-  for (const [key, child] of Object.entries(value)) {
+  entries.forEach(([key, child], index) => {
+    const comma = index < entries.length - 1 ? "," : "";
+
     if ((key === "and" || key === "or") && Array.isArray(child)) {
-      html += `
-<div class="json-group">
-<pre class="json-text">"${key}": [</pre>`;
+      html += `<div class="json-group">`;
+      html += `<pre class="json-text">${" ".repeat(indent)}"${key}": [</pre>`;
 
-      for (const item of child) {
+      child.forEach((item, childIndex) => {
         if (item !== null && typeof item === "object" && !Array.isArray(item)) {
-          const object = item as JsonObject;
-          const name = findLastAs(object);
-
-          const attributes = name ? `data-json-block data-block-name="${escapeHtml(name)}"` : "";
-
-          const className = name ? "json-object json-block-clickable" : "json-object";
-
-          html += `
-<div class="${className}" ${attributes}>
-<pre class="json-text">${escapeHtml(JSON.stringify(object, null, 2))}</pre>
-</div>`;
+          html += renderBlockObject(item as JsonObject, indent + 2, childIndex < child.length - 1);
         } else {
-          html += `
-<pre class="json-text">${escapeHtml(JSON.stringify(item, null, 2))}</pre>`;
+          html += `<pre class="json-text">${" ".repeat(indent + 2)}${escapeHtml(JSON.stringify(item))}${childIndex < child.length - 1 ? "," : ""}</pre>`;
         }
-      }
+      });
 
-      html += `
-<pre class="json-text">]</pre>
-</div>`;
-    } else {
-      html += `
-<pre class="json-text">${escapeHtml(JSON.stringify({ [key]: child }, null, 2))}</pre>`;
+      html += `<pre class="json-text">${" ".repeat(indent)}]${comma}</pre>`;
+      html += `</div>`;
+      return;
     }
-  }
+
+    if (child !== null && typeof child === "object" && !Array.isArray(child)) {
+      html += `<pre class="json-text">${" ".repeat(indent)}"${escapeHtml(key)}": {</pre>`;
+      html += renderObject(child as JsonObject, indent + 2);
+      html += `<pre class="json-text">${" ".repeat(indent)}}${comma}</pre>`;
+      return;
+    }
+
+    html += `<pre class="json-text">${" ".repeat(indent)}"${escapeHtml(key)}": ${escapeHtml(JSON.stringify(child))}${comma}</pre>`;
+  });
+
   return html;
+}
+
+function renderBlockObject(object: JsonObject, indent: number, hasComma: boolean): string {
+  const name = findLastAs(object);
+  const attributes = name ? `data-json-block data-block-name="${escapeHtml(name)}"` : "";
+
+  const className = name ? "json-object json-block-clickable" : "json-object";
+
+  return `<div class="${className}" ${attributes}>
+<pre class="json-text">${" ".repeat(indent)}{</pre>${renderObject(object, indent + 2)}<pre class="json-text">${" ".repeat(indent)}}${hasComma ? "," : ""}</pre>
+</div>`;
 }
 
 function findNamedJsonBlock(target: HTMLElement): HTMLElement | null {
@@ -192,9 +192,13 @@ function findNamedJsonBlock(target: HTMLElement): HTMLElement | null {
 function handleClick(event: MouseEvent): void {
   if (!(event.target instanceof HTMLElement)) return;
 
-  const block = findNamedJsonBlock(event.target);
-  const name = block?.dataset.blockName;
-  if (name) emit("click-block", name);
+  const block = event.target.closest("[data-json-block]");
+  if (!(block instanceof HTMLElement)) return;
+  const name = block.dataset.blockName;
+  if (name) {
+    event.stopPropagation();
+    emit("click-block", name);
+  }
 }
 
 function handlePointerOver(event: PointerEvent): void {
