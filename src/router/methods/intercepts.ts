@@ -3,11 +3,9 @@ import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { Router } from "vue-router";
 
-import { SecurityService } from "@/services";
-import { useSharedStore } from "@/stores/sharedStore";
+import { AuthService } from "@/services";
 
 export async function directToLogin(router: Router) {
-  const sharedStore = useSharedStore();
   const dialogStore = useDialogStore();
   console.log("directToLogin");
   await dialogStore
@@ -24,10 +22,7 @@ export async function directToLogin(router: Router) {
     .then(async (result: any) => {
       if (result?.confirm) {
         console.log("redirecting to login");
-        if (!sharedStore.signinUrl) {
-          sharedStore.updateSigninUrl(await SecurityService.getLoginUrl());
-        }
-        window.location.href = sharedStore.signinUrl;
+        await AuthService.login();
       } else {
         console.log("redirecting to landing page");
         await router.push("/directory");

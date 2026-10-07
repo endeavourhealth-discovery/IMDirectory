@@ -5,21 +5,25 @@ import axios, { AxiosError, AxiosRequestHeaders, AxiosResponse, InternalAxiosReq
 import router from "@/router";
 import { useSharedStore } from "@/stores/sharedStore";
 
+import AuthService from "./AuthService";
 import Env from "./Env";
-import SecurityService from "./SecurityService";
 import { showError } from "./toast";
 
 const api = axios.create();
 
-api.defaults.withCredentials = true;
 api.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
   const userStore = useUserStore();
   const sharedStore = useSharedStore();
+  if (!request.headers) request.headers = {} as AxiosRequestHeaders;
+  if (request.url?.startsWith(Env.API)) {
+    // IMAPI identifies the caller by their Casdoor access token
+    const accessToken = await AuthService.getAccessToken();
+    if (accessToken) request.headers.set("Authorization", `Bearer ${accessToken}`);
+  }
   if (userStore.isLoggedIn) {
-    if (!request.headers) request.headers = {} as AxiosRequestHeaders;
     request.headers.set("Graph", userStore.includeUserGraph);
   } else if (!userStore.isLoggedIn && sharedStore.isPublicMode === false && !request.url?.startsWith(Env.API)) {
-    window.location.href = await SecurityService.getLoginUrl();
+    await AuthService.login();
   }
   return request;
 });
@@ -83,7 +87,7 @@ async function handle403(error: any) {
     if (router.currentRoute.value.path === "/user/login") {
       console.error(error);
     } else {
-      window.location.href = await SecurityService.getLoginUrl();
+      await AuthService.login();
     }
   }
 }

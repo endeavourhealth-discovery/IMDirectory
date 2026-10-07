@@ -34,10 +34,10 @@ import { useCookies } from "@vueuse/integrations";
 import { useDialog } from "primevue";
 import { useToast } from "primevue/usetoast";
 import semver from "semver";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
-import { Env, GithubService, SecurityService } from "@/services";
+import { AuthService, Env, GithubService, SecurityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
@@ -54,7 +54,6 @@ setupExternalErrorHandler();
 
 const dialog = useDialog();
 const router = useRouter();
-const route = useRoute();
 const toast = useToast();
 setToastInstance(toast);
 const cookie = useCookies();
@@ -117,14 +116,19 @@ onMounted(async () => {
 
   loadingStore.updateViewsLoading(true);
 
-  if (isPublicMode.value || isLoggedIn.value || route.fullPath.startsWith("/callback")) {
+  const signinError = AuthService.consumeSigninError();
+  if (isPublicMode.value || isLoggedIn.value) {
     userStore.getAllFromUserDatabase();
     await setThemeOptions();
     if (currentFontSize.value) await changeFontSize(currentFontSize.value);
     await filterStore.fetchFilterSettings();
     await setShowReleaseBanner();
+  } else if (signinError) {
+    // Show why signing in failed rather than sending the user round the loop again
+    sharedStore.updateError(signinError);
+    await router.push({ name: "VueError" });
   } else {
-    window.location.href = await SecurityService.getLoginUrl();
+    await AuthService.login();
   }
   dialogStore.register(dialog);
   loadingStore.updateViewsLoading(false);
