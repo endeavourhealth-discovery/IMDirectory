@@ -72,9 +72,7 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Range, type Query,type Value, type Where } from "@endeavour/vue-library/models";
-
-import { cloneDeep } from "lodash-es";
+import { type Query, type Range, type Value, type Where } from "@endeavour/vue-library/models";
 
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
@@ -96,7 +94,7 @@ const booleanOptions = [
   { name: "false", value: false }
 ];
 const emit = defineEmits(["updateProperty"]);
-const whereDisplay: Ref<string> = ref("");
+
 const rangeOrValue: Ref<RangeOrValue> = ref(where.value.range ? RangeOrValue.Range : RangeOrValue.SingleValue);
 
 const qualifierOptions = computed(() => {
@@ -161,30 +159,17 @@ function updateRangeOrValue() {
         }
       })();
       if (where.value.compare) {
-        where.value.range.from.compare = where.value.compare;
-        where.value.range.to.compare = { left: {}, right: {} };
-        where.value.range.to.compare.right = cloneDeep(where.value.range.from.compare.right);
-        where.value.range.to.compare.units = where.value.range.from.compare.units;
-        if (where.value.range.to.compare.units && !where.value.range.to.value) {
+        if (where.value.range.to.units && !where.value.range.to.value) {
           where.value.range.to.value = "0";
           where.value.range.to.operator = Operator.eq;
         }
-        delete where.value.compare;
       }
       delete where.value.value;
       delete where.value.operator;
     }
-  } else {
-    if (where.value.range) {
-      if (where.value.range.from.compare) {
-        where.value.compare = where.value.range.from.compare;
-        where.value.operator = where.value.range.from.operator;
-        where.value.value = where.value.range.from.value;
-      } else {
-        where.value.value = where.value.range.from.value;
-        where.value.operator = where.value.range.from.operator;
-      }
-    }
+  } else if (where.value.range) {
+    where.value.value = where.value.range.from.value;
+    where.value.operator = where.value.range.from.operator;
     delete where.value.range;
   }
   emit("updateProperty");

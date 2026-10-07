@@ -19,11 +19,15 @@
         :parentSelected="parentSelected"
       />
     </template>
+
     <template v-else>
       <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
         <span class="rule">Rule {{ clauseIndex }}</span>
       </span>
       <span v-else-if="parentOperator" :class="parentOperator">{{ displayOperator }}</span>
+      <template v-if="match.from">
+        <span class="from">then from this</span>
+      </template>
 
       <span v-if="match.notExists">
         <span class="not">NOT</span>
@@ -39,12 +43,6 @@
           @click="matchExpanded = !matchExpanded"
         />
         <span class="match-description"> {{ match.name }}</span>
-        <template v-if="match.then">
-          <span v-if="match.then.name">
-            <span class="and">and </span>
-            <span class="match-description">{{ match.then.name }}</span>
-          </span>
-        </template>
       </template>
 
       <template v-if="match.is">
@@ -74,13 +72,16 @@
       </template>
       <template v-if="matchExpanded || !match.name">
         <component :is="match.name ? 'div' : 'span'">
-          <span v-if="match.orderBy" class="field">{{ match.orderBy.description }}</span>
+          <span v-if="match.orderBy">
+            <span v-if="!match.where" class="field">get </span>
+            <span class="field">{{ match.orderBy.description }}</span>
+          </span>
           <span v-if="match.typeOf && match.typeOf.iri != baseType.iri" class="field">{{ match.typeOf.name }}</span>
           <template v-if="match.where">
             <span class="where">where</span>
             <RecursiveWhereDisplay
               :key="0"
-              :depth="depth + 1"
+              :depth="depth"
               :eclQuery="eclQuery"
               :editMode="editMode"
               :expandedSet="expandSet"
@@ -91,26 +92,26 @@
             />
           </template>
           <template v-if="match.as">
-            <span class="as">save</span>
-            <span class="node-ref">as {{ match.as }}</span>
+            <component :is="booleanWhere ? 'span' : 'div'">
+              <span class="as">as</span>
+              <span class="node-ref">{{ match.as }}</span>
+            </component>
           </template>
         </component>
       </template>
-      <template v-if="match.then && matchExpanded">
-        <template v-if="match.then.where">
-          <span class="node-ref">then with the {{ testFields }} of the above</span>
-          <RecursiveWhereDisplay
-            :key="0"
-            :depth="depth + 1"
-            :eclQuery="eclQuery"
-            :editMode="editMode"
-            :expandedSet="expandSet"
-            :index="0"
-            :inline="false"
-            :root="true"
-            :where="match.then.where"
-          />
-        </template>
+      <template v-if="match.then">
+        <RecursiveMatchDisplay
+          :baseType="baseType"
+          :clauseIndex="clauseIndex"
+          :depth="depth + 4"
+          :eclQuery="eclQuery"
+          :editMode="editMode"
+          :expandedSet="expandSet"
+          :index="0"
+          :inline="false"
+          :match="match.then"
+          :root="false"
+        />
       </template>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
         <span class="field">if true</span>
@@ -142,7 +143,7 @@ import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator, getTestFields } from "@/helpers/buildQuery";
+import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -181,8 +182,8 @@ const displayOperator = computed(() => {
   return getDisplayOperator(props.parentOperator, props.clauseIndex);
 });
 
-const testFields = computed(() => {
-  if (match.value.then && match.value.then.where) return getTestFields(match.value.then.where);
+const booleanWhere = computed(() => {
+  return !!(match.value.where && (match.value.where.or || match.value.where.and));
 });
 const importClauses: Map<string, Query> | undefined = inject("importClauses", undefined);
 const checked = ref(false);
@@ -222,19 +223,12 @@ async function expandCohort() {
 </script>
 
 <style scoped>
-.number {
-  font-weight: bold;
+.from {
   padding-right: 0.5rem;
-}
-.text {
-  display: inline;
 }
 .tight-spacing {
   margin-top: -1rem;
   margin-bottom: 0.5rem;
-}
-.indent {
-  padding-right: 2rem;
 }
 
 .node-ref {
@@ -254,28 +248,11 @@ async function expandCohort() {
 }
 
 .as {
-  padding-left: 20rem;
+  padding-left: 10rem;
   color: var(--p-amber-700) !important;
   padding-right: 0.2rem;
 }
 
-.tree-node-wrapper {
-  left: 0;
-  position: relative;
-}
-
-.tree-node-wrapper::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0.1rem;
-  height: 100%;
-  border-left: 0.1rem dotted #999;
-}
-.tree-node {
-  position: relative;
-}
 .tree-node-line {
   position: relative;
   text-indent: -1rem;
@@ -335,8 +312,5 @@ async function expandCohort() {
 }
 .clause-label {
   padding-left: 1rem;
-}
-.score {
-  padding-left: 2rem;
 }
 </style>

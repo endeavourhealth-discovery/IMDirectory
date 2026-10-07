@@ -11,7 +11,6 @@ export { type NextComponentSummary, NextComponentSummarySchema, isNextComponentS
 export { type Property, PropertySchema, isProperty } from "./Property";
 export { type RelativeTo, RelativeToSchema, isRelativeTo } from "./RelativeTo";
 export { type SearchOptions, SearchOptionsSchema, isSearchOptions } from "./SearchOptions";
-export { type SelectedMatch, SelectedMatchSchema, isSelectedMatch } from "./SelectedMatch";
 export { type SentencePart, SentencePartSchema, isSentencePart } from "./SentencePart";
 export { type TangledTreeData, TangledTreeDataSchema, isTangledTreeData } from "./TangledTreeData";
 export { type TreeNode, TreeNodeSchema, isTreeNode } from "./TreeNode";
@@ -27,7 +26,6 @@ export { isSetContent, type SetContent, SetContentSchema } from "./SetContent";
 export { isSetDiffObject, type SetDiffObject, SetDiffObjectSchema } from "./SetDiffObject";
 export { isConceptAaggregate, type ConceptAggregate, ConceptAggregateSchema } from "./ConceptAggregate";
 export { isConceptContextMap, type ConceptContextMap, ConceptContextMapSchema } from "./ConceptContextMap";
-export { isModelDocument, type ModelDocument, ModelDocumentSchema } from "./ModelDocument";
 export { isConceptSet, type ConceptSet, ConceptSetSchema } from "./ConceptSet";
 export { isContext, type Context, ContextSchema } from "./Context";
 export { isDataModelProperty, type DataModelProperty, DataModelPropertySchema } from "./DataModelProperty";
@@ -37,7 +35,6 @@ export { isECLQueryRequest, type ECLQueryRequest, ECLQueryRequestSchema } from "
 export { isECLStatus, type ECLStatus, ECLStatusSchema } from "./ECLStatus";
 export { isEditRequest, type EditRequest, EditRequestSchema } from "./EditRequest";
 export { isFunctionTemplate, type FunctionTemplate, FunctionTemplateSchema } from "./FunctionTemplate";
-export { isQueryEntity, type QueryEntity, QueryEntitySchema } from "./QueryEntity";
 export { isParameterTemplate, type ParameterTemplate, ParameterTemplateSchema } from "./ParameterTemplate";
 export { isValueTemplate, type ValueTemplate, ValueTemplateSchema } from "./ValueTemplate";
 export { isEntity, type Entity, EntitySchema } from "./Entity";

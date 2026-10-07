@@ -1,6 +1,5 @@
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys, parseArray } from "@endeavour/vue-library/helpers";
-import { parseApiResponse } from "@endeavour/vue-library/helpers";
+import { isArrayHasLength, isObjectHasKeys, parseApiResponse } from "@endeavour/vue-library/helpers";
 import {
   ArgumentReference,
   ArgumentReferenceSchema,
@@ -18,7 +17,16 @@ import {
 
 import z from "zod";
 
-import { IMLLanguage, IMLLanguageSchema, Indicator, IndicatorSchema, PathDocument, PathDocumentSchema, QueryResponse, QueryResponseSchema } from "@/models";
+import {
+  IMLLanguage,
+  IMLLanguageSchema,
+  Indicator,
+  IndicatorSchema,
+  PathDocument,
+  PathDocumentSchema,
+  QueryResponse,
+  QueryResponseSchema
+} from "@/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -130,8 +138,8 @@ const QueryService = {
     return parseApiResponse(result, z.array(ReturnSchema));
   },
 
-  async getSemanticMaps(match: Query, column: Return): Promise<TTEntity[] | undefined> {
-    const result = await api.post(API_URL + "/semanticMapsForMatch", { match: match, return: column });
+  async getSemanticMaps(iri: string): Promise<TTEntity[] | undefined> {
+    const result = await api.get(API_URL + "/semanticMaps", { params: { iri: iri } });
     if (!result) return undefined;
     return parseApiResponse(result, z.array(TTEntitySchema));
   }

@@ -1,9 +1,8 @@
 import { Operator, Order } from "@endeavour/vue-library/enums";
-import type { Compare, Having, Node, Query, Range, Where } from "@endeavour/vue-library/models";
+import type { Compare, Having, Node, Query, Where } from "@endeavour/vue-library/models";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
-import { type Orderable } from "@/models";
-import { SentencePart } from "@/models";
+import { type Orderable, SentencePart } from "@/models";
 import { RelativeTo } from "@/models/RelativeTo";
 
 export function getPlainConstraintOperatorValue(node: Node): string {
@@ -16,22 +15,6 @@ export function getPlainConstraintOperatorLabel(node: Node): string {
   const key = (["descendantsOrSelfOf", "descendantsOf", "memberOf"] as ConstraintOperatorKey[]).find(k => k in node);
   if (key === undefined) return "concept only";
   return ConstraintOperatorMap[key];
-}
-
-export function getDateFromString(date: string): Date {
-  if (date) {
-    let separator = "";
-    if (date.includes("-")) separator = "-";
-    else if (date.includes("/")) separator = "/";
-    const splits = date.split(separator);
-    if (splits.length !== 3) return new Date();
-
-    const year = parseInt(splits[2]);
-    const month = parseInt(splits[1]);
-    const day = parseInt(splits[0]);
-    return new Date(year, month - 1, day);
-  }
-  return new Date();
 }
 
 export function getRelativeTo(where: Where): RelativeTo | undefined {
@@ -72,25 +55,16 @@ export function getOrderOptions(orderables: Orderable[]): any[] {
   return results;
 }
 
-function toMinutes(time: string): number {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-}
-
-export function isTimeInRange(time: string, start: string, end: string): boolean {
-  const t = toMinutes(time);
-  return t >= toMinutes(start) && t <= toMinutes(end);
-}
 
 export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
   if (!having) return;
   const parts: SentencePart[] = [];
-  parts.push({ type: "text", value: "True if " + having.function?.toString() + " " });
+
   if (having.range) {
-    const range = buildRangeSentence(having.range);
-    if (range) parts.push(...range);
+    buildRangeSentence(having, parts);
     return parts;
   } else {
+    parts.push({ type: "text", value: "True if " + having.function?.toString() + " " });
     if (having.operator) {
       parts.push({ type: "text", value: getOperatorTerm(having.operator) });
     }
@@ -101,12 +75,20 @@ export function buildHavingSentence(having?: Having): SentencePart[] | undefined
 }
 
 export function buildValueSentence(where: Where): SentencePart[] | undefined {
-  if (where.range) return buildRangeSentence(where.range);
-  return buildNonRangeSentence(where);
+  const parts: SentencePart[] = [];
+  if (where.range) {
+    buildRangeSentence(where, parts);
+    if (where.compare) {
+      parts.push({ type: "text", value: " relative to " });
+      addReference(parts, where.compare);
+    }
+  } else {
+    buildNonRangeSentence(where, parts);
+  }
+  return parts;
 }
 
-function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
-  const parts: SentencePart[] = [];
+function buildNonRangeSentence(where: Where, parts: SentencePart[]) {
   if (where.isNull) {
     parts.push({ type: "text", value: "is absent" });
     return parts;
@@ -115,46 +97,31 @@ function buildNonRangeSentence(where: Where): SentencePart[] | undefined {
     parts.push({ type: "text", value: "is present" });
     return parts;
   }
-  if (where.compare && where.compare.left) {
-    parts.push({ type: "text", value: where.compare.left.name + " " });
-  }
-  const units = where.compare && where.compare.units ? where.compare.units.name : "";
+
+  const units = where.units ? where.units.name : "";
   let value = undefined;
   if (where.value && (where.value != "0" || where.operator)) value = where.value;
   if (where.operator) {
     parts.push({ type: "text", value: getOperatorTerm(where.operator) });
   }
   if (value) parts.push({ type: "text", value: `${value} ${units} ` });
-  if (where.compare) {
-    addReference(parts, where.compare);
-  }
-  return parts;
 }
 
-function buildRangeSentence(range: Range): SentencePart[] | undefined {
-  const parts: SentencePart[] = [];
-  const { from, to } = range;
-  const units = from.compare && from.compare.units ? from.compare.units.name : "";
+function buildRangeSentence(where: Where | Having, parts: SentencePart[]) {
+  const { from, to } = where.range!;
   const fromVal = from.value && from.value != "0" ? from.value : undefined;
   const toVal = to.value;
+  const fromUnits = from.units ? from.units.name : "";
+  const toUnits = to.units ? to.units.name : "";
+
   parts.push({ type: "text", value: " is between " });
   let inclusive = false;
   if (from.operator) {
     if (from.operator === Operator.gte || from.operator === Operator.lte) inclusive = true;
   }
-  parts.push({ type: "text", value: `${fromVal} ${units} ` });
+  parts.push({ type: "text", value: `${fromVal} ${fromUnits} ` });
   if (inclusive) parts.push({ type: "text", value: "(inc.) " });
-  if (from.compare && from.compare.right) {
-    if (to.compare && to.compare.right) {
-      if (from.compare.right.parameter) {
-        if (to.compare && to.compare.right && to.compare.right.parameter) {
-          if (to.compare.right.parameter !== from.compare.right.parameter) {
-            addReference(parts, from.compare);
-          }
-        }
-      }
-    } else addReference(parts, from.compare);
-  }
+
   parts.push({ type: "text", value: " and " });
   inclusive = false;
   if (to.operator) {
@@ -163,18 +130,11 @@ function buildRangeSentence(range: Range): SentencePart[] | undefined {
   if (!inclusive && to.operator) {
     parts.push({ type: "text", value: getOperatorTerm(to.operator) });
   }
-  parts.push({ type: "text", value: `${toVal} ${units} ` });
+  parts.push({ type: "text", value: `${toVal} ${toUnits} ` });
   if (inclusive) parts.push({ type: "text", value: "(inc.) " });
-  if (to.compare) {
-    addReference(parts, to.compare);
-  }
-  return parts;
 }
 
 function addReference(parts: SentencePart[], compare: Compare) {
-  if (compare.units) {
-    parts.push({ type: "text", value: "relative to " });
-  }
   const source = compare.right!;
   if (source.parameter) {
     parts.push({
@@ -199,22 +159,16 @@ function getOperatorTerm(operator: Operator): string {
   switch (operator) {
     case "=":
       return "= ";
-      break;
     case ">=":
       return "equal to or greater than ";
-      break;
     case "<=":
       return "equal to or less than ";
-      break;
     case ">":
       return "greater than ";
-      break;
     case "<":
       return "less than ";
-      break;
     case "startsWith":
       return "starts with ";
-      break;
     case "contains":
       return "contains ";
     case "isNull":

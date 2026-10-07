@@ -1,8 +1,8 @@
 <template>
   <div class="as-editor">
-    <InputText v-model="column.as" class="w-full" placeholder="Column name" @input="onInput" />
+    <InputText v-model="column.as" class="as-editor" placeholder="Column name" @input="onInput" />
   </div>
-  <div class="property-display flex items-center gap-2">
+  <div class="property-display items-center gap-2">
     <template v-if="!column.case">
       <template v-if="column.nodeRef">
         <span class="font-medium">{{ getPathNameFromMatch(match, column.nodeRef) }}</span>
@@ -36,6 +36,15 @@
         <FunctionClauseDisplay :functionClause="column.function" />
       </template>
       <template v-else-if="!column.iri && !column.propertyRef && !column.case">
+        <Select
+          v-if="matchList.length > 0"
+          v-model="propertyMatch"
+          :options="matchList"
+          :placeholder="'Select source for property'"
+          option-label="name"
+          type="text"
+          @update:model-value="updatePropertyMatch"
+        />
         <Button
           :label="column.iri || column.nodeRef ? '' : 'Select property'"
           class="add-button"
@@ -56,15 +65,14 @@
           @click="addCase()"
         />
       </template>
-      <template v-if="column.iri && semanticMaps">
-        <span class="semantic-map-prompt">{{ semanticMapPrompt }}</span>
+      <template v-if="!column.iri && semanticMaps">
         <Select
           v-model="semanticMap"
           :options="semanticMaps"
           class="map-selector"
           option-label="name"
           option-value="iri"
-          placeholder="Add output map "
+          placeholder="Or select semanticMap "
           type="text"
           @update:model-value="updateSemanticMap"
         >
@@ -113,10 +121,8 @@
 
   <PropertySelector
     v-if="showPropertySelector"
-    v-model:match="match"
-    v-model:return="column"
     v-model:showPropertySelector="showPropertySelector"
-    :baseType="baseType"
+    :entityTypeIri="propertyMatch.typeOf ? propertyMatch.typeOf.iri! : props.baseType.iri!"
     @cancel="showPropertySelector = false"
     @selectedProperty="onSelectedProperty"
   />
@@ -133,13 +139,12 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, onMounted, ref } from "vue";
+import { computed, onMounted, Ref, ref } from "vue";
 
 import { AlertDialog } from "@endeavour/vue-library/components";
-import { type Node, Query, type Return, type TTIriRef, type When, WhenSchema, type Where } from "@endeavour/vue-library/models";
+import { type Node, Query, type Return, type TTIriRef, type When, type Where } from "@endeavour/vue-library/models";
 import { useDialogStore } from "@endeavour/vue-library/stores";
 
-import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import { TreeNode } from "primevue/treenode";
@@ -150,12 +155,20 @@ import WhenEditor from "@/components/imquery/WhenEditor.vue";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import FunctionClauseDisplay from "@/components/query/viewer/FunctionClauseDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { getPathNameFromMatch, getPathNameFromPropertyRef, getSemanticMapOptions, setPathGetNodeRef, setSemanticMapForMatch } from "@/helpers/buildQuery";
+import {
+  getMatchFromNodeRef,
+  getPathNameFromMatch,
+  getPathNameFromPropertyRef,
+  getSemanticMapOptions,
+  setPathGetNodeRef
+} from "@/helpers/buildQuery";
+import { PropertyMatch } from "@/interfaces/PropertyMatch";
 import { type SemanticMap, type UIProperty } from "@/models";
 import { DataModelService } from "@/services";
 
 interface Props {
   baseType: Node;
+  matchList: any[];
 }
 const props = defineProps<Props>();
 const match = defineModel<Query>("match", { default: {} });
@@ -177,29 +190,48 @@ const dialogStore = useDialogStore();
 const semanticMapPrompt = computed(() => {
   return !column.value.semanticMap ? "Output Map : (none) - select to add" : "Output map = ";
 });
+
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let whenIndex: number = 0;
+const propertyMatch: Ref<PropertyMatch> = ref({ typeOf: props.baseType, match: match.value, label: "" });
 
 onMounted(async () => {
   if (column.value.semanticMap) semanticMap.value = column.value.semanticMap.iri;
+  if (column.value.nodeRef) {
+    const matched = getMatchFromNodeRef(match.value, column.value.nodeRef);
+    if (matched) {
+      propertyMatch.value = {
+        typeOf: matched.typeOf!,
+        match: matched,
+        label: matched.as ? matched.as : matched.name ? matched.name : ""
+      };
+    }
+  } else
+    propertyMatch.value = {
+      typeOf: props.baseType,
+      match: match.value,
+      label: match.value.as ? match.value.as : match.value.name ? match.value.name : ""
+    };
+
   await findSemanticMaps();
 });
+
+function updatePropertyMatch(match: PropertyMatch) {
+  propertyMatch.value = match;
+  findSemanticMaps();
+}
 
 async function updateSemanticMap(val: any) {
   if (val && semanticMaps.value) {
     const map = semanticMaps.value.find(o => o.iri === val);
     if (map && map.defaultText && map.iri) {
       column.value.semanticMap = { iri: val, name: map.name } as TTIriRef;
-      setSemanticMapForMatch(match.value, column.value, map);
       emit("updateMatch", match.value);
     }
   }
 }
 async function findSemanticMaps() {
-  const semanticMatch = cloneDeep(match.value);
-  if (!column.value.iri) return;
-  if (!semanticMatch.typeOf) semanticMatch.typeOf = props.baseType;
-  semanticMaps.value = await getSemanticMapOptions(semanticMatch, props.baseType, column.value);
+  semanticMaps.value = await getSemanticMapOptions(propertyMatch.value, props.baseType, column.value);
 }
 function onInput() {
   if (debounceTimer) {
@@ -216,8 +248,7 @@ async function onSelectedProperty(node: TreeNode) {
     uiProperties.value[node.data.iri!] = uiProperty;
   }
   column.value!.iri = node.data.iri;
-  if (node.data.path) column.value!.nodeRef = setPathGetNodeRef(match.value, node.data.path, true);
-  await findSemanticMaps();
+  if (node.data.path) column.value!.nodeRef = setPathGetNodeRef(match.value, node.data.path, true, propertyMatch.value.as);
   showPropertySelector.value = false;
   emit("updateMatch", match.value);
 }

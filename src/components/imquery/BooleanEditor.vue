@@ -11,6 +11,7 @@
       />
     </div>
     <div v-if="operator">
+      <span v-if="parentOperator && index > 0 && parentOperator != Bool.rule" :class="parentOperator">{{ parentOperator }}</span>
       <Select
         :class="'operator-selector'"
         :modelValue="operator"
@@ -209,5 +210,28 @@ function mouseout(event: any) {
 
 .edit-choice-btn {
   width: 220px;
+}
+.or {
+  color: var(--p-blue-500);
+  font-style: italic;
+  padding-right: 1.2rem;
+}
+
+.union {
+  color: var(--p-blue-500);
+  font-style: italic;
+  padding-right: 1.2rem;
+}
+
+.and {
+  color: #707824;
+  font-style: italic;
+  padding-right: 0.3rem;
+}
+
+.with {
+  color: #707824;
+  font-style: italic;
+  padding-right: 0.3rem;
 }
 </style>

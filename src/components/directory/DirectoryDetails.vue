@@ -102,7 +102,6 @@ async function init() {
   flex: 0 1 auto;
   overflow-y: auto;
   margin: 0 0.5rem;
-  padding: 0.5rem 0;
   border-top: 1px solid var(--p-content-border-color);
 }
 

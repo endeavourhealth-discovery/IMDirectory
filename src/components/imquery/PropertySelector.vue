@@ -66,14 +66,12 @@ import type { TreeNode } from "primevue/treenode";
 import { useReturnTree } from "@/composables/useReturnTrees";
 
 interface Props {
-  baseType: Node;
-  match: Query;
+  entityTypeIri:string;
   showPropertySelector: boolean;
 }
 
 const props = defineProps<Props>();
 const showPropertySelector = defineModel<boolean>("showPropertySelector", { default: false });
-const match = defineModel<Query>("match", { default: {} });
 const expandedKeys = ref<Record<string, boolean>>({});
 const selectedNodeKey = ref<Record<string, { checked: boolean; partialChecked?: boolean }>>({});
 const { expandNode, createReturnTree } = useReturnTree();
@@ -93,8 +91,7 @@ onMounted(async () => {
 
 async function init() {
   loading.value = true;
-  typeNodes.value = await createReturnTree(match.value, props.baseType);
-  if (!props.match.and) expandedKeys.value = { [typeNodes.value[0].key]: true };
+  typeNodes.value = await createReturnTree(props.entityTypeIri);
   selectedNodeKey.value = {};
   loading.value = false;
 }

@@ -10,31 +10,19 @@
       @hide="cancel"
     >
       <template #default>
-        <Tabs v-model:value="activeTab">
-          <TabList>
-            <Tab value="filter">Filter</Tab>
-            <Tab value="columns">Column output</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel value="filter">
-              <MatchContentEditor
-                v-model:match="editMatch"
-                :baseType="baseType"
-                :depth="depth"
-                :index="clauseIndex"
-                :parentOperator="parentOperator"
-                @addLinked="onAddLinked"
-                @cancel="cancel"
-                @deleteMatch="deleteMatch"
-                @saveChanges="emit('saveChanges', $event)"
-                @updateMatch="onUpdate"
-              />
-            </TabPanel>
-            <TabPanel value="columns">
-              <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        <MatchContentEditor
+          v-model:match="editMatch"
+          :baseType="baseType"
+          :depth="depth"
+          :index="clauseIndex"
+          :parentOperator="parentOperator"
+          @addLinked="onAddLinked"
+          @addTest="onAddTest"
+          @cancel="cancel"
+          @deleteMatch="deleteMatch"
+          @saveChanges="emit('saveChanges', $event)"
+          @updateMatch="onUpdate"
+        />
       </template>
       <template #footer>
         <div class="button-footer">
@@ -128,6 +116,18 @@ async function onAddLinked() {
       return;
     }
     emit("addLinked", editMatch.value);
+  }
+}
+async function onAddTest() {
+  const valid = await saveChanges();
+  if (valid) {
+    if (!editMatch.value.as) {
+      editMatch.value.invalid = true;
+      editMatch.value.errorMessage = "Please select a name to this clause  to line to";
+      await showInvalid(editMatch.value);
+      return;
+    }
+    emit("addTest", editMatch.value);
   }
 }
 

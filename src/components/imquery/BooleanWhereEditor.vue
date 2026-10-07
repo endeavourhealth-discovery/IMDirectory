@@ -38,6 +38,7 @@
           :parentOperator="operator as Bool"
           :rootBool="false"
           :show-delete="showDelete"
+          :parentMatch="parentMatch"
           @addProperty="emit('addProperty')"
           @deleteWhere="onDeleteBooleanWhere(subIndex)"
           @updateBool="updateBool"
@@ -114,6 +115,7 @@ const props = withDefaults(
     parentOperator?: Bool;
     parentIndex: number;
     canCheck?: boolean;
+    parentMatch?: Query;
   }>(),
   { showDelete: true }
 );
@@ -147,7 +149,12 @@ onMounted(async () => {
 async function init() {
   loading.value = true;
   if (where.value.iri) {
-    dataModelIri.value = getTypeIriFromMatch(match.value, props.baseType, where.value.nodeRef);
+    if (!match.value.from) {
+      dataModelIri.value = getTypeIriFromMatch(match.value, props.baseType, props.parentMatch, where.value.nodeRef);
+    }
+    else {
+      const typeIri= getTypeIriFromMatch(match.value, props.baseType, props.parentMatch,where.value.nodeRef);
+    }
     originalWhere.value = cloneDeep(where.value);
     if (dataModelIri.value && where!.value.iri) {
       selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);

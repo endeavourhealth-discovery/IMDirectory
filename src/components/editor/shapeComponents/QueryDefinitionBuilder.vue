@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, inject, onMounted, ref, watch } from "vue";
+import { inject, onMounted, Ref, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { DisplayMode, IM } from "@endeavour/vue-library/enums";
@@ -116,7 +116,7 @@ function updateQuery(query: Query) {
 async function init() {
   if (props.value) {
     const definition = JSON.parse(props.value);
-    const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.LOGICAL);
+    const labeledQuery = await QueryService.getQueryDisplayFromQuery(definition, DisplayMode.EDIT);
     queryDefinition.value = labeledQuery;
     originalDefinition.value = cloneDeep(labeledQuery);
   } else {

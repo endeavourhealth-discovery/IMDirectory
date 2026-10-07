@@ -15,48 +15,14 @@ export function useReturnTree() {
   const baseType: Ref<Node> = ref({} as Node);
   const {createFolderNode, createPropertyTree, createNode, createPropertyNode } = usePropertyTree();
 
-  async function createReturnTree(match: Query, base: Node): Promise<TreeNode[]> {
-    baseType.value = base;
+  async function createReturnTree(entityTypeIri:string): Promise<TreeNode[]> {
     const data = [] as TreeNode[];
-    if (base.iri) {
-      await createTypeReturnTree(match.typeOf ? match.typeOf.iri! : base.iri, data);
-    }
-    if (match.and) {
-      for (const [index, any] of match.and.entries()) {
-        addReturnedProperties(any, data);
-      }
-    }
-    if (match.or) {
-      for (const [index, any] of match.or.entries()) {
-        addReturnedProperties(any, data);
-      }
-    }
+    await createTypeReturnTree(entityTypeIri, data);
+
+
     return data;
   }
 
-  function addReturnedProperties(match: Query, data: TreeNode[]) {
-    const key = data.length;
-    if (match.as) {
-      const parent = createNode({ key: key.toString(), name: "From " + match.as + " select", as: match.as, type: "folder", iconType: IM.FOLDER });
-      parent.children = [] as TreeNode[];
-      data.push(parent);
-      if (match.return) {
-        for (const [index, returned] of match.return.entries()) {
-          const node = createNode({
-            key: key.toString() + "_" + index.toString(),
-            name: returned.as,
-            iri: returned.iri,
-            nodeRef: returned.nodeRef ? returned.nodeRef : match.as,
-            type: "returned",
-            iconType: RDF.PROPERTY
-          });
-          node.selectable = true;
-          node.leaf = true;
-          parent.children.push(node);
-        }
-      }
-    }
-  }
 
   async function createTypeReturnTree(iri: string, data: TreeNode[]) {
     const nodeShape = await DataModelService.getDataModelProperties(iri, false);

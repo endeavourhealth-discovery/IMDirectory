@@ -6,11 +6,18 @@
     </div>
     <div class="return-column-editor">
       <div class="as-editor font-bold">Column name</div>
+      <div v-if="matchList.length > 0" class="as-editor font-bold">Source clause</div>
       <div class="property-display font-bold">Property / Logic</div>
     </div>
     <template v-if="match.return">
       <div v-for="(_, rIndex) in match.return" :key="rIndex" class="return-column-editor">
-        <ReturnColumnEditor v-model:column="match.return[rIndex]" v-model:match="match" :baseType="baseType" @updateMatch="updateMatch" />
+        <ReturnColumnEditor
+          v-model:column="match.return[rIndex]"
+          v-model:match="match"
+          :baseType="baseType"
+          :matchList="matchList"
+          @updateMatch="updateMatch"
+        />
         <div class="flex gap-2 ml-auto">
           <Button class="delete-button" icon="fa-solid fa-trash" severity="danger" size="small" text @click="removeReturn(rIndex)" />
         </div>
@@ -23,12 +30,16 @@
 </template>
 
 <script lang="ts" setup>
+import { Ref, onMounted, ref } from "vue";
+
 import type { Node, Query, Return, Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 
 import ReturnColumnEditor from "@/components/imquery/ReturnColumnEditor.vue";
+import { createMatchList } from "@/helpers/buildQuery";
+import { PropertyMatch } from "@/interfaces/PropertyMatch";
 
 interface Props {
   baseType: Node;
@@ -40,6 +51,10 @@ const emit = defineEmits<{
   addProperty: [where: Where];
   updateMatch: [match: Query];
 }>();
+const matchList: Ref<PropertyMatch[]> = ref([]);
+onMounted(async () => {
+  createMatchList(match.value, props.baseType, matchList.value);
+});
 
 function updateName() {
   emit("updateMatch", match.value);
