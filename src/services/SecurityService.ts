@@ -1,4 +1,3 @@
-import { useUserStore } from "@endeavour/vue-library";
 import { UserRole } from "@endeavour/vue-library/enums";
 import { parseApiResponse, parseArray } from "@endeavour/vue-library/helpers";
 import { User, UserSchema } from "@endeavour/vue-library/models";
@@ -11,30 +10,6 @@ import api from "./api";
 const API_URL = Env.API + "api/security";
 
 const SecurityService = {
-  async getRegisterUrl(redirectUrl?: string): Promise<string> {
-    if (!redirectUrl) redirectUrl = Env.DIRECTORY_URL + "callback";
-    return await api.get(API_URL + "/public/registerUrl", { params: { redirectUrl: redirectUrl } });
-  },
-
-  async getLoginUrl(redirectUrl?: string): Promise<string> {
-    if (!redirectUrl) redirectUrl = Env.DIRECTORY_URL + "callback";
-    return await api.get(API_URL + "/public/loginUrl", { params: { redirectUrl: redirectUrl } });
-  },
-
-  async login(code: string, state: string): Promise<{ user: User; state: string | undefined }> {
-    try {
-      return await api.get(API_URL + "/public/login", { params: { code: code, state: state } });
-    } catch (e) {
-      await this.logout();
-      throw e;
-    }
-  },
-
-  async logout() {
-    await api.get(API_URL + "/private/logout");
-    const userStore = useUserStore();
-    userStore.updateCurrentUser(undefined);
-  },
   async adminGetUsersByGroup(group: UserRole): Promise<User[]> {
     const result = await api.get(API_URL + "/private/getUsersInGroup", { params: { group: group } });
     return parseApiResponse(result, z.array(UserSchema));
@@ -47,10 +22,6 @@ const SecurityService = {
     const user = await api.get(API_URL + "/private/user", { raw: raw });
     const result = user.data ? user.data : user;
     return parseApiResponse(result, UserSchema);
-  },
-
-  async getProfileUrl(): Promise<string> {
-    return await api.get(API_URL + "/private/user/profileUrl");
   }
 };
 

@@ -30,9 +30,7 @@ In project root add file
 
 > .env
 
-File should contain:
-
-    VITE_HOSTING_MODE="public" || "private"
+For content see [ENVIRONMENT.md](docs/ENVIRONMENT.md)
 
 ### Compiles and hot-reloads for development
 

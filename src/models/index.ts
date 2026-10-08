@@ -52,8 +52,6 @@ export { isFunctionRequest, type FunctionRequest, FunctionRequestSchema } from "
 export { isIMLLanguage, type IMLLanguage, IMLLanguageSchema } from "./IMLLanguage";
 export { isIndicator, type Indicator, IndicatorSchema } from "./Indicator";
 export { isInstance, type Instance, InstanceSchema } from "./Instance";
-export { isLoginResponse, type LoginResponse, LoginResponseSchema } from "./LoginResponse";
-export { isLoginResponseES, type LoginResponseES, LoginResponseESSchema } from "./LoginResponseES";
 export { isMailOptions, type MailOptions, MailOptionsSchema } from "./MailOptions";
 export { isMapFunction, type MapFunction, MapFunctionSchema } from "./MapFunction";
 export { isMatchDisplayRequest, type MatchDisplayRequest, MatchDisplayRequestSchema } from "./MatchDisplayRequest";
