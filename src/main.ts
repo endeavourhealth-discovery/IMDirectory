@@ -14,7 +14,6 @@ import StyleClass from "primevue/styleclass";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import VueClipboard from "vue3-clipboard";
-import { VueShowdownPlugin } from "vue-showdown";
 
 import { useSharedStore } from "@/stores/sharedStore";
 
@@ -56,7 +55,6 @@ const app = createApp(App)
     autoSetContainer: true,
     appendToBody: true
   })
-  .use(VueShowdownPlugin, { flavor: "github" })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
   .directive("ripple", Ripple)
