@@ -1,13 +1,13 @@
 <template>
-  <Splitter class="w-full border-none border-round overflow-hidden" style="height: 60vh; width: 70vw">
+  <Splitter class="w-full border-none border-round overflow-hidden" style="height: 60vh; max-width: 75vw">
     <SplitterPanel :size="25" :minSize="2" class="overflow-hidden">
-      <div ref="leftScroll" class="h-full overflow-y-auto surface-ground" style="min-height: 0">
+      <div ref="leftScroll" class="h-full overflow-auto surface-ground" style="min-height: 0">
         <div ref="leftHeader" class="sticky top-0 z-2 surface-card border-bottom-1 surface-border bg-surface-0">
           <div class="flex align-items-center gap-2 px-3 py-2">
             <span class="font-semibold"> JSON </span>
           </div>
         </div>
-        <div class="font-mono text-sm">
+        <div class="font-mono text-sm w-max min-w-full">
           <div v-if="loadingJson" class="flex flex-row"><ProgressSpinner /></div>
           <JsonDisplay
             v-else
@@ -16,19 +16,19 @@
             @block-names="handleJsonBlockNames"
             @hover-block="handleHoverBlock"
             @leave-block="hoveredName = null"
-            @click-block="alignBlock"
+            @click-block="handleJsonClick"
           />
         </div>
       </div>
     </SplitterPanel>
     <SplitterPanel :size="25" :minSize="2" class="overflow-hidden">
-      <div ref="rightScroll" class="h-full overflow-y-auto surface-ground" style="min-height: 0">
+      <div ref="rightScroll" class="h-full overflow-auto surface-ground" style="min-height: 0">
         <div ref="rightHeader" class="sticky top-0 z-2 surface-card border-bottom-1 surface-border bg-surface-0">
           <div class="flex align-items-center gap-2 px-3 py-2">
             <span class="font-semibold"> SQL </span>
           </div>
         </div>
-        <div class="font-mono text-sm">
+        <div class="font-mono text-sm w-max min-w-full">
           <div v-if="loadingSql" class="flex flex-row"><ProgressSpinner /></div>
           <div
             v-else
@@ -36,7 +36,7 @@
             :key="`${block.name}-${index}`"
             :ref="el => setRightBlockRef(block.name, el)"
             :data-block-name="block.name"
-            class="border-bottom-1 surface-border transition-colors transition-duration-100"
+            class="border-bottom-1 surface-border transition-colors transition-duration-100 sql-block"
             :class="{
               'bg-primary-500/20': block.name && hoveredName === block.name,
               'cursor-pointer': !!block.name
@@ -81,7 +81,6 @@ const rightScroll = ref<HTMLElement | null>(null);
 const leftHeader = ref<HTMLElement | null>(null);
 const rightHeader = ref<HTMLElement | null>(null);
 const hoveredName = ref<string | null>(null);
-
 const loadingJson = ref(false);
 const loadingSql = ref(false);
 
@@ -94,6 +93,7 @@ function handleJsonBlockNames(names: string[]): void {
 function handleHoverBlock(name: string): void {
   hoveredName.value = name;
 }
+
 watch(
   () => props.querySql,
   newValue => {
@@ -101,13 +101,9 @@ watch(
       rightBlocks.value = [];
       return;
     }
-    loadingSql.value = true;
     rightBlocks.value = createSQLBlocks();
-    loadingSql.value = false;
   },
-  {
-    immediate: true
-  }
+  { immediate: true }
 );
 
 function createSQLBlocks(): CBlock[] {
@@ -194,18 +190,14 @@ function getBracketDepth(line: string): number {
     if (char === "(") depth++;
     if (char === ")") depth--;
   }
-
   return depth;
 }
 
 function setRightBlockRef(name: string, element: unknown): void {
   if (!name) return;
 
-  if (element instanceof HTMLElement) {
-    rightBlockRefs.set(name, element);
-  } else {
-    rightBlockRefs.delete(name);
-  }
+  if (element instanceof HTMLElement) rightBlockRefs.set(name, element);
+  else rightBlockRefs.delete(name);
 }
 
 function scrollBlockToTop(panel: HTMLElement, block: HTMLElement, header: HTMLElement | null): void {
@@ -216,6 +208,18 @@ function scrollBlockToTop(panel: HTMLElement, block: HTMLElement, header: HTMLEl
   const target = blockPosition - headerHeight;
 
   panel.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
+}
+
+function handleJsonClick(name: string, element: HTMLElement): void {
+  if (!name) return;
+
+  hoveredName.value = name;
+
+  if (leftScroll.value) scrollBlockToTop(leftScroll.value, element, leftHeader.value);
+  if (rightScroll.value) {
+    const rightBlock = rightScroll.value.querySelector<HTMLElement>(`[data-block-name="${CSS.escape(name)}"]`);
+    if (rightBlock) scrollBlockToTop(rightScroll.value, rightBlock, rightHeader.value);
+  }
 }
 
 function alignBlock(name: string): void {
@@ -233,3 +237,10 @@ function alignBlock(name: string): void {
   if (rightScroll.value && rightBlock) scrollBlockToTop(rightScroll.value, rightBlock, rightHeader.value);
 }
 </script>
+
+<style scoped>
+.sql-block {
+  width: 100%;
+  box-sizing: border-box;
+}
+</style>
