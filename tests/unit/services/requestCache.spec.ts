@@ -55,6 +55,13 @@ describe("requestCache", () => {
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
 
+  it("does not keep a result that shouldKeep rejects", async () => {
+    const fetcher = vi.fn().mockResolvedValue(false);
+    await cachedRequest("k", fetcher, 1000, result => result === true);
+    await cachedRequest("k", fetcher, 1000, result => result === true);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
   it("keeps separate results per key", async () => {
     const fetcher = vi.fn().mockImplementation(async () => "x");
     await cachedRequest("one", fetcher, 1000);
