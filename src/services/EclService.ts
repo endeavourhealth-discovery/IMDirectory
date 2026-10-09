@@ -13,6 +13,7 @@ const EclService = {
     const results: SearchResponse = await api.post(API_URL + "/eclSearch", eclSearchRequest, {
       signal: controller?.signal
     });
+    if (controller?.signal.aborted) return results;
     return parseApiResponse(results, SearchResponseSchema);
   },
 

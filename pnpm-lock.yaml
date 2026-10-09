@@ -29,9 +29,6 @@ importers:
       '@vueuse/integrations':
         specifier: 14.3.0
         version: 14.3.0(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))
-      abortcontroller-polyfill:
-        specifier: 1.7.8
-        version: 1.7.8
       async-validator:
         specifier: ^4.2.5
         version: 4.2.5
@@ -1550,9 +1547,6 @@ packages:
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-
-  abortcontroller-polyfill@1.7.8:
-    resolution: {integrity: sha512-9f1iZ2uWh92VcrU9Y8x+LdM4DLj75VE0MJB8zuF1iUnroEptStw+DQ8EQPMUdfe5k+PkB1uUfDQfWbhstH8LrQ==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -6115,8 +6109,6 @@ snapshots:
       vue: 3.5.32(typescript@6.0.2)
 
   abbrev@2.0.0: {}
-
-  abortcontroller-polyfill@1.7.8: {}
 
   acorn-jsx@5.3.2(acorn@8.17.0):
     dependencies:
