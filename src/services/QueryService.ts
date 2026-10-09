@@ -17,16 +17,7 @@ import {
 
 import z from "zod";
 
-import {
-  IMLLanguage,
-  IMLLanguageSchema,
-  Indicator,
-  IndicatorSchema,
-  PathDocument,
-  PathDocumentSchema,
-  QueryResponse,
-  QueryResponseSchema
-} from "@/models";
+import { IMLLanguage, IMLLanguageSchema, Indicator, IndicatorSchema, PathDocument, PathDocumentSchema, QueryResponse, QueryResponseSchema } from "@/models";
 
 import Env from "./Env";
 import api from "./api";
@@ -95,6 +86,10 @@ const QueryService = {
   },
   async generateQuerySQL(queryIri: string, lang?: string): Promise<string> {
     return await api.get(API_URL + "/sql", { params: { queryIri: queryIri, lang: lang } });
+  },
+
+  async getQueryRequestForSQL(query: QueryRequest): Promise<QueryRequest> {
+    return await api.post(API_URL + "/queryRequestForSQL", query);
   },
 
   async generateQueryIML(queryIri: string): Promise<IMLLanguage> {
