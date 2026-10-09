@@ -65,13 +65,14 @@ async function generateExpression() {
 
   if (isArrayOf(props.concept[IM.ROLE_GROUP], isTTEntity)) {
     result += " :\n";
+    for (const roleGroup of props.concept[IM.ROLE_GROUP]) delete roleGroup[IM.GROUP_NUMBER];
+    const labels = await EntityService.getLabels(props.concept[IM.ROLE_GROUP].flatMap(roleGroup => Object.keys(roleGroup)));
     for (let roleGroup of props.concept[IM.ROLE_GROUP]) {
       const newGroup = roleGroup;
-      delete newGroup[IM.GROUP_NUMBER];
       let count = 0;
       for (const key of Object.keys(newGroup)) {
         const value = newGroup[key];
-        const label = await EntityService.getPartialEntity(key, [RDFS.LABEL]);
+        const label = { [RDFS.LABEL]: labels.get(key) };
         if (count === 0) {
           result += "\t\t{ ";
         } else result += "\n\t\t  ";

@@ -79,6 +79,18 @@ const EntityService = {
     return parseApiResponse(result, z.array(TTEntitySchema));
   },
 
+  /** Fetches the labels for many iris in a single request. Iris without a label are omitted from the map. */
+  async getLabels(iris: string[]): Promise<Map<string, string>> {
+    const labels = new Map<string, string>();
+    const unique = [...new Set(iris)];
+    if (!unique.length) return labels;
+    const entities = await EntityService.getPartialEntities(unique, [RDFS.LABEL]);
+    for (const entity of entities ?? []) {
+      if (typeof entity?.iri === "string" && typeof entity[RDFS.LABEL] === "string") labels.set(entity.iri, entity[RDFS.LABEL]);
+    }
+    return labels;
+  },
+
   async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<TTEntity> {
     const result = await api.get(API_URL + "/protected/fullEntity", {
       params: {
