@@ -37,40 +37,38 @@ import {
 
 import Env from "./Env";
 import api from "./api";
+import { STATIC_LOOKUP_TTL, cachedRequest } from "./requestCache";
 
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {
   // ============================ PUBLIC ============================
   async getSchemes(): Promise<Namespace[]> {
-    const result = await api.get(API_URL + "/public/schemes");
+    const result = await cachedRequest("/public/schemes", () => api.get(API_URL + "/public/schemes"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getNamespaces(): Promise<Namespace[]> {
-    const result = await api.get(API_URL + "/public/namespaces");
+    const result = await cachedRequest("/public/namespaces", () => api.get(API_URL + "/public/namespaces"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getFilterOptions(): Promise<FilterOptions> {
-    const result = await api.get(API_URL + "/public/filterOptions");
+    const result = await cachedRequest("/public/filterOptions", () => api.get(API_URL + "/public/filterOptions"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, FilterOptionsSchema);
   },
 
   async getFilterDefaultOptions(): Promise<FilterOptions> {
-    const result = await api.get(API_URL + "/public/filterDefaults");
+    const result = await cachedRequest("/public/filterDefaults", () => api.get(API_URL + "/public/filterDefaults"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, FilterOptionsSchema);
   },
 
   // ============================ PROTECTED ============================
 
   async getPartialEntity(iri: string, predicates: string[]): Promise<TTEntity> {
-    const result = await api.get(API_URL + "/protected/partial", {
-      params: {
-        iri: iri,
-        predicates: predicates.join(",")
-      }
-    });
+    const params = { iri: iri, predicates: predicates.join(",") };
+    // Identical simultaneous lookups (e.g. many rows needing the same label) share one request
+    const result = await cachedRequest(`/protected/partial|${params.iri}|${params.predicates}`, () => api.get(API_URL + "/protected/partial", { params }));
     return parseApiResponse(result, TTEntitySchema);
   },
 
