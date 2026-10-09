@@ -37,46 +37,56 @@ import {
 
 import Env from "./Env";
 import api from "./api";
+import { STATIC_LOOKUP_TTL, cachedRequest } from "./requestCache";
 
 const API_URL = Env.API + "api/entity";
 
 const EntityService = {
   // ============================ PUBLIC ============================
   async getSchemes(): Promise<Namespace[]> {
-    const result = await api.get(API_URL + "/public/schemes");
+    const result = await cachedRequest("/public/schemes", () => api.get(API_URL + "/public/schemes"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getNamespaces(): Promise<Namespace[]> {
-    const result = await api.get(API_URL + "/public/namespaces");
+    const result = await cachedRequest("/public/namespaces", () => api.get(API_URL + "/public/namespaces"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, z.array(NamespaceSchema));
   },
 
   async getFilterOptions(): Promise<FilterOptions> {
-    const result = await api.get(API_URL + "/public/filterOptions");
+    const result = await cachedRequest("/public/filterOptions", () => api.get(API_URL + "/public/filterOptions"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, FilterOptionsSchema);
   },
 
   async getFilterDefaultOptions(): Promise<FilterOptions> {
-    const result = await api.get(API_URL + "/public/filterDefaults");
+    const result = await cachedRequest("/public/filterDefaults", () => api.get(API_URL + "/public/filterDefaults"), STATIC_LOOKUP_TTL);
     return parseApiResponse(result, FilterOptionsSchema);
   },
 
   // ============================ PROTECTED ============================
 
   async getPartialEntity(iri: string, predicates: string[]): Promise<TTEntity> {
-    const result = await api.get(API_URL + "/protected/partial", {
-      params: {
-        iri: iri,
-        predicates: predicates.join(",")
-      }
-    });
+    const params = { iri: iri, predicates: predicates.join(",") };
+    // Identical simultaneous lookups (e.g. many rows needing the same label) share one request
+    const result = await cachedRequest(`/protected/partial|${params.iri}|${params.predicates}`, () => api.get(API_URL + "/protected/partial", { params }));
     return parseApiResponse(result, TTEntitySchema);
   },
 
   async getPartialEntities(typeIris: string[], predicates: string[]): Promise<TTEntity[]> {
     const result = await api.post(API_URL + "/protected/partials", { iris: [...new Set(typeIris)].join(","), predicates: [...new Set(predicates)].join(",") });
     return parseApiResponse(result, z.array(TTEntitySchema));
+  },
+
+  /** Fetches the labels for many iris in a single request. Iris without a label are omitted from the map. */
+  async getLabels(iris: string[]): Promise<Map<string, string>> {
+    const labels = new Map<string, string>();
+    const unique = [...new Set(iris)];
+    if (!unique.length) return labels;
+    const entities = await EntityService.getPartialEntities(unique, [RDFS.LABEL]);
+    for (const entity of entities ?? []) {
+      if (typeof entity?.iri === "string" && typeof entity[RDFS.LABEL] === "string") labels.set(entity.iri, entity[RDFS.LABEL]);
+    }
+    return labels;
   },
 
   async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<TTEntity> {

@@ -1,18 +1,22 @@
-import { computed } from "vue";
-
 import { StatusService } from "@/services";
 import { useSharedStore } from "@/stores/sharedStore";
 
-export async function setModes() {
+let inFlight: Promise<void> | undefined;
+
+/** Reads the public and dev modes once. Simultaneous callers share one pair of requests; a failed read is tried again next time. */
+export function setModes(): Promise<void> {
   const sharedStore = useSharedStore();
-  const isPublicMode = computed(() => sharedStore.isPublicMode);
-  const isDevMode = computed(() => sharedStore.isDevMode);
-  if (typeof isPublicMode.value === "undefined") {
-    const publicMode = await StatusService.isPublicMode();
-    if (typeof publicMode !== "undefined") sharedStore.updateIsPublicMode(publicMode);
-  }
-  if (typeof isDevMode.value === "undefined") {
-    const devMode = await StatusService.isDevMode();
-    if (typeof devMode !== "undefined") sharedStore.updateIsDevMode(devMode);
-  }
+  if (typeof sharedStore.isPublicMode !== "undefined" && typeof sharedStore.isDevMode !== "undefined") return Promise.resolve();
+  inFlight ??= loadModes().finally(() => (inFlight = undefined));
+  return inFlight;
+}
+
+async function loadModes() {
+  const sharedStore = useSharedStore();
+  const [publicMode, devMode] = await Promise.all([
+    typeof sharedStore.isPublicMode === "undefined" ? StatusService.isPublicMode() : undefined,
+    typeof sharedStore.isDevMode === "undefined" ? StatusService.isDevMode() : undefined
+  ]);
+  if (typeof publicMode !== "undefined") sharedStore.updateIsPublicMode(publicMode);
+  if (typeof devMode !== "undefined") sharedStore.updateIsDevMode(devMode);
 }

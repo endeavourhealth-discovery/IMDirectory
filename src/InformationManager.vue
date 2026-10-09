@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 
 import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
 import { REPO } from "@endeavour/vue-library/enums";
@@ -36,7 +36,6 @@ import { useToast } from "primevue/usetoast";
 import semver from "semver";
 import { useRouter } from "vue-router";
 
-import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import { AuthService, Env, GithubService, SecurityService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -49,6 +48,9 @@ import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { setModes } from "./router/methods/setModes";
 import { setToastInstance } from "./services/toast";
 import { useLoadingStore } from "./stores/loadingStore";
+
+// Only shown on demand, and pulls in the markdown renderer
+const ReleaseNotes = defineAsyncComponent(() => import("@/components/app/ReleaseNotes.vue"));
 
 setupExternalErrorHandler();
 

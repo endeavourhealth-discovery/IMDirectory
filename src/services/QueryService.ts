@@ -26,13 +26,10 @@ const API_URL = Env.API + "api/query/protected";
 
 const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
-    if (controller) {
-      const result = await api.post(API_URL + "/queryIM", query, { signal: controller.signal, raw: raw });
-      return parseApiResponse(result, QueryResponseSchema);
-    } else {
-      const result = await api.post(API_URL + "/queryIM", query, { raw: raw });
-      return parseApiResponse(result, QueryResponseSchema);
-    }
+    const result = await api.post(API_URL + "/queryIM", query, { signal: controller?.signal, raw: raw });
+    // A cancelled request resolves to nothing, which is not an error to report
+    if (controller?.signal.aborted) return result as never;
+    return parseApiResponse(result, QueryResponseSchema);
   },
   async flattenBooleans(query: Query): Promise<Query> {
     const result = await api.post(API_URL + "/flattenBooleans", query);
@@ -45,6 +42,7 @@ const QueryService = {
 
   async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
     const result = await api.post(API_URL + "/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+    if (controller?.signal.aborted) return result as never;
     return parseApiResponse(result, SearchResponseSchema);
   },
 

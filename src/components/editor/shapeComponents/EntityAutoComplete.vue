@@ -72,7 +72,7 @@
 import { ComputedRef, Ref, computed, inject, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import { IM, QUERY, RDF, RDFS } from "@endeavour/vue-library/enums";
-import { TypeGuards, byName, getNamesAsStringFromTypes, isArrayHasLength, isObject, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { TypeGuards, byName, getNamesAsStringFromTypes, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import {
   type PropertyShape,
   type Query,
@@ -83,7 +83,6 @@ import {
   isTTIriRef
 } from "@endeavour/vue-library/models";
 
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { cloneDeep, isEqual } from "lodash-es";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 
@@ -174,7 +173,7 @@ const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const associatedProperty = ref("");
-const controller: Ref<AbortController> = ref({} as AbortController);
+let controller: AbortController | undefined;
 const autocompleteOptions: Ref<SearchResultSummary[]> = ref([]);
 const key = ref("");
 const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
@@ -251,15 +250,11 @@ async function getAutocompleteOptions() {
     } else {
       throw new Error("EntityAutoComplete is missing 'select' or 'argument' in propertyShape object");
     }
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    controller.value = new AbortController();
-    if (controller.value) {
-      const result = await QueryService.queryIM(queryRequest, controller.value);
-      if (result && isObjectHasKeys(result, ["entities"])) {
-        autocompleteOptions.value = convertToConceptSummary(result.entities).sort(byName);
-      }
+    controller?.abort();
+    controller = new AbortController();
+    const result = await QueryService.queryIM(queryRequest, controller);
+    if (result && isObjectHasKeys(result, ["entities"])) {
+      autocompleteOptions.value = convertToConceptSummary(result.entities).sort(byName);
     }
   } else {
     if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri!.iri) {

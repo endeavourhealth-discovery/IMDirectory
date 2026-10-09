@@ -130,6 +130,8 @@ const listBoxSelected: Ref<SearchResultSummary | undefined> = ref();
 const searchInput = ref<any>(null);
 const localRootEntities = ref<string[]>([]);
 let searchDebounce: any;
+let searchController: AbortController | undefined;
+let latestSearch = 0;
 const editing = ref(false);
 const autocompleteRoot = ref<HTMLElement | null>(null);
 defineExpose({ searchText });
@@ -191,6 +193,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  searchController?.abort();
+  searchDebounce?.cancel();
   if (autocompleteRoot.value) {
     unregisterAutocomplete(autocompleteRoot.value);
   }
@@ -247,7 +251,11 @@ function debounceForSearch(event: Event): void {
 }
 
 async function doSearch(event: any) {
-  results.value = await search();
+  const thisSearch = ++latestSearch;
+  const response = await search();
+  // A newer search has started, so these results are out of date
+  if (thisSearch !== latestSearch) return;
+  results.value = response;
   showResultsOverlay(event);
 }
 
@@ -282,12 +290,14 @@ async function search() {
       if (props.setupSearch) imQueryCopy = await props.setupSearch();
     }
     if (imQueryCopy) {
+      searchController?.abort();
+      const controller = (searchController = new AbortController());
       searchLoading.value = true;
       imQueryCopy.textSearch = searchText.value;
       imQueryCopy.page = PageSchema.parse({ pageNumber: 1, pageSize: 10 });
       imQueryCopy.textSearchStyle = TextSearchStyle.autocomplete;
-      const response = await QueryService.queryIMSearch(imQueryCopy);
-      searchLoading.value = false;
+      const response = await QueryService.queryIMSearch(imQueryCopy, controller);
+      if (searchController === controller) searchLoading.value = false;
       return response;
     }
   }
