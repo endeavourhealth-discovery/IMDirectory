@@ -61,7 +61,7 @@
       <div v-else-if="[DisplayOptions.Comparison].includes(selectedDisplayOption)" class="query-display-content flex flex-col gap-4">
         <SplitViewer :queryJson="queryJson" :querySql="sql" />
       </div>
-      <div v-if="query && query.columnGroup && query.columnGroup.length > 0">
+      <div v-if="query && query.columnGroup && query.columnGroup.length > 0 && ![DisplayOptions.Comparison].includes(selectedDisplayOption)">
         <span>Output columns </span>
         <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
         <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
