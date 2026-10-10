@@ -1,7 +1,6 @@
 export { ApiError } from "./customErrors/ApiError";
 export { CustomError } from "./customErrors/CustomError";
 export { type Address, AddressSchema, isAddress } from "./Address";
-export { type AlertDialogOptions, AlertDialogOptionsSchema, isAlertDialogOptions } from "./AlertDialogOptions";
 export { type ComponentDetails, ComponentDetailsSchema, isComponentDetails } from "./ComponentDetails";
 export { type DownloadSettings, DownloadSettingsSchema, isDownloadSettings } from "./DownloadSettings";
 export { type ExportValueSet, ExportValueSetSchema, isExportValueSet } from "./ExportValueSet";
@@ -12,14 +11,12 @@ export { type NextComponentSummary, NextComponentSummarySchema, isNextComponentS
 export { type Property, PropertySchema, isProperty } from "./Property";
 export { type RelativeTo, RelativeToSchema, isRelativeTo } from "./RelativeTo";
 export { type SearchOptions, SearchOptionsSchema, isSearchOptions } from "./SearchOptions";
-export { type SelectedMatch, SelectedMatchSchema, isSelectedMatch } from "./SelectedMatch";
 export { type SentencePart, SentencePartSchema, isSentencePart } from "./SentencePart";
 export { type TangledTreeData, TangledTreeDataSchema, isTangledTreeData } from "./TangledTreeData";
 export { type TreeNode, TreeNodeSchema, isTreeNode } from "./TreeNode";
 export { type UprnSearchResponse, UprnSearchResponseSchema, isUprnSearchResponse } from "./UprnSearchResponse";
 export { type ValueSetMember, ValueSetMemberSchema, isValueSetMember } from "./ValueSetMember";
 export { type Binding, BindingSchema, isBinding } from "./Binding";
-export { type BugReport, BugReportSchema, isBugReport } from "./BugReport";
 export { isChartMapNode, type ChartMapNode, ChartMapNodeSchema } from "./ChartMapNode";
 export { isChartTableNode, type ChartTableNode, ChartTableNodeSchema } from "./ChartTableNode";
 export { isCodeGen, type CodeGen, CodeGenSchema } from "./CodeGen";
@@ -29,7 +26,6 @@ export { isSetContent, type SetContent, SetContentSchema } from "./SetContent";
 export { isSetDiffObject, type SetDiffObject, SetDiffObjectSchema } from "./SetDiffObject";
 export { isConceptAaggregate, type ConceptAggregate, ConceptAggregateSchema } from "./ConceptAggregate";
 export { isConceptContextMap, type ConceptContextMap, ConceptContextMapSchema } from "./ConceptContextMap";
-export { isModelDocument, type ModelDocument, ModelDocumentSchema } from "./ModelDocument";
 export { isConceptSet, type ConceptSet, ConceptSetSchema } from "./ConceptSet";
 export { isContext, type Context, ContextSchema } from "./Context";
 export { isDataModelProperty, type DataModelProperty, DataModelPropertySchema } from "./DataModelProperty";
@@ -39,7 +35,6 @@ export { isECLQueryRequest, type ECLQueryRequest, ECLQueryRequestSchema } from "
 export { isECLStatus, type ECLStatus, ECLStatusSchema } from "./ECLStatus";
 export { isEditRequest, type EditRequest, EditRequestSchema } from "./EditRequest";
 export { isFunctionTemplate, type FunctionTemplate, FunctionTemplateSchema } from "./FunctionTemplate";
-export { isQueryEntity, type QueryEntity, QueryEntitySchema } from "./QueryEntity";
 export { isParameterTemplate, type ParameterTemplate, ParameterTemplateSchema } from "./ParameterTemplate";
 export { isValueTemplate, type ValueTemplate, ValueTemplateSchema } from "./ValueTemplate";
 export { isEntity, type Entity, EntitySchema } from "./Entity";
@@ -57,8 +52,6 @@ export { isFunctionRequest, type FunctionRequest, FunctionRequestSchema } from "
 export { isIMLLanguage, type IMLLanguage, IMLLanguageSchema } from "./IMLLanguage";
 export { isIndicator, type Indicator, IndicatorSchema } from "./Indicator";
 export { isInstance, type Instance, InstanceSchema } from "./Instance";
-export { isLoginResponse, type LoginResponse, LoginResponseSchema } from "./LoginResponse";
-export { isLoginResponseES, type LoginResponseES, LoginResponseESSchema } from "./LoginResponseES";
 export { isMailOptions, type MailOptions, MailOptionsSchema } from "./MailOptions";
 export { isMapFunction, type MapFunction, MapFunctionSchema } from "./MapFunction";
 export { isMatchDisplayRequest, type MatchDisplayRequest, MatchDisplayRequestSchema } from "./MatchDisplayRequest";
@@ -81,7 +74,6 @@ export { isPropertyDisplay, type PropertyDisplay, PropertyDisplaySchema } from "
 export { isQueryDisplayRequest, type QueryDisplayRequest, QueryDisplayRequestSchema } from "./QueryDisplayRequest";
 export { isQueryResponse, type QueryResponse, QueryResponseSchema } from "./QueryResponse";
 export { isRequeueQueryRequest, type RequeueQueryRequest, RequeueQueryRequestSchema } from "./RequeueQueryRequest";
-export { isRoleRequest, type RoleRequest, RoleRequestSchema } from "./RoleRequest";
 export { isSearchBinding, type SearchBinding, SearchBindingSchema } from "./SearchBinding";
 export { isSemanticMap, type SemanticMap, SemanticMapSchema } from "./SemanticMap";
 export { isSemanticMapEntry, type SemanticMapEntry, SemanticMapEntrySchema } from "./SemanticMapEntry";
@@ -95,8 +87,6 @@ export {
   SuperiorPropertiesBoolFocusPagedRequestSchema
 } from "./SuperiorPropertiesBoolFocusPagedRequest";
 export { isWorkflowResponse, type WorkflowResponse, WorkflowResponseSchema } from "./WorkflowResponse";
-export { isTask, type Task, TaskSchema } from "./Task";
-export { isTaskHistory, type TaskHistory, TaskHistorySchema } from "./TaskHistory";
 export { isTermCode, type TermCode, TermCodeSchema } from "./TermCode";
 export { isTransformRequest, type TransformRequest, TransformRequestSchema } from "./TransformRequest";
 export { isTreeParent, type TreeParent, TreeParentSchema } from "./TreeParent";

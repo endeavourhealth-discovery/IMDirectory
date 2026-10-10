@@ -9,6 +9,7 @@
     @hide="cancel"
   >
     <template #default>
+      <div>{{ columnGroup }}</div>
       <Tabs v-model:value="activeTab">
         <TabList>
           <Tab value="filters">Filters</Tab>
@@ -22,11 +23,13 @@
               v-model:match="match"
               v-model:parent="match"
               :baseType="baseType"
+              :datasetEntry="true"
               :depth="0"
               :index="0"
-              :datasetEntry="true"
               :parentIndex="0"
               :rootBool="true"
+              @update-match="onUpdate"
+              @delete-match="onDeleteMatch"
             />
           </TabPanel>
           <TabPanel value="columns">
@@ -47,16 +50,16 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { v4 } from "uuid";
 
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { QueryService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   index: number;
@@ -81,6 +84,13 @@ async function onUpdate(newMatch: Query) {
   match.value = newMatch;
   edited.value = true;
   match.value = await QueryService.getQueryDisplayFromQuery(match.value, DisplayMode.ORIGINAL);
+}
+
+function onDeleteMatch() {
+  delete match.value.typeOf;
+  delete match.value.where;
+  delete match.value.orderBy;
+  edited.value = true;
 }
 
 function cancel() {

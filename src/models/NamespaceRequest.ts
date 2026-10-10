@@ -1,8 +1,6 @@
-import { NamespacePermissionJava, NamespacePermissionJavaSchema } from "@endeavour/vue-library/models";
+import { NamespacePermissionJava, NamespacePermissionJavaSchema, Task, TaskSchema } from "@endeavour/vue-library/models";
 
 import z from "zod";
-
-import { Task, TaskSchema } from "./Task";
 
 // export interface NamespaceRequest extends Task {
 //   namespacePermission?: NamespacePermissionJava;

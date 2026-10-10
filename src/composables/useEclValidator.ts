@@ -1,6 +1,7 @@
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
+import { AlertDialog } from "@endeavour/vue-library/components";
+import { useDialogStore } from "@endeavour/vue-library/stores";
+
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
-import { useDialogStore } from "@/stores/dialogStore";
 
 export function useEclValidator() {
   const dialogStore = useDialogStore();

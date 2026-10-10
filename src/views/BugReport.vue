@@ -102,7 +102,7 @@
               <small v-if="showErrorMessages.actual && actualResultErrorMessage" class="p-error">{{ actualResultErrorMessage }}</small>
             </div>
             <div class="button-container">
-              <Button @click="onSubmit" :loading="loading" label="Submit" />
+              <Button @click="onSubmit" :disabled="!allVerified" :loading="loading" label="Submit" />
             </div>
           </div>
         </template>
@@ -114,17 +114,17 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { Browser, OperatingSystem, REPO, Status, TaskModule, TaskState, TaskType } from "@endeavour/vue-library/enums";
+import type { BugReport } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { useRouter } from "vue-router";
 
 import TopBar from "@/components/shared/TopBar.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
-import type { BugReport } from "@/models";
 import GithubService from "@/services/GithubService";
 import WorkflowService from "@/services/WorkflowService";
-import { useDialogStore } from "@/stores/dialogStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
 const dialogStore = useDialogStore();
@@ -134,6 +134,17 @@ const router = useRouter();
 
 const error = computed(() => sharedStore.error);
 const user = computed(() => userStore.currentUser);
+const allVerified = computed(
+  () =>
+    selectedProduct.value &&
+    selectedModule.value &&
+    ((selectedOS.value && selectedOS.value !== OperatingSystem.OTHER) || (selectedOS.value === OperatingSystem.OTHER && osOther.value)) &&
+    ((selectedBrowser.value && selectedBrowser.value !== Browser.OTHER) || (selectedBrowser.value === Browser.OTHER && browserOther.value)) &&
+    description.value &&
+    stepsToReproduce.value &&
+    expectedResult.value &&
+    actualResult.value
+);
 
 const selectedProduct: Ref<"IM"> = ref("IM");
 const productErrorMessage = ref("");
@@ -213,7 +224,7 @@ function setOptions() {
 }
 
 async function onSubmit() {
-  if (allVerified()) {
+  if (allVerified.value) {
     loading.value = true;
     const bugReport = {} as BugReport;
     bugReport.product = selectedProduct.value;
@@ -255,19 +266,6 @@ async function onSubmit() {
     });
     loading.value = false;
   }
-}
-
-function allVerified() {
-  return (
-    selectedProduct.value &&
-    selectedModule.value &&
-    ((selectedOS.value && selectedOS.value !== OperatingSystem.OTHER) || (selectedOS.value === OperatingSystem.OTHER && osOther.value)) &&
-    ((selectedBrowser.value && selectedBrowser.value !== Browser.OTHER) || (selectedBrowser.value === Browser.OTHER && browserOther.value)) &&
-    description.value &&
-    stepsToReproduce.value &&
-    expectedResult.value &&
-    actualResult.value
-  );
 }
 </script>
 

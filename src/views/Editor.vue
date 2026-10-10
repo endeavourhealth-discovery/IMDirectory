@@ -88,10 +88,12 @@ export default defineComponent({
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, onUnmounted, provide, ref, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { IM, NAMESPACE, RDF } from "@endeavour/vue-library/enums";
 import { isArrayOf, isEnumValue, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type PropertyShape, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
@@ -100,7 +102,6 @@ import { useRoute, useRouter } from "vue-router";
 
 import SideBar from "@/components/editor/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useAutocompleteRegistry } from "@/composables/useAutocompleteRegistry";
 import { useDirectService } from "@/composables/useDirectService";
@@ -112,7 +113,6 @@ import { EditorMode } from "@/enums";
 import { processComponentType } from "@/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EntityService, SetService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 

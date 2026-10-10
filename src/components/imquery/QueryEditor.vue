@@ -27,8 +27,8 @@
     <Tabs v-model:value="activeTab">
       <TabList>
         <Tab value="filter">Main Filters</Tab>
-        <Tab value="columns">Single row column output</Tab>
-        <Tab value="groups">Multi-group column output</Tab>
+        <Tab value="columns">Single column group output</Tab>
+        <Tab value="groups">Multi-column group output</Tab>
       </TabList>
       <TabPanels>
         <TabPanel value="filter">
@@ -56,14 +56,16 @@
           <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
             <div><strong>Dataset entries:</strong></div>
             <template v-for="(columnGroup, index) in query.columnGroup">
-              <MatchEditor
+              <DataSetEditor
                 v-if="showEditor && toEdit === index"
                 :baseType="query.typeOf"
-                :clauseIndex="index"
+                :columnGroup="query.columnGroup[index]"
                 :depth="0"
-                :match="query.columnGroup[index]"
+                :index="index"
+                :query="query"
                 :showEditor="showEditor"
                 @cancel="cancelEditColumnGroup"
+                @save-column-group="saveColumnGroup"
               />
               <div
                 v-else
@@ -125,11 +127,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, provide, readonly, Ref, ref, shallowRef, watch } from "vue";
+import { Ref, onMounted, provide, readonly, ref, shallowRef, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { DisplayMode } from "@endeavour/vue-library/enums";
 import type { Query } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -137,13 +141,10 @@ import { v4 } from "uuid";
 
 import BaseTypeEditor from "@/components/imquery/BaseTypeEditor.vue";
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
-import MatchEditor from "@/components/imquery/MatchEditor.vue";
+import DataSetEditor from "@/components/imquery/DataSetEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import QueryService from "@/services/QueryService";
-import { useDialogStore } from "@/stores/dialogStore";
-
-import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   showDialog?: boolean;
@@ -169,13 +170,14 @@ const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
 const keepAs = shallowRef<Record<string, Ref<Query>>>({});
+const nodeRefs = shallowRef<Record<string, Ref<Query>>>({});
 const toEdit: Ref<number | undefined> = ref();
 const showEditor = ref(false);
 const draggedColumnIndex = ref<number | undefined>();
 const dragOverColumnIndex = ref<number | undefined>();
 const activeTab = ref("filter");
 provide("keepAs", keepAs);
-provide("keepAs", keepAs);
+provide("nodeRefs", nodeRefs);
 provide("wasDraggedAndDropped", wasDraggedAndDropped);
 provide("includeTerms", readonly(includeTerms));
 provide("forceValidation", readonly(forceValidation));
@@ -202,7 +204,7 @@ function onDeleteGroup(index: number) {
 }
 function addColumnGroup() {
   if (!query.value.columnGroup) query.value.columnGroup = [];
-  const match = { uuid: v4(), draft: true } as Query;
+  const match = { uuid: v4() } as Query;
   query.value.columnGroup.push(match);
   toEdit.value = query.value.columnGroup.length - 1;
   showEditor.value = true;

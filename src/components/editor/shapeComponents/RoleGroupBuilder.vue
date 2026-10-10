@@ -145,22 +145,21 @@ async function processProps() {
   loading.value = true;
   const newData: any[] = [];
   if (props.value && isArrayHasLength(props.value)) {
-    for (const role of props.value) {
-      if (isRole(role)) await processRole(newData, role);
-    }
+    const roles = props.value.filter(isRole);
+    const labels = await EntityService.getLabels(roles.flatMap(role => Object.keys(role).filter(key => key !== IM.GROUP_NUMBER)));
+    for (const role of roles) processRole(newData, role, labels);
   }
   roleGroups.value = newData;
   loading.value = false;
 }
 
-async function processRole(newData: any[], role: Role) {
+function processRole(newData: any[], role: Role, labels: Map<string, string>) {
   const grp: any[] = [];
   newData.push(grp);
   if (isObjectHasKeys(role, [IM.GROUP_NUMBER])) {
     for (const [key, value] of Object.entries(role)) {
       if (key !== IM.GROUP_NUMBER && isArray(value) && value.every(item => isTTIriRef(item))) {
-        const keyName = await EntityService.getPartialEntity(key, [RDFS.LABEL]);
-        grp.push({ key: { iri: key, name: keyName[RDFS.LABEL] ?? "" }, value: value[0] });
+        grp.push({ key: { iri: key, name: labels.get(key) ?? "" }, value: value[0] });
       }
     }
   }

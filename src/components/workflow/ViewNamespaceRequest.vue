@@ -41,17 +41,18 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { NAMESPACE } from "@endeavour/vue-library/enums";
+import { type Task } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 
-import { type Namespace, type NamespaceRequest, NamespaceRequestSchema, type Task } from "@/models";
+import { type Namespace, type NamespaceRequest, NamespaceRequestSchema } from "@/models";
 import ConfigService from "@/services/ConfigService";
 import WorkflowService from "@/services/WorkflowService";
-import { useDialogStore } from "@/stores/dialogStore";
 
-import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 import TaskViewer from "./TaskViewer.vue";
 
 interface Props {

@@ -7,11 +7,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { REPO } from "@endeavour/vue-library/enums";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { GithubService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 const dialogStore = useDialogStore();
 const loading = ref(false);

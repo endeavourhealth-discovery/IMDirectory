@@ -39,10 +39,10 @@
 <script lang="ts" setup>
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { DisplayMode} from "@endeavour/vue-library";
-import type { Query, Value, Where } from "@endeavour/vue-library/models";
+import { DisplayMode } from "@endeavour/vue-library";
+import type { Query, Where } from "@endeavour/vue-library/models";
 
-import {addFrom, getRelativePropertyOptions, getRelativeToOptions, injectReturn } from "@/helpers/buildQuery";
+import { addFrom, getRelativePropertyOptions, getRelativeToOptions, injectReturn } from "@/helpers/buildQuery";
 import { type UIProperty } from "@/models";
 import { QueryService } from "@/services";
 
@@ -53,7 +53,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const assignable = defineModel<Where | Value>("assignable", { default: {} });
+const where = defineModel<Where>("where", { default: {} });
 const match = defineModel<Query>("match", { required: true });
 const emit = defineEmits(["updateCompare"]);
 const showTreeSearch: Ref<boolean> = ref(false);
@@ -68,19 +68,19 @@ onMounted(() => {
 });
 
 watch(
-  () => assignable.value,
+  () => where.value,
   () => initValues()
 );
 
 async function updateRelativeTo(relative: string) {
   relativeTo.value = relative;
-  if (!assignable.value.compare) assignable.value.compare = {};
-  if (!assignable.value.compare.right) assignable.value.compare.right = {};
+  if (!where.value.compare) where.value.compare = {};
+  if (!where.value.compare.right) where.value.compare.right = {};
   const relativeMatch: Ref<Query> = keepAs.value[relativeTo.value];
   if (relativeMatch) {
-    assignable.value.compare.right.nodeRef = relativeMatch.value.as;
+    where.value.compare.right.nodeRef = relativeMatch.value.as;
     addFrom(match.value, relativeMatch.value.as!);
-    delete assignable.value.compare.right.parameter;
+    delete where.value.compare.right.parameter;
     relativePropertyOptions.value = await getRelativePropertyOptions(relativeMatch.value, props.uiProperty.valueType);
     if (relativePropertyOptions.value.length === 0) {
       return;
@@ -88,16 +88,16 @@ async function updateRelativeTo(relative: string) {
     relativeProperty.value = relativePropertyOptions.value[0].value;
     await updateRelativeProperty(relativeProperty.value);
   } else {
-    assignable.value.compare.right.parameter = relativeTo.value;
-    delete assignable.value.compare.right.nodeRef;
+    where.value.compare.right.parameter = relativeTo.value;
+    delete where.value.compare.right.nodeRef;
   }
   emit("updateCompare");
 }
 
 async function updateRelativeProperty(relativeIri: any) {
   if (relativeTo.value) {
-    if (assignable.value.compare && assignable.value.compare.right) {
-      const right = assignable.value.compare.right;
+    if (where.value.compare && where.value.compare.right) {
+      const right = where.value.compare.right;
       const relativeMatch = keepAs.value[relativeTo.value];
       if (relativeMatch) {
         right.iri = relativeIri;
@@ -119,13 +119,13 @@ function cancel() {
 
 async function initValues() {
   if (relativeToOptions.value.length > 0) {
-    if (assignable.value.compare && assignable.value.compare.right) {
-      if (assignable.value.compare.right.parameter) {
-        relativeTo.value = relativeToOptions.value.find(opt => opt.value === assignable.value.compare!.right!.parameter!).value;
-      } else if (assignable.value.compare.right.nodeRef) {
-        const relativeMatch = keepAs.value[assignable.value.compare.right.nodeRef];
-        relativeTo.value = assignable.value.compare.right.nodeRef;
-        if (assignable.value.compare.right.iri) relativeProperty.value = assignable.value.compare.right.iri;
+    if (where.value.compare && where.value.compare.right) {
+      if (where.value.compare.right.parameter) {
+        relativeTo.value = relativeToOptions.value.find(opt => opt.value === where.value.compare!.right!.parameter!).value;
+      } else if (where.value.compare.right.nodeRef) {
+        const relativeMatch = keepAs.value[where.value.compare.right.nodeRef];
+        relativeTo.value = where.value.compare.right.nodeRef;
+        if (where.value.compare.right.iri) relativeProperty.value = where.value.compare.right.iri;
         if (relativeMatch.value) {
           relativePropertyOptions.value = await getRelativePropertyOptions(relativeMatch.value, props.uiProperty.valueType);
         }

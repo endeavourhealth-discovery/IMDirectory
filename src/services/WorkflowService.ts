@@ -1,16 +1,11 @@
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
+import { type BugReport, BugReportSchema, type RoleRequest, RoleRequestSchema, type Task, TaskSchema } from "@endeavour/vue-library/models";
 
 import {
-  type BugReport,
-  BugReportSchema,
   type EntityApproval,
   EntityApprovalSchema,
   type NamespaceRequest,
   NamespaceRequestSchema,
-  type RoleRequest,
-  RoleRequestSchema,
-  type Task,
-  TaskSchema,
   type WorkflowResponse,
   WorkflowResponseSchema
 } from "@/models";

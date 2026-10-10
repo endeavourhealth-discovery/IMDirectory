@@ -1,15 +1,15 @@
 import { Ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { IM, RDFS, SHACL } from "@endeavour/vue-library/enums";
 import { getFAIconFromType, isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
 import { type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { MenuItem } from "primevue/menuitem";
 import type { TreeNode } from "primevue/treenode";
 
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { EntityService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 import { useDirectService } from "./useDirectService";
 

@@ -69,9 +69,11 @@
 <script lang="ts" setup>
 import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type Query, QuerySchema } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import { useDialog } from "primevue/usedialog";
@@ -81,9 +83,6 @@ import { useEclValidator } from "@/composables/useEclValidator";
 import { type ECLQueryRequest } from "@/models";
 import EclService from "@/services/EclService";
 import QueryService from "@/services/QueryService";
-import { useDialogStore } from "@/stores/dialogStore";
-
-import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   showDialog?: boolean;

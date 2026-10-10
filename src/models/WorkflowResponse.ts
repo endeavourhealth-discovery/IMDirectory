@@ -1,6 +1,6 @@
-import z from "zod";
+import { Task, TaskSchema } from "@endeavour/vue-library/models";
 
-import { Task, TaskSchema } from "./Task";
+import z from "zod";
 
 // export interface WorkflowResponse {
 //   page?: number;

@@ -10,32 +10,20 @@
       @hide="cancel"
     >
       <template #default>
-          <Tabs v-model:value="activeTab">
-            <TabList>
-              <Tab value="filter">Filter</Tab>
-              <Tab value="columns">Column output</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel value="filter">
-                <MatchContentEditor
-                  v-model:match="editMatch"
-                  :baseType="baseType"
-                  :depth="depth"
-                  :index="clauseIndex"
-                  :parentOperator="parentOperator"
-                  @addLinked="onAddLinked"
-                  @cancel="cancel"
-                  @deleteMatch="deleteMatch"
-                  @saveChanges="emit('saveChanges', $event)"
-                  @updateMatch="onUpdate"
-                />
-              </TabPanel>
-              <TabPanel value="columns">
-                <ReturnEditor v-if="activeTab === 'columns'" v-model:match="editMatch" :baseType="baseType" @update-match="onUpdate" />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </template>
+        <MatchContentEditor
+          v-model:match="editMatch"
+          :baseType="baseType"
+          :depth="depth"
+          :index="clauseIndex"
+          :parentOperator="parentOperator"
+          @addLinked="onAddLinked"
+          @addTest="onAddTest"
+          @cancel="cancel"
+          @deleteMatch="deleteMatch"
+          @saveChanges="emit('saveChanges', $event)"
+          @updateMatch="onUpdate"
+        />
+      </template>
       <template #footer>
         <div class="button-footer">
           <Button data-testid="cancel-edit-feature-button" label="Cancel" text @click="cancel" />
@@ -59,10 +47,12 @@
 <script lang="ts" setup>
 import { Ref, ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayOf } from "@endeavour/vue-library/helpers";
 import { type Node, Query, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
@@ -71,9 +61,6 @@ import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
 import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import { EntityService, QueryService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
-
-import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 
 interface Props {
   baseType: Node;
@@ -129,6 +116,18 @@ async function onAddLinked() {
       return;
     }
     emit("addLinked", editMatch.value);
+  }
+}
+async function onAddTest() {
+  const valid = await saveChanges();
+  if (valid) {
+    if (!editMatch.value.as) {
+      editMatch.value.invalid = true;
+      editMatch.value.errorMessage = "Please select a name to this clause  to line to";
+      await showInvalid(editMatch.value);
+      return;
+    }
+    emit("addTest", editMatch.value);
   }
 }
 

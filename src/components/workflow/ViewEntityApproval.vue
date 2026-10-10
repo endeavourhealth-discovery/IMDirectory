@@ -39,18 +39,19 @@
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { ApprovalType } from "@endeavour/vue-library/enums";
+import { type Task } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { useConfirm } from "primevue/useconfirm";
 
 import { useEditorEntity } from "@/composables/useEditorEntity";
 import { EditorMode } from "@/enums";
-import { type EntityApproval, EntityApprovalSchema, type Task } from "@/models";
+import { type EntityApproval, EntityApprovalSchema } from "@/models";
 import WorkflowService from "@/services/WorkflowService";
-import { useDialogStore } from "@/stores/dialogStore";
 
-import AlertDialog from "../shared/dynamicDialogs/AlertDialog.vue";
 import EntityDiffDialog from "./EntityDiffDialog.vue";
 import TaskViewer from "./TaskViewer.vue";
 

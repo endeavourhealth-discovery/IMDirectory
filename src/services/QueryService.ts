@@ -1,6 +1,5 @@
 import { DisplayMode } from "@endeavour/vue-library/enums";
-import { isArrayHasLength, isObjectHasKeys, parseArray } from "@endeavour/vue-library/helpers";
-import { parseApiResponse } from "@endeavour/vue-library/helpers";
+import { isArrayHasLength, isObjectHasKeys, parseApiResponse } from "@endeavour/vue-library/helpers";
 import {
   ArgumentReference,
   ArgumentReferenceSchema,
@@ -27,13 +26,10 @@ const API_URL = Env.API + "api/query/protected";
 
 const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
-    if (controller) {
-      const result = await api.post(API_URL + "/queryIM", query, { signal: controller.signal, raw: raw });
-      return parseApiResponse(result, QueryResponseSchema);
-    } else {
-      const result = await api.post(API_URL + "/queryIM", query, { raw: raw });
-      return parseApiResponse(result, QueryResponseSchema);
-    }
+    const result = await api.post(API_URL + "/queryIM", query, { signal: controller?.signal, raw: raw });
+    // A cancelled request resolves to nothing, which is not an error to report
+    if (controller?.signal.aborted) return result as never;
+    return parseApiResponse(result, QueryResponseSchema);
   },
   async flattenBooleans(query: Query): Promise<Query> {
     const result = await api.post(API_URL + "/flattenBooleans", query);
@@ -46,6 +42,7 @@ const QueryService = {
 
   async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResponse> {
     const result = await api.post(API_URL + "/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+    if (controller?.signal.aborted) return result as never;
     return parseApiResponse(result, SearchResponseSchema);
   },
 
@@ -91,6 +88,10 @@ const QueryService = {
     return await api.get(API_URL + "/sql", { params: { queryIri: queryIri, lang: lang } });
   },
 
+  async getQueryRequestForSQL(query: QueryRequest): Promise<QueryRequest> {
+    return await api.post(API_URL + "/queryRequestForSQL", query);
+  },
+
   async generateQueryIML(queryIri: string): Promise<IMLLanguage> {
     const result = await api.get(API_URL + "/imlFromIri", { params: { queryIri: queryIri } });
     return parseApiResponse(result, IMLLanguageSchema);
@@ -130,8 +131,8 @@ const QueryService = {
     return parseApiResponse(result, z.array(ReturnSchema));
   },
 
-  async getSemanticMaps(match: Query, column: Return): Promise<TTEntity[] | undefined> {
-    const result = await api.post(API_URL + "/semanticMapsForMatch", { match: match, return: column });
+  async getSemanticMaps(iri: string): Promise<TTEntity[] | undefined> {
+    const result = await api.get(API_URL + "/semanticMaps", { params: { iri: iri } });
     if (!result) return undefined;
     return parseApiResponse(result, z.array(TTEntitySchema));
   }

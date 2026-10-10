@@ -2,11 +2,19 @@ import { isObjectHasKeys, urlToIri } from "@endeavour/vue-library/helpers";
 
 import { RouteLocationNormalized, Router } from "vue-router";
 
-import { EntityService, SecurityService } from "@/services";
+import { EntityService } from "@/services";
+import { cachedRequest } from "@/services/requestCache";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useQueryStore } from "@/stores/queryStore";
+
+const IRI_EXISTS_TTL = 5 * 60 * 1000;
+
+/** Only a positive answer is reused, so an entity created since a "not found" is still picked up. */
+function iriExists(iri: string): Promise<boolean> {
+  return cachedRequest(`iriExists|${iri}`, () => EntityService.iriExists(iri), IRI_EXISTS_TTL, exists => exists === true);
+}
 
 export function directoryGuard(iri: string | string[], to: RouteLocationNormalized) {
   if (to.matched.some(record => record.name === "Directory") && iri) {
@@ -20,7 +28,7 @@ export async function editorGuard(iri: string | string[], to: RouteLocationNorma
     const editorStore = useEditorStore();
     if (iri) editorStore.updateEditorIri(iri);
     try {
-      if (!(await EntityService.iriExists(urlToIri(iri)))) {
+      if (!(await iriExists(urlToIri(iri)))) {
         await router.push({ name: "EntityNotFound", params: { iri: iri } });
         return true;
       }
@@ -40,7 +48,7 @@ export async function queryGuard(to: RouteLocationNormalized, router: Router): P
     if (queryIri && typeof queryIri === "string") {
       queryStore.updateQueryIri(queryIri);
       try {
-        if (!(await EntityService.iriExists(urlToIri(queryIri)))) {
+        if (!(await iriExists(urlToIri(queryIri)))) {
           await router.push({ name: "EntityNotFound", params: { iri: queryIri } });
           return true;
         }
@@ -76,7 +84,7 @@ export async function viewerIriExistsGuard(to: RouteLocationNormalized, router: 
     const iri = to.params.selectedIri as string;
     try {
       new URL(iri);
-      if (!(await EntityService.iriExists(iri))) {
+      if (!(await iriExists(iri))) {
         await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

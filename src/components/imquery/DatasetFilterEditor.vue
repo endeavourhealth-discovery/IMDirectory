@@ -20,19 +20,19 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref } from "vue";
+import { Ref, computed, inject, onMounted, ref } from "vue";
 
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { v4 } from "uuid";
 
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { getBooleanOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
 
 interface Props {
   isVariable?: boolean;

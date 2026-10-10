@@ -151,10 +151,12 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { hasRole, isUser } from "@endeavour/vue-library";
+import { AlertDialog } from "@endeavour/vue-library/components";
 import { useChangeFontSize, useChangeThemeOptions } from "@endeavour/vue-library/composables";
 import { presets, primaryColors, surfaceColors } from "@endeavour/vue-library/constants";
 import { FontSize, PrimeVueColors, PrimeVuePresetThemes, UserRole } from "@endeavour/vue-library/enums";
 import { useUserStore } from "@endeavour/vue-library/stores";
+import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { useCookies } from "@vueuse/integrations";
 import Button from "primevue/button";
@@ -163,10 +165,8 @@ import { useDialog } from "primevue/usedialog";
 import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
 
-import AlertDialog from "@/components/shared/dynamicDialogs/AlertDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
-import { CodeGenService, FilerService, SecurityService } from "@/services";
-import { useDialogStore } from "@/stores/dialogStore";
+import { AuthService, CodeGenService, FilerService } from "@/services";
 import { useSharedStore } from "@/stores/sharedStore";
 
 import Shortcut from "../directory/landingPage/Shortcut.vue";
@@ -275,12 +275,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: async () => (window.location.href = await SecurityService.getLoginUrl())
+      command: async () => await AuthService.login()
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: async () => (window.location.href = await SecurityService.getRegisterUrl())
+      command: async () => await AuthService.register()
     },
     {
       separator: true
@@ -351,15 +351,14 @@ async function logout() {
     })
     .then(async result => {
       if (result.confirm) {
-        await SecurityService.logout();
-        location.reload();
+        userStore.updateCurrentUser(undefined);
+        await AuthService.logout();
       }
     });
 }
 
 async function goToMyProfile() {
-  const url = await SecurityService.getProfileUrl();
-  if (url) window.location.href = url;
+  window.location.href = AuthService.profileUrl();
 }
 
 function openUploadDownloadMenu(event: MouseEvent): void {
