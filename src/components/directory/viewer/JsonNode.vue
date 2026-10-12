@@ -19,6 +19,7 @@
                 v-for="(item, itemIndex) in child"
                 :key="itemIndex"
                 :value="item"
+                :is-last="itemIndex === child.length - 1"
                 :hovered-name="hoveredName"
                 @hover-block="emit('hover-block', $event)"
                 @leave-block="emit('leave-block')"
@@ -28,37 +29,22 @@
             <div class="json-line">]{{ index < Object.keys(value).length - 1 ? "," : "" }}</div>
           </template>
           <template v-else>
-            <div class="json-line">"{{ key }}": {</div>
+            <div class="json-line">"{{ key }}":</div>
             <div class="json-indent">
               <JsonNode
                 :value="child"
+                :is-last="index === Object.keys(value).length - 1"
                 :hovered-name="hoveredName"
                 @hover-block="emit('hover-block', $event)"
                 @leave-block="emit('leave-block')"
                 @click-block="forwardClickBlock"
               />
             </div>
-            <div class="json-line">}{{ index < Object.keys(value).length - 1 ? "," : "" }}</div>
           </template>
         </template>
       </div>
-      <div class="json-line">}</div>
+      <div class="json-line">}{{ props.isLast ? "" : "," }}</div>
     </div>
-  </template>
-  <template v-else-if="isArray(value)">
-    <div class="json-line">[</div>
-    <div class="json-indent">
-      <JsonNode
-        v-for="(item, index) in value"
-        :key="index"
-        :value="item"
-        :hovered-name="hoveredName"
-        @hover-block="emit('hover-block', $event)"
-        @leave-block="emit('leave-block')"
-        @click-block="forwardClickBlock"
-      />
-    </div>
-    <div class="json-line">]</div>
   </template>
   <template v-else>
     <div class="json-line">
@@ -75,6 +61,7 @@ import type { JsonObject, JsonValue } from "./JsonDisplay.vue";
 interface Props {
   value: JsonValue;
   hoveredName: string | null;
+  isLast: boolean;
 }
 
 const props = defineProps<Props>();

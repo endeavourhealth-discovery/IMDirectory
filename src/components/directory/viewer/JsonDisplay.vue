@@ -3,6 +3,7 @@
     <JsonNode
       v-if="parsedJson !== null"
       :value="parsedJson"
+      :is-last="true"
       :hovered-name="hoveredName"
       @hover-block="emit('hover-block', $event)"
       @leave-block="emit('leave-block')"
