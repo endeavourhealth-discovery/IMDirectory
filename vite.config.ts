@@ -35,7 +35,21 @@ export default defineConfig({
   build: {
     target: "esnext",
     outDir: ".output",
-    emptyOutDir: true
+    emptyOutDir: true,
+    rolldownOptions: {
+      output: {
+        // Libraries that are part of every page load and rarely change are kept apart from app code, so a release does not
+        // invalidate them in the browser cache. Lazy-only libraries (d3, mermaid, ...) are deliberately left to split naturally
+        // so they never join the initial load.
+        codeSplitting: {
+          groups: [
+            { name: "vendor-vue", test: /node_modules[\\/](?:\.pnpm[\\/][^\\/]+[\\/]node_modules[\\/])?(?:vue|@vue|pinia|vue-router)[\\/]/ },
+            { name: "vendor-validation", test: /node_modules[\\/](?:\.pnpm[\\/][^\\/]+[\\/]node_modules[\\/])?zod[\\/]/ },
+            { name: "vendor-http-auth", test: /node_modules[\\/](?:\.pnpm[\\/][^\\/]+[\\/]node_modules[\\/])?(?:axios|oidc-client-ts)[\\/]/ }
+          ]
+        }
+      }
+    }
   },
   resolve: {
     alias: {

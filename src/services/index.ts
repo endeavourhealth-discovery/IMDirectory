@@ -1,3 +1,4 @@
+import AuthService from "./AuthService";
 import CodeGenService from "./CodeGenService";
 import ConceptService from "./ConceptService";
 import DataModelService from "./DataModelService";
@@ -14,6 +15,7 @@ import StatusService from "./StatusService";
 import UserService from "./UserService";
 
 export {
+  AuthService,
   EntityService,
   FilerService,
   Env,

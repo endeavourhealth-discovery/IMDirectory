@@ -4,15 +4,6 @@ import { RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    name: "Callback",
-    path: "/callback",
-    component: () => import("@/views/Callback.vue"),
-    props: route => ({
-      state: route.query.state,
-      code: route.query.code
-    })
-  },
-  {
     name: "Main",
     path: "/",
     component: () => import("@/InformationManager.vue"),

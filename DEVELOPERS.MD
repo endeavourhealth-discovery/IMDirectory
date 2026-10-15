@@ -75,6 +75,17 @@ The project expects the **IMAPI** to be running on `localhost:8080` for local de
 
 - **Hosting Mode**: `VITE_HOSTING_MODE="public"` or `"private"`
 
+## 🔐 Authentication
+
+Users sign in with [Casdoor](https://casdoor.org) directly (OpenID Connect, authorization code flow with PKCE, no client secret) using `oidc-client-ts` (`src/services/AuthService.ts`). The Casdoor access token is sent to IMAPI as `Authorization: Bearer …` by the axios interceptor in `src/services/api.ts` and is renewed with the refresh token before it expires. Tokens are kept in `sessionStorage`, so each browser tab signs in separately (Casdoor remembers you, so this is seamless).
+
+| Variable | Purpose |
+|---|---|
+| `VITE_CASDOOR_URL` | Base URL of Casdoor. Must be `https` outside local development. |
+| `VITE_CASDOOR_CLIENT_ID` | Client id of this app's Casdoor application. If unset, sign-in is disabled (e.g. public deployments). |
+
+In Casdoor, register the app's **root URL** (e.g. `https://directory.example.org/`, `http://localhost:8082/` for development) as a redirect URL on the application. The app uses hash routing, and a redirect URL cannot contain a fragment, so Casdoor returns to the root and the app finishes signing in (`AuthService.completeSigninIfRedirected`, called before the router starts) and restores the page you were on. The IMAPI must list this application's client id in its `CASDOOR_ALLOWED_CLIENT_IDS`.
+
 ## 🎨 UI & Styling
 
 - **PrimeVue**: used for high-level UI components.

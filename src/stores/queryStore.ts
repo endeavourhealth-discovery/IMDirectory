@@ -2,16 +2,15 @@ import { ref } from "vue";
 
 import { RDFS } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type QueryRequest, QueryRequestSchema } from "@endeavour/vue-library/models";
+import { type QueryRequest, Query } from "@endeavour/vue-library/models";
 
 import { defineStore } from "pinia";
 
-import { SelectedMatch } from "@/models";
 import { EntityService } from "@/services";
 
 export const useQueryStore = defineStore("query", () => {
   const queryIri = ref<string>("");
-  const selectedMatches = ref<SelectedMatch[]>([]);
+  const selectedMatches = ref<Query[]>([]);
   const variableMap = ref<Map<string, any>>(new Map<string, any>());
   const returnType = ref<string>("");
   const validationQueryRequest = ref<QueryRequest>({

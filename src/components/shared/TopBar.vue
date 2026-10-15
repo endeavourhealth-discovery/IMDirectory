@@ -166,7 +166,7 @@ import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
 
 import { useDirectService } from "@/composables/useDirectService";
-import { CodeGenService, FilerService, SecurityService } from "@/services";
+import { AuthService, CodeGenService, FilerService } from "@/services";
 import { useSharedStore } from "@/stores/sharedStore";
 
 import Shortcut from "../directory/landingPage/Shortcut.vue";
@@ -275,12 +275,12 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      command: async () => (window.location.href = await SecurityService.getLoginUrl())
+      command: async () => await AuthService.login()
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      command: async () => (window.location.href = await SecurityService.getRegisterUrl())
+      command: async () => await AuthService.register()
     },
     {
       separator: true
@@ -351,15 +351,14 @@ async function logout() {
     })
     .then(async result => {
       if (result.confirm) {
-        await SecurityService.logout();
-        location.reload();
+        userStore.updateCurrentUser(undefined);
+        await AuthService.logout();
       }
     });
 }
 
 async function goToMyProfile() {
-  const url = await SecurityService.getProfileUrl();
-  if (url) window.location.href = url;
+  window.location.href = AuthService.profileUrl();
 }
 
 function openUploadDownloadMenu(event: MouseEvent): void {

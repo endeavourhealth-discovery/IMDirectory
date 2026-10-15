@@ -22,7 +22,6 @@ export const useSharedStore = defineStore("shared", () => {
   const error = ref<string>("");
   const isPublicMode = ref<boolean | undefined>();
   const isDevMode = ref<boolean>(true);
-  const signinUrl = ref<string>("");
   const signupUrl = ref<string>("");
 
   function updateShowCookieConsent(bool: boolean) {
@@ -71,10 +70,6 @@ export const useSharedStore = defineStore("shared", () => {
     isDevMode.value = devMode;
   }
 
-  function updateSigninUrl(url: string) {
-    signinUrl.value = url;
-  }
-
   function updateSignupUrl(url: string) {
     signupUrl.value = url;
   }
@@ -89,7 +84,6 @@ export const useSharedStore = defineStore("shared", () => {
     showReleaseNotes,
     showSnomedLicense,
     showUprnConsent,
-    signinUrl,
     signupUrl,
     tagSeverityMatches,
     updateActiveProfile,
@@ -102,7 +96,6 @@ export const useSharedStore = defineStore("shared", () => {
     updateShowReleaseNotes,
     updateShowSnomedLicense,
     updateShowUprnConsent,
-    updateSigninUrl,
     updateSignupUrl,
     updateTagSeverityMatches
   };
