@@ -64,11 +64,11 @@ Vue Components (Views -> Sub-components)
 | **Styling** | Tailwind CSS 4.2, SCSS (sass 1.99) |
 | **HTTP** | Axios 1.15 |
 | **Validation** | vee-validate 4, yup 1.7 |
-| **Charts/Visualization** | chart.js 4, d3 7, mermaid 11 |
+| **Charts/Visualization** | d3 7, mermaid 11 |
 | **Diagrams** | svg-pan-zoom 3 |
 | **Build** | Vite 8, TypeScript 6, vue-tsc 3 |
 | **Linting/Formatting** | ESLint 10, Prettier 3.8, Husky 9, lint-staged 16 |
-| **Unit Testing** | Vitest 4.1, happy-dom 20, @vue/test-utils 2, @testing-library/vue 8 |
+| **Unit Testing** | Vitest 4.1, happy-dom 20, @vue/test-utils 2 |
 | **E2E Testing** | Playwright 1.57, Gauge 1.6 |
 | **API Mocking** | MSW 2.13, @faker-js/faker 10 |
 | **Utilities** | lodash-es 4, @vueuse/core 14, uuid 13, zod 4 |
