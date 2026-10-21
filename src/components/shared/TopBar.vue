@@ -572,7 +572,7 @@ async function openAdminToolbox() {
 .theme-container {
   display: flex;
   flex-flow: column nowrap;
-  width: 18rem;
+  width: 19rem;
 }
 
 .color-picker {
