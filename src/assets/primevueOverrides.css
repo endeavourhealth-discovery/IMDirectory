@@ -40,3 +40,8 @@
 .p-datatable-thead {
   z-index: unset;
 }
+
+.p-menu {
+  overflow-y: auto;
+  max-height: 100vh;
+}
