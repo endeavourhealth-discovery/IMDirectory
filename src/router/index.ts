@@ -42,7 +42,8 @@ router.beforeEach(async (to, from) => {
   authStore.updateAuthReturnPath(currentPath);
   const iri = to.params.selectedIri;
   const userStore = useUserStore();
-  if (!userStore.currentUser) {
+  // IMAPI identifies the caller by their access token, so with no token there is no user to look up
+  if (!userStore.currentUser && (await AuthService.getAccessToken())) {
     try {
       const user = await SecurityService.getUser(true);
       if (user) userStore.updateCurrentUser(user);

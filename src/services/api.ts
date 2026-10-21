@@ -54,28 +54,26 @@ api.interceptors.response.use(
   }
 );
 
-async function handle401(error: AxiosError) {
+/** Tells the user they lack clearance for the endpoint that was called, and sends them to the access denied page. */
+async function denyAccess(error: AxiosError) {
+  const resource = error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1);
   showError(
     "Access denied",
-
     "Insufficient clearance to access " +
-      error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
+      resource +
       ". Please contact an admin to change your account security clearance if you require access to this resource."
   );
-  await router.push({ name: "AccessDenied" }).then();
+  await router.push({ name: "AccessDenied" });
+}
+
+async function handle401(error: AxiosError) {
+  await denyAccess(error);
 }
 
 async function handle403(error: any) {
   const userStore = useUserStore();
   if (userStore.isLoggedIn) {
-    showError(
-      "Access denied",
-
-      "Insufficient clearance to access " +
-        error.config?.url?.substring(error.config.url.lastIndexOf("/") + 1) +
-        ". Please contact an admin to change your account security clearance if you require access to this resource."
-    );
-    await router.push({ name: "AccessDenied" }).then();
+    await denyAccess(error);
   } else {
     if (error.response?.data) {
       showError("Access denied", error.response.data.debugMessage);
@@ -99,7 +97,7 @@ async function handle5xx(error: any) {
     } else if (error.response.data.code === "ConfigException") {
       showError("Error retrieving Github releases", error.response.data.debugMessage);
       await router.push({ name: "ServerOffline" });
-    } else await router.push({ name: "ServerOffline" }).then();
+    } else await router.push({ name: "ServerOffline" });
   } else if (error.code === "ERR_CANCELED") {
     return;
   }

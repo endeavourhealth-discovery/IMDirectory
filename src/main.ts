@@ -14,14 +14,12 @@ import StyleClass from "primevue/styleclass";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import VueClipboard from "vue3-clipboard";
-import { VueShowdownPlugin } from "vue-showdown";
 
 import { useSharedStore } from "@/stores/sharedStore";
 
 import App from "./App.vue";
 import "./assets/tailwind.css";
 import { useDirectService } from "./composables/useDirectService";
-import { worker } from "./mocks/browser";
 import router from "./router";
 import { EntityService, UserService } from "./services";
 import pinia from "./stores";
@@ -38,6 +36,7 @@ declare module "vue-router" {
 
 // msw initialising
 if (import.meta.env.MODE === "mock") {
+  const { worker } = await import("./mocks/browser");
   await worker.start();
 }
 
@@ -56,7 +55,6 @@ const app = createApp(App)
     autoSetContainer: true,
     appendToBody: true
   })
-  .use(VueShowdownPlugin, { flavor: "github" })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
   .directive("ripple", Ripple)

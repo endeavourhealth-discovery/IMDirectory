@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { nextTick } from "vue";
 
 import { OverlaySummary } from "@endeavour/vue-library/components";
@@ -223,9 +223,16 @@ watch(
   () => (modelLoading.value = searchLoading.value)
 );
 
+let searchController: AbortController | undefined;
+onBeforeUnmount(() => searchController?.abort());
+
 async function onSearch() {
+  // A new search replaces any still running (a changed term or page makes the old results irrelevant)
+  searchController?.abort();
+  const controller = (searchController = new AbortController());
   searchLoading.value = true;
-  const response = await search(page.value + 1, rows.value, page.value == 0 ? TextSearchStyle.autocomplete : TextSearchStyle.all, undefined);
+  const response = await search(page.value + 1, rows.value, page.value == 0 ? TextSearchStyle.autocomplete : TextSearchStyle.all, undefined, controller);
+  if (controller.signal.aborted) return;
   emit("searchResultsUpdated", response);
   const lastSearchTerm = props.searchTerm;
   if (response?.entities && isArrayHasLength(response.entities)) {
@@ -239,7 +246,8 @@ async function onSearch() {
     if (response?.entities) {
       offset = response.entities.length;
     }
-    search(2, rows.value, TextSearchStyle.all, offset).then(slow => {
+    search(2, rows.value, TextSearchStyle.all, offset, controller).then(slow => {
+      if (controller.signal.aborted) return;
       addSearchResults(slow);
       pageCache.value[page.value] = searchResults.value;
       emit("searchResultsUpdated", response);
@@ -252,19 +260,19 @@ function updateRows(newRows: number) {
   onSearch();
 }
 
-async function search(pageNumber: number, pageSize: number, searchStyle: TextSearchStyle, offset?: number) {
+async function search(pageNumber: number, pageSize: number, searchStyle: TextSearchStyle, offset?: number, controller?: AbortController) {
   let response = undefined;
   if (props.eclQuery) {
     props.eclQuery.page = pageNumber;
     props.eclQuery.size = pageSize;
-    response = await EclService.ECLSearch(props.eclQuery);
+    response = await EclService.ECLSearch(props.eclQuery, controller);
   } else if (props.searchTerm && props.searchTerm.length > 2) {
     if (props.imQuery) {
       props.imQuery.textSearch = props.searchTerm;
       props.imQuery.page = PageSchema.parse({ pageNumber: pageNumber, pageSize: pageSize });
       props.imQuery.textSearchStyle = searchStyle;
       if (offset) props.imQuery.page.offset = offset;
-      response = await QueryService.queryIMSearch(props.imQuery);
+      response = await QueryService.queryIMSearch(props.imQuery, controller);
     } else {
       const searchOptions: SearchOptions = cloneDeep(selectedFilters.value);
       searchOptions.textSearch = props.searchTerm;
@@ -272,7 +280,7 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
       if (offset) searchOptions.page.offset = offset;
       const imQuery = buildIMQueryFromFilters(searchOptions);
       imQuery.textSearchStyle = searchStyle;
-      response = await QueryService.queryIMSearch(imQuery);
+      response = await QueryService.queryIMSearch(imQuery, controller);
     }
   }
 
