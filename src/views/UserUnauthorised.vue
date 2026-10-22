@@ -36,7 +36,7 @@ const validUser = ref(false);
 onMounted(async () => {
   clicked.value = false;
   try {
-    hasSession.value = await AuthService.getUser();
+    hasSession.value = await AuthService.getIsCurrentUser();
   } catch {
     hasSession.value = false;
   }

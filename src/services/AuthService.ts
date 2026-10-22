@@ -93,7 +93,7 @@ const AuthService = {
     }
   },
 
-  async getUser(): Promise<boolean> {
+  async getIsCurrentUser(): Promise<boolean> {
     if (!Env.CASDOOR_CLIENT_ID) return false; // sign-in is not configured (e.g. a public deployment)
     const userManager = getManager();
     const user = await userManager.getUser();
