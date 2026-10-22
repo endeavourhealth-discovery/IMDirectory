@@ -93,6 +93,15 @@ const AuthService = {
     }
   },
 
+  async getUser(): Promise<boolean> {
+    if (!Env.CASDOOR_CLIENT_ID) return false; // sign-in is not configured (e.g. a public deployment)
+    const userManager = getManager();
+    const user = await userManager.getUser();
+    if (!user) return false;
+    else if (user.expired) return false;
+    else return true;
+  },
+
   /**
    * If the browser has just come back from Casdoor, completes the sign-in and tidies the address bar (dropping the code and restoring the
    * page the user was on). Must run before the router starts. Failures are recorded rather than thrown, see `consumeSigninError`.

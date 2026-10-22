@@ -262,6 +262,12 @@ const routes: Array<RouteRecordRaw> = [
         meta: { title: "Error" }
       },
       {
+        path: "/unauthorised",
+        name: "UserUnauthorised",
+        component: () => import("@/views/UserUnauthorised.vue"),
+        meta: { title: "User Unauthorised", requiresAuth: false }
+      },
+      {
         path: "/bugReport",
         name: "BugReport",
         component: () => import("@/views/BugReport.vue"),
