@@ -13,11 +13,10 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 
-import { User } from "oidc-client-ts";
 import { useRouter } from "vue-router";
 
 import { AuthService, SecurityService } from "@/services";
@@ -73,11 +72,6 @@ async function logout() {
   color: var(--p-text-color);
   font-size: 3rem;
   margin: 1.5rem 0 0.5rem 0;
-}
-
-.error-header {
-  color: var(--p-text-color);
-  margin: 0.5rem;
 }
 
 .error-text {
