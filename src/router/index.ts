@@ -44,10 +44,15 @@ router.beforeEach(async (to, from) => {
   const userStore = useUserStore();
   // IMAPI identifies the caller by their access token, so with no token there is no user to look up
   if (!userStore.currentUser && (await AuthService.getAccessToken())) {
+    if (to.name === "UserUnauthorised") return true;
     try {
       const user = await SecurityService.getUser(true);
       if (user) userStore.updateCurrentUser(user);
     } catch (e: any) {
+      if (e.response.status === 401) {
+        await router.replace("/unauthorised");
+        return true;
+      }
       console.log("No user session found");
     }
   }
