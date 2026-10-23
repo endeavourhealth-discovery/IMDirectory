@@ -234,7 +234,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/404",
         props: true,
-        meta: { title: "404" },
+        meta: { title: "404", public: true },
         children: [
           {
             path: ":iri?",
@@ -247,25 +247,25 @@ const routes: Array<RouteRecordRaw> = [
         path: "/:pathMatch(.*)*",
         name: "PageNotFound",
         component: () => import("@/views/PageNotFound.vue"),
-        meta: { title: "Page not found" }
+        meta: { title: "Page not found", public: true }
       },
       {
         path: "/500",
         name: "ServerOffline",
         component: () => import("@/views/ServerOffline.vue"),
-        meta: { title: "Error" }
+        meta: { title: "Error", public: true }
       },
       {
         path: "/error",
         name: "VueError",
         component: () => import("@/views/VueError.vue"),
-        meta: { title: "Error" }
+        meta: { title: "Error", public: true }
       },
       {
         path: "/unauthorised",
         name: "UserUnauthorised",
         component: () => import("@/views/UserUnauthorised.vue"),
-        meta: { title: "User Unauthorised", requiresAuth: false }
+        meta: { title: "User Unauthorised", public: true }
       },
       {
         path: "/bugReport",

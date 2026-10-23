@@ -71,6 +71,10 @@ const AuthService = {
     }
   },
 
+  async clearSession() {
+    await getManager().removeUser();
+  },
+
   profileUrl(): string {
     return Env.CASDOOR_URL + "/account";
   },

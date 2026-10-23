@@ -4,7 +4,6 @@ import { useUserStore } from "@endeavour/vue-library/stores";
 import { createRouter, createWebHashHistory } from "vue-router";
 
 import { AuthService, SecurityService } from "@/services";
-import { useAuthStore } from "@/stores/authStore";
 
 import { setBrowserTabTitles } from "./methods/browserTabTitles";
 import { endRouterLoading, startRouterLoading } from "./methods/loading";
@@ -20,7 +19,6 @@ import {
   viewerIriExistsGuard
 } from "./methods/routeGuards";
 import routes from "./methods/routes";
-import { setModes } from "./methods/setModes";
 
 // Coming back from Casdoor, the sign-in must be finished (which restores the address bar) before the router reads the address.
 // This has to happen here: top-level await does not hold back sibling imports, only modules that import this one.
@@ -31,31 +29,9 @@ const router = createRouter({
   routes
 });
 
-const errorRoutes = ["/error", "/500", "/404", "/401"];
-const skipModeNames = ["PageNotFound"];
-
 router.beforeEach(async (to, from) => {
-  if (!skipModeNames.includes(to.name as string) && !errorRoutes.includes(to.path)) await setModes();
   startRouterLoading(routes, to, from);
-  const authStore = useAuthStore();
-  const currentPath = to.path;
-  authStore.updateAuthReturnPath(currentPath);
   const iri = to.params.selectedIri;
-  const userStore = useUserStore();
-  // IMAPI identifies the caller by their access token, so with no token there is no user to look up
-  if (!userStore.currentUser && (await AuthService.getAccessToken())) {
-    if (to.name === "UserUnauthorised") return true;
-    try {
-      const user = await SecurityService.getUser(true);
-      if (user) userStore.updateCurrentUser(user);
-    } catch (e: any) {
-      if (e.response.status === 401) {
-        await router.replace("/unauthorised");
-        return true;
-      }
-      console.log("No user session found");
-    }
-  }
   let routedByGuard: boolean;
   routedByGuard = await requiresAuthGuard(to, from, router);
   if (routedByGuard) return false;
