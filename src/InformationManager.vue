@@ -105,16 +105,18 @@ watch(darkMode, async (newValue, oldValue) => {
 });
 
 onMounted(async () => {
-  if (!currentUser) {
+  if (!currentUser.value) {
     try {
       const user = await SecurityService.getUser(true);
       if (user) userStore.updateCurrentUser(user);
     } catch (e: any) {
+      if (e.response.status === 500) {
+        await AuthService.logout();
+        await AuthService.login();
+      }
       console.log("No user session found");
     }
   }
-
-  await setModes();
 
   loadingStore.updateViewsLoading(true);
 
