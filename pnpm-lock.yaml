@@ -12,8 +12,8 @@ importers:
         specifier: 7.1.2
         version: 7.1.2
       '@endeavour/vue-library':
-        specifier: 5.0.4
-        version: 5.0.4(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
+        specifier: 5.0.8
+        version: 5.0.8(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))
       '@primeuix/themes':
         specifier: 2.0.3
         version: 2.0.3
@@ -28,13 +28,13 @@ importers:
         version: 14.3.0(vue@3.5.32(typescript@6.0.2))
       '@vueuse/integrations':
         specifier: 14.3.0
-        version: 14.3.0(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))
+        version: 14.3.0(async-validator@4.2.5)(axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))
       async-validator:
         specifier: ^4.2.5
         version: 4.2.5
       axios:
-        specifier: 1.18.0
-        version: 1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
+        specifier: 1.20.0
+        version: 1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
       change-case:
         specifier: ^5.4.4
         version: 5.4.4
@@ -374,8 +374,8 @@ packages:
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
 
-  '@endeavour/vue-library@5.0.4':
-    resolution: {integrity: sha512-jqKz81yKHKayJHejl3QYyQimQbOK8lPu+WnkacPmtJ3V1KD+5OnMErI9fc9JhnybjCe5KZ47QcsPMFFDyDKoZA==}
+  '@endeavour/vue-library@5.0.8':
+    resolution: {integrity: sha512-h0kgrN8EiRKdjlJxVpARgjPUA5T8hRmhSJ0psuopza5jEcD9zEeXpWJ+GOZSXnkSYNBfC6d/DOXXcF48ai3qQQ==}
     peerDependencies:
       '@primeuix/themes': 2.0.3
       '@tailwindcss/vite': 4.3.3
@@ -1468,8 +1468,8 @@ packages:
   axios@1.17.0:
     resolution: {integrity: sha512-J8SwNxprqqpbfenehxWYXE7CW+wM1BB4w3+N+g+/Wx40xM4rsLrfPmHHxSWIxJLYDgSY/HqlFPIYb2/S3rxafw==}
 
-  axios@1.18.0:
-    resolution: {integrity: sha512-E32NzpYKp++W7XRe52rHiXV2ehxmh3wbdgO7MHeFM+vqxLBYHzt0ElkiImtOBxtOmyp0yoC8C6uESVV84Y2/hw==}
+  axios@1.20.0:
+    resolution: {integrity: sha512-r8aOh8j9cGKpgQAqpzrUHnSIc6a59Y3Xf/cv8sy1DrHCkZHzQGEuoq1tARk6qSyDdtQGSDgpb9kFlruzPvrgwg==}
 
   b4a@1.8.1:
     resolution: {integrity: sha512-aiqre1Nr0B/6DgE2N5vwTc+2/oQZ4Wh1t4NznYY4E00y8LCt6NqdRv81so00oo27D8MVKTpUa/MwUUtBLXCoDw==}
@@ -4366,12 +4366,12 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@endeavour/vue-library@5.0.4(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))':
+  '@endeavour/vue-library@5.0.8(@primeuix/themes@2.0.3)(@tailwindcss/vite@4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0)))(async-validator@4.2.5)(axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(primevue@4.5.5(vue@3.5.32(typescript@6.0.2)))(qrcode@1.5.4)(sortablejs@1.10.2)(tailwindcss-primeui@0.6.1(tailwindcss@4.3.3))(tailwindcss@4.3.3)(typescript-logging@2.2.0)(universal-cookie@7.2.2)(vue-router@5.0.4(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2)))(rolldown@1.0.3)(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))(vue@3.5.32(typescript@6.0.2)))(vue@3.5.32(typescript@6.0.2))':
     dependencies:
       '@primeuix/themes': 2.0.3
       '@tailwindcss/vite': 4.3.3(vite@8.0.16(@types/node@26.1.1)(jiti@2.7.0)(sass@1.101.3)(yaml@2.9.0))
       '@vueuse/core': 14.2.1(vue@3.5.32(typescript@6.0.2))
-      '@vueuse/integrations': 14.2.1(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))
+      '@vueuse/integrations': 14.2.1(async-validator@4.2.5)(axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))
       lodash-es: 4.18.1
       pinia: 4.0.2(@vue/devtools-api@8.1.5)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))
       primevue: 4.5.5(vue@3.5.32(typescript@6.0.2))
@@ -5336,14 +5336,14 @@ snapshots:
       '@vueuse/shared': 14.3.0(vue@3.5.32(typescript@6.0.2))
       vue: 3.5.32(typescript@6.0.2)
 
-  '@vueuse/integrations@14.2.1(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))':
+  '@vueuse/integrations@14.2.1(async-validator@4.2.5)(axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))':
     dependencies:
       '@vueuse/core': 14.2.1(vue@3.5.32(typescript@6.0.2))
       '@vueuse/shared': 14.2.1(vue@3.5.32(typescript@6.0.2))
       vue: 3.5.32(typescript@6.0.2)
     optionalDependencies:
       async-validator: 4.2.5
-      axios: 1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
+      axios: 1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
       change-case: 5.4.4
       drauu: 0.4.3
       focus-trap: 8.0.1
@@ -5355,14 +5355,14 @@ snapshots:
       sortablejs: 1.10.2
       universal-cookie: 7.2.2
 
-  '@vueuse/integrations@14.3.0(async-validator@4.2.5)(axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))':
+  '@vueuse/integrations@14.3.0(async-validator@4.2.5)(axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2))(change-case@5.4.4)(drauu@0.4.3)(focus-trap@8.0.1)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jwt-decode@4.0.0)(nprogress@0.2.0)(qrcode@1.5.4)(sortablejs@1.10.2)(universal-cookie@7.2.2)(vue@3.5.32(typescript@6.0.2))':
     dependencies:
       '@vueuse/core': 14.3.0(vue@3.5.32(typescript@6.0.2))
       '@vueuse/shared': 14.3.0(vue@3.5.32(typescript@6.0.2))
       vue: 3.5.32(typescript@6.0.2)
     optionalDependencies:
       async-validator: 4.2.5
-      axios: 1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
+      axios: 1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)
       change-case: 5.4.4
       drauu: 0.4.3
       focus-trap: 8.0.1
@@ -5484,7 +5484,7 @@ snapshots:
       - debug
       - supports-color
 
-  axios@1.18.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2):
+  axios@1.20.0(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2):
     dependencies:
       follow-redirects: 1.16.0(debug@4.4.3(supports-color@10.2.2))
       form-data: 4.0.6

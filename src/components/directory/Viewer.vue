@@ -35,6 +35,7 @@
             <Tab v-if="entityIsRecordModel(types)" value="6">Data Model</Tab>
             <Tab v-if="entityIsRecordModel(types)" value="7">Properties</Tab>
             <Tab v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="8">Query</Tab>
+            <Tab v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="21">Dependencies</Tab>
             <Tab v-if="entityIsIndicator(types)" value="20">Indicator</Tab>
             <Tab v-if="entityIsFeature(types)" value="10">Feature</Tab>
             <Tab value="11">Contents</Tab>
@@ -94,6 +95,16 @@
             <TabPanel v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="8">
               <div id="query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" :show-dataset="true" :viewerDisplayMode="viewerDisplayMode" @updateViewerDisplayMode="updateDisplayMode" />
+              </div>
+            </TabPanel>
+            <TabPanel v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="21">
+              <div id="query-container" class="concept-panel-content">
+                <SecondaryTree
+                  :entityIri="entityIri"
+                  :predicate="IM.DEPENDENT_ON"
+                  @row-clicked="(iri: string) => emit('navigateTo', iri)"
+                  @row-control-clicked="handleControlClick"
+                />
               </div>
             </TabPanel>
             <TabPanel v-if="entityIsIndicator(types)" value="20">
