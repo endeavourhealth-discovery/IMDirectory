@@ -73,9 +73,8 @@ import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import { OverlaySummary } from "@endeavour/vue-library/components";
 import { useTree } from "@endeavour/vue-library/composables";
 import { useOverlay } from "@endeavour/vue-library/composables";
-import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedEntityReferenceNode, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
+import type { ExtendedEntityReferenceNode, PageableEntityReferenceNode, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
 
 import { isArray, isBoolean, isString } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
@@ -86,6 +85,7 @@ import { EntityService } from "@/services";
 interface Props {
   entityIri: string;
   showSelect?: boolean;
+  predicate?: string;
 }
 
 const props = defineProps<Props>();
@@ -101,7 +101,7 @@ const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 
 const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, createNodeSummary, onNodeCollapse, customOnClick, onNodeExpand, loadMore } =
-  useTree(favourites, emit, 20);
+  useTree(favourites, emit, 20, props.predicate);
 const { showOverlay, showOverlayTreeNode, hideOverlay, OS } = useOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
@@ -139,13 +139,27 @@ onBeforeUnmount(() => {
   }
 });
 
+async function getParents(iri: string): Promise<ExtendedEntityReferenceNode[]> {
+  if (props.predicate) return await EntityService.getParentEntitiesForTree(iri, props.predicate);
+  else return await EntityService.getEntityParents(iri);
+}
+
+async function getChildren(iri: string): Promise<PageableEntityReferenceNode> {
+  if (props.predicate) return await EntityService.getPagedChildrenForTree(iri, 1, pageSize.value, props.predicate);
+  else return await EntityService.getPagedChildren(iri, 1, pageSize.value);
+}
+
 async function getConceptAggregate(iri: string): Promise<void> {
   loading.value = true;
   const conceptNode = await EntityService.getAsEntityReferenceNodes([iri]);
   conceptAggregate.value.concept = conceptNode[0];
-  conceptAggregate.value.parents = await EntityService.getEntityParents(iri);
 
-  const pagedChildren = await EntityService.getPagedChildren(iri, 1, pageSize.value);
+  conceptAggregate.value.parents = await getParents(iri);
+
+  let pagedChildren: PageableEntityReferenceNode;
+
+  pagedChildren = await getChildren(iri);
+
   totalCount.value = pagedChildren.totalCount;
   conceptAggregate.value.children = pagedChildren.result as ExtendedEntityReferenceNode[];
   loading.value = false;
@@ -220,8 +234,8 @@ async function expandParents(parentPosition: number): Promise<void> {
   if (root.value[0].key && !expandedKeys.value[root.value[0].key]) {
     expandedKeys.value[root.value[0].key] = true;
   }
-  const parents = await EntityService.getEntityParents(root.value[0].key);
-  const parentNode = createExpandedParentTree(parents, parentPosition);
+  const parents = await getParents(root.value[0].key);
+  const parentNode = await createExpandedParentTree(parents, parentPosition);
   root.value = [] as TreeNode[];
   root.value.push(parentNode);
   await setExpandedParentParents();
@@ -230,7 +244,7 @@ async function expandParents(parentPosition: number): Promise<void> {
   loading.value = false;
 }
 
-function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parentPosition: number): TreeNode {
+async function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parentPosition: number): Promise<TreeNode> {
   let parentNode = {} as TreeNode;
   for (let i = 0; i < parents.length; i++) {
     if (i === parentPosition) {
@@ -238,7 +252,7 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
       if (parentNode.children && parentNode.key) {
         parentNode.children.push(root.value[0]);
         if (!expandedKeys.value[parentNode.key]) {
-          expandedKeys.value[parentNode.key] = true;
+          await onNodeExpand(parentNode);
         }
       }
     }
@@ -247,7 +261,7 @@ function createExpandedParentTree(parents: ExtendedEntityReferenceNode[], parent
 }
 
 async function setExpandedParentParents(): Promise<void> {
-  const result = await EntityService.getEntityParents(root.value[0].key);
+  const result = await getParents(root.value[0].key);
   currentParent.value = null;
   alternateParents.value = [] as TreeParent[];
   if (!isArrayHasLength(result)) return;
