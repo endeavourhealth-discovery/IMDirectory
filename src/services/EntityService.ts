@@ -150,6 +150,22 @@ const EntityService = {
     return parseApiResponse(result, PageableEntityReferenceNodeSchema);
   },
 
+  async getPagedChildrenForTree(
+    iri: string,
+    pageIndex: number,
+    pageSize: number,
+    predicate?: string,
+    filters?: FiltersAsIris,
+    controller?: AbortController,
+    typeFilter?: string[]
+  ): Promise<PageableEntityReferenceNode> {
+    const result = await api.get(API_URL + "/protected/childrenPagedForTree", {
+      params: { iri: iri, page: pageIndex, size: pageSize, predicate: predicate, schemeIris: filters?.schemes.join(","), typeFilter: typeFilter?.join(",") },
+      signal: controller?.signal
+    });
+    return parseApiResponse(result, PageableEntityReferenceNodeSchema);
+  },
+
   async getPartialAndTotalCount(
     iri: string,
     predicate: string,
@@ -172,6 +188,13 @@ const EntityService = {
   async getEntityParents(iri: string, filters?: FiltersAsIris): Promise<ExtendedEntityReferenceNode[]> {
     const result = await api.get(API_URL + "/protected/parents", {
       params: { iri: iri, schemeIris: filters?.schemes.join(",") }
+    });
+    return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
+  },
+
+  async getParentEntitiesForTree(iri: string, predicate?: string, filters?: FiltersAsIris): Promise<ExtendedEntityReferenceNode[]> {
+    const result = await api.get(API_URL + "/protected/parentsForTree", {
+      params: { iri: iri, schemeIris: filters?.schemes.join(","), predicate: predicate }
     });
     return parseApiResponse(result, z.array(ExtendedEntityReferenceNodeSchema));
   },

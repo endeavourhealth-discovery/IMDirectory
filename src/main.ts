@@ -21,6 +21,7 @@ import App from "./App.vue";
 import "./assets/tailwind.css";
 import { useDirectService } from "./composables/useDirectService";
 import router from "./router";
+import { setModes } from "./router/methods/setModes.js";
 import { EntityService, UserService } from "./services";
 import pinia from "./stores";
 
@@ -64,6 +65,8 @@ const app = createApp(App)
   .provide(injectionKeysVueLibrary.entityService, EntityService);
 
 const sharedStore = useSharedStore();
+
+await setModes();
 
 app.mount("#app");
 

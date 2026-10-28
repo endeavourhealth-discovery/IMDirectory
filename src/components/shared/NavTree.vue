@@ -24,7 +24,7 @@
           <span v-if="allowDragAndDrop">
             <IMFontAwesomeIcon class="drag-icon grabbable" icon="fa-solid fa-grip-vertical" />
           </span>
-          <ContextMenu ref="menu" :model="items" />
+          <ContextMenu ref="menu" :model="items" :pt="{ submenu: { style: 'width: 19rem' } }" />
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" :style="'color:' + node.color" fixed-width />
           </span>

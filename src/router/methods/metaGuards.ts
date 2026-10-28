@@ -11,6 +11,7 @@ import { useSharedStore } from "@/stores/sharedStore";
 import { directToLogin } from "./intercepts";
 
 export async function requiresAuthGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, router: Router): Promise<boolean> {
+  if (to.matched.some(record => record.meta.public)) return false;
   if (to.matched.some(record => record.meta.requiresAuth)) {
     const userStore = useUserStore();
     const isLoggedIn = computed(() => userStore.isLoggedIn);

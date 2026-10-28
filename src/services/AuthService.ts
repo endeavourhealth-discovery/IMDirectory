@@ -71,6 +71,10 @@ const AuthService = {
     }
   },
 
+  async clearSession() {
+    await getManager().removeUser();
+  },
+
   profileUrl(): string {
     return Env.CASDOOR_URL + "/account";
   },
@@ -91,6 +95,15 @@ const AuthService = {
       await userManager.removeUser();
       return undefined;
     }
+  },
+
+  async getIsCurrentUser(): Promise<boolean> {
+    if (!Env.CASDOOR_CLIENT_ID) return false; // sign-in is not configured (e.g. a public deployment)
+    const userManager = getManager();
+    const user = await userManager.getUser();
+    if (!user) return false;
+    else if (user.expired) return false;
+    else return true;
   },
 
   /**

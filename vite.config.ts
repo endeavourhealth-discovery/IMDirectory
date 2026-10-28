@@ -63,9 +63,10 @@ export default defineConfig({
     globals: true,
     environment: "happy-dom",
     coverage: {
-      include: ["./tests/**/*.{js,ts}"],
+      include: ["src/**/*.ts"],
+      reportsDirectory: "coverage",
       provider: "v8",
-      reporter: ["text", "lcov"]
+      reporter: ["text-summary", "lcov"]
     },
     setupFiles: "./tests/setupTests.js"
   },
