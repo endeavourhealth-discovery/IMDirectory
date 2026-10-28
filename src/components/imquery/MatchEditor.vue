@@ -10,6 +10,7 @@
       @hide="cancel"
     >
       <template #default>
+        <div>{{ match }}</div>
         <MatchContentEditor
           v-model:match="editMatch"
           :baseType="baseType"
@@ -51,7 +52,7 @@ import { AlertDialog } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { Bool, DisplayMode, IM } from "@endeavour/vue-library/enums";
 import { isArrayOf } from "@endeavour/vue-library/helpers";
-import { type Node, Query, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { isTTIriRef, type Node, Query, type TTIriRef } from "@endeavour/vue-library/models";
 import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -59,7 +60,6 @@ import Button from "primevue/button";
 
 import CohortEditor from "@/components/imquery/CohortEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
-import ReturnEditor from "@/components/imquery/ReturnEditor.vue";
 import { EntityService, QueryService } from "@/services";
 
 interface Props {
@@ -166,7 +166,7 @@ async function showInvalid(match: Query) {
 }
 
 async function saveChanges(): Promise<boolean> {
-  const matchCheck = await QueryService.validateQuery(editMatch.value);
+  const matchCheck = await QueryService.validateMatch(editMatch.value);
   if (matchCheck.invalid) {
     editMatch.value.draft = true;
     await showInvalid(matchCheck);

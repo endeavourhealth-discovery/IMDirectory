@@ -1,5 +1,5 @@
 <template>
-  <span :class="operator">
+  <span :class="{ and: operator === Bool.and, or: operator === Bool.or }">
     <span>{{ getOperator(operator, index) }}</span>
   </span>
   <span v-if="where.qualifier">{{ where.qualifier.name }} of </span>
@@ -11,24 +11,18 @@
   <span v-if="valueSentence">
     <ValueSentenceDisplay :value-sentence="valueSentence" />
   </span>
-  <span v-if="isExpanded && isArrayHasLength(where.is)">
-    <span>, defined as</span>
-    <div>
-      <span style="list-style-type: none; padding-left: 0">
-        <span v-for="(item, index) in where.is" :key="index" style="padding-left: 1.5rem">
-          <ul>
-            <li class="tight-spacing">
-              <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
-              <span v-if="item.description" v-html="item.description"></span>
-              <IMViewerLink v-if="item.iri" :action="editMode ? 'view' : 'select'" :iri="item.iri" :label="item.name" />
-              <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
-              <span v-if="item.descendantsOrSelfOf">+subtypes</span>
-            </li>
-          </ul>
-        </span>
-      </span>
-    </div>
-  </span>
+  <span v-if="isExpanded && isArrayHasLength(where.is)">defined as</span>
+  <div v-if="isExpanded && isArrayHasLength(where.is)">
+    <ul class="where-is-list">
+      <li v-for="(item, index) in where.is" :key="index" class="tight-spacing">
+        <IMFontAwesomeIcon :icon="getTypeIcon(item)" :style="'color:' + getIconColor(item)" />
+        <span v-if="item.description" v-html="item.description"></span>
+        <IMViewerLink v-if="item.iri" :action="editMode ? 'view' : 'select'" :iri="item.iri" :label="item.name" />
+        <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
+        <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+      </li>
+    </ul>
+  </div>
   <template v-for="(wheres, type) in boolGroup" :key="type">
     <span v-if="!root">(</span>
     <template v-for="(nestedProperty, index) in wheres" :key="index">
@@ -83,7 +77,6 @@ const emit = defineEmits<{
 
 const whereName: Ref<string | undefined> = computed(() => {
   if (props.where.name) return props.where.name;
-  if (props.where.compare && props.where.compare.left) return props.where.compare.left.name;
 });
 const isExpanded = ref(props.expandedSet);
 const relativeTo = computed(() => {
@@ -130,21 +123,9 @@ function getOperator(operator: Bool | undefined, index: number): string {
   padding-right: 0.2rem;
 }
 
-.value-field {
-  color: var(--p-green-700);
-  padding-right: 0.2rem;
-}
-
-.node-ref {
-  font-style: italic;
-  cursor: pointer !important;
-}
 .or {
   color: var(--p-blue-700);
   padding-right: 0.2rem;
-}
-.op {
-  padding-right: 1rem;
 }
 
 .and {
@@ -153,9 +134,6 @@ function getOperator(operator: Bool | undefined, index: number): string {
   padding-right: 0.3rem;
 }
 
-.property-display {
-  margin-left: 0.2rem;
-}
 .hover-label {
   color: var(--p-green-700);
   cursor: pointer;
@@ -163,8 +141,9 @@ function getOperator(operator: Bool | undefined, index: number): string {
 .hover-label:hover {
   text-decoration: underline;
 }
-.node-ref {
-  padding-right: 0.2rem;
-  font-style: italic;
+.where-is-list {
+  list-style-type: none;
+  padding-left: 1.5rem;
+  margin: 0;
 }
 </style>

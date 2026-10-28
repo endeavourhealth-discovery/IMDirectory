@@ -1,5 +1,5 @@
 import { Operator, Order } from "@endeavour/vue-library/enums";
-import type { Compare, Having, Node, Query, Where } from "@endeavour/vue-library/models";
+import type { Having, Node, Query, ValueSource, Where } from "@endeavour/vue-library/models";
 
 import { ConstraintOperatorKey, ConstraintOperatorMap } from "@/constants/queryEditor/ConstraintOperatorMap";
 import { type Orderable, SentencePart } from "@/models";
@@ -18,12 +18,12 @@ export function getPlainConstraintOperatorLabel(node: Node): string {
 }
 
 export function getRelativeTo(where: Where): RelativeTo | undefined {
-  if (where.compare && where.compare.right) {
+  if (where.compare) {
     return {
-      nodeRef: where.compare.right.nodeRef,
-      iri: where.compare.right.iri,
-      parameter: where.compare.right.parameter,
-      name: where.compare.right.name
+      nodeRef: where.compare.nodeRef,
+      iri: where.compare.iri,
+      parameter: where.compare.parameter,
+      name: where.compare.name
     };
   }
   return undefined;
@@ -54,7 +54,6 @@ export function getOrderOptions(orderables: Orderable[]): any[] {
   });
   return results;
 }
-
 
 export function buildHavingSentence(having?: Having): SentencePart[] | undefined {
   if (!having) return;
@@ -105,6 +104,10 @@ function buildNonRangeSentence(where: Where, parts: SentencePart[]) {
     parts.push({ type: "text", value: getOperatorTerm(where.operator) });
   }
   if (value) parts.push({ type: "text", value: `${value} ${units} ` });
+  if (where.compare) {
+    if (where.operator != Operator.eq) parts.push({ type: "text", value: " relative to " });
+    addReference(parts, where.compare);
+  }
 }
 
 function buildRangeSentence(where: Where | Having, parts: SentencePart[]) {
@@ -134,8 +137,8 @@ function buildRangeSentence(where: Where | Having, parts: SentencePart[]) {
   if (inclusive) parts.push({ type: "text", value: "(inc.) " });
 }
 
-function addReference(parts: SentencePart[], compare: Compare) {
-  const source = compare.right!;
+function addReference(parts: SentencePart[], compare: ValueSource) {
+  const source = compare;
   if (source.parameter) {
     parts.push({
       type: "parameter",

@@ -42,7 +42,6 @@
               :parentIndex="parentIndex"
               :rootBool="true"
               @activateInput="activeInputId = $event"
-              @rationalise="rationaliseBooleans"
             />
           </template>
         </TabPanel>
@@ -55,7 +54,7 @@
         <TabPanel value="groups">
           <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
             <div><strong>Dataset entries:</strong></div>
-            <template v-for="(columnGroup, index) in query.columnGroup">
+            <template v-for="index in query.columnGroup.keys()">
               <DataSetEditor
                 v-if="showEditor && toEdit === index"
                 :baseType="query.typeOf"
@@ -170,7 +169,7 @@ const wasDraggedAndDropped = ref(false);
 const op = ref();
 const parentIndex = ref(0);
 const keepAs = shallowRef<Record<string, Ref<Query>>>({});
-const nodeRefs = shallowRef<Record<string, Ref<Query>>>({});
+const nodeRefs = shallowRef<Record<string, Query>>({});
 const toEdit: Ref<number | undefined> = ref();
 const showEditor = ref(false);
 const draggedColumnIndex = ref<number | undefined>();
@@ -267,11 +266,6 @@ function onColumnDragEnd() {
 
 async function init() {
   loading.value = false;
-  await rationaliseBooleans();
-}
-
-async function rationaliseBooleans() {
-  query.value = await QueryService.flattenBooleans(query.value);
 }
 
 async function submit(): Promise<void> {
@@ -327,7 +321,7 @@ function stripIds(idBuild: any) {
   if (idBuild) {
     delete idBuild.id;
     if (idBuild.items?.length) {
-      for (const [index, item] of idBuild.items.entries()) {
+      for (const item of idBuild.items) {
         stripIds(item);
       }
     } else if (idBuild.type === "ExpressionConstraint") {
@@ -335,7 +329,7 @@ function stripIds(idBuild: any) {
         stripIds(idBuild.conceptBool);
       }
       if (idBuild.refinementItems) {
-        for (const [index, item] of idBuild.refinementItems.entries()) {
+        for (const item of idBuild.refinementItems) {
           stripIds(item);
         }
       }

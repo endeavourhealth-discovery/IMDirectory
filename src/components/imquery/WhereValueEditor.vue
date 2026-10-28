@@ -18,10 +18,11 @@
         v-model:assignable="where"
         v-model:match="match"
         v-model:where="where"
+        :baseType="baseType"
         :qualifier="where.qualifier"
         :refresh="refresh"
         :ui-property="uiProperty"
-        @updateAssignable="updateWhereDisplay(where)"
+        @updateAssignable="updateWhereDisplay"
       />
     </div>
     <div v-else-if="rangeOrValue === RangeOrValue.Range && where.range && where.range.from && where.range.to" class="value-editor">
@@ -30,22 +31,24 @@
         v-model:assignable="where.range.from"
         v-model:match="match"
         v-model:where="where"
+        :baseType="baseType"
         :fromOrTo="'from'"
         :qualifier="where.qualifier"
         :refresh="refresh"
         :ui-property="uiProperty"
-        @updateAssignable="updateWhereDisplay(where.range.from)"
+        @updateAssignable="updateWhereDisplay"
       />
       <span class="range-label">and</span>
       <ValueEditor
         v-model:assignable="where.range.to"
         v-model:match="match"
         v-model:where="where"
+        :baseType="baseType"
         :fromOrTo="'to'"
         :qualifier="where.qualifier"
         :refresh="refresh"
         :ui-property="uiProperty"
-        @updateAssignable="updateWhereDisplay(where.range.to)"
+        @updateAssignable="updateWhereDisplay"
       />
     </div>
     <div v-if="uiProperty.qualifierOptions">
@@ -69,10 +72,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 
 import { Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Query, type Range, type Value, type Where } from "@endeavour/vue-library/models";
+import { type Node, type Query, type Range, type Where } from "@endeavour/vue-library/models";
 
 import ValueEditor from "@/components/imquery/ValueEditor.vue";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
@@ -83,6 +86,7 @@ import { type UIProperty } from "@/models";
 
 interface Props {
   uiProperty: UIProperty;
+  baseType: Node;
 }
 
 const refresh = defineModel<number>("refresh", { default: 0 });
@@ -186,7 +190,7 @@ function updateQualifier() {
 function selectedQualifierTemplate(option: any) {
   return `${option.name} of ${where.value.name}`;
 }
-function updateWhereDisplay(assignable: Value | Where) {
+function updateWhereDisplay() {
   emit("updateProperty");
 }
 </script>
@@ -216,30 +220,11 @@ function updateWhereDisplay(assignable: Value | Where) {
   display: flex;
   flex-direction: row;
 }
-.property-input-container {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-}
-
-.property-input {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-}
 .field {
   padding-left: 1rem;
   padding-right: 1rem;
 }
 
-.property-range {
-  display: flex;
-  flex-flow: row;
-  align-items: baseline;
-  margin-top: 1rem;
-}
 .range-label {
   padding-left: 0.5rem;
   padding-right: 0.5rem;

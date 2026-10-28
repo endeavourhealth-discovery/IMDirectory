@@ -32,13 +32,14 @@
           v-model:where="boolGroup![subIndex] as Where"
           :baseType="baseType"
           :canCheck="boolGroup!.length > 2"
+          :dataModelType="dataModelType"
           :index="subIndex"
           :match="match"
           :parentIndex="index"
+          :parentMatch="parent"
           :parentOperator="operator as Bool"
           :rootBool="false"
           :show-delete="showDelete"
-          :parentMatch="parentMatch"
           @addProperty="emit('addProperty')"
           @deleteWhere="onDeleteBooleanWhere(subIndex)"
           @updateBool="updateBool"
@@ -47,7 +48,7 @@
       </div>
     </div>
   </div>
-  <div v-else-if="where.iri" :class="where.invalid ? 'property-container-invalid' : 'property-container'">
+  <div v-else :class="where.invalid ? 'property-container-invalid' : 'property-container'">
     <span class="property-label">
       <span v-if="canCheck" class="group-checkbox">
         <Checkbox
@@ -63,23 +64,26 @@
       <span>{{ pathPropertyName }}</span>
     </span>
     <div class="property-value-container">
-      <div v-if="selectedWhere?.propertyType === 'class'">
-        <WhereIsEditor :key="refreshCounter" v-model:property="where" :uiProperty="selectedWhere" @updateProperty="updateProperty" />
+      <div v-if="uiProperty && uiProperty.propertyType === 'class'">
+        <WhereIsEditor :key="refreshCounter" v-model:property="where" :uiProperty="uiProperty" @updateProperty="updateProperty" />
         <Popover ref="dropdown">
           <div class="flex max-h-96 max-w-96 flex-col divide-y overflow-y-auto">
             <span v-for="is of where.is" :key="getNameFromRef(is)" class="p-1">{{ getNameFromRef(is) }}</span>
           </div>
         </Popover>
       </div>
-      <div v-else-if="selectedWhere?.propertyType === 'datatype'">
+
+      <div v-else-if="uiProperty && uiProperty.propertyType === 'datatype'">
         <WhereValueEditor
           :key="refreshCounter"
           v-model:where="where!"
+          :baseType="baseType"
           :refresh="refreshCounter"
-          :ui-property="selectedWhere"
+          :ui-property="uiProperty"
           @updateProperty="updateProperty"
         />
       </div>
+
       <div class="mt-auto ml-auto flex flex-row items-end">
         <Button v-if="updated" data-testid="cancel-edit-feature-button" label="Revert" text @click="revert" />
         <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteProperty" />
@@ -89,7 +93,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, onMounted, ref } from "vue";
+import { computed, onMounted, Ref, ref } from "vue";
 
 import { Bool } from "@endeavour/vue-library/enums";
 import type { Node, Query, Where } from "@endeavour/vue-library/models";
@@ -98,32 +102,39 @@ import { cloneDeep } from "lodash-es";
 import Button from "primevue/button";
 
 import BooleanEditor from "@/components/imquery/BooleanEditor.vue";
+import WhereValueEditor from "@/components/imquery/WhereValueEditor.vue";
 import { getNameFromRef } from "@/helpers/TTTransform";
-import { checkGroupChange, getBoolGroup, getBooleanOperator, getPathPropertyNames, getTypeIriFromMatch, updateBooleans } from "@/helpers/buildQuery";
+import {
+  checkGroupChange,
+  getBooleanOperator,
+  getBoolGroup,
+  getPathPropertyNames,
+  getTypeIriFromMatch,
+  updateBooleans
+} from "@/helpers/buildQuery";
 import { type UIProperty } from "@/models";
 import { DataModelService } from "@/services";
 
 import WhereIsEditor from "./WhereIsEditor.vue";
-import WhereValueEditor from "./WhereValueEditor.vue";
 
 const props = withDefaults(
   defineProps<{
     showDelete?: boolean;
-    baseType: Node;
+    dataModelType: string;
     index: number;
     rootBool: boolean;
     parentOperator?: Bool;
     parentIndex: number;
     canCheck?: boolean;
-    parentMatch?: Query;
+    baseType: Node;
   }>(),
   { showDelete: true }
 );
 
 const where = defineModel<Where>("where", { default: {} });
 const match = defineModel<Query>("match", { default: {} });
-const parent = defineModel<Where | Query>("parent", { default: {} });
-const selectedWhere: Ref<UIProperty | undefined> = ref();
+const parent = defineModel<Query | Where>("parent", { default: {} });
+const uiProperty: Ref<UIProperty | undefined> = ref();
 const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
 const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
@@ -150,18 +161,18 @@ async function init() {
   loading.value = true;
   if (where.value.iri) {
     if (!match.value.from) {
-      dataModelIri.value = getTypeIriFromMatch(match.value, props.baseType, props.parentMatch, where.value.nodeRef);
-    }
-    else {
-      const typeIri= getTypeIriFromMatch(match.value, props.baseType, props.parentMatch,where.value.nodeRef);
+      dataModelIri.value = getTypeIriFromMatch(match.value, props.dataModelType, where.value.nodeRef);
+    } else {
+      dataModelIri.value = getTypeIriFromMatch(match.value, props.dataModelType, where.value.nodeRef);
     }
     originalWhere.value = cloneDeep(where.value);
-    if (dataModelIri.value && where!.value.iri) {
-      selectedWhere.value = await DataModelService.getUIProperty(dataModelIri.value, where!.value.iri);
-      if (selectedWhere.value!.propertyType === "class" && !where.value.is) where.value.is = [{}];
+    if (dataModelIri.value && where.value.iri) {
+      uiProperty.value = await DataModelService.getUIProperty(dataModelIri.value, where.value.iri);
+      if (uiProperty.value!.propertyType === "class" && !where.value.is) where.value.is = [{}];
     }
-    pathPropertyName.value = getPathPropertyNames(match.value, where.value);
   }
+
+  pathPropertyName.value = getPathPropertyNames(match.value, where.value);
   loading.value = false;
 }
 

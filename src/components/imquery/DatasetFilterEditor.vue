@@ -31,7 +31,7 @@ import { v4 } from "uuid";
 
 import BooleanMatchEditor from "@/components/imquery/BooleanMatchEditor.vue";
 import MatchContentEditor from "@/components/imquery/MatchContentEditor.vue";
-import { getBooleanOperator } from "@/helpers/buildQuery";
+import { getBooleanOperator, updateKeepAs } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 interface Props {
@@ -55,7 +55,7 @@ const from: Ref<Query | undefined> = ref();
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Query>>;
 const dialogStore = useDialogStore();
 
 function cancel() {
@@ -109,18 +109,12 @@ onMounted(() => {
 });
 
 function init() {
-  updateKeepAs();
+  updateKeepAs(match.value, keepAs.value);
   if (match.value.draft) editMatchClause();
 }
 
-function updateKeepAs() {
-  if (match.value.as) {
-    keepAs.value[match.value.as] = match;
-  }
-}
-
 function deleteAny() {
-  updateKeepAs();
+  updateKeepAs(match.value, keepAs.value);
   showEditor.value = false;
   delete match.value.and;
 }
@@ -146,7 +140,7 @@ async function saveEditMatch(editedMatch: Query) {
   showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
-  updateKeepAs();
+  updateKeepAs(match.value, keepAs.value);
   showEditor.value = false;
   emit("updateMatch");
 }
@@ -165,75 +159,9 @@ function editMatchClause() {
 </script>
 
 <style scoped>
-.add-button,
-.delete-button {
-  color: #444444; /* text */
-  background-color: #f0f0f0; /* greyish default */
-  border: 1px solid #ccc;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-.add-button:hover,
-.add-button:focus {
-  background-color: #a5d6a7;
-}
-.delete-button:hover,
-.delete-button:focus {
-  background-color: red;
-}
 
 button:active {
   background-color: #d6d6d6;
-}
-.node-ref {
-  padding-right: 0.2rem;
-  font-style: italic;
-}
-.from {
-  padding-right: 0.2rem;
-}
-.match-container {
-  box-sizing: border-box;
-  min-width: 0;
-  padding: 0.5rem;
-  border: #488bc230 1px solid;
-  border-radius: 5px;
-  background-color: #fafafa;
-  margin: 0.5rem;
-  font-size: 1rem;
-}
-.match-clause-outer {
-  display: flex;
-  flex-direction: column;
-  border: #488bc230 1px solid;
-  margin: 0.5rem;
-  padding-left: 0.5rem;
-}
-.match-clause-inner {
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-}
-
-.match-display {
-  width: 30%;
-  padding-left: 0.2rem;
-  flex: 1 1 auto;
-}
-
-.edit-button {
-  height: 100%;
-  width: 8%;
-  display: flex;
-  align-items: center;
-}
-.delete-button {
-  height: 100%;
-  width: 2%;
-  display: flex;
-  align-items: center;
 }
 
 ::v-deep(.operator-selector .p-select-label) {

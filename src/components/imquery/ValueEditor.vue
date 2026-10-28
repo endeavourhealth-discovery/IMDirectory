@@ -8,6 +8,7 @@
         </span>
       </span>
     </div>
+
     <div class="value-input-container">
       <Select
         :modelValue="operator"
@@ -25,6 +26,7 @@
           </div>
         </template>
       </Select>
+
       <DatePicker
         v-if="relativity === Relativity.Absolute && dateTimeType"
         v-model:model-value="date"
@@ -56,6 +58,7 @@
         <RelativeToSelect
           v-model:match="match"
           v-model:where="where"
+          :baseType="baseType"
           :property-iri="where.iri!"
           :uiProperty="uiProperty"
           @updateCompare="emit('updateAssignable')"
@@ -69,7 +72,7 @@
 import { Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { IM, Operator, XSD } from "@endeavour/vue-library/enums";
-import { type Compare, type Query, type TTIriRef, type Value, type Where } from "@endeavour/vue-library/models";
+import { type Node, type Query, type TTIriRef, type Value, type ValueSource, type Where } from "@endeavour/vue-library/models";
 
 import RelativeToSelect from "@/components/imquery/RelativeToSelect.vue";
 import { Relativity } from "@/enums";
@@ -87,6 +90,7 @@ const props = defineProps<{
   uiProperty: UIProperty;
   fromOrTo?: "from" | "to";
   qualifier?: TTIriRef;
+  baseType: Node;
 }>();
 const refresh = defineModel<number>("refresh", { default: 0 });
 const assignable = defineModel<Value | Where>("assignable", { default: {} });
@@ -94,7 +98,7 @@ const where = defineModel<Where>("where", { required: true });
 const match = defineModel<Query>("match", { required: true });
 const date: Ref<Date | undefined> = ref();
 const time: Ref<string | undefined> = ref();
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Query>>;
 const operator = ref(Operator.eq);
 const compareOptions = computed(() => {
   return getCompareOptions(props.uiProperty.valueType);
@@ -113,8 +117,7 @@ const dateTimeType = computed(() => {
   return valueType.value === ValueType.date || valueType.value === ValueType.time;
 });
 const showUnits: Ref<boolean> = computed(() => {
-  if (!props.qualifier && props.uiProperty.unitOptions && (relativity.value == Relativity.Relative || !dateTimeType.value)) return true;
-  else return false;
+  return !!(!props.qualifier && props.uiProperty.unitOptions && (relativity.value == Relativity.Relative || !dateTimeType.value));
 });
 const showValue = computed(() => {
   if (relativity.value === Relativity.Compare) return false;
@@ -183,10 +186,10 @@ function onChangeRelativeTo(e: any) {
   if (e === Relativity.Relative || e === Relativity.Compare) {
     relativity.value = e;
     if (!where.value.compare && relativeToOptions.value.length > 0) {
-      const compare: Compare = { left: { iri: where.value.iri, name: where.value.name }, right: {} };
+      const compare = {} as ValueSource;
       if (props.uiProperty.valueType === IM.DATE) {
-        compare.right!.parameter = "$searchDate";
-      } else compare.right!.parameter = relativeToOptions.value[0].value;
+        compare.parameter = "$searchDate";
+      } else compare.parameter = relativeToOptions.value[0].value;
       where.value.compare = compare;
     }
   } else {
@@ -196,7 +199,6 @@ function onChangeRelativeTo(e: any) {
   emit("updateAssignable");
 }
 
-function handleOperator(e: any) {}
 
 function updateDateValue(e: any) {
   if (valueType.value === ValueType.date) date.value = e;
@@ -204,7 +206,7 @@ function updateDateValue(e: any) {
   updateAssignable();
   emit("updateAssignable");
 }
-function updateNumericValue(e: any) {
+function updateNumericValue() {
   updateAssignable();
   emit("updateAssignable");
 }

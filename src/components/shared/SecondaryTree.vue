@@ -1,41 +1,41 @@
 <template>
-  <div class="justify-contents-start flex flex-col" id="secondary-tree-bar-container">
+  <div id="secondary-tree-bar-container" class="justify-contents-start flex flex-col">
     <div id="alternate-parents-container" class="justify-contents-start flex flex-col items-start">
       <Button
         v-for="altParent of alternateParents"
         :key="altParent.iri"
-        :label="altParent.name"
         :disabled="loading || altParent.name === ''"
+        :label="altParent.name"
+        class="p-button-text p-button-plain"
+        data-testid="alt-parent"
         icon="fa-solid fa-chevron-up"
         @click="expandParents(altParent.listPosition)"
         @mouseenter="showOverlay($event, altParent.iri)"
         @mouseleave="hideOverlay"
-        class="p-button-text p-button-plain"
-        data-testid="alt-parent"
       />
     </div>
-    <div class="justify-contents-start flex flex-row" id="secondary-tree-parents-bar">
+    <div id="secondary-tree-parents-bar" class="justify-contents-start flex flex-row">
       <Button
-        :label="currentParent?.name"
         :disabled="loading || !currentParent"
+        :label="currentParent?.name"
+        class="p-button-text p-button-plain"
+        data-testid="parent"
         icon="fa-solid fa-chevron-up"
         @click="expandParents(parentPosition)"
         @mouseenter="showOverlay($event, currentParent?.iri)"
         @mouseleave="hideOverlay"
-        class="p-button-text p-button-plain"
-        data-testid="parent"
       />
     </div>
     <Tree
-      :value="root"
-      selectionMode="single"
       v-model:selectionKeys="selectedKeys"
       :expandedKeys="expandedKeys"
+      :loading="loading"
+      :value="root"
+      class="tree-root"
+      selectionMode="single"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
       @node-collapse="onNodeCollapse"
-      class="tree-root"
-      :loading="loading"
     >
       <template #default="{ node }: any">
         <div v-if="node.key.includes('loadMore')" class="tree-row">
@@ -45,17 +45,17 @@
         <div
           v-else
           class="tree-row"
-          @click="customOnClick($event, node, true)"
-          @mouseover="showOverlayTreeNode($event, node.data)"
-          @mouseleave="hideOverlay"
           data-testid="row"
+          @click="customOnClick($event, node, true)"
+          @mouseleave="hideOverlay"
+          @mouseover="showOverlayTreeNode($event, node.data)"
         >
           <span v-if="!node.loading">
-            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" :style="'color:' + node.color" fixed-width />
           </span>
           <ProgressSpinner v-if="node.loading" />
           <span class="tree-node-label" data-testid="row-label">{{ node.label }}</span>
-          <Button v-if="showSelect" label="Add" @click.stop="emit('onSelect', node)" v-tooltip="'Add to list'" class="self-center" data-testid="add-button" />
+          <Button v-if="showSelect" v-tooltip="'Add to list'" class="self-center" data-testid="add-button" label="Add" @click.stop="emit('onSelect', node)" />
         </div>
       </template>
     </Tree>
@@ -65,18 +65,16 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { Ref, computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+<script lang="ts" setup>
+import { computed, nextTick, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue";
 
 import { isTTIriRef, useUserStore } from "@endeavour/vue-library";
-import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
-import { OverlaySummary } from "@endeavour/vue-library/components";
-import { useTree } from "@endeavour/vue-library/composables";
-import { useOverlay } from "@endeavour/vue-library/composables";
+import { IMFontAwesomeIcon, OverlaySummary } from "@endeavour/vue-library/components";
+import { useOverlay, useTree } from "@endeavour/vue-library/composables";
 import { isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import type { ExtendedEntityReferenceNode, PageableEntityReferenceNode, TTEntity, TTIriRef } from "@endeavour/vue-library/models";
+import type { ExtendedEntityReferenceNode, PageableEntityReferenceNode, TTIriRef } from "@endeavour/vue-library/models";
 
-import { isArray, isBoolean, isString } from "lodash-es";
+import { isBoolean, isString } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
 
 import type { ConceptAggregate, TreeParent } from "@/models";
@@ -101,7 +99,7 @@ const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 
 const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, createNodeSummary, onNodeCollapse, customOnClick, onNodeExpand, loadMore } =
-  useTree(favourites, emit, 20, props.predicate);
+  useTree(favourites, emit, 20);
 const { showOverlay, showOverlayTreeNode, hideOverlay, OS } = useOverlay();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);

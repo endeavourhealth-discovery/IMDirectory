@@ -21,8 +21,8 @@
     </template>
 
     <template v-else>
-      <span v-if="parentOperator === Bool.rule && clauseIndex > 0">
-        <span class="rule">Rule {{ clauseIndex }}</span>
+      <span v-if="parentOperator === Bool.rule">
+        <span class="rule">Rule {{ clauseIndex + 1 }}</span>
       </span>
       <span v-else-if="parentOperator" :class="parentOperator">{{ displayOperator }}</span>
       <template v-if="match.from">
@@ -49,15 +49,7 @@
         <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
         <template v-if="cohort">
           <span v-if="match.is.descendantsOrSelfOf" class="field">subtypes of </span>
-          <RecursiveMatchDisplay
-            :baseType="baseType"
-            :clause-index="0"
-            :depth="depth + 1"
-            :eclQuery="eclQuery"
-            :match="cohort"
-            :parent-match="match"
-            :parent-operator="parentOperator"
-          />
+          <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="depth + 1" :eclQuery="eclQuery" :match="cohort" :parent-match="match" />
         </template>
         <template v-else>
           <span class="field">in</span>
@@ -92,10 +84,10 @@
             />
           </template>
           <template v-if="match.as">
-            <component :is="booleanWhere ? 'span' : 'div'">
-              <span class="as">as</span>
-              <span class="node-ref">{{ match.as }}</span>
-            </component>
+            <span class="as">
+              <span class="field">as</span>
+              <span class="as-name">{{ match.as }}</span>
+            </span>
           </template>
         </component>
       </template>
@@ -114,10 +106,16 @@
         />
       </template>
       <div v-if="parentOperator === Bool.rule && clauseIndex > 0" class="tree-node-line" style="margin-left: 1.5rem">
-        <span class="field">if true</span>
-        <span :class="match.ifTrue">{{ match.ifTrue }},</span>
-        <span class="field">if false</span>
-        <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
+        <span class="tree-node-line" style="display: block; margin-left: 1.5rem">
+          <span class="field">if true</span>
+          <span :class="{ SELECT: match.ifTrue === RuleAction.SELECT, REJECT: match.ifTrue === RuleAction.REJECT, NEXT: match.ifTrue === RuleAction.NEXT }">{{
+            match.ifTrue
+          }}</span>
+          <span class="field">if false</span>
+          <span :class="{ SELECT: match.ifFalse === RuleAction.SELECT, REJECT: match.ifFalse === RuleAction.REJECT, NEXT: match.ifFalse === RuleAction.NEXT }"
+            >{{ match.ifFalse }}<br
+          /></span>
+        </span>
       </div>
       <div v-if="importClauses" class="clause-checkbox">
         <Checkbox
@@ -138,7 +136,7 @@
 <script lang="ts" setup>
 import { Ref, computed, inject, ref } from "vue";
 
-import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import { Bool, DisplayMode, RuleAction } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
@@ -231,10 +229,6 @@ async function expandCohort() {
   margin-bottom: 0.5rem;
 }
 
-.node-ref {
-  padding-right: 0.2rem;
-  font-style: italic;
-}
 .field {
   padding-right: 0.2rem;
 }
@@ -248,9 +242,13 @@ async function expandCohort() {
 }
 
 .as {
-  padding-left: 10rem;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 3rem;
+}
+
+.as-name {
   color: var(--p-amber-700) !important;
-  padding-right: 0.2rem;
 }
 
 .tree-node-line {

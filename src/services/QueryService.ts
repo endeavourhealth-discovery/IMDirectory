@@ -21,7 +21,6 @@ import { IMLLanguage, IMLLanguageSchema, Indicator, IndicatorSchema, PathDocumen
 
 import Env from "./Env";
 import api from "./api";
-
 const API_URL = Env.API + "api/query/protected";
 
 const QueryService = {
@@ -123,6 +122,11 @@ const QueryService = {
   },
   async validateQuery(query: Query): Promise<Query> {
     const result = await api.post(API_URL + "/validateQuery", query);
+    return parseApiResponse(result, QuerySchema);
+  },
+
+  async validateMatch(match: Query): Promise<Query> {
+    const result = await api.post(API_URL + "/validateMatch", match);
     return parseApiResponse(result, QuerySchema);
   },
 

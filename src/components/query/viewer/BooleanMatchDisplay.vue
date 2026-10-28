@@ -2,7 +2,7 @@
   <span :style="{ backgroundColor: selected || parentSelected ? '#e5e5e5' : '' }">
     <span style="padding-right: 0.5rem">...</span>
     <template v-if="parentOperator === Bool.rule">
-      <span class="rule">Rule {{ clauseIndex }}</span>
+      <span class="rule">Rule {{ clauseIndex + 1 }}</span>
     </template>
     <span v-if="match.name">
       <span :class="parentOperator">{{ parentOperator }}</span>
@@ -47,12 +47,22 @@
       <span class="field">{{ match.orderBy.description }}</span>
       <span class="field">from the above</span>
     </template>
+    <template v-if="match.as">
+      <span class="as">
+        <span class="field">as</span>
+        <span class="as-name">{{ match.as }}</span>
+      </span>
+    </template>
     <template v-if="parentOperator === Bool.rule">
       <span class="tree-node-line" style="display: block; margin-left: 1.5rem">
         <span class="field">if true</span>
-        <span :class="match.ifTrue">{{ match.ifTrue }},</span>
+        <span :class="{ SELECT: match.ifTrue === RuleAction.SELECT, REJECT: match.ifTrue === RuleAction.REJECT, NEXT: match.ifTrue === RuleAction.NEXT }">{{
+          match.ifTrue
+        }}</span>
         <span class="field">if false</span>
-        <span :class="match.ifFalse">{{ match.ifFalse }}<br /></span>
+        <span :class="{ SELECT: match.ifFalse === RuleAction.SELECT, REJECT: match.ifFalse === RuleAction.REJECT, NEXT: match.ifFalse === RuleAction.NEXT }"
+          >{{ match.ifFalse }}<br
+        /></span>
       </span>
     </template>
   </span>
@@ -61,7 +71,7 @@
 <script lang="ts" setup>
 import { computed, inject, ref } from "vue";
 
-import { Bool } from "@endeavour/vue-library/enums";
+import { Bool, RuleAction } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
 
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
@@ -115,6 +125,21 @@ function onClauseCheckChange() {
   color: #707824;
   font-style: italic;
   padding-right: 0.3rem;
+}
+
+.tree-node-line {
+  position: relative;
+  text-indent: -1rem;
+}
+
+.as {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 3rem;
+}
+
+.as-name {
+  color: var(--p-amber-700) !important;
 }
 .match-description {
   color: var(--p-blue-700);
