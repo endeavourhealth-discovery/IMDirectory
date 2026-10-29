@@ -94,7 +94,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
 const showEditor = defineModel<boolean>("showMatchEditor", { default: false });
 const emit = defineEmits<{
   (event: "saveChanges", match: Query): void;

@@ -53,7 +53,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const where = defineModel<Where>("where", { default: {} });
+const where = defineModel<Where>("where", { default: () => ({}) });
 const match = defineModel<Query>("match", { required: true });
 const emit = defineEmits(["updateCompare"]);
 const showTreeSearch: Ref<boolean> = ref(false);

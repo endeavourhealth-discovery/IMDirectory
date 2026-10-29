@@ -68,7 +68,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showEditor");
-const query = defineModel<Query>("query", { default: {} });
+const query = defineModel<Query>("query", { default: () => ({}) });
 const match: Ref<Query> = ref(props.columnGroup);
 const emit = defineEmits<{
   (event: "saveColumnGroup", match: Query, index: number): void;

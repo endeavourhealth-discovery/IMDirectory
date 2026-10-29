@@ -61,7 +61,7 @@ interface SelectedEntity extends TTEntity {
 }
 
 const loading = ref(true);
-const selectedEntities = defineModel<Node[]>("selectedEntities", { default: [] });
+const selectedEntities = defineModel<Node[]>("selectedEntities", { default: () => [] });
 const entailmentOptions: { name: string; id: string }[] = [
   { name: "descendants of", id: "descendantsOf" },
   { name: "descendants or self of", id: "descendantsOrSelfOf" },

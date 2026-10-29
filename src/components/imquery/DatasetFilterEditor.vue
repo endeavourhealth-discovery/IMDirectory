@@ -47,7 +47,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
 const emit = defineEmits(["activateInput", "navigateTo", "cancel", "addLinked", "updateMatch"]);
 const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);

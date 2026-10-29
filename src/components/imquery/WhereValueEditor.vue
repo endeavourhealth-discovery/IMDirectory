@@ -87,8 +87,8 @@ interface Props {
 
 const refresh = defineModel<number>("refresh", { default: 0 });
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} as Query });
-const where = defineModel<Where>("where", { default: {} as Where });
+const match = defineModel<Query>("match", { default: () => ({}) as Query });
+const where = defineModel<Where>("where", { default: () => ({}) as Where });
 const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }
