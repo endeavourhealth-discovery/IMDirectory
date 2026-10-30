@@ -178,9 +178,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} });
-const parent = defineModel<Query>("parent", { default: {} });
-const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
+const match = defineModel<Query>("match", { default: () => ({}) });
+const parent = defineModel<Query>("parent", { default: () => ({}) });
+const parentGroup = defineModel<number[]>("parentGroup", { default: () => [] });
 const emit = defineEmits(["updateBool", "rationalise", "activateInput", "navigateTo", "deleteMatch", "updateMatch"]);
 const group: Ref<number[]> = ref([]);
 const showEditor = ref(false);

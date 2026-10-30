@@ -155,8 +155,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match: Ref<Query> = defineModel<Query>("match", { default: {} });
-const when = defineModel<When>("when", { default: {} });
+const match: Ref<Query> = defineModel<Query>("match", { default: () => ({}) });
+const when = defineModel<When>("when", { default: () => ({}) });
 
 const emit = defineEmits<{
   (event: "saveChanges", match: Query): void;

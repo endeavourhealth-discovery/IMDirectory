@@ -39,7 +39,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showEditor");
-const query = defineModel<Query>("query", { default: {} });
+const query = defineModel<Query>("query", { default: () => ({}) });
 const match: Ref<Query> = ref(props.booleanMatch);
 const emit = defineEmits<{
   (event: "saveBooleanMatch", match: Query, index: number): void;

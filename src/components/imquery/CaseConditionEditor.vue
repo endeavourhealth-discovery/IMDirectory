@@ -25,7 +25,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const showEditor = defineModel<boolean>("showCaseConditionEditor", { default: false });
-const match: Ref<Query> = defineModel<Query>("match", { default: {} });
+const match: Ref<Query> = defineModel<Query>("match", { default: () => ({}) });
 const edited = ref(false);
 const emit = defineEmits<{
   (event: "saveCondition", match: Query): void;

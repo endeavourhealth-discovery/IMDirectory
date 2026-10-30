@@ -120,11 +120,11 @@ const props = withDefaults(
   { showDelete: true }
 );
 
-const where = defineModel<Where>("where", { default: {} });
-const match = defineModel<Query>("match", { default: {} });
-const parent = defineModel<Where | Query>("parent", { default: {} });
+const where = defineModel<Where>("where", { default: () => ({}) });
+const match = defineModel<Query>("match", { default: () => ({}) });
+const parent = defineModel<Where | Query>("parent", { default: () => ({}) });
 const selectedWhere: Ref<UIProperty | undefined> = ref();
-const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: () => [] });
 const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));
 const group: Ref<number[]> = ref([]);

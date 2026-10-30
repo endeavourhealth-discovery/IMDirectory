@@ -184,9 +184,9 @@ interface Props {
   parentIndex: number;
 }
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
 const parent = defineModel<Query | undefined>("parent") as Ref<Query | undefined>;
-const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: () => [] });
 const activeInputId = defineModel<string>("activeInputId", { default: "" });
 const exclude = defineModel<boolean>("exclude", { default: false });
 const group: Ref<number[]> = ref([]);

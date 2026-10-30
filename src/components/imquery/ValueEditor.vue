@@ -89,7 +89,7 @@ const props = defineProps<{
   qualifier?: TTIriRef;
 }>();
 const refresh = defineModel<number>("refresh", { default: 0 });
-const assignable = defineModel<Value | Where>("assignable", { default: {} });
+const assignable = defineModel<Value | Where>("assignable", { default: () => ({}) });
 const where = defineModel<Where>("where", { required: true });
 const match = defineModel<Query>("match", { required: true });
 const date: Ref<Date | undefined> = ref();

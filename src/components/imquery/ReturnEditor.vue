@@ -45,7 +45,7 @@ interface Props {
   baseType: Node;
 }
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
 const emit = defineEmits<{
   navigateTo: [payload: string];
   addProperty: [where: Where];
