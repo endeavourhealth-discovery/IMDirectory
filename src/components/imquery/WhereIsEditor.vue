@@ -114,7 +114,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const searchBar = ref<{ searchText: string } | null>(null);
-const property = defineModel<Where>("property", { default: {} });
+const property = defineModel<Where>("property", { default: () => ({}) });
 const emit = defineEmits(["updateProperty"]);
 const node: Ref<Node> = ref({} as Node);
 const filterStore = useFilterStore();

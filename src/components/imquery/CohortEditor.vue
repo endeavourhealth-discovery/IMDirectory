@@ -129,7 +129,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const editMode = defineModel<boolean>("editMode");
-const match = defineModel<Query>("match", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
 const exclude = defineModel<boolean>("exclude", { default: false });
 const modelSelected = defineModel<SearchResultSummary | undefined>("selected");
 const importClauses: Ref<Map<string, Query>> = ref(new Map() as Map<string, Query>);

@@ -163,8 +163,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} });
-const parentMatch = defineModel<Query>("parentMatch", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
+const parentMatch = defineModel<Query>("parentMatch", { default: () => ({}) });
 const emit = defineEmits<{
   navigateTo: [payload: string];
 }>();

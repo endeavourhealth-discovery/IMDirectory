@@ -174,9 +174,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const where = defineModel<Where>("where", { default: {} });
+const where = defineModel<Where>("where", { default: () => ({}) });
 const parent = defineModel<Where | Query>("parent", { required: true });
-const parentGroup = defineModel<number[]>("parentGroup", { default: [] });
+const parentGroup = defineModel<number[]>("parentGroup", { default: () => [] });
 const emit = defineEmits(["updateBool", "rationalise", "createSubgroup"]);
 const group: Ref<number[]> = ref([]);
 const checked: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));

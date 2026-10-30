@@ -171,8 +171,8 @@ interface Props {
   matchList: any[];
 }
 const props = defineProps<Props>();
-const match = defineModel<Query>("match", { default: {} });
-const column = defineModel<Return>("column", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
+const column = defineModel<Return>("column", { default: () => ({}) });
 const emit = defineEmits<{
   navigateTo: [payload: string];
   addProperty: [where: Where];

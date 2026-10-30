@@ -49,8 +49,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const parentQuery = defineModel<Query>("parentQuery", { default: {} as Query });
-const datasetEntry = defineModel<Query>("datasetEntry", { default: {} as Query });
+const parentQuery = defineModel<Query>("parentQuery", { default: () => ({}) as Query });
+const datasetEntry = defineModel<Query>("datasetEntry", { default: () => ({}) as Query });
 const matchExpand = ref(true);
 const loading = ref(false);
 

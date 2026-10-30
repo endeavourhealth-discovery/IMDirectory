@@ -95,8 +95,8 @@ interface Props {
 type BooleanOperator = "and" | "or" | "each";
 const props = defineProps<Props>();
 const clause = defineModel<Query | Where>("clause", { required: true });
-const parent = defineModel<Query | Where>("parent", { default: {} });
-const group = defineModel<number[]>("group", { default: [] });
+const parent = defineModel<Query | Where>("parent", { default: () => ({}) });
+const group = defineModel<number[]>("group", { default: () => [] });
 const emit = defineEmits(["rationalise"]);
 const operator = computed(() => {
   return getBooleanOperator(props.clauseType, clause.value);

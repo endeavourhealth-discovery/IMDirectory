@@ -47,7 +47,7 @@ import { type SearchOptions } from "@/models";
 import { EntityService, QueryService } from "@/services";
 
 const editMode = defineModel<boolean>("editMode");
-const match = defineModel<Query>("match", { default: {} });
+const match = defineModel<Query>("match", { default: () => ({}) });
 const rootBaseEntities: Ref<string[]> = ref([]);
 const hoverEditClause = ref(false);
 const baseType: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
