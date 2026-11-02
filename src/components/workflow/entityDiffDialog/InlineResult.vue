@@ -17,7 +17,7 @@ const { text, result, comma } = toRefs(props);
 </script>
 
 <template>
-  <template v-for="item in result">
+  <template v-for="(item, index) in result" :key="index">
     <template v-if="!item.type && !item.token">
       {{ text.slice(item.start, item.end) }}
     </template>

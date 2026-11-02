@@ -27,7 +27,7 @@
       <AccordionPanel value="0">
         <AccordionHeader>Subsets</AccordionHeader>
         <AccordionContent>
-          <div id="set-definition-container" class="set-accordion-content">
+          <div id="subset-definition-container" class="set-accordion-content">
             <SubsetDisplay :entityIri="props.entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
           </div>
         </AccordionContent>

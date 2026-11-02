@@ -123,7 +123,7 @@ function onClick(event: MouseEvent, item: MenuItem) {
   background: var(--p-content-background);
   border: 1px solid var(--p-textarea-border-color);
   border-radius: var(--p-textarea-border-radius);
-  overflow: a;
+  overflow: auto;
 }
 
 .table-header {

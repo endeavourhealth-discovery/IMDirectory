@@ -65,7 +65,7 @@
               </div>
             </TabPanel>
             <TabPanel v-if="showSemanticMaps" value="30">
-              <div id="mappings-container" class="concept-panel-content">
+              <div id="semantic-mappings-container" class="concept-panel-content">
                 <SemanticMapDisplay :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
@@ -98,7 +98,7 @@
               </div>
             </TabPanel>
             <TabPanel v-if="entityIsQuery(types) || entityIsFunctionalProperty(types)" value="21">
-              <div id="query-container" class="concept-panel-content">
+              <div id="dependent-on-container" class="concept-panel-content">
                 <SecondaryTree
                   :entityIri="entityIri"
                   :predicate="IM.DEPENDENT_ON"
@@ -113,7 +113,7 @@
               </div>
             </TabPanel>
             <TabPanel v-if="entityIsFeature(types)" value="10">
-              <div id="query-container" class="concept-panel-content">
+              <div id="feature-query-container" class="concept-panel-content">
                 <QueryDisplay :entityIri="entityIri" />
               </div>
             </TabPanel>
@@ -123,7 +123,7 @@
               </div>
             </TabPanel>
             <TabPanel v-if="entityIsProperty(types)" value="12">
-              <div id="definition-container" class="concept-panel-content">
+              <div id="data-models-container" class="concept-panel-content">
                 <DataModels :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               </div>
             </TabPanel>
