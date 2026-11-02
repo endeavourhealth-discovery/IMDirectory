@@ -1,4 +1,5 @@
 import { parseApiResponse } from "@endeavour/vue-library/helpers";
+import { SearchTermCode, SearchTermCodeSchema } from "@endeavour/vue-library/models";
 
 import z from "zod";
 
@@ -28,11 +29,11 @@ const ConceptService = {
     return parseApiResponse(result, z.array(SimpleMapSchema));
   },
 
-  async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
+  async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<SearchTermCode[]> {
     const result = await api.get(API_URL + "/termCode", {
       params: { iri: iri, includeInactive: includeInactive }
     });
-    return parseApiResponse(result, z.array(TermCodeSchema));
+    return parseApiResponse(result, z.array(SearchTermCodeSchema));
   },
 
   async getContextMaps(conceptIri: string): Promise<ConceptContextMap[]> {
