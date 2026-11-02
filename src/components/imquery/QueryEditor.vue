@@ -55,7 +55,7 @@
         <TabPanel value="groups">
           <template v-if="query.typeOf && query.columnGroup && query.columnGroup.length > 0">
             <div><strong>Dataset entries:</strong></div>
-            <template v-for="(columnGroup, index) in query.columnGroup">
+            <template v-for="(columnGroup, index) in query.columnGroup" :key="index">
               <DataSetEditor
                 v-if="showEditor && toEdit === index"
                 :baseType="query.typeOf"

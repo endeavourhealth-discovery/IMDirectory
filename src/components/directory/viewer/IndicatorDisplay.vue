@@ -14,7 +14,7 @@
         />
       </div>
       <div v-if="indicator.isSubIndicatorOf">
-        <div v-for="subIndicator of indicator.isSubIndicatorOf">
+        <div v-for="(subIndicator, index) of indicator.isSubIndicatorOf" :key="subIndicator.iri ?? index">
           <span class="field">is sub-indicator of: </span>
           <IMViewerLink v-if="subIndicator.iri" :iri="subIndicator.iri" :label="subIndicator.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </div>

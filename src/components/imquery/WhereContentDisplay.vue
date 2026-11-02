@@ -30,10 +30,9 @@
   </span>
 
   <template v-if="boolGroup">
-    <div v-for="(nestedProperty, subIndex) in boolGroup" :key="index" class="where-container">
+    <div v-for="(nestedProperty, subIndex) in boolGroup" :key="subIndex" class="where-container">
       <span>
         <WhereContentDisplay
-          :key="index"
           :bracketed="subIndex === boolGroup!.length - 1"
           :depth="depth + 1"
           :eclQuery="eclQuery"

@@ -82,7 +82,7 @@
       </div>
     </Popover>
 
-    <Popover id="overlay-panel-simple-maps" ref="opMatchedFrom">
+    <Popover id="overlay-panel-matched-from" ref="opMatchedFrom">
       <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedFromOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
@@ -91,7 +91,7 @@
       </div>
     </Popover>
 
-    <Popover id="overlay-panel-simple-maps" ref="opMatchedTo">
+    <Popover id="overlay-panel-matched-to" ref="opMatchedTo">
       <div class="justify-contents-start simple-maps-overlay flex flex-col" data-testid="matchedToOverlay">
         <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
         <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>

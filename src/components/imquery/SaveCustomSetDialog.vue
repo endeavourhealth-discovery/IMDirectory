@@ -5,7 +5,7 @@
       <div id="save-set-full-iri" class="flex flex-col gap-2">
         <span id="save-set-iri-header">Iri</span>
         <InputText :model-value="fullIri" disabled type="text" />
-        <small id="text-error" class="p-error">{{ errors.iri || "&nbsp;" }}</small>
+        <small id="iri-error" class="p-error">{{ errors.iri || "&nbsp;" }}</small>
       </div>
 
       <div id="save-set-scheme-iri" class="flex flex-col gap-2">
@@ -15,7 +15,7 @@
           v-model="scheme"
           :class="{ 'p-invalid': errors.scheme }"
           :options="schemeOptions"
-          aria-describedby="text-error"
+          aria-describedby="scheme-error"
           class="flex-1"
           option-label="name"
           option-value="iri"
@@ -23,13 +23,13 @@
           type="text"
           v-bind="schemeAttrs"
         />
-        <small id="text-error" class="p-error flex-1">{{ errors.scheme || "&nbsp;" }}</small>
+        <small id="scheme-error" class="p-error flex-1">{{ errors.scheme || "&nbsp;" }}</small>
       </div>
 
       <div id="save-set-name" class="flex flex-col gap-2">
         <span id="save-set-name-header">Name</span>
-        <InputText id="name" v-model="setName" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" type="text" v-bind="nameAttrs" />
-        <small id="text-error" class="p-error">{{ errors.name || "&nbsp;" }}</small>
+        <InputText id="name" v-model="setName" :class="{ 'p-invalid': errors.name }" aria-describedby="name-error" type="text" v-bind="nameAttrs" />
+        <small id="name-error" class="p-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
       <div id="save-set-type" class="flex flex-col gap-2">
@@ -40,13 +40,13 @@
           v-model="setType"
           :class="{ 'p-invalid': errors.type }"
           :options="typeOptions"
-          aria-describedby="text-error"
+          aria-describedby="type-error"
           option-label="name"
           option-value="iri"
           type="text"
           v-bind="typeAttrs"
         />
-        <small id="text-error" class="p-error">{{ errors.type || "&nbsp;" }}</small>
+        <small id="type-error" class="p-error">{{ errors.type || "&nbsp;" }}</small>
       </div>
 
       <span id="members-title">Members</span>

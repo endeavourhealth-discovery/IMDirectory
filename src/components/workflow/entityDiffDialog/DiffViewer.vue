@@ -19,6 +19,7 @@
       <Segment
         v-else-if="!props.virtual"
         v-for="(segment, index) in segments"
+        :key="index"
         :segment="segment"
         :index="index"
         :lines-left="linesLeft"
