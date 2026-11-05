@@ -43,8 +43,8 @@
 <script lang="ts" setup>
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
-import { IM, NAMESPACE, RDFS, SNOMED } from "@endeavour/vue-library/enums";
-import { TypeGuards, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { IM, NAMESPACE, SNOMED,Entail } from "@endeavour/vue-library/enums";
+import { isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type PropertyShape, type QueryRequest, type TTEntity, TTEntitySchema, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isArray } from "lodash-es";
@@ -170,7 +170,7 @@ const request: QueryRequest = {
     activeOnly: true,
     is: {
       iri: SNOMED.ATTRIBUTE,
-      descendantsOrSelfOf: true
+      entails: Entail.descendantsOrSelfOf
     }
   }
 };

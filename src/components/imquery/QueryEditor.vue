@@ -42,7 +42,6 @@
               :parentIndex="parentIndex"
               :rootBool="true"
               @activateInput="activeInputId = $event"
-              @rationalise="rationaliseBooleans"
             />
           </template>
         </TabPanel>
@@ -162,8 +161,8 @@ const dialogStore = useDialogStore();
 const activeInputId = ref("");
 const includeTerms = ref(true);
 const forceValidation = ref(false);
-const queryString = ref("");
-const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard(queryString);
+const queryString: Ref<string> = ref("");
+const { copyToClipboard, onCopy, onCopyError } = useCopyToClipboard();
 const loading = ref(true);
 const childLoadingState: Ref<any> = ref({});
 const wasDraggedAndDropped = ref(false);

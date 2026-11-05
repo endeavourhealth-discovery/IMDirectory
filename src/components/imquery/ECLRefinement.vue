@@ -130,7 +130,7 @@
 <script lang="ts" setup>
 import { computed, inject, onMounted, Ref, ref } from "vue";
 
-import { Bool, IM } from "@endeavour/vue-library/enums";
+import { Bool, IM,Entail } from "@endeavour/vue-library/enums";
 import {
   Query,
   type QueryRequest,
@@ -231,7 +231,7 @@ function onRationalise() {
 }
 
 function addRefinementToGroup() {
-  const newWhere = { uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where;
+  const newWhere = { uuid: v4(), entails: Entail.descendantsOrSelfOf, is: [{ entails: Entail.descendantsOrSelfOf}] } as Where;
   if (where.value.and) {
     if (where.value.and) where.value.and.push(newWhere);
   } else if (where.value.or) where.value.or.push(newWhere);

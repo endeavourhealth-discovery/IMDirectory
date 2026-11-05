@@ -19,7 +19,7 @@
         <span v-if="item.description" v-html="item.description"></span>
         <IMViewerLink v-if="item.iri" :action="editMode ? 'view' : 'select'" :iri="item.iri" :label="item.name" />
         <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
-        <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+        <span v-if="item.entails==Entail.descendantsOrSelfOf">+subtypes</span>
       </li>
     </ul>
   </div>
@@ -49,7 +49,7 @@
 import { Ref, computed, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
-import { Bool } from "@endeavour/vue-library/enums";
+import { Bool,Entail } from "@endeavour/vue-library/enums";
 import { getIconColor, getTypeIcon, isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type { Where } from "@endeavour/vue-library/models";
 

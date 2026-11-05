@@ -36,8 +36,6 @@
           :index="subIndex"
           :match="match"
           :parentIndex="index"
-          :parentMatch="parent"
-          :parentMatch="parentMatch"
           :parentOperator="operator as Bool"
           :rootBool="false"
           @addProperty="emit('addProperty')"
@@ -127,7 +125,7 @@ const props = withDefaults(
 const where = defineModel<Where>("where", { default: () => ({}) });
 const match = defineModel<Query>("match", { default: () => ({}) });
 const parent = defineModel<Where | Query>("parent", { default: () => ({}) });
-const selectedWhere: Ref<UIProperty | undefined> = ref();
+const uiProperty: Ref<UIProperty | undefined> = ref();
 const parentGroup = defineModel<number[]>("parentGroup", { default: () => [] });
 const emit = defineEmits(["updateBool", "addProperty", "deleteWhere", "updateProperty"]);
 const subgroupCheck: Ref<boolean> = computed(() => parentGroup.value.includes(props.index));

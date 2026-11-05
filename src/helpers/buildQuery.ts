@@ -1,18 +1,7 @@
-import { NodeSchema, Operator, QuerySchema, WhereSchema } from "@endeavour/vue-library";
+import { Entail, NodeSchema, Operator, QuerySchema, WhereSchema } from "@endeavour/vue-library";
 import { Bool, IM, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type {
-  Node,
-  NodeShape,
-  Path,
-  PropertyRange,
-  PropertyShape,
-  Query,
-  QueryRequest,
-  Return,
-  When,
-  Where
-} from "@endeavour/vue-library/models";
+import type { Node, NodeShape, Path, PropertyRange, PropertyShape, Query, QueryRequest, Return, When, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
@@ -177,16 +166,19 @@ export function createNewBoolGroup(clause: any, group: number[]) {
 }
 
 export function addConceptToGroup(match: Query) {
-  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
-  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
-  else {
+  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
+  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
+  else if (match.is){
     const subMatch = cloneDeep(match);
     delete match.is;
     delete match.where;
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+    match.or.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
+  }
+  else {
+    match.is = { entails: Entail.descendantsOrSelfOf };
   }
 }
 
@@ -219,14 +211,14 @@ export function getBooleanOperator(clauseType: string, clause: Query | Where | u
   if (clause.and) return Bool.and;
   if (clause.or) return Bool.or;
   else if ((clause as Query).rule) return Bool.rule;
-  else if ((clause as Query).each) return Bool.each;
+  else if ((clause as Query).with) return Bool.with;
   else return undefined;
 }
 
 export function getMatchFromNodeRef(match: Query, nodeRef: string): Query | undefined {
   if (!match) return undefined;
-  if (match.node === nodeRef) return match;
-  for (const op of ["and", "or", "each"]) {
+  if (match.as === nodeRef) return match;
+  for (const op of ["and", "or", "with"]) {
     const operator = op as keyof Query;
     if (match[operator]) {
       for (const any of match[operator]) {
@@ -348,7 +340,7 @@ export function getPathNameFromMatch(match: Query, nodeRef: string): string | un
   if (pathName) return pathName;
   if (match.and) {
     for (const any of match.and) {
-      if (any.node === nodeRef) return any.node + "->";
+      if (any.as === nodeRef) return any.as + "->";
     }
   }
 }
@@ -509,49 +501,12 @@ export function getBooleanOptions(clauseType: string, index: number, eclQuery?: 
 }
 
 export function getConstraintOperator(constrainer: Node | Where) {
-  if (constrainer.descendantsOrSelfOf) return "<<";
-  if (constrainer.descendantsOf) return "<";
-  if (constrainer.memberOf) return "^";
-  if (constrainer.ancestorsOf) return ">>";
-  return "";
+  if (constrainer.entails) return constrainer.entails;
+  else return "";
 }
 
 export function setConstraintOperator(constrainer: Node | Where, valueConstraintOperator: string) {
-  switch (valueConstraintOperator) {
-    case "<<":
-    case "descendantsOrSelfOf":
-      constrainer.descendantsOrSelfOf = true;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOf = false;
-      break;
-    case "<":
-    case "descendantsOf":
-      constrainer.descendantsOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOf = false;
-      break;
-    case "^":
-    case "memberOf":
-      constrainer.memberOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.ancestorsOf = false;
-      break;
-    case ">>":
-    case "ancestorsOrSelfOf":
-      constrainer.ancestorsOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-      break;
-    default:
-      constrainer.ancestorsOf = false;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-  }
+  constrainer.entails = valueConstraintOperator as Entail;
 }
 
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
@@ -662,8 +617,6 @@ export function deleteReturn(match: Query, iri: string, propertyRef?: string) {
   }
 }
 
-
-
 export function addFilter(match: Query, node: TreeNode, optional: boolean): string | undefined {
   let nodeRef;
   if (node.type === "property") {
@@ -709,7 +662,7 @@ export function addWhereToWhen(when: When, match: Query, node: TreeNode): string
 function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
   const where = { iri: iri, invalid: true } as Where;
   if (nodeRef) where.nodeRef = nodeRef;
-  if (is) where.is = [NodeSchema.parse({ descendantsOrSelfOf: true })];
+  if (is) where.is = [NodeSchema.parse({ entails: Entail.descendantsOrSelfOf })];
   return where;
 }
 

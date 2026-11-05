@@ -187,8 +187,6 @@ const sections = computed(() => [
     title: "Editing test"
   }
 ]);
-const match: Ref<Query> = defineModel<Query>("match", { default: () => ({}) });
-const when = defineModel<When>("when", { default: () => ({}) });
 
 const emit = defineEmits<{
   (event: "saveChanges", match: Query): void;
@@ -203,6 +201,7 @@ const emit = defineEmits<{
   (event: "editTest"): void;
   (event: "deleteWhenWhere"): void;
 }>();
+
 const dialogStore = useDialogStore();
 const orderables: Ref<any[] | undefined> = ref();
 const orderable: Ref<any> = ref({ label: "Any/latest/earliest", value: "addTest" });

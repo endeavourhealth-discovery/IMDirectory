@@ -5,12 +5,12 @@
       v-model:group="group"
       v-model:parent="parent"
       :clauseType="'Match'"
+      :eclQuery="true"
       :index="index"
       :operator="operator"
       :parentOperator="parentOperator as Bool"
       :parentType="'Match'"
       :rootBool="rootBool"
-      :eclQuery="true"
     />
 
     <div class="nested-match-container">
@@ -113,7 +113,7 @@
           />
         </div>
         <div class="concept-selector-container">
-          <ConceptSelector v-model:node="match.is" :activeInputId="activeInputId" :parent="parent" @update-match="updateMatch" />
+          <ConceptSelector ref="conceptSelector" v-model:node="match.is" :parent="parent" @update-match="updateMatch" />
         </div>
         <div v-if="match.is.invalid">
           <Button v-tooltip="'Value is invalid for property'" icon="fa-solid fa-exclamation" severity="danger" />
@@ -148,11 +148,17 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { Ref, computed, onMounted, ref, watch } from "vue";
+<script lang="ts">
+import { ref as moduleRef } from "vue";
 
-import { Bool, QUERY } from "@endeavour/vue-library/enums";
-import { type Node, Query, type QueryRequest, QueryRequestSchema, type TTIriRef, type Where } from "@endeavour/vue-library/models";
+const pendingFocusUuid = moduleRef<string | undefined>();
+</script>
+
+<script lang="ts" setup>
+import { Ref, computed, nextTick, onMounted, ref, watch } from "vue";
+
+import { Bool, Entail, QUERY } from "@endeavour/vue-library/enums";
+import { type Node, Query, type QueryRequest, type TTIriRef, type Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { v4 } from "uuid";
@@ -182,6 +188,7 @@ interface Props {
   includeSubtypes?: boolean;
   canCheck?: boolean;
   parentIndex: number;
+  autoFocus?: boolean;
 }
 const props = defineProps<Props>();
 const match = defineModel<Query>("match", { default: () => ({}) });
@@ -193,6 +200,7 @@ const group: Ref<number[]> = ref([]);
 const emit = defineEmits<{
   (e: "updateBool"): void;
   (e: "rationalise"): void;
+  (e: "activateInput", value: string): void;
   (e: "includeSubtypesChanged"): void;
   (e: "updateExclusion", value: boolean): void;
 }>();
@@ -210,10 +218,23 @@ const operator = computed(() => {
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
 });
+const conceptSelector = ref<{ focus: () => void } | null>(null);
 
 onMounted(() => {
   init();
+  if (props.autoFocus || (pendingFocusUuid.value && pendingFocusUuid.value === match.value.uuid)) claimFocus();
 });
+
+// Handles focus requests for instances that are already mounted (e.g. passed down from a parent bool group)
+watch(pendingFocusUuid, uuid => {
+  if (uuid && uuid === match.value.uuid) claimFocus();
+});
+
+function claimFocus() {
+  pendingFocusUuid.value = undefined;
+  if (match.value.is) nextTick(() => conceptSelector.value?.focus());
+  else if (boolGroup.value?.length) pendingFocusUuid.value = boolGroup.value[0].uuid;
+}
 
 watch(isRoleGroup, (newValue, oldValue) => {
   if (newValue != oldValue) {
@@ -230,13 +251,20 @@ function onCreateSubgroup() {
 function init() {
   if (!match.value.uuid) match.value.uuid = v4();
   if (!match.value.or && !match.value.and && !match.value.is) {
-    match.value.is = { descendantsOrSelfOf: true } as Node;
+    match.value.is = { entails: Entail.descendantsOrSelfOf } as Node;
   }
   maintainFocusConcepts();
 }
 
 function addConcept() {
   addConceptToGroup(match.value);
+  if (match.value.is) {
+    pendingFocusUuid.value = match.value.uuid;
+    nextTick(() => conceptSelector.value?.focus());
+  } else {
+    const items = match.value.or ?? match.value.and;
+    pendingFocusUuid.value = items?.[items.length - 1]?.uuid;
+  }
   maintainFocusConcepts();
 }
 function updateExclusion() {
@@ -261,6 +289,7 @@ function onRationalise() {
 function deleteMatch() {
   if (!props.parentOperator) {
     delete match.value.is;
+    emit("rationalise");
     maintainFocusConcepts();
     return;
   }
@@ -286,7 +315,7 @@ function addRefinement() {
     updateQueryForPropertySearch();
     updateIsValidPropertySearch();
   }
-  const where = { uuid: v4(), descendantsOrSelfOf: true, is: [{ descendantsOrSelfOf: true }] } as Where;
+  const where = { uuid: v4(), entails: Entail.descendantsOrSelfOf, is: [{ entails: Entail.descendantsOrSelfOf }] } as Where;
   if (match.value.where) {
     if (match.value.where.and) match.value.where.and.push(where);
     else if (match.value.where.or) match.value.where.or.push(where);

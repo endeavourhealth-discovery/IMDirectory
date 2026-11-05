@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
 import { DisplayMode, IM } from "@endeavour/vue-library/enums";
@@ -109,6 +109,9 @@ function cancelEditor() {
 function updateQuery(query: Query) {
   queryDefinition.value = query;
   editorEntity.value[IM.DEFINITION] = JSON.stringify(query);
+  if (query.is && query.is.cohort) {
+    editorEntity.value[IM.DENOMINATOR] = { iri: query.is.iri };
+  } else delete editorEntity.value[IM.DENOMINATOR];
   originalDefinition.value = cloneDeep(queryDefinition.value);
   showEditor.value = false;
 }

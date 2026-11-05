@@ -25,7 +25,7 @@
           <div v-if="query.is">
             <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
             <template v-if="cohort">
-              <span v-if="query.is.descendantsOrSelfOf" class="field">subtypes of </span>
+              <span v-if="query.is.entails==Entail.descendantsOrSelfOf" class="field">subtypes of </span>
               <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="1" :eclQuery="eclQuery" :match="cohort" :parent-match="query" />
             </template>
             <template v-else>
@@ -107,7 +107,7 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
-import { Bool, DisplayMode } from "@endeavour/vue-library/enums";
+import { Bool, DisplayMode,Entail } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type Argument, type Node, type Query, type QueryRequest } from "@endeavour/vue-library/models";
 
@@ -234,7 +234,7 @@ async function expandCohort() {
     cohort.value = undefined;
   } else {
     if (query.value && query.value.is) {
-      if ((query.value.is.iri && query.value.is.cohort) || query.value.is.resultSet) {
+      if ((query.value.is.iri && query.value.is.cohort)) {
         cohort.value = await QueryService.expandCohort(query.value.is.iri!, DisplayMode.ORIGINAL);
       }
     }

@@ -265,7 +265,7 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
 }
 function createNewMatch() {
   const match = { uuid: v4(), draft: true } as Query;
-  addMatchToParent(parent.value, match, props.datasetEntry ? Bool.each : undefined);
+  addMatchToParent(parent.value, match, props.datasetEntry ? Bool.with : undefined);
 }
 
 async function saveEditMatch(editedMatch: Query) {

@@ -91,7 +91,7 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, ref } from "vue";
 
-import { IM } from "@endeavour/vue-library/enums";
+import { Entail, IM } from "@endeavour/vue-library/enums";
 import { type Node, type QueryRequest, type SearchResultSummary, type Where } from "@endeavour/vue-library/models";
 
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
@@ -103,8 +103,7 @@ import { NodeInclusionOptions } from "@/constants/queryEditor/NodeInclusionOptio
 import { PlainConstraintOperatorOptions } from "@/constants/queryEditor/PlainConstraintOperatorOptions";
 import { getPlainConstraintOperatorLabel, getPlainConstraintOperatorValue } from "@/helpers/QueryEditorMethods";
 import { buildIMQueryFromFilters, setConstraintOperator } from "@/helpers/buildQuery";
-import { type UIProperty } from "@/models";
-import { SearchOptionsSchema } from "@/models";
+import { SearchOptionsSchema, type UIProperty } from "@/models";
 import SetService from "@/services/SetService";
 import { useFilterStore } from "@/stores/filterStore";
 
@@ -158,7 +157,7 @@ function isConstraintEditable(node: Node): boolean {
     if (node.type === IM.CONCEPT_SET) {
       return false;
     }
-    if (node.memberOf) return false;
+    if (node.entails == Entail.memberOf) return false;
   }
   return true;
 }
@@ -239,14 +238,14 @@ function updateIsIri(node: Node) {
   background-color: red;
 }
 .set-container {
-  flex: 1 0 0%;
+  flex: 1 0 0;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
 }
 .concept-container {
-  flex: 1 0 0%;
+  flex: 1 0 0;
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -258,7 +257,7 @@ function updateIsIri(node: Node) {
   width: 1.5rem;
 }
 .auto-complete-container {
-  flex: 1 1 0%;
+  flex: 1 1 0;
   min-width: 40rem;
 }
 

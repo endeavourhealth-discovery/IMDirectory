@@ -48,7 +48,7 @@
       <template v-if="match.is">
         <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
         <template v-if="cohort">
-          <span v-if="match.is.descendantsOrSelfOf" class="field">subtypes of </span>
+          <span v-if="match.is.entails = Entail.descendantsOrSelfOf" class="field">subtypes of </span>
           <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="depth + 1" :eclQuery="eclQuery" :match="cohort" :parent-match="match" />
         </template>
         <template v-else>
@@ -134,14 +134,15 @@
 </template>
 
 <script lang="ts" setup>
-import { Ref, computed, inject, ref } from "vue";
+import { computed, inject, Ref, ref } from "vue";
 
+import { Entail } from "@endeavour/vue-library";
 import { Bool, DisplayMode, RuleAction } from "@endeavour/vue-library/enums";
 import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
+import { clauseCheck, getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -210,7 +211,7 @@ async function expandCohort() {
     cohort.value = undefined;
   } else {
     if (queryIri.value && match.value.is) {
-      if ((match.value.is.iri && match.value.is.cohort) || match.value.is.resultSet) {
+      if (match.value.is.iri && match.value.is.cohort) {
         cohort.value = await QueryService.expandCohort(match.value.is.iri!, DisplayMode.ORIGINAL);
       }
     }
