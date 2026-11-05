@@ -1,7 +1,7 @@
 <template>
   <div class="return-editor">
     <div>
-      <span class="name">Dataset item name</span>
+      <span class="name">Dataset item name (optional)</span>
       <InputText v-model="match.name" class="match-name" type="text" @update:model-value="updateName" />
     </div>
     <div class="return-column-editor">
@@ -10,7 +10,7 @@
       <div class="property-display font-bold">Property / Logic</div>
     </div>
     <template v-if="match.return">
-      <div v-for="(_, rIndex) in match.return" :key="rIndex" class="return-column-editor">
+      <div v-for="rIndex in match.return.keys()" :key="rIndex" class="return-column-editor">
         <ReturnColumnEditor
           v-model:column="match.return[rIndex]"
           v-model:match="match"
@@ -93,14 +93,7 @@ function removeReturn(index: number) {
   width: 100%;
   flex-direction: row;
 }
-.case-editor {
-  display: flex;
-  flex-direction: column;
-}
-.case-display {
-  display: flex;
-  flex-direction: row;
-}
+
 .property-display {
   display: flex;
   flex-direction: row;

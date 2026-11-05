@@ -1,6 +1,6 @@
 <template>
   <div v-if="match.from">
-    <span class="field">using {{ match.from }}</span>
+    <span class="field">then from the above</span>
   </div>
   <span v-if="match.notExists" class="not">Exclude</span>
   <div v-if="match.name">
@@ -36,12 +36,16 @@
             :index="subIndex + 1"
             :parentOperator="whereOperator"
             :root="false"
-            :where="boolWhereGroup![subIndex + 1]"
+            :where="subWhere"
           />
         </div>
+
       </template>
     </template>
-    <span v-if="match.as">
+    <template v-if="match.then">
+      <MatchContentDisplay :clauseIndex="clauseIndex" :depth="depth + 2" :match="match.then" :parentMatch="match" />
+    </template>
+    <span v-else-if="match.as">
       <span class="field">(as</span>
       <span class="as">{{ match.as }})</span>
     </span>
@@ -57,7 +61,7 @@ import type { Query } from "@endeavour/vue-library/models";
 import WhereContentDisplay from "@/components/imquery/WhereContentDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useDirectService } from "@/composables/useDirectService";
-import { getBooleanOperator, getBoolGroup } from "@/helpers/buildQuery";
+import { getBoolGroup, getBooleanOperator } from "@/helpers/buildQuery";
 
 interface Props {
   match: Query;
@@ -97,9 +101,6 @@ function getFormattedPath(path: any): string {
   min-width: 0;
   font-size: 1rem;
   margin-left: 2rem;
-}
-.above {
-  padding-right: 0.5rem;
 }
 
 .as {

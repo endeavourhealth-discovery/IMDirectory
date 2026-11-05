@@ -21,6 +21,25 @@
             <span class="field" v-html="query.typeOf.name"></span>
             <span class="include-title text-black-500">with the following features</span>
           </div>
+
+          <div v-if="query.is">
+            <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
+            <template v-if="cohort">
+              <span v-if="query.is.descendantsOrSelfOf" class="field">subtypes of </span>
+              <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="1" :eclQuery="eclQuery" :match="cohort" :parent-match="query" />
+            </template>
+            <template v-else>
+              <span class="field">in</span>
+              <IMViewerLink
+                v-if="query.is.iri"
+                :action="'select'"
+                :iri="query.is.iri"
+                :label="query.is.name"
+                @navigateTo="(iri: string) => emit('navigateTo', iri)"
+              />
+            </template>
+          </div>
+
           <template v-if="boolGroup">
             <div :style="{ marginLeft: `0rem` }">
               <div
@@ -66,7 +85,7 @@
         <Button :icon="!showColumns ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="showColumns = !showColumns"></Button>
         <div v-if="showColumns && query" class="query-display-content flex flex-col gap-4">
           <ColumnGroupDisplay
-            v-for="(_, index) in query.columnGroup"
+            v-for="index in query.columnGroup.keys()"
             :key="`nestedQuery-${index}`"
             v-model:datasetEntry="query.columnGroup[index]"
             :baseType="baseType"
@@ -98,6 +117,7 @@ import SplitViewer from "@/components/directory/viewer/SplitViewer.vue";
 import ColumnGroupDisplay from "@/components/query/viewer/ColumnGroupDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import ReturnColumns from "@/components/query/viewer/ReturnColumns.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { getBoolGroup, getBooleanOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
@@ -126,6 +146,7 @@ const emit = defineEmits<{
   navigateTo: [payload: string];
   updateViewerDisplayMode: [payload: DisplayMode];
 }>();
+const cohort: Ref<Query | undefined> = ref();
 
 const showColumns = ref(false);
 
@@ -208,6 +229,17 @@ watch(selectedDisplayOption, async (newValue, oldValue) => {
       break;
   }
 });
+async function expandCohort() {
+  if (cohort.value) {
+    cohort.value = undefined;
+  } else {
+    if (query.value && query.value.is) {
+      if ((query.value.is.iri && query.value.is.cohort) || query.value.is.resultSet) {
+        cohort.value = await QueryService.expandCohort(query.value.is.iri!, DisplayMode.ORIGINAL);
+      }
+    }
+  }
+}
 
 onMounted(async () => {
   await init();
