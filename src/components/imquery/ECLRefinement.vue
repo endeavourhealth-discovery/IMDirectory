@@ -128,16 +128,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onMounted, Ref, ref } from "vue";
+import { Ref, computed, inject, onMounted, ref } from "vue";
 
-import { Bool, IM,Entail } from "@endeavour/vue-library/enums";
-import {
-  Query,
-  type QueryRequest,
-  type SearchResultSummary,
-  SearchResultSummarySchema,
-  type Where
-} from "@endeavour/vue-library/models";
+import { Bool, Entail, IM } from "@endeavour/vue-library/enums";
+import { Query, type QueryRequest, type SearchResultSummary, type Where } from "@endeavour/vue-library/models";
 
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
@@ -151,8 +145,8 @@ import { ConstraintOperatorOptions } from "@/constants";
 import {
   checkGroupChange,
   createNewBoolGroup,
-  getBooleanOperator,
   getBoolGroup,
+  getBooleanOperator,
   getConstraintOperator,
   getIsRoleGroup,
   removeSubgroup,
@@ -187,7 +181,7 @@ const forceValidation = inject("forceValidation") as Ref<boolean>;
 const wasDraggedAndDropped = inject("wasDraggedAndDropped") as Ref<boolean>;
 const operators = ["and", "or"] as const;
 const selectedProperty: Ref<SearchResultSummary | undefined> = ref(
-  where.value.iri ? SearchResultSummarySchema.parse({ iri: where.value.iri, name: where.value.name, description: where.value.description }) : undefined
+  where.value.iri ? ({ iri: where.value.iri, name: where.value.name, description: where.value.description } as SearchResultSummary) : undefined
 );
 const loadingProperty = ref(true);
 const valueTreeRoots: Ref<string[]> = ref([IM.ONTOLOGY_PARENT_FOLDER]);
@@ -231,7 +225,7 @@ function onRationalise() {
 }
 
 function addRefinementToGroup() {
-  const newWhere = { uuid: v4(), entails: Entail.descendantsOrSelfOf, is: [{ entails: Entail.descendantsOrSelfOf}] } as Where;
+  const newWhere = { uuid: v4(), entails: Entail.descendantsOrSelfOf, is: [{ entails: Entail.descendantsOrSelfOf }] } as Where;
   if (where.value.and) {
     if (where.value.and) where.value.and.push(newWhere);
   } else if (where.value.or) where.value.or.push(newWhere);

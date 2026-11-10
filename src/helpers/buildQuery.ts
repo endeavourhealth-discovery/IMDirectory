@@ -168,7 +168,7 @@ export function createNewBoolGroup(clause: any, group: number[]) {
 export function addConceptToGroup(match: Query) {
   if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
   else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
-  else if (match.is){
+  else if (match.is) {
     const subMatch = cloneDeep(match);
     delete match.is;
     delete match.where;
@@ -176,8 +176,7 @@ export function addConceptToGroup(match: Query) {
     match.uuid = v4();
     match.or = [subMatch];
     match.or.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
-  }
-  else {
+  } else {
     match.is = { entails: Entail.descendantsOrSelfOf };
   }
 }
@@ -239,23 +238,11 @@ export function getBoolGroup(clauseType: string, clause: Query | Where | undefin
   else return undefined;
 }
 
-export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean): string {
-  const isFirst = index === 0;
-  const isMatch = clauseType === "Match";
-  const parentPrefix = "";
-
-  if (operator === Bool.and) {
-    if (hasSubgroups) return isFirst ? "all of the following" : parentPrefix + "all of the following";
-    else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
-  } else if (operator === Bool.or) {
-    if (hasSubgroups) {
-      if (standardQuery) {
-        return isFirst ? "at least one of the following" : parentPrefix + "at least one of the following";
-      } else return isFirst ? "any of the following" : parentPrefix + " any of the following";
-    }
-    return "Or";
-  }
-  return "";
+export function getBooleanLabel(operator: Bool, index: number): string {
+  if (operator == Bool.and) return "and";
+  else if (operator == Bool.or) return index == 0 ? "either" : "or";
+  else if (operator == Bool.union) return "merge";
+  else return "with";
 }
 
 export function getIsRoleGroup(clause: Where | undefined | Query): boolean {
@@ -467,9 +454,9 @@ export function getExclusionOptions(): any[] {
   return options;
 }
 
-export function getBooleanOptions(clauseType: string, index: number, eclQuery?: boolean, hasSubgroups?: boolean): any[] {
-  const andLabel = getBooleanLabel(clauseType, Bool.and, index, eclQuery, hasSubgroups);
-  const orLabel = getBooleanLabel(clauseType, Bool.or, index, eclQuery, hasSubgroups);
+export function getBooleanOptions(clauseType: string, index: number): any[] {
+  const andLabel = getBooleanLabel(Bool.and, index);
+  const orLabel = getBooleanLabel(Bool.or, index);
   const options = [];
 
   options.push({

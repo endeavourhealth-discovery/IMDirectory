@@ -156,9 +156,9 @@ async function init() {
   if (props.query) {
     await createBuildFromQuery(props.query);
   } else createDefaultBuild();
-  if (build.value?.is && build.value.is.match) {
+  if (build.value?.is && build.value.is.query) {
     checkIncludeSubtypes.value = true;
-    build.value = build.value.is.match;
+    build.value = build.value.is.query;
   }
   loading.value = false;
 }

@@ -46,20 +46,25 @@
       </template>
 
       <template v-if="match.is">
-        <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
-        <template v-if="cohort">
-          <span v-if="match.is.entails = Entail.descendantsOrSelfOf" class="field">subtypes of </span>
-          <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="depth + 1" :eclQuery="eclQuery" :match="cohort" :parent-match="match" />
+        <span v-if="match.is.entails === Entail.descendantsOrSelfOf" class="field">subtypes of </span>
+        <template v-if="match.is.query">
+          <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="depth + 1" :eclQuery="eclQuery" :match="match.is.query" :parent-match="match" />
         </template>
         <template v-else>
-          <span class="field">in</span>
-          <IMViewerLink
-            v-if="match.is.iri"
-            :action="editMode ? 'view' : 'select'"
-            :iri="match.is.iri"
-            :label="match.is.name"
-            @navigateTo="(iri: string) => emit('navigateTo', iri)"
-          />
+          <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
+          <template v-if="cohort">
+            <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="depth + 1" :eclQuery="eclQuery" :match="cohort" :parent-match="match" />
+          </template>
+          <template v-else>
+            <span class="field">in</span>
+            <IMViewerLink
+              v-if="match.is.iri"
+              :action="editMode ? 'view' : 'select'"
+              :iri="match.is.iri"
+              :label="match.is.name"
+              @navigateTo="(iri: string) => emit('navigateTo', iri)"
+            />
+          </template>
         </template>
       </template>
       <template v-if="matchExpanded || !match.name">
@@ -134,7 +139,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, Ref, ref } from "vue";
+import { Ref, computed, inject, ref } from "vue";
 
 import { Entail } from "@endeavour/vue-library";
 import { Bool, DisplayMode, RuleAction } from "@endeavour/vue-library/enums";
@@ -142,7 +147,7 @@ import type { Node, Query } from "@endeavour/vue-library/models";
 
 import BooleanMatchDisplay from "@/components/query/viewer/BooleanMatchDisplay.vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { clauseCheck, getBooleanOperator, getBoolGroup, getDisplayOperator } from "@/helpers/buildQuery";
+import { clauseCheck, getBoolGroup, getBooleanOperator, getDisplayOperator } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";

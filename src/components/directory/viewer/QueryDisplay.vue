@@ -2,7 +2,7 @@
   <div id="query-display" class="flex flex-1 flex-col">
     <div v-if="loading" class="flex flex-row"><ProgressSpinner /></div>
 
-    <div v-else-if="!isObjectHasKeys(query)">No expression or query definition found.</div>
+    <div v-else-if="!hasQuery">No expression or query definition found.</div>
     <div v-else class="query-display-container flex flex-col gap-4">
       <template v-if="!eclQuery">
         <SelectButton v-model="selectedDisplayOption" :options="displayOptions" />
@@ -22,24 +22,23 @@
             <span class="include-title text-black-500">with the following features</span>
           </div>
 
-          <div v-if="query.is">
+          <template v-if="query.is && !eclQuery">
             <Button v-if="!eclQuery" :icon="!cohort ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-down'" text @click="expandCohort" />
+            <span v-if="query.is.entails === Entail.descendantsOrSelfOf" class="field">subtypes of </span>
             <template v-if="cohort">
-              <span v-if="query.is.entails==Entail.descendantsOrSelfOf" class="field">subtypes of </span>
               <RecursiveMatchDisplay :baseType="baseType" :clause-index="0" :depth="1" :eclQuery="eclQuery" :match="cohort" :parent-match="query" />
             </template>
             <template v-else>
               <span class="field">in</span>
               <IMViewerLink
                 v-if="query.is.iri"
-                :action="'select'"
+                :action="'view'"
                 :iri="query.is.iri"
                 :label="query.is.name"
                 @navigateTo="(iri: string) => emit('navigateTo', iri)"
               />
             </template>
-          </div>
-
+          </template>
           <template v-if="boolGroup">
             <div :style="{ marginLeft: `0rem` }">
               <div
@@ -107,7 +106,7 @@
 <script lang="ts" setup>
 import { Ref, computed, onMounted, provide, ref, watch } from "vue";
 
-import { Bool, DisplayMode,Entail } from "@endeavour/vue-library/enums";
+import { Bool, DisplayMode, Entail } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
 import { type Argument, type Node, type Query, type QueryRequest } from "@endeavour/vue-library/models";
 
@@ -144,6 +143,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits<{
   navigateTo: [payload: string];
+
   updateViewerDisplayMode: [payload: DisplayMode];
 }>();
 const cohort: Ref<Query | undefined> = ref();
@@ -165,6 +165,7 @@ const originalDisplay: Ref<DisplayMode> = ref(DisplayMode.ORIGINAL);
 const operator = computed(() => {
   return getBooleanOperator("Match", query.value);
 });
+const hasQuery = computed(() => isObjectHasKeys(query.value));
 const boolGroup = computed(() => {
   return getBoolGroup("Match", query.value);
 });
@@ -191,7 +192,6 @@ watch(
     await init();
   }
 );
-
 watch(selectedDisplayOption, async (newValue, oldValue) => {
   if (!newValue) selectedDisplayOption.value = oldValue;
   switch (selectedDisplayOption.value) {
@@ -234,7 +234,7 @@ async function expandCohort() {
     cohort.value = undefined;
   } else {
     if (query.value && query.value.is) {
-      if ((query.value.is.iri && query.value.is.cohort)) {
+      if (query.value.is.iri && query.value.is.cohort) {
         cohort.value = await QueryService.expandCohort(query.value.is.iri!, DisplayMode.ORIGINAL);
       }
     }

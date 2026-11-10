@@ -19,6 +19,26 @@
   </template>
   <template v-else>
     <div v-if="boolGroup" class="match-container">
+      <div v-if="match.is" class="match-clause-outer">
+        <div class="match-clause-inner">
+          <div class="match-display">
+            <MatchContentDisplay :clauseIndex="index" :depth="depth" :match="match" :parentMatch="parent" />
+          </div>
+          <div class="edit-button">
+            <Button
+              class="add-button"
+              data-testid="edit-clause-button"
+              icon="fa-solid fa-pen-to-square"
+              label="Edit clause"
+              type="button"
+              @click="editMatchClause()"
+            />
+          </div>
+          <div>
+            <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteMatch" />
+          </div>
+        </div>
+      </div>
       <div class="match-clause-inner">
         <div v-if="canCheck" class="group-checkbox">
           <Checkbox
@@ -231,8 +251,13 @@ function onDeleteMatchList() {
 }
 
 function deleteMatch() {
-  showEditor.value = false;
-  emit("deleteMatch");
+  if (boolGroup && match.value.is) {
+    delete match.value.is;
+    emit("updateMatch", match.value);
+  } else {
+    showEditor.value = false;
+    emit("deleteMatch");
+  }
 }
 
 function onDeleteMatch(index: number) {

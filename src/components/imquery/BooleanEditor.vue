@@ -1,27 +1,41 @@
 <template>
   <div class="boolean-edit" @dragover="onDragOver($event, 'Match')" @drop="onDrop($event, clause, parent, index, 'Match')">
-    <div>
-      <Button
-        draggable="true"
-        icon="drag-icon fa-solid fa-grip-vertical"
-        severity="secondary"
-        text
-        @dragend="onDragEnd()"
-        @dragstart="onDragStart(clause, parent, index, 'Match')"
-      />
-    </div>
-    <div v-if="operator">
-      <span v-if="parentOperator && index > 0 && parentOperator != Bool.rule" :class="parentOperator">{{ parentOperator }}</span>
+    <Button
+      draggable="true"
+      icon="drag-icon fa-solid fa-grip-vertical"
+      severity="secondary"
+      text
+      @dragend="onDragEnd()"
+      @dragstart="onDragStart(clause, parent, index, 'Match')"
+    />
+    <div v-if="parentOperator && !rootBool">
       <Select
         :class="'operator-selector'"
-        :modelValue="operator"
-        :options="getBooleanOptions(clauseType, index, eclQuery, true)"
+        :modelValue="parentOperator"
+        :options="getBooleanOptions('match', index)"
         option-label="label"
         option-value="value"
         @update:modelValue="updateOperator"
       >
         <template #option="slotProps">
           <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center">
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </Select>
+    </div>
+    <div v-if="index > 0">
+      <Select
+        :class="'exclusion-selector'"
+        :modelValue="exclude"
+        :options="getExclusionOptions()"
+        data-testid="operator-selector"
+        option-label="label"
+        option-value="value"
+        @update:modelValue="updateExclusion"
+      >
+        <template #option="slotProps">
+          <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center" style="min-height: 1rem">
             <div>{{ slotProps.option.label }}</div>
           </div>
         </template>
@@ -37,35 +51,20 @@
         @click.stop="onRemoveSubgroup()"
       />
     </div>
+
     <div v-if="clauseType === 'Where' && boolGroup">
       <RoleGroup v-if="rootBool && boolGroup!.length > 1" v-model:isRoleGroup="isRoleGroup" v-model:where="clause as Where" />
     </div>
-    <div v-if="group.length > 1" class="sub-group-button flex items-center">
-      <Button
-        :label="`Create boolean ${subOperator} subgroup`"
-        data-testid="add-bool-concept-button"
-        icon="fa-solid fa-plus"
-        type="button"
-        @click.stop="onCreateSubgroup()"
-      />
-    </div>
-    <div v-if="boolGroup!.length > 2" class="check-help">
-      <i class="fas fa-info-circle text-blue-500" />
-      <span> (click check boxes to build an {{ subOperator }} subgroup)</span>
-    </div>
-    <div class="column-edit">
-      <Button class="edit-choice-btn" icon="fa-solid fa-pen" label="Edit return columns" severity="secondary" @click="returnEditor = true" />
-    </div>
+    <BooleanReturnEditor
+      v-if="returnEditor && baseType"
+      v-model:booleanMatch="clause as Query"
+      v-model:showEditor="returnEditor"
+      :baseType="baseType"
+      :index="0"
+      @cancel="returnEditor = false"
+      @updateBooleanMatch="onReturnUpdate"
+    />
   </div>
-  <BooleanReturnEditor
-    v-if="returnEditor && baseType"
-    v-model:booleanMatch="clause as Query"
-    v-model:showEditor="returnEditor"
-    :baseType="baseType"
-    :index="0"
-    @cancel="returnEditor = false"
-    @updateBooleanMatch="onReturnUpdate"
-  />
 </template>
 <script lang="ts" setup>
 import { computed, ref } from "vue";
@@ -78,7 +77,15 @@ import Button from "primevue/button";
 import BooleanReturnEditor from "@/components/imquery/BooleanReturnEditor.vue";
 import RoleGroup from "@/components/imquery/RoleGroup.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import { createNewBoolGroup, getBoolGroup, getBooleanOperator, getBooleanOptions, getIsRoleGroup, removeSubgroup } from "@/helpers/buildQuery";
+import {
+  createNewBoolGroup,
+  getBoolGroup,
+  getBooleanOperator,
+  getBooleanOptions,
+  getExclusionOptions,
+  getIsRoleGroup,
+  removeSubgroup
+} from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
 
 interface Props {
@@ -98,6 +105,10 @@ const clause = defineModel<Query | Where>("clause", { required: true });
 const parent = defineModel<Query | Where>("parent", { default: () => ({}) });
 const group = defineModel<number[]>("group", { default: () => [] });
 const emit = defineEmits(["rationalise"]);
+const exclude = computed(() => {
+  if (props.clauseType == "match") return (clause.value as Query).notExists;
+  return false;
+});
 const operator = computed(() => {
   return getBooleanOperator(props.clauseType, clause.value);
 });
@@ -158,7 +169,12 @@ function mouseover(event: any) {
   event.stopPropagation();
   hover.value = true;
 }
-
+function updateExclusion() {
+  if (props.clauseType == "match") {
+    const query = clause.value as Query;
+    query.notExists = !query.notExists;
+  }
+}
 function mouseout(event: any) {
   event.stopPropagation();
   hover.value = false;
@@ -179,7 +195,7 @@ function mouseout(event: any) {
   margin-top: 0.5rem;
 }
 .sub-group-button {
-  padding-left: 4rem;
+  margin-left: auto;
   padding-right: 0.5rem;
 }
 

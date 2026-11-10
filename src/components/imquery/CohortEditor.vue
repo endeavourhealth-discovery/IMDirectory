@@ -243,8 +243,10 @@ function onCancel() {
 }
 
 function updateSelected(data: SearchResultSummary) {
-  navigateTo(data.iri);
-  locateInTree(data.iri);
+  if (data.iri) {
+    navigateTo(data.iri);
+    locateInTree(data.iri);
+  }
 }
 function locateInTree(iri: string) {
   treeIri.value = iri;

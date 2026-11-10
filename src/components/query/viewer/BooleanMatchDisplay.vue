@@ -1,21 +1,17 @@
 <template>
   <span :style="{ backgroundColor: selected || parentSelected ? '#e5e5e5' : '' }">
-    <span style="padding-right: 0.5rem">...</span>
+    <span v-if="depth > 0" style="padding-right: 0.5rem">...</span>
     <template v-if="parentOperator === Bool.rule">
       <span class="rule">Rule {{ clauseIndex + 1 }}</span>
     </template>
     <span v-if="match.name">
-      <span :class="parentOperator">{{ parentOperator }}</span>
+      <span :class="parentOperator">{{ parentBooleanLabel }}</span>
       <span class="match-description">{{ match.name }}</span>
       <span>consisting of </span>
     </span>
-    <span v-else-if="parentOperator">
-      <span v-if="clauseIndex > 0" :class="parentOperator">{{ parentOperator }}</span>
-      <span v-else-if="parentOperator === Bool.or" class="or">Either</span>
-    </span>
+    <span :class="parentOperator">{{ parentBooleanLabel }}</span>
 
     <span v-if="match.notExists" class="not">NOT if</span>
-    <span v-if="boolGroup.length" :class="operator">{{ getBooleanLabel("match", operator as Bool, clauseIndex, !eclQuery, true) }} </span>
     <span v-if="importClauses" class="clause-checkbox">
       <Checkbox
         v-model="checked"
@@ -77,7 +73,7 @@ import type { Node, Query } from "@endeavour/vue-library/models";
 import ValueSentenceDisplay from "@/components/imquery/ValueSentenceDisplay.vue";
 import RecursiveMatchDisplay from "@/components/query/viewer/RecursiveMatchDisplay.vue";
 import { buildHavingSentence } from "@/helpers/QueryEditorMethods";
-import { clauseCheck, getBooleanLabel } from "@/helpers/buildQuery";
+import { clauseCheck } from "@/helpers/buildQuery";
 
 interface Props {
   match: Query;
@@ -99,6 +95,9 @@ const checked = ref(false);
 const selected = ref(props.parentSelected);
 const havingSentence = computed(() => {
   return buildHavingSentence(props.match.having);
+});
+const parentBooleanLabel = computed(() => {
+  return props.parentOperator;
 });
 function onClauseCheckChange() {
   if (importClauses) clauseCheck(importClauses, props.match, checked.value);

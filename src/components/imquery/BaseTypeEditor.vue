@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 
 import { IM, NAMESPACE, SHACL } from "@endeavour/vue-library/enums";
 import { type Query, type QueryRequest, type SearchResultSummary } from "@endeavour/vue-library/models";
@@ -92,26 +92,28 @@ async function updateBaseType(newBaseType?: SearchResultSummary) {
   if (newBaseType) {
     baseType.value.iri = newBaseType.iri;
     baseType.value.name = newBaseType.name;
-    const selectedBaseType = await EntityService.getEntitySummary(baseType.value.iri);
-    if (selectedBaseType.type[0].iri === IM.QUERY) {
-      const parentCohort = await QueryService.getQueryFromIri(selectedBaseType.iri);
-      match.value.typeOf = parentCohort.typeOf;
-      const denominator = {
-        is: [
-          {
-            iri: selectedBaseType.iri,
-            name: selectedBaseType.name,
-            cohort: true
-          }
-        ]
-      } as Query;
-      if (match.value.and) {
-        if (match.value.and[0].is) match.value.and[0] = denominator;
-        else match.value.and.unshift(denominator);
-      } else match.value.and = [denominator];
-    } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
+    if (baseType.value.iri) {
+      const selectedBaseType = await EntityService.getEntitySummary(baseType.value.iri);
+      if (selectedBaseType.type[0].iri === IM.QUERY && selectedBaseType.iri) {
+        const parentCohort = await QueryService.getQueryFromIri(selectedBaseType.iri);
+        match.value.typeOf = parentCohort.typeOf;
+        const denominator = {
+          is: [
+            {
+              iri: selectedBaseType.iri,
+              name: selectedBaseType.name,
+              cohort: true
+            }
+          ]
+        } as Query;
+        if (match.value.and) {
+          if (match.value.and[0].is) match.value.and[0] = denominator;
+          else match.value.and.unshift(denominator);
+        } else match.value.and = [denominator];
+      } else match.value!.typeOf = { iri: newBaseType.iri, name: newBaseType.name };
+    }
+    editMode.value = false;
   }
-  editMode.value = false;
 }
 </script>
 

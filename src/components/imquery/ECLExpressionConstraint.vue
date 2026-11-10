@@ -21,12 +21,14 @@
           v-model:parentGroup="group"
           :activeInputId="activeInputId"
           :canCheck="boolGroup!.length > 2"
+          :canUngroup="boolGroup!.length > 1 && !rootBool"
           :index="subIndex"
           :parentIndex="index"
           :parentOperator="operator"
           :rootBool="false"
           @activateInput="activeInputId = $event"
           @rationalise="onRationalise"
+          @ungroup="onUngroup"
         />
       </div>
       <div>
@@ -72,23 +74,41 @@
       />
     </div>
 
-    <div v-if="parentOperator">
-      <Select
-        :class="'exclusion-selector'"
-        :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
-        :modelValue="exclude"
-        :options="getExclusionOptions()"
-        data-testid="operator-selector"
-        option-label="label"
-        option-value="value"
-        @update:modelValue="updateExclusion"
-      >
-        <template #option="slotProps">
-          <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center" style="min-height: 1rem">
-            <div>{{ slotProps.option.label }}</div>
-          </div>
-        </template>
-      </Select>
+    <div v-if="parentOperator" class="flex shrink-0 flex-row items-center gap-1">
+      <div>
+        <Select
+          :class="'operator-selector'"
+          :modelValue="parentOperator"
+          :options="getBooleanOptions('match', index)"
+          option-label="label"
+          option-value="value"
+          @update:modelValue="updateOperator"
+        >
+          <template #option="slotProps">
+            <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center">
+              <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </Select>
+      </div>
+      <div>
+        <Select
+          :class="'exclusion-selector'"
+          :disabled="parentGroup.length > 0 && (!parentGroup.includes(index) || parentGroup.length === 1)"
+          :modelValue="exclude"
+          :options="getExclusionOptions()"
+          data-testid="operator-selector"
+          option-label="label"
+          option-value="value"
+          @update:modelValue="updateExclusion"
+        >
+          <template #option="slotProps">
+            <div v-tooltip="slotProps.option.tooltip" class="dropdown-labels flex items-center" style="min-height: 1rem">
+              <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </Select>
+      </div>
     </div>
 
     <div v-if="match.is">
@@ -96,14 +116,26 @@
         <div v-if="canCheck" class="group-checkbox">
           <Checkbox
             v-model="subgroupCheck"
-            v-tooltip="'Select to build boolean subgroup'"
+            v-tooltip="`Select to add to a ${subOperator} subgroup`"
             :inputId="'group' + index"
             binary
             data-testid="group-checkbox"
             name="Group"
             @update:modelValue="onCheckGroupChange"
           />
+          <Button
+            v-if="canSubGroup"
+            v-tooltip="`Click to create ${subOperator} subgroup from checked entries`"
+            label="{}"
+            text
+            @click.stop="createSubgroup()"
+          />
         </div>
+        <div v-else-if="canUngroup">
+          <Button v-tooltip="`Click to revert to  ${subOperator}`" label="}{" text @click.stop="ungroup()" />
+        </div>
+
+        <!--
         <div v-if="parentGroup.includes(index) && parentGroup.length > 1">
           <Button
             v-tooltip="'Click to create boolean subgroup'"
@@ -112,6 +144,7 @@
             @click="onCreateSubgroup"
           />
         </div>
+        -->
         <div class="concept-selector-container">
           <ConceptSelector ref="conceptSelector" v-model:node="match.is" :parent="parent" @update-match="updateMatch" />
         </div>
@@ -172,9 +205,11 @@ import {
   createNewBoolGroup,
   getBoolGroup,
   getBooleanOperator,
+  getBooleanOptions,
   getExclusionOptions,
   getIsRoleGroup,
   manageRoleGroup,
+  removeSubgroup,
   updateFocusConcepts
 } from "@/helpers/buildQuery";
 import { QueryService } from "@/services";
@@ -187,9 +222,11 @@ interface Props {
   rootBool: boolean;
   includeSubtypes?: boolean;
   canCheck?: boolean;
+  canUngroup?: boolean;
   parentIndex: number;
   autoFocus?: boolean;
 }
+type BooleanOperator = "and" | "or";
 const props = defineProps<Props>();
 const match = defineModel<Query>("match", { default: () => ({}) });
 const parent = defineModel<Query | undefined>("parent") as Ref<Query | undefined>;
@@ -202,6 +239,7 @@ const emit = defineEmits<{
   (e: "rationalise"): void;
   (e: "activateInput", value: string): void;
   (e: "includeSubtypesChanged"): void;
+  (e: "ungroup"): void;
   (e: "updateExclusion", value: boolean): void;
 }>();
 const isRoleGroup = computed(() => getIsRoleGroup(match.value.where));
@@ -215,10 +253,17 @@ const focusIris: Ref<string[]> = ref([]);
 const operator = computed(() => {
   return getBooleanOperator("Match", match.value);
 });
+const canSubGroup = computed(() => {
+  return parentGroup.value.length > 1;
+});
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
 });
 const conceptSelector = ref<{ focus: () => void } | null>(null);
+const subOperator = computed(() => {
+  if (props.parentOperator === Bool.or) return "AND";
+  else return "OR";
+});
 
 onMounted(() => {
   init();
@@ -229,6 +274,17 @@ onMounted(() => {
 watch(pendingFocusUuid, uuid => {
   if (uuid && uuid === match.value.uuid) claimFocus();
 });
+
+function updateOperator(val: BooleanOperator) {
+  const query = parent.value as Query;
+  if (query.or) {
+    query.and = query.or;
+    delete query.or;
+  } else {
+    query.or = query.and;
+    delete query.and;
+  }
+}
 
 function claimFocus() {
   pendingFocusUuid.value = undefined;
@@ -243,9 +299,17 @@ watch(isRoleGroup, (newValue, oldValue) => {
     }
   }
 });
-function onCreateSubgroup() {
+function createSubgroup() {
   createNewBoolGroup(parent.value as Query, parentGroup.value);
   parentGroup.value = [];
+}
+function onUngroup() {
+  removeSubgroup(match.value, parent.value as Where, props.index);
+  group.value = [];
+}
+
+function ungroup() {
+  emit("ungroup");
 }
 
 function init() {
