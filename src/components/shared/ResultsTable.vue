@@ -1,31 +1,31 @@
 <template>
   <div id="search-results-main-container">
     <DataTable
+      ref="searchTable"
+      v-model:selection="selected"
+      :autoLayout="true"
+      :first="first"
+      :lazy="true"
+      :loading="searchLoading"
       :paginator="true"
       :paginatorTemplate="'PrevPageLink NextPageLink RowsPerPageDropdown'"
-      :rows="rows"
-      :value="searchResults"
-      :first="first"
-      class="p-datatable-sm"
-      v-model:selection="selected"
-      selectionMode="single"
-      @row-select="onRowSelect"
-      contextMenu
-      @rowContextmenu="onRowContextMenu"
-      :scrollable="true"
-      scrollHeight="flex"
-      ref="searchTable"
-      dataKey="iri"
-      :autoLayout="true"
-      @page="onPage($event)"
-      :lazy="true"
-      :total-records="pageForcer"
-      :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
-      :loading="searchLoading"
       :pt="{ thead: { class: 'z-1!' } }"
+      :rows="rows"
+      :rows-per-page-options="[rowsOriginal, rowsOriginal * 2, rowsOriginal * 4, rowsOriginal * 8]"
+      :scrollable="true"
+      :total-records="pageForcer"
+      :value="searchResults"
+      class="p-datatable-sm"
+      contextMenu
+      dataKey="iri"
+      scrollHeight="flex"
+      selectionMode="single"
+      @page="onPage($event)"
+      @rowContextmenu="onRowContextMenu"
+      @row-select="onRowSelect"
     >
       <template #empty> None </template>
-      <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
+      <Column bodyStyle="flex: 0 1 calc(100% - 19rem);" field="name" headerStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           <div class="header">
             <div class="results-title">
@@ -38,26 +38,26 @@
               <span v-else>0 found</span>
             </div>
             <Button
+              v-tooltip.right="'Download search results'"
               :disabled="!searchResults.length"
               label="Download..."
               @click="() => (showDownloadOptions = true)"
-              v-tooltip.right="'Download search results'"
             />
           </div>
         </template>
         <template #body="{ data }">
           <div class="datatable-flex-cell">
-            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.color" :icon="data.icon" class="recent-icon" />
-            <span class="break-word flex-1" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay">{{ getNameDisplay(data) }}</span>
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color: ' + data.color" class="recent-icon" />
+            <span class="break-word flex-1" @mouseleave="hideOverlay" @mouseover="showOverlay($event, data.iri)">{{ getNameDisplay(data) }}</span>
           </div>
         </template>
       </Column>
       <Column field="usageTotal" header="Weighting">
         <template #body="{ data }">
           <BatteryBar
-            :highest-value="highestUsage"
-            :current-value="data.usageTotal ?? 0"
             v-tooltip.left="{ value: data.usageTotal?.toString() ?? '0', class: 'entity-tooltip' }"
+            :current-value="data.usageTotal ?? 0"
+            :highest-value="highestUsage"
           />
         </template>
       </Column>
@@ -76,15 +76,15 @@
         </template>
       </Column>
     </DataTable>
-    <ContextMenu :model="rClickOptions" ref="contextMenu" />
+    <ContextMenu ref="contextMenu" :model="rClickOptions" />
     <OverlaySummary ref="OS" />
     <DownloadByQueryOptionsDialog
+      :show-core="false"
+      :show-definition="false"
       :show-dialog="showDownloadOptions"
       :show-im1="false"
-      :show-definition="false"
-      :show-core="false"
-      :show-legacy="false"
       :show-im1-id="false"
+      :show-legacy="false"
       :show-subsumed-by="false"
       @download="download"
       @close-dialog="showDownloadOptions = false"
@@ -92,24 +92,18 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ComputedRef, Ref, computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { nextTick } from "vue";
 
-import { OverlaySummary } from "@endeavour/vue-library/components";
-import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
-import { BatteryBar } from "@endeavour/vue-library/components";
-import { useDownloadFile } from "@endeavour/vue-library/composables";
-import { useOverlay } from "@endeavour/vue-library/composables";
+import { BatteryBar, IMFontAwesomeIcon, OverlaySummary } from "@endeavour/vue-library/components";
+import { useDownloadFile, useOverlay } from "@endeavour/vue-library/composables";
 import { TextSearchStyle } from "@endeavour/vue-library/enums";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@endeavour/vue-library/helpers";
-import { isArrayHasLength } from "@endeavour/vue-library/helpers";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes, isArrayHasLength } from "@endeavour/vue-library/helpers";
 import { PageSchema, QueryRequest, SearchResponse, SearchResultSummary } from "@endeavour/vue-library/models";
 import { useUserStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
-import { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
-import DataTable from "primevue/datatable";
+import DataTable, { DataTablePageEvent, DataTableRowSelectEvent } from "primevue/datatable";
 import { MenuItem } from "primevue/menuitem";
 import { useDialog } from "primevue/usedialog";
 
@@ -117,7 +111,7 @@ import ActionButtons from "@/components/shared/ActionButtons.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDirectService } from "@/composables/useDirectService";
 import { buildIMQueryFromFilters } from "@/helpers/buildQuery";
-import type { DownloadByQueryOptions, DownloadByQueryOptionsSchema, ECLQueryRequest, ExtendedSearchResultSummary, FilterOptions, Namespace } from "@/models";
+import type { DownloadByQueryOptions, ECLQueryRequest, ExtendedSearchResultSummary, FilterOptions, Namespace } from "@/models";
 import { DownloadSettings, SearchOptions } from "@/models";
 import { EclService, EntityService, QueryService, UserService } from "@/services";
 import { useFilterStore } from "@/stores/filterStore";
@@ -181,12 +175,12 @@ const rClickOptions: Ref<MenuItem[]> = ref([
   {
     label: "Select",
     icon: "fa-solid fa-sitemap",
-    command: () => directService.select(selected.value.iri)
+    command: () => directService.select(selected.value.iri!)
   },
   {
     label: "View in new tab",
     icon: "fa-solid fa-arrow-up-right-from-square",
-    command: () => directService.view(selected.value.iri)
+    command: () => directService.view(selected.value.iri!)
   },
   {
     separator: true
@@ -290,11 +284,13 @@ async function search(pageNumber: number, pageSize: number, searchStyle: TextSea
 
 async function updateFavourites(row?: { data: ExtendedSearchResultSummary }) {
   if (row) selected.value = row.data;
-  await userStore.updateFavourites(selected.value.iri, UserService);
+  await userStore.updateFavourites(selected.value.iri!, UserService);
 }
 function getNameDisplay(data: ExtendedSearchResultSummary): string {
   const name = data.bestMatch ? data.bestMatch : data.name;
-  return (data.code ? name + " | " + data.code : name) + " [" + schemes.value.find(s => s.iri === data.scheme.iri)?.prefix + "]";
+  if (data.scheme && data.scheme.iri) {
+    return (data.code ? name + " | " + data.code : name) + " [" + schemes.value.find(s => s.iri === data.scheme!.iri!)?.prefix + "]";
+  } else return name + " | " + data.code;
 }
 
 function isFavourite(iri: string) {
@@ -341,7 +337,7 @@ function addSearchResults(searchResponse: SearchResponse | undefined) {
 }
 
 function updateRClickOptions() {
-  rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
+  if (selected.value.iri) rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
 
 async function onPage(event: DataTablePageEvent) {
@@ -367,13 +363,15 @@ function onRowContextMenu(event: { originalEvent: MouseEvent; data: ExtendedSear
 
 async function onRowSelect(event: DataTableRowSelectEvent<ExtendedSearchResultSummary>) {
   const mouseEvent = event.originalEvent as MouseEvent;
-  if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
-    await directService.view(event.data.iri);
-  } else {
-    const found = searchResults.value.find(result => event.data.iri === result.iri);
-    if (found) {
-      await hideOverlay();
-      emit("rowSelected", found);
+  if (event.data.iri) {
+    if (mouseEvent.metaKey || mouseEvent.ctrlKey) {
+      await directService.view(event.data.iri);
+    } else {
+      const found = searchResults.value.find(result => event.data.iri === result.iri);
+      if (found) {
+        await hideOverlay();
+        emit("rowSelected", found);
+      }
     }
   }
 }

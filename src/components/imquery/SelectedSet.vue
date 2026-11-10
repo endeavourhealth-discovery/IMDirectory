@@ -35,12 +35,11 @@
 <script lang="ts" setup>
 import { Ref, onMounted, ref, watch } from "vue";
 
-import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
-import { OverlaySummary } from "@endeavour/vue-library/components";
+import { IMFontAwesomeIcon, OverlaySummary } from "@endeavour/vue-library/components";
 import { useOverlay } from "@endeavour/vue-library/composables";
-import { IM, RDF, RDFS } from "@endeavour/vue-library/enums";
+import { Entail, RDF, RDFS } from "@endeavour/vue-library/enums";
 import { entityIsConcept, entityIsValueSet, getColourFromType, getFAIconFromType, isArrayHasLength, isArrayOf } from "@endeavour/vue-library/helpers";
-import { type Node, NodeSchema, Query, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { type Node, Query, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 
@@ -105,6 +104,10 @@ async function init() {
   loading.value = false;
 }
 
+function setEntail(value: string): Entail {
+  return Entail[value as keyof typeof Entail];
+}
+
 function deleteValue(iri: string) {}
 
 function getColourStyleFromType(types: TTIriRef[]) {
@@ -119,24 +122,7 @@ function convertSelectedEntityToNode(selected: SelectedEntity): Node {
     name: selected["http://www.w3.org/2000/01/rdf-schema#label"],
     exclude: !selected.include
   } as Node;
-  switch (selected.entailment) {
-    case "memberOf":
-      node.memberOf = true;
-      break;
-    case "descendantsOf":
-      node.descendantsOf = true;
-      break;
-    case "descendantsOrSelfOf":
-      node.descendantsOrSelfOf = true;
-      break;
-    case "ancestorsOf":
-      node.ancestorsOf = true;
-      break;
-
-    default:
-      node.descendantsOrSelfOf = true;
-      break;
-  }
+  node.entails = setEntail(selected.entailment);
   return node;
 }
 

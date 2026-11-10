@@ -21,7 +21,7 @@
               <span v-if="item.description" v-html="item.description"></span>
               <IMViewerLink v-if="item.iri" :iri="item.iri" :label="item.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
               <span v-if="item.parameter">"{{ item.parameter }}" passed into query as a parameter at run time</span>
-              <span v-if="item.descendantsOrSelfOf">+subtypes</span>
+              <span v-if="item.entails == Entail.descendantsOrSelfOf">+subtypes</span>
             </li>
           </ul>
         </span>
@@ -51,7 +51,7 @@
 import { computed, ref } from "vue";
 
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
-import { Bool, IM } from "@endeavour/vue-library/enums";
+import { Bool, Entail, IM } from "@endeavour/vue-library/enums";
 import { getColourFromType, getFAIconFromType, isArrayHasLength } from "@endeavour/vue-library/helpers";
 import type { Node, Where } from "@endeavour/vue-library/models";
 
@@ -116,13 +116,13 @@ function getOperator(operator: Bool | undefined, index: number): string {
   }
 }
 function getTypeIcon(is: Node) {
-  if (is.memberOf) {
+  if (is.entails == Entail.memberOf) {
     return getFAIconFromType([{ iri: IM.CONCEPT_SET }]);
   } else return getFAIconFromType([{ iri: IM.CONCEPT }]);
 }
 
 function getIconColor(is: Node) {
-  if (is.memberOf) {
+  if (is.entails == Entail.memberOf) {
     return getColourFromType([{ iri: IM.CONCEPT_SET }]);
   } else return getColourFromType([{ iri: IM.CONCEPT }]);
 }

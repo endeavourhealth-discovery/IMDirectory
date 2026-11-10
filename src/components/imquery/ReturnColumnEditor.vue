@@ -46,6 +46,7 @@
           @update:model-value="updatePropertyMatch"
         />
         <Button
+          v-if="!column.semanticMap"
           :label="column.iri || column.nodeRef ? '' : 'Select property'"
           class="add-button"
           icon="fa-solid fa-tree"
@@ -53,10 +54,10 @@
           text
           @click="openPropertySelector"
         />
-        <Button class="add-button" icon="fa-solid fa-check" label="Add truth value" size="small" text @click="addTruthValue" />
+        <Button v-if="!column.semanticMap" class="add-button" icon="fa-solid fa-check" label="Add truth value" size="small" text @click="addTruthValue" />
 
         <Button
-          v-if="!column.case"
+          v-if="!column.case && !column.semanticMap"
           class="add-button"
           icon="fa-solid fa-code-branch"
           label="or Add conditional values (case)"
@@ -65,6 +66,7 @@
           @click="addCase()"
         />
       </template>
+
       <template v-if="!column.iri && semanticMaps">
         <Select
           v-model="semanticMap"
@@ -224,14 +226,14 @@ function updatePropertyMatch(match: PropertyMatch) {
 async function updateSemanticMap(val: any) {
   if (val && semanticMaps.value) {
     const map = semanticMaps.value.find(o => o.iri === val);
-    if (map && map.defaultText && map.iri) {
+    if (map && map.iri) {
       column.value.semanticMap = { iri: val, name: map.name } as TTIriRef;
       emit("updateMatch", match.value);
     }
   }
 }
 async function findSemanticMaps() {
-  semanticMaps.value = await getSemanticMapOptions(propertyMatch.value, props.baseType, column.value);
+  semanticMaps.value = await getSemanticMapOptions(propertyMatch.value);
 }
 function onInput() {
   if (debounceTimer) {
@@ -352,15 +354,15 @@ async function showInvalid(match: Query, text: string) {
   transition: background-color 0.2s ease;
 }
 .add-button:hover,
-.add-button:focus {
+.add-button:focus,
+.map-selector:hover {
   background-color: #a5d6a7;
 }
 .map-selector {
   padding-left: 2rem;
   width: 30rem;
-}
-.semantic-map-prompt {
-  padding-left: 20rem;
+  color: #444444; /* text */
+  background-color: #f0f0f0; /* greyish default */
 }
 .case-value {
   width: 10rem;

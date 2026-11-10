@@ -19,6 +19,26 @@
   </template>
   <template v-else>
     <div v-if="boolGroup" class="match-container">
+      <div v-if="match.is" class="match-clause-outer">
+        <div class="match-clause-inner">
+          <div class="match-display">
+            <MatchContentDisplay :clauseIndex="index" :depth="depth" :match="match" :parentMatch="parent" />
+          </div>
+          <div class="edit-button">
+            <Button
+              class="add-button"
+              data-testid="edit-clause-button"
+              icon="fa-solid fa-pen-to-square"
+              label="Edit clause"
+              type="button"
+              @click="editMatchClause()"
+            />
+          </div>
+          <div>
+            <Button class="delete-button" icon="fa-solid fa-trash" @click.stop="deleteMatch" />
+          </div>
+        </div>
+      </div>
       <div class="match-clause-inner">
         <div v-if="canCheck" class="group-checkbox">
           <Checkbox
@@ -133,14 +153,7 @@
       </div>
     </div>
     <div v-if="rootBool && !boolGroup">
-      <Button
-        class="add-button"
-        data-testid="add-clause-button"
-        icon="fa-solid fa-plus"
-        label="Add filterx clause"
-        type="button"
-        @click="menu.toggle($event)"
-      />
+      <Button class="add-button" data-testid="add-clause-button" icon="fa-solid fa-plus" label="Add filter clause" type="button" @click="menu.toggle($event)" />
       <Menu ref="menu" :model="addItems" popup />
     </div>
   </template>
@@ -161,7 +174,7 @@ import MatchContentDisplay from "@/components/imquery/MatchContentDisplay.vue";
 import MatchEditor from "@/components/imquery/MatchEditor.vue";
 import RuleActionEditor from "@/components/imquery/RuleActionEditor.vue";
 import { onDragEnd, onDragOver, onDragStart, onDrop } from "@/composables/useDragContext";
-import { addMatchToParent, checkGroupChange, getBoolGroup, getBooleanOperator, getDisplayOperator, updateBooleans } from "@/helpers/buildQuery";
+import { addMatchToParent, checkGroupChange, getBoolGroup, getBooleanOperator, getDisplayOperator, updateBooleans, updateKeepAs } from "@/helpers/buildQuery";
 
 interface Props {
   isVariable?: boolean;
@@ -194,7 +207,7 @@ const addItems = [
   { label: "Add new clause", icon: "pi pi-user-plus", command: () => createNewMatch() },
   { label: "Add query reference or import clause", icon: "pi pi-users", command: () => addCohort() }
 ];
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Query>>;
 const boolGroup = computed(() => {
   return getBoolGroup("Match", match.value);
 });
@@ -228,14 +241,8 @@ onMounted(() => {
 });
 
 function init() {
-  updateKeepAs();
+  updateKeepAs(match.value, keepAs.value);
   if (match.value.draft) editMatchClause();
-}
-
-function updateKeepAs() {
-  if (match.value.as) {
-    keepAs.value[match.value.as] = match;
-  }
 }
 
 function onDeleteMatchList() {
@@ -244,15 +251,22 @@ function onDeleteMatchList() {
 }
 
 function deleteMatch() {
-  updateKeepAs();
-  showEditor.value = false;
-  emit("deleteMatch");
+  if (boolGroup && match.value.is) {
+    delete match.value.is;
+    emit("updateMatch", match.value);
+  } else {
+    showEditor.value = false;
+    emit("deleteMatch");
+  }
 }
 
 function onDeleteMatch(index: number) {
-  for (const op of ["or", "and", "each"]) {
+  for (const op of ["or", "and", "each", "union"]) {
     const key = op as keyof Query;
     if (match.value[key]) {
+      if (match.value[key][index].as) {
+        delete keepAs.value[match.value[key][index].as];
+      }
       match.value[key].splice(index, 1);
       if (match.value[key].length === 1) {
         if (!match.value.typeOf && !match.value.orderBy && !match.value.where && !match.value.as) match.value = match.value[key][0];
@@ -276,14 +290,14 @@ function updateBool(oldOperator: Bool | string, newOperator: Bool | string) {
 }
 function createNewMatch() {
   const match = { uuid: v4(), draft: true } as Query;
-  addMatchToParent(parent.value, match, props.datasetEntry ? Bool.each : undefined);
+  addMatchToParent(parent.value, match, props.datasetEntry ? Bool.with : undefined);
 }
 
 async function saveEditMatch(editedMatch: Query) {
   showEditor.value = false;
   match.value = editedMatch;
   match.value.draft = false;
-  updateKeepAs();
+  updateKeepAs(match.value, keepAs.value);
   emit("updateMatch", editedMatch);
   showEditor.value = false;
 }
@@ -302,9 +316,7 @@ function getStepParent(): Query {
 
 async function addTest(editedMatch: Query) {
   await saveEditMatch(editedMatch);
-  const stepMatch = getStepParent();
-  const testMatch = { uuid: v4(), from: match.value!.as, draft: true };
-  stepMatch.and!.push(testMatch);
+  editedMatch.then = { uuid: v4(), from: match.value!.as, draft: true };
   showEditor.value = false;
 }
 
@@ -382,13 +394,6 @@ function mouseout(event: any) {
 
 button:active {
   background-color: #d6d6d6;
-}
-.node-ref {
-  padding-right: 0.2rem;
-  font-style: italic;
-}
-.from {
-  padding-right: 0.2rem;
 }
 
 .match-container {

@@ -61,7 +61,8 @@ interface Props {
   parent?: any;
 }
 defineProps<Props>();
-const searchBar = ref<{ searchText: string } | null>(null);
+const searchBar = ref<{ searchText: string; focus: () => void } | null>(null);
+defineExpose({ focus: () => searchBar.value?.focus() });
 const emit = defineEmits(["activateInput", "updateMatch"]);
 const node = defineModel<Node>("node", { required: true });
 watch(

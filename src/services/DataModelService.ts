@@ -18,6 +18,14 @@ const DataModelService = {
     });
     return parseApiResponse(result, NodeShapeSchema);
   },
+  async getFlatDataModelProperties(iri: string): Promise<NodeShape> {
+    const result = await api.get(API_URL + "/flatDataModelProperties", {
+      params: {
+        iri: iri
+      }
+    });
+    return parseApiResponse(result, NodeShapeSchema);
+  },
   async getRelatedTypes(iri: string): Promise<NodeShape> {
     const result = await api.get(API_URL + "/relatedTypes", {
       params: {

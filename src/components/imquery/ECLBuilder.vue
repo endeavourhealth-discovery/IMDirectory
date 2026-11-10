@@ -26,7 +26,15 @@
     <div id="builder-string-container">
       <div v-if="!previewECL" id="query-builder-container">
         <ProgressSpinner v-if="loading" />
-        <ECLExpressionConstraint v-model:match="build" :index="0" :parentIndex="0" :rootBool="true" @rationalise="rationaliseBooleans" />
+        <ECLExpressionConstraint
+          v-else
+          v-model:match="build"
+          :autoFocus="true"
+          :index="0"
+          :parentIndex="0"
+          :rootBool="true"
+          @rationalise="rationaliseBooleans"
+        />
         <div v-if="build.where">
           <span class="subtypes-checkbox">Include un-inferred subtypes of the concepts found in this expression </span>
           <Checkbox v-model="checkIncludeSubtypes" v-tooltip="'Select if subtypes are not needed'" :inputId="'subtypeCheck'" binary name="subtypeCheck" />
@@ -71,8 +79,9 @@ import { Ref, onMounted, provide, readonly, ref, watch } from "vue";
 
 import { AlertDialog } from "@endeavour/vue-library/components";
 import { useCopyToClipboard } from "@endeavour/vue-library/composables";
+import { Entail } from "@endeavour/vue-library/enums";
 import { isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type Query, QuerySchema } from "@endeavour/vue-library/models";
+import { type Query } from "@endeavour/vue-library/models";
 import { useDialogStore } from "@endeavour/vue-library/stores";
 
 import { cloneDeep } from "lodash-es";
@@ -147,9 +156,9 @@ async function init() {
   if (props.query) {
     await createBuildFromQuery(props.query);
   } else createDefaultBuild();
-  if (build.value?.is && build.value.is.match) {
+  if (build.value?.is && build.value.is.query) {
     checkIncludeSubtypes.value = true;
-    build.value = build.value.is.match;
+    build.value = build.value.is.query;
   }
   loading.value = false;
 }
@@ -176,7 +185,7 @@ async function preview() {
 
 function includeSubtypes(query: Query): Query {
   if (checkIncludeSubtypes.value) {
-    return { is: { descendantsOrSelfOf: true, match: query } } as Query;
+    return { is: { entails: Entail.descendantsOrSelfOf, match: query } } as Query;
   } else return query;
 }
 

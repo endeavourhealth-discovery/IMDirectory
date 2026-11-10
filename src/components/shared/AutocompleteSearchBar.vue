@@ -134,7 +134,7 @@ let searchController: AbortController | undefined;
 let latestSearch = 0;
 const editing = ref(false);
 const autocompleteRoot = ref<HTMLElement | null>(null);
-defineExpose({ searchText });
+defineExpose({ searchText, focus });
 watch(showDialog, () => {
   if (showDialog.value) emit("openDialog");
 });
@@ -215,6 +215,9 @@ function clearSearch() {
   nextTick(() => {
     searchInput.value.$el.focus();
   });
+}
+function focus() {
+  searchInput.value?.$el?.focus();
 }
 function handleFocus(event: FocusEvent) {
   if (!editing.value) {

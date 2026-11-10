@@ -13,60 +13,50 @@
       @click="toggleNotExists"
     />
   </div>
-  <Tabs v-model:value="activeTab">
-    <TabList>
-      <Tab value="main">Main filter</Tab>
-      <Tab v-if="match.orderBy" value="test">Post ordering tests</Tab>
-    </TabList>
-    <TabPanels>
-      <TabPanel value="main">
-        <div v-if="!match.where">
-          <span class="help-text">If no filter, select output column tab</span>
-        </div>
-        <div class="filter-editor">
-          <WhereEditor
-            v-model:match="match"
-            :baseType="baseType"
-            :clauseIndex="index"
-            :depth="depth"
-            :editingWhere="true"
-            :mustKeep="mustKeep"
-            :parentOperator="parentOperator"
-            :showEditor="showEditor"
-            @addLinked="emit('addLinked')"
-            @addTest="activeTab = 'test'"
-            @cancel="emit('cancel')"
-            @deleteMatch="emit('deleteMatch')"
-            @deleteWhere="onDeleteWhere"
-            @saveChanges="emit('saveChanges', $event)"
-            @update-match="onUpdate"
-            @edit-test="activeTab = 'test'"
-            @update:match="onUpdate"
-          />
-        </div>
-      </TabPanel>
-      <TabPanel value="test">
-        <div class="filter-editor">
-          <WhereEditor
-            v-model:match="match"
-            :baseType="baseType"
-            :clauseIndex="index"
-            :depth="depth"
-            :editingThen="true"
-            :parentOperator="parentOperator"
-            :showEditor="showEditor"
-            @addLinked="emit('addLinked')"
-            @addTest="emit('addTest')"
-            @cancel="emit('cancel')"
-            @deleteMatch="emit('deleteMatch')"
-            @saveChanges="emit('saveChanges', $event)"
-            @update-match="onUpdate"
-            @edit-main="activeTab = 'main'"
-          />
-        </div>
-      </TabPanel>
-    </TabPanels>
-  </Tabs>
+
+  <div v-if="!match.where">
+    <span class="help-text">If no filter, select output column tab</span>
+  </div>
+  <div class="filter-editor">
+    <WhereEditor
+      v-model:match="match"
+      :baseType="baseType"
+      :clauseIndex="index"
+      :depth="depth"
+      :editingWhere="true"
+      :mustKeep="mustKeep"
+      :parentOperator="parentOperator"
+      :showEditor="showEditor"
+      @addLinked="emit('addLinked')"
+      @addTest="activeTab = 'test'"
+      @cancel="emit('cancel')"
+      @deleteMatch="emit('deleteMatch')"
+      @deleteWhere="onDeleteWhere"
+      @saveChanges="emit('saveChanges', $event)"
+      @update-match="onUpdate"
+      @edit-test="activeTab = 'test'"
+      @update:match="onUpdate"
+    />
+  </div>
+
+  <div class="filter-editor">
+    <WhereEditor
+      v-model:match="match"
+      :baseType="baseType"
+      :clauseIndex="index"
+      :depth="depth"
+      :editingThen="true"
+      :parentOperator="parentOperator"
+      :showEditor="showEditor"
+      @addLinked="emit('addLinked')"
+      @addTest="emit('addTest')"
+      @cancel="emit('cancel')"
+      @deleteMatch="emit('deleteMatch')"
+      @saveChanges="emit('saveChanges', $event)"
+      @update-match="onUpdate"
+      @edit-main="activeTab = 'main'"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -113,14 +103,10 @@ const activeTab = ref("main");
 const edited = ref(false);
 const initialized = ref(false);
 const showLinkedEditor = ref(false);
-const keepAs = inject("keepAs") as Ref<Record<string, Ref<Query>>>;
+const keepAs = inject("keepAs") as Ref<Record<string, Query>>;
 
 const toggleNotExists = () => {
-  if (match.value.notExists === undefined) {
-    match.value.notExists = true;
-  } else {
-    match.value.notExists = false;
-  }
+  match.value.notExists = match.value.notExists === undefined;
   emit("updateMatch");
 };
 
@@ -157,7 +143,7 @@ function updateKeepAs(oldVal: Query) {
     delete keepAs.value[oldVal.as];
   }
   if (match.value.as) {
-    keepAs.value[match.value.as] = match;
+    keepAs.value[match.value.as] = match.value;
   }
 }
 
@@ -194,29 +180,12 @@ function onAddFunctionProperty(args: { property: string; value: any }) {
 .match-name {
   width: 50rem;
 }
-.description-container {
-  display: flex;
-  flex-flow: column;
-}
 
 .filter-editor {
   height: 60vh;
   display: flex;
   flex-flow: column;
   gap: 1rem;
-}
-
-.edit-match-dialog {
-  background-color: var(--p-surface-section);
-  min-height: 90vh;
-  min-width: 90vh;
-}
-
-.test-dropdown {
-  color: white;
-}
-.field {
-  padding-right: 1rem;
 }
 .help-text {
   font-weight: bold;

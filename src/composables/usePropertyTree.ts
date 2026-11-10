@@ -39,7 +39,16 @@ export function usePropertyTree() {
     const parentKey = parent.key;
     if (!nodeShape) nodeShape = await DataModelService.getDataModelProperties(iri, false);
     const propertyList = [] as TreeNode[];
-    const path = parent.data.path ? parent.data.path : undefined;
+    let path = "";
+    if (parent.type === "property") {
+      if (parent.data.range) {
+        if (parent.data.path != "") path = parent.data.path + "\t" + parent.data.iri + "\t" + parent.data.range;
+        else path = parent.data.iri + "\t" + parent.data.range;
+      } else if (parent.data.returnType) {
+        if (parent.data.path != "") path = parent.data.path + "\t" + parent.data.iri + "\t" + parent.data.returnType;
+        else path = parent.data.iri + "\t" + parent.data.returnType;
+      }
+    }
     if (nodeShape.property && isArrayHasLength(nodeShape.property)) {
       for (const [index, property] of nodeShape.property.entries()) {
         if (!isBase(property))
@@ -105,15 +114,6 @@ export function usePropertyTree() {
   }
 
   function createNode(pNode: PropertyTreeNode): TreeNode {
-    if (pNode.type === "property") {
-      if (pNode.range) {
-        if (pNode.path) pNode.path = pNode.path + "\t" + pNode.iri + "\t" + pNode.range;
-        else pNode.path = pNode.iri + "\t" + pNode.range;
-      } else if (pNode.returnType) {
-        if (pNode.path) pNode.path = pNode.path + "\t" + pNode.iri + "\t" + pNode.returnType;
-        else pNode.path = pNode.iri + "\t" + pNode.returnType;
-      }
-    }
     const node = {
       key: pNode.key,
       label: pNode.name,
@@ -224,7 +224,7 @@ export function usePropertyTree() {
       propertyNode.leaf = false;
     } else propertyNode.selectable = true;
     if (returnType) {
-      propertyNode.selectable = false;
+      propertyNode.selectable = true;
       propertyNode.leaf = false;
       delete propertyNode.children;
     }

@@ -1,9 +1,7 @@
-import { Ref } from "vue";
-
-import { NodeSchema, Operator, QuerySchema, WhereSchema } from "@endeavour/vue-library";
+import { Entail, NodeSchema, Operator, QuerySchema, WhereSchema } from "@endeavour/vue-library";
 import { Bool, IM, RDF, RDFS, RuleAction, SHACL, XSD } from "@endeavour/vue-library/enums";
 import { isArrayHasLength } from "@endeavour/vue-library/helpers";
-import type { Node, NodeShape, Path, PropertyRange, Query, QueryRequest, Return, When, Where } from "@endeavour/vue-library/models";
+import type { Node, NodeShape, Path, PropertyRange, PropertyShape, Query, QueryRequest, Return, When, Where } from "@endeavour/vue-library/models";
 
 import { cloneDeep } from "lodash-es";
 import type { TreeNode } from "primevue/treenode";
@@ -168,16 +166,18 @@ export function createNewBoolGroup(clause: any, group: number[]) {
 }
 
 export function addConceptToGroup(match: Query) {
-  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
-  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
-  else {
+  if (match.or) match.or.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
+  else if (match.and) match.and.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
+  else if (match.is) {
     const subMatch = cloneDeep(match);
     delete match.is;
     delete match.where;
     delete match.orderBy;
     match.uuid = v4();
     match.or = [subMatch];
-    match.or.push(QuerySchema.parse({ uuid: v4(), is: { descendantsOrSelfOf: true } }));
+    match.or.push(QuerySchema.parse({ uuid: v4(), is: { entails: Entail.descendantsOrSelfOf } }));
+  } else {
+    match.is = { entails: Entail.descendantsOrSelfOf };
   }
 }
 
@@ -210,14 +210,14 @@ export function getBooleanOperator(clauseType: string, clause: Query | Where | u
   if (clause.and) return Bool.and;
   if (clause.or) return Bool.or;
   else if ((clause as Query).rule) return Bool.rule;
-  else if ((clause as Query).each) return Bool.each;
+  else if ((clause as Query).with) return Bool.with;
   else return undefined;
 }
 
 export function getMatchFromNodeRef(match: Query, nodeRef: string): Query | undefined {
   if (!match) return undefined;
-  if (match.node === nodeRef) return match;
-  for (const op of ["and", "or", "each"]) {
+  if (match.as === nodeRef) return match;
+  for (const op of ["and", "or", "with"]) {
     const operator = op as keyof Query;
     if (match[operator]) {
       for (const any of match[operator]) {
@@ -238,23 +238,11 @@ export function getBoolGroup(clauseType: string, clause: Query | Where | undefin
   else return undefined;
 }
 
-export function getBooleanLabel(clauseType: string, operator: Bool, index: number, standardQuery?: boolean, hasSubgroups?: boolean): string {
-  const isFirst = index === 0;
-  const isMatch = clauseType === "Match";
-  const parentPrefix = "";
-
-  if (operator === Bool.and) {
-    if (hasSubgroups) return isFirst ? "all of the following" : parentPrefix + "all of the following";
-    else return isFirst ? (isMatch ? "Must be" : "Must have") : "And";
-  } else if (operator === Bool.or) {
-    if (hasSubgroups) {
-      if (standardQuery) {
-        return isFirst ? "at least one of the following" : parentPrefix + "at least one of the following";
-      } else return isFirst ? "any of the following" : parentPrefix + " any of the following";
-    }
-    return "Or";
-  }
-  return "";
+export function getBooleanLabel(operator: Bool, index: number): string {
+  if (operator == Bool.and) return "and";
+  else if (operator == Bool.or) return index == 0 ? "either" : "or";
+  else if (operator == Bool.union) return "merge";
+  else return "with";
 }
 
 export function getIsRoleGroup(clause: Where | undefined | Query): boolean {
@@ -296,7 +284,7 @@ export function addWhereToMatch(match: Query, where: Where, index?: number) {
   } else match.where = where;
 }
 
-export async function getSemanticMapOptions(propertyMatch: PropertyMatch, baseType: Node, column: Return): Promise<any[] | undefined> {
+export async function getSemanticMapOptions(propertyMatch: PropertyMatch): Promise<any[] | undefined> {
   const maps = await QueryService.getSemanticMaps(propertyMatch.typeOf.iri!);
   if (!maps) return undefined;
   const options = [];
@@ -339,7 +327,7 @@ export function getPathNameFromMatch(match: Query, nodeRef: string): string | un
   if (pathName) return pathName;
   if (match.and) {
     for (const any of match.and) {
-      if (any.node === nodeRef) return any.node + "->";
+      if (any.as === nodeRef) return any.as + "->";
     }
   }
 }
@@ -466,9 +454,9 @@ export function getExclusionOptions(): any[] {
   return options;
 }
 
-export function getBooleanOptions(clauseType: string, index: number, eclQuery?: boolean, hasSubgroups?: boolean): any[] {
-  const andLabel = getBooleanLabel(clauseType, Bool.and, index, eclQuery, hasSubgroups);
-  const orLabel = getBooleanLabel(clauseType, Bool.or, index, eclQuery, hasSubgroups);
+export function getBooleanOptions(clauseType: string, index: number): any[] {
+  const andLabel = getBooleanLabel(Bool.and, index);
+  const orLabel = getBooleanLabel(Bool.or, index);
   const options = [];
 
   options.push({
@@ -500,49 +488,12 @@ export function getBooleanOptions(clauseType: string, index: number, eclQuery?: 
 }
 
 export function getConstraintOperator(constrainer: Node | Where) {
-  if (constrainer.descendantsOrSelfOf) return "<<";
-  if (constrainer.descendantsOf) return "<";
-  if (constrainer.memberOf) return "^";
-  if (constrainer.ancestorsOf) return ">>";
-  return "";
+  if (constrainer.entails) return constrainer.entails;
+  else return "";
 }
 
 export function setConstraintOperator(constrainer: Node | Where, valueConstraintOperator: string) {
-  switch (valueConstraintOperator) {
-    case "<<":
-    case "descendantsOrSelfOf":
-      constrainer.descendantsOrSelfOf = true;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOf = false;
-      break;
-    case "<":
-    case "descendantsOf":
-      constrainer.descendantsOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.memberOf = false;
-      constrainer.ancestorsOf = false;
-      break;
-    case "^":
-    case "memberOf":
-      constrainer.memberOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.ancestorsOf = false;
-      break;
-    case ">>":
-    case "ancestorsOrSelfOf":
-      constrainer.ancestorsOf = true;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-      break;
-    default:
-      constrainer.ancestorsOf = false;
-      constrainer.descendantsOrSelfOf = false;
-      constrainer.descendantsOf = false;
-      constrainer.memberOf = false;
-  }
+  constrainer.entails = valueConstraintOperator as Entail;
 }
 
 export function addBindingsToIMQuery(searchBindings: SearchBinding[], imQuery: QueryRequest) {
@@ -613,20 +564,12 @@ function hasProperty(where: Where | undefined, propertyIri: string): boolean {
   return false;
 }
 
-export function getTypeIriFromMatch(match: Query, baseType: Node, parentMatch:Query|undefined,nodeRef?: string): string {
+export function getTypeIriFromMatch(match: Query, dataModelType: string, nodeRef?: string): string {
   if (nodeRef) {
     const typeOf = getTypeIriFromNodeRef(match, nodeRef);
     if (typeOf) return typeOf;
-    else return baseType.iri!;
-  }
-  if (match.typeOf) return match.typeOf.iri!;
-  if (match.from &&parentMatch && parentMatch.and){
-    for (const siblingMatch of parentMatch.and){
-      if (siblingMatch.as &&siblingMatch.as===match.from &&siblingMatch.typeOf)
-        return siblingMatch.typeOf.iri!;
-    }
-  }
-  return baseType.iri!;
+    else return dataModelType;
+  } else return dataModelType;
 }
 
 export function getTypeIriFromNodeRef(pathable: Query | Path, nodeRef: string): string | undefined {
@@ -639,15 +582,27 @@ export function getTypeIriFromNodeRef(pathable: Query | Path, nodeRef: string): 
   }
 }
 
-export function injectReturn(match: Query, iri: string, ref?: string) {
+export function injectReturn(match: Query, iri: string, nodeRef?: string): Return {
   if (!match.return) match.return = [];
   for (const ret of match.return) {
-    if (ret.iri === iri) return;
+    if (ret.iri === iri && ret.nodeRef === nodeRef) return ret;
   }
-  match.return.push({ iri: iri, as: ref } as Return);
+  const ref = (nodeRef + "_" + iri.substring(iri.lastIndexOf("#") + 1) + "_" + match.return.length).replace(/[^a-zA-Z0-9]/g, "_");
+  const newReturn = { iri: iri, nodeRef: nodeRef, as: ref } as Return;
+  match.return.push(newReturn);
+  return newReturn;
 }
 
-
+export function deleteReturn(match: Query, iri: string, propertyRef?: string) {
+  if (!match.return) return;
+  for (let i = 0; i < match.return.length; i++) {
+    const ret = match.return[i];
+    if (ret.iri === iri && ret.as === propertyRef) {
+      match.return.splice(i, 1);
+      return;
+    }
+  }
+}
 
 export function addFilter(match: Query, node: TreeNode, optional: boolean): string | undefined {
   let nodeRef;
@@ -694,7 +649,7 @@ export function addWhereToWhen(when: When, match: Query, node: TreeNode): string
 function createWhere(iri: string, is: PropertyRange | undefined, nodeRef?: string): Where {
   const where = { iri: iri, invalid: true } as Where;
   if (nodeRef) where.nodeRef = nodeRef;
-  if (is) where.is = [NodeSchema.parse({ descendantsOrSelfOf: true })];
+  if (is) where.is = [NodeSchema.parse({ entails: Entail.descendantsOrSelfOf })];
   return where;
 }
 
@@ -702,7 +657,6 @@ export function setPathGetNodeRef(pathable: Query | Path, fullPath: string, opti
   if (!fullPath) return undefined;
   let i;
   const paths = fullPath.split("\t");
-  const firstPath = paths[0];
   for (i = 0; i < paths.length; i = i + 2) {
     if (pathable.path) {
       const path = findPath(pathable.path, paths[i], rootNodeRef);
@@ -796,18 +750,21 @@ function addTestFields(where: Where, display: string[]) {
   }
 }
 
-export function getRelativeToOptions(valueType: string, keepAs: Record<string, Ref<Query>>): any[] {
+export function updateKeepAs(match: Query, keepAs: Record<string, Query>) {
+  if (match.as) {
+    keepAs[match.as] = match;
+  }
+  if (match.then) {
+    updateKeepAs(match.then, keepAs);
+  }
+}
+export function getRelativeToOptions(valueType: string, keepAs: Record<string, Query>): any[] {
   const options = [];
   if (valueType === IM.DATE) {
     options.push({
       label: "Search date",
       value: "$searchDate",
       tooltip: "relative to the search date"
-    });
-    options.push({
-      label: "Achievement date",
-      value: "$achievementDate",
-      tooltip: "relative to the achievement date"
     });
   }
   if (Object.keys(keepAs).length > 0) {
@@ -822,22 +779,77 @@ export function getRelativeToOptions(valueType: string, keepAs: Record<string, R
   return options;
 }
 
-export async function getRelativePropertyOptions(match: Query, valueType?: string): Promise<any[]> {
-  const options: any[] | PromiseLike<any[]> = [];
+function getDataModelIriFromMatch(match: Query, baseTypeIri: string, keepAs: Record<string, Query>): string {
+  if (match.typeOf) return match.typeOf.iri!;
+  if (match.from) {
+    const parent = keepAs[match.from];
+    if (parent) return getDataModelIriFromMatch(parent, baseTypeIri, keepAs);
+  }
+  return baseTypeIri;
+}
+
+export function getNodeFromKey(key: string, nodes: TreeNode[]): TreeNode | undefined {
+  for (const node of nodes) {
+    if (node.key === key) return node;
+    if (node.children) {
+      const child = getNodeFromKey(key, node.children);
+      if (child) return child;
+    }
+  }
+}
+
+function createPropertyNode(propertyShape: PropertyShape, path: string | undefined): TreeNode {
+  const propertyType = propertyShape.node ? propertyShape.node.iri : propertyShape.datatype?.iri;
+  const isNode = !!propertyShape.node;
+  return {
+    key: path + propertyShape.path.iri!,
+    label: propertyShape.path.name,
+    leaf: !isNode,
+    selectable: !isNode,
+    data: {
+      iri: propertyShape.path.iri,
+      propertyType: propertyType,
+      nodeType: isNode ? "node" : "datatype",
+      path: path
+    }
+  } as TreeNode;
+}
+
+export async function getRelativePropertyOptions(
+  match: Query,
+  valueType: string | undefined,
+  keepAs: Record<string, Query>,
+  baseType: string
+): Promise<TreeNode[]> {
+  const options: any[] | PromiseLike<TreeNode[]> = [];
   if (!valueType) return options;
-  const dataModel = await DataModelService.getDataModelProperties(match.typeOf!.iri!, false);
+  const dataModelIri = getDataModelIriFromMatch(match, baseType, keepAs);
+  const dataModel = await DataModelService.getFlatDataModelProperties(dataModelIri);
   if (!dataModel) return options;
   if (dataModel.property) {
     for (const propertyShape of dataModel.property) {
-      if (propertyShape.datatype && propertyShape.datatype.iri === valueType) {
-        options.push({
-          label: propertyShape.path.name,
-          value: propertyShape.path.iri
-        });
+      if ((propertyShape.datatype && propertyShape.datatype.iri === valueType) || propertyShape.node) {
+        options.push(createPropertyNode(propertyShape, undefined));
       }
     }
   }
   return options;
+}
+
+export async function expandPropertyNode(node: TreeNode, valueType: string) {
+  const dataModelIri = node.data.propertyType;
+  const path = node.data.path;
+  const dataModel = await DataModelService.getFlatDataModelProperties(dataModelIri);
+  if (!dataModel) return;
+  if (dataModel.property) {
+    for (const propertyShape of dataModel.property) {
+      if ((propertyShape.datatype && propertyShape.datatype.iri === valueType) || propertyShape.node) {
+        if (!node.children) node.children = [];
+        const newPath = (path ? path + "\t" : "") + node.data.iri + "\t" + node.data.propertyType;
+        node.children.push(createPropertyNode(propertyShape, newPath));
+      }
+    }
+  }
 }
 
 export function clauseCheck(importClauses: Map<string, Query>, match: Query, checked: boolean) {
