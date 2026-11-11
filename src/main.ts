@@ -38,7 +38,7 @@ if (import.meta.env.MODE === "mock") {
 }
 
 console.log("SAFE PARSE MODE");
-const safeParse = import.meta.env.SAFE_PARSE_MODE || false;
+const safeParse = import.meta.env.VITE_SAFE_PARSE_MODE == "true" || false;
 console.log(safeParse);
 setSafeParseApiResponse(safeParse);
 console.log("---------------");
