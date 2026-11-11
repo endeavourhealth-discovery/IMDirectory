@@ -257,7 +257,11 @@ async function getSavedMembers(setIri: string): Promise<SearchResponse> {
   const results = { entities: [] } as SearchResponse;
   if (memberResults.result) {
     for (const member of memberResults.result) {
-      results.entities!.push(member);
+      results.entities!.push({
+        type: [],
+        iri: member.iri!,
+        name: member.name!
+      });
     }
   }
   return results;
@@ -268,7 +272,11 @@ async function getGeneratedMembers(query: Query): Promise<SearchResponse> {
   const results = { entities: [] } as SearchResponse;
   if (memberResults.result) {
     for (const member of memberResults.result) {
-      results.entities!.push(member);
+      results.entities!.push({
+        type: [],
+        iri: member.iri!,
+        name: member.name!
+      });
     }
   }
   return results;
@@ -337,7 +345,7 @@ function stripIds(idBuild: any) {
   if (idBuild) {
     delete idBuild.id;
     if (idBuild.items?.length) {
-      for (const [index, item] of idBuild.items.entries()) {
+      for (const item of idBuild.items.entries()) {
         stripIds(item);
       }
     } else if (idBuild.type === "ExpressionConstraint") {
@@ -345,7 +353,7 @@ function stripIds(idBuild: any) {
         stripIds(idBuild.conceptBool);
       }
       if (idBuild.refinementItems) {
-        for (const [index, item] of idBuild.refinementItems.entries()) {
+        for (const item of idBuild.refinementItems.entries()) {
           stripIds(item);
         }
       }
