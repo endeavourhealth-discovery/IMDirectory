@@ -26,7 +26,7 @@
         />
         <ProgressSpinner v-if="loading" class="loading-icon" strokeWidth="8" style="height: 2rem; width: 2rem" />
       </div>
-      <span>{{ selectedDropdownOption ? selectedDropdownOption.iri : "" }}{{ prefix ? prefix : "" }}{{ userInput }}</span>
+      <span>{{ selectedDropdownOption ? selectedDropdownOption.iri : "" }}{{ prefix ? prefix : "" }}{{ userInput ? userInput : value }}</span>
       <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
@@ -36,8 +36,8 @@
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 
 import { NAMESPACE, RDFS } from "@endeavour/vue-library/enums";
-import { TypeGuards, byName, isArrayHasLength, isArrayOf, isObjectHasKeys } from "@endeavour/vue-library/helpers";
-import { type PropertyShape, type Query, type QueryRequest, QueryRequestSchema, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
+import { byName, isArrayHasLength, isObjectHasKeys } from "@endeavour/vue-library/helpers";
+import { type PropertyShape, type Query, type QueryRequest, type TTEntity, type TTIriRef, isTTIriRef } from "@endeavour/vue-library/models";
 
 import { cloneDeep, isArray, isEqual } from "lodash-es";
 
@@ -101,18 +101,15 @@ const disableCodeEdit: ComputedRef<boolean> = computed(() => {
 });
 
 const disableSchemeEdit: ComputedRef<boolean> = computed(() => {
-  if (loading.value || props.mode === "edit") return true;
-  else return false;
+  return !!(loading.value || props.mode === "edit");
 });
 
 const showRequired: ComputedRef<boolean> = computed(() => {
-  if (props.shape.minCount && props.shape.minCount > 0) return true;
-  else return false;
+  return !!(props.shape.minCount && props.shape.minCount > 0);
 });
 
 const includePrefix: ComputedRef<boolean> = computed(() => {
-  if (props.mode === EditorMode.CREATE && prefix.value) return true;
-  else return false;
+  return !!(props.mode === EditorMode.CREATE && prefix.value);
 });
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
@@ -219,8 +216,7 @@ async function getDropdownOptions() {
     const args = processArguments(props.shape);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
-    const query = { iri: props.shape.select![0].iri } as Query;
-    queryRequest.query = query;
+    queryRequest.query = { iri: props.shape.select![0].iri } as Query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map((item: any) => {
@@ -324,10 +320,6 @@ async function handleBlur() {
   color: var(--p-red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
-}
-
-.invalid {
-  border: 1px solid var(--p-red-500);
 }
 
 .title-bar {

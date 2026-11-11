@@ -63,6 +63,7 @@
     <ECLBuilder
       v-if="showDialog"
       :query="eclQuery.query"
+      :setIri="savedSetIri"
       :showDialog="showDialog"
       :showNames="showNames"
       @closeDialog="() => (showDialog = false)"
@@ -137,6 +138,9 @@ const highlightDiv = ref<HTMLDivElement | null>(null);
 const lastValidEcl: Ref<string> = ref("");
 const showMembersDialog = ref(false);
 const initialised = ref(false);
+
+// Only a set that has already been saved has members to compare a new definition against
+const savedSetIri = computed(() => (props.mode === EditorMode.EDIT ? (editorEntity.value[IM.ID] as string | undefined) : undefined));
 
 const key = props.shape.path.iri;
 const buttonOptions = [
@@ -371,17 +375,6 @@ Textarea {
   margin: 1rem 0 1rem 0;
 }
 
-.title-bar {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: center;
-  gap: 0.25rem;
-  width: 100%;
-}
-
-.required {
-  color: var(--p-red-500);
-}
 
 #definition-panel-container:deep(.p-tabview-panels) {
   flex: 1 1 auto;
