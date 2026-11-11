@@ -1,11 +1,9 @@
+import Aura from "@primeuix/themes/aura";
 import { ComponentPublicInstance, createApp } from "vue";
-
-import { injectionKeysVueLibrary } from "@endeavour/vue-library";
+import { injectionKeysVueLibrary, setSafeParseApiResponse } from "@endeavour/vue-library";
 import { IMFontAwesomeIcon } from "@endeavour/vue-library/components";
 import "@endeavour/vue-library/components.css";
 import { UserRole } from "@endeavour/vue-library/enums";
-
-import Aura from "@primeuix/themes/aura";
 import PrimeVue from "primevue/config";
 import ConfirmationService from "primevue/confirmationservice";
 import DialogService from "primevue/dialogservice";
@@ -14,9 +12,7 @@ import StyleClass from "primevue/styleclass";
 import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import VueClipboard from "vue3-clipboard";
-
 import { useSharedStore } from "@/stores/sharedStore";
-
 import App from "./App.vue";
 import "./assets/tailwind.css";
 import { useDirectService } from "./composables/useDirectService";
@@ -40,6 +36,12 @@ if (import.meta.env.MODE === "mock") {
   const { worker } = await import("./mocks/browser");
   await worker.start();
 }
+
+console.log("SAFE PARSE MODE");
+const safeParse = import.meta.env.SAFE_PARSE_MODE || false;
+console.log(safeParse);
+setSafeParseApiResponse(safeParse);
+console.log("---------------");
 
 const app = createApp(App)
   .use(pinia)
