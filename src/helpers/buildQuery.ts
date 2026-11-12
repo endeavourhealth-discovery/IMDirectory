@@ -300,7 +300,7 @@ export function getPathPropertyNames(pathable: Query | Path, where: Where): stri
   if (!where.nodeRef) return where.name;
   if (pathable.path) {
     for (const path of pathable.path) {
-      if (path.node === where.nodeRef) return path.name + "/ " + where.name;
+      if (path.as === where.nodeRef) return path.name + "/ " + where.name;
       const pathName = getPathPropertyNames(path, where);
       if (pathName) return path.name + "->" + pathName;
     }
@@ -335,7 +335,7 @@ export function getPathName(pathable: Query | Path, nodeRef: string | undefined)
   if (!pathable.path) return undefined;
   if (!nodeRef) return undefined;
   for (const path of pathable.path) {
-    if (path.node === nodeRef) return path.name + "->";
+    if (path.as === nodeRef) return path.name + "->";
     const pathName = getPathName(path, nodeRef);
     if (pathName) return path.name + "->" + pathName;
   }
@@ -533,7 +533,7 @@ export async function setMandatoryWheresFromPath(match: Query, pathable: Query |
   if (pathable.path) {
     for (const path of pathable.path) {
       if (path.typeOf) {
-        await setMandatoryWheresFromType(match, path.typeOf.iri!, path.node);
+        await setMandatoryWheresFromType(match, path.typeOf.iri!, path.as);
       }
       if (path.path) await setMandatoryWheresFromPath(match, path);
     }
@@ -575,7 +575,7 @@ export function getTypeIriFromMatch(match: Query, dataModelType: string, nodeRef
 export function getTypeIriFromNodeRef(pathable: Query | Path, nodeRef: string): string | undefined {
   if (pathable.path) {
     for (const path of pathable.path) {
-      if (path.node === nodeRef) return path.typeOf!.iri!;
+      if (path.as === nodeRef) return path.typeOf!.iri!;
       const typeIri = getTypeIriFromNodeRef(path, nodeRef);
       if (typeIri) return typeIri;
     }
@@ -664,7 +664,7 @@ export function setPathGetNodeRef(pathable: Query | Path, fullPath: string, opti
         pathable = path;
         rootNodeRef = undefined;
         if (i === paths.length - 2) {
-          return path.node;
+          return path.as;
         }
       } else {
         const newPath = { iri: paths[i], typeOf: { iri: paths[i + 1] }, node: getAcronym(paths[i]) + "_" + i + "_" + pathable.path.length } as Path;
@@ -674,7 +674,7 @@ export function setPathGetNodeRef(pathable: Query | Path, fullPath: string, opti
         pathable.path!.push(newPath);
         pathable = newPath;
         if (i === paths.length - 2) {
-          return newPath.node;
+          return newPath.as;
         }
       }
     } else {
@@ -685,7 +685,7 @@ export function setPathGetNodeRef(pathable: Query | Path, fullPath: string, opti
       pathable.path = [newPath];
       pathable = newPath;
       if (i === paths.length - 2) {
-        return newPath.node;
+        return newPath.as;
       }
     }
   }
